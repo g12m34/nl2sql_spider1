@@ -2,254 +2,294 @@
 
 ## Overview
 
-The Malloy semantic layer is built **once per database** (166 databases), not per question. This allows us to:
-1. Invest more upfront in getting it right
-2. Use a more capable (expensive) model for this one-time task
-3. Validate and cache results
-4. Focus experimentation on the query generation agent
+The Malloy semantic layer is built **once per database** (166 databases), not per question. We'll use **Claude Code** (subscription) to generate these layers at no additional API cost.
 
-## Key Insight: Reverse-Engineer from Ground Truth SQL
+## Two Semantic Layers Per Database
 
-Instead of guessing what the semantic layer needs from the schema alone, we **analyze the correct SQL queries** to determine exactly what's required:
+We will create **two versions** of each semantic layer to enable proper evaluation:
+
+### 1. Minimal Layer (`*_minimal.malloy`)
+- Contains **only** columns/measures used in ground truth SQL
+- Derived deterministically from correct query analysis
+- Use case: Baseline testing, debugging, "oracle" reference
+
+### 2. Full Layer (`*_full.malloy`)
+- Contains **all** columns from the database schema
+- Represents realistic production scenario
+- Use case: **Primary evaluation target**
+
+### Why Both Are Needed
 
 ```
-Ground Truth SQL Queries
-        │
-        ▼
-┌───────────────────┐
-│ Analyze patterns: │
-│ - Tables used     │
-│ - Columns in      │
-│   SELECT/WHERE/   │
-│   GROUP BY        │
-│ - Aggregations    │
-│ - Join patterns   │
-└───────────────────┘
-        │
-        ▼
-  Malloy Source File
-  (exactly what's needed)
+┌─────────────────────────────────────────────────────────────────┐
+│                    EVALUATION INSIGHT                           │
+├─────────────────────────────────────────────────────────────────┤
+│ If we only give models the "correct" columns, we hide a major  │
+│ source of errors: POOR COLUMN SELECTION.                       │
+│                                                                 │
+│ Models need to:                                                 │
+│   1. Understand the question                                    │
+│   2. Choose the RIGHT columns from many options  ← HARD!        │
+│   3. Write correct Malloy syntax                                │
+│   4. Handle joins/aggregations properly                         │
+│                                                                 │
+│ Testing only with minimal layer = artificially inflated scores  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Benefits of This Approach
+### Error Attribution
 
-1. **No over-engineering**: Only includes columns/measures actually used
-2. **Guaranteed coverage**: Every query pattern is captured
-3. **No LLM needed**: Deterministic extraction from SQL
-4. **Verifiable**: Can trace each element back to source queries
+With both layers, we can measure:
 
-### Analysis Results (Sample)
-
-| Database | Queries | Tables | Dimensions | Measures |
-|----------|---------|--------|------------|----------|
-| concert_singer | 45 | 4 | 18 | 5 |
-| world_1 | 120 | 3 | 19 | 15 |
-| college_2 | 170 | 10 | 35 | 14 |
-| flight_1 | 96 | 4 | 16 | 8 |
-
-## What the Semantic Layer Should Contain
-
-For each Spider database, we need a `.malloy` file with:
-
-```malloy
-// Example: concert_singer.malloy
-
-source: singer is duckdb.table('singer') extend {
-  // Primary key
-  primary_key: Singer_ID
-
-  // Dimensions (groupable fields)
-  dimension:
-    name is Name
-    country is Country
-    song_name is Song_Name
-    release_year is Song_release_year
-    is_male is Is_male
-
-  // Measures (aggregations)
-  measure:
-    singer_count is count()
-    avg_age is avg(Age)
-    min_age is min(Age)
-    max_age is max(Age)
-}
-
-source: stadium is duckdb.table('stadium') extend {
-  primary_key: Stadium_ID
-
-  dimension:
-    name is Name
-    location is Location
-
-  measure:
-    stadium_count is count()
-    total_capacity is sum(Capacity)
-    avg_capacity is avg(Capacity)
-    max_capacity is max(Capacity)
-}
-
-source: concert is duckdb.table('concert') extend {
-  primary_key: concert_ID
-
-  dimension:
-    concert_name is concert_Name
-    theme is Theme
-    year is Year
-
-  // Join to stadium
-  join_one: stadium on Stadium_ID = stadium.Stadium_ID
-
-  measure:
-    concert_count is count()
-}
-
-source: singer_in_concert is duckdb.table('singer_in_concert') extend {
-  // Junction table for many-to-many
-  join_one: singer on singer_ID = singer.Singer_ID
-  join_one: concert on concert_ID = concert.concert_ID
-}
-```
-
-## Generation Strategy
-
-### NEW: Automated Extraction from Ground Truth SQL
-
-We now use a **deterministic script** to extract semantic layer requirements directly from the correct SQL queries. No LLM needed for this phase!
-
-**Script:** `scripts/generate_semantic_layers.py`
-
-```bash
-# Generate all semantic layers
-python scripts/generate_semantic_layers.py
-```
-
-This script:
-1. Loads all Spider queries (train + dev)
-2. Groups them by database
-3. Analyzes SQL patterns to extract:
-   - Tables actually used
-   - Columns used as dimensions
-   - Columns used in aggregations
-   - Join patterns
-4. Generates `.malloy` files with exactly what's needed
-5. Outputs analysis JSON for debugging
-
-### Phase 1: Run Automated Generation (FREE)
-
-```bash
-python scripts/generate_semantic_layers.py
-```
-
-Output:
-- `malloy/sources/*.malloy` - One file per database
-- `malloy/analysis/*.json` - Detailed analysis per database
-- `malloy/analysis/_summary.json` - Overall stats
-
-**Cost: $0** - No LLM calls, pure SQL parsing
-
-### Phase 2: Validate with Malloy Compiler
-
-```bash
-# For each generated .malloy file
-for f in malloy/sources/*.malloy; do
-  malloy compile "$f" || echo "FAILED: $f"
-done
-```
-
-Any syntax errors are likely due to:
-- Edge cases in SQL parsing
-- Malloy syntax nuances
-
-These can be fixed manually or with a quick LLM pass.
-
-### Phase 3: Enhance with LLM (Optional)
-
-For databases where the auto-generated layer is insufficient, use an LLM to:
-1. Add missing join definitions
-2. Create derived dimensions (e.g., age groups, date parts)
-3. Add human-readable aliases
-
-**Estimated LLM cost:** $0.50-1.00 for edge cases only
-
-### Phase 4: Smoke Test
-
-Run sample queries against each database to verify the semantic layer works:
-
-```malloy
-// Smoke test queries
-run: singer -> { aggregate: row_count }
-run: concert -> { group_by: year; aggregate: row_count }
-```
-
-## Cost Estimate (Revised)
-
-| Phase | Method | Est. Cost |
-|-------|--------|-----------|
-| Generate 166 schemas | Python script | **$0** |
-| Fix edge cases (~10%) | LLM | ~$0.50 |
-| Smoke test queries | Malloy CLI | **$0** |
-| **Total** | | **~$0.50** |
-
-This is essentially free compared to query generation experiments!
+| Error Type | How to Detect |
+|------------|---------------|
+| Wrong column selection | Query fails on full layer, succeeds on minimal |
+| Syntax errors | Query fails on both layers |
+| Logic errors | Query runs but wrong results |
+| Missing join | Query fails with join error |
 
 ## File Structure
 
 ```
 malloy/
-├── sources/
+├── minimal/                    # Ground-truth derived (script-generated)
 │   ├── concert_singer.malloy
-│   ├── pets_1.malloy
-│   ├── car_1.malloy
+│   ├── world_1.malloy
 │   └── ... (166 files)
-├── exemplars/
-│   ├── simple_example.malloy
-│   ├── medium_example.malloy
-│   └── complex_example.malloy
-└── validation/
-    ├── smoke_tests.malloy
-    └── validation_results.json
+│
+├── full/                       # Complete schema (Claude Code generated)
+│   ├── concert_singer.malloy
+│   ├── world_1.malloy
+│   └── ... (166 files)
+│
+└── analysis/                   # Supporting data
+    ├── concert_singer.json     # Which columns are in ground truth
+    ├── _summary.json
+    └── column_coverage.json    # Stats on minimal vs full
 ```
 
-## Advantages of This Approach
+## Generation Plan
 
-1. **One-time cost**: ~$2 vs. $5-50 for query experiments
-2. **Cacheable**: Generate once, use forever
-3. **Verifiable**: Compiler catches syntax errors
-4. **Improvable**: Can refine semantic layer based on query failures
-5. **Separates concerns**: Query agent only needs to write Malloy queries, not understand raw schemas
+### Phase 1: Generate Minimal Layers (Automated)
 
-## Query Agent Focus
+**Method:** Python script analyzing ground truth SQL
+**Cost:** $0
+**Script:** `scripts/generate_semantic_layers.py`
 
-With the semantic layer pre-built, the query agent's job simplifies to:
+```bash
+python scripts/generate_semantic_layers.py --output malloy/minimal/
+```
 
-**Input:**
-- User question: "What is the average age of French singers?"
-- Available sources: `singer`, `stadium`, `concert`, `singer_in_concert`
-- Source definitions (dimensions, measures, joins)
+The script extracts from correct SQL:
+- Tables actually referenced
+- Columns used in SELECT, WHERE, GROUP BY, ORDER BY
+- Aggregation functions applied (COUNT, SUM, AVG, MIN, MAX)
+- Join patterns detected
 
-**Output:**
+**Output:** 166 `.malloy` files with only necessary elements
+
+### Phase 2: Generate Full Layers (Claude Code)
+
+**Method:** Use Claude Code (subscription) to generate complete semantic layers
+**Cost:** $0 (covered by subscription)
+
+#### Approach
+
+For each database, Claude Code will:
+
+1. **Read the schema** from `tables.json`:
+   - All table names
+   - All column names and types
+   - Primary keys
+   - Foreign key relationships
+
+2. **Read the minimal layer** as reference:
+   - Understand the naming conventions used
+   - See which measures were deemed useful
+   - Learn the join patterns
+
+3. **Generate full layer** including:
+   - ALL columns as dimensions (with readable names)
+   - Appropriate measures for ALL numeric columns
+   - Complete join definitions based on foreign keys
+   - Comments explaining table purposes
+
+#### Prompt Strategy for Claude Code
+
+For each database, we'll provide:
+
+```
+Context:
+- Database schema (from tables.json)
+- Minimal layer (from Phase 1) as style reference
+- 2-3 exemplar full layers (hand-crafted for reference)
+
+Task:
+Generate a complete Malloy semantic layer that includes:
+1. Source definitions for ALL tables in the schema
+2. Dimensions for ALL columns (use readable snake_case names)
+3. Measures for numeric columns:
+   - count() for all tables
+   - sum/avg/min/max for numeric columns
+4. Join definitions based on foreign keys
+5. Primary key declarations where identifiable
+
+Output only the .malloy file content.
+```
+
+#### Batch Processing with Claude Code
+
+We'll process databases in batches:
+
+```
+Batch 1: Simple schemas (< 5 tables)     ~80 databases
+Batch 2: Medium schemas (5-10 tables)    ~60 databases
+Batch 3: Complex schemas (10+ tables)    ~26 databases
+```
+
+For each batch:
+1. Provide exemplar from that complexity tier
+2. Generate all databases in tier
+3. Validate with Malloy compiler
+4. Fix any errors before moving to next batch
+
+### Phase 3: Validation
+
+#### 3a. Malloy Compiler Check
+
+```bash
+# Validate all generated files
+for f in malloy/full/*.malloy; do
+  malloy compile "$f" 2>&1 || echo "FAILED: $f" >> validation_errors.txt
+done
+```
+
+#### 3b. Schema Coverage Check
+
+Verify full layer actually covers all schema elements:
+
+```python
+# Pseudo-code for validation
+for db in databases:
+    schema_columns = get_columns_from_tables_json(db)
+    malloy_dimensions = parse_malloy_file(f"malloy/full/{db}.malloy")
+
+    missing = schema_columns - malloy_dimensions
+    if missing:
+        report_missing(db, missing)
+```
+
+#### 3c. Smoke Test Queries
+
+Run simple queries against each source:
+
 ```malloy
-run: singer -> {
-  where: country = 'France'
-  aggregate: avg_age
+// For each source in the layer
+run: source_name -> { aggregate: row_count }
+run: source_name -> { group_by: first_dimension; aggregate: row_count }
+```
+
+### Phase 4: Create Analysis Artifacts
+
+Generate supporting data for experiments:
+
+```json
+// column_coverage.json
+{
+  "concert_singer": {
+    "minimal_columns": 18,
+    "full_columns": 24,
+    "coverage_ratio": 0.75,
+    "unused_columns": ["highest", "lowest", "is_male", ...]
+  },
+  ...
 }
 ```
 
-This is much simpler than having the agent also figure out:
-- Table relationships
-- Column types
-- Appropriate aggregations
-- Join conditions
+This helps us analyze:
+- How much "noise" (unused columns) exists per database
+- Whether column selection difficulty correlates with model errors
+
+## Exemplar Databases
+
+We'll hand-craft 3 full semantic layers as reference exemplars:
+
+| Database | Complexity | Tables | Why Selected |
+|----------|------------|--------|--------------|
+| `concert_singer` | Simple | 4 | Basic joins, clear relationships |
+| `college_2` | Medium | 10 | Multiple join paths, varied types |
+| `hospital_1` | Complex | 15 | Many tables, complex relationships |
+
+These serve as:
+1. Few-shot examples for Claude Code
+2. Validation targets (we know they're correct)
+3. Documentation of our Malloy conventions
+
+## Conventions for Generated Layers
+
+### Naming
+- Source names: `lowercase_with_underscores` (match table name)
+- Dimension names: `lowercase_with_underscores`
+- Measure names: `{agg}_{column}` (e.g., `avg_age`, `sum_capacity`)
+
+### Structure
+```malloy
+source: table_name is duckdb.table('OriginalTableName') extend {
+  // Primary key (if identifiable)
+  primary_key: id_column
+
+  // Joins (based on foreign keys)
+  join_one: other_table on fk_column = other_table.pk_column
+
+  // Dimensions (ALL columns)
+  dimension:
+    readable_name is OriginalColumnName
+    another_column is AnotherColumn
+
+  // Measures (for numeric columns + row count)
+  measure:
+    row_count is count()
+    total_amount is sum(amount)
+    avg_amount is avg(amount)
+}
+```
+
+### Comments
+```malloy
+// Purpose: [brief description of table]
+// Relationships: [key joins to note]
+```
+
+## Success Criteria
+
+Before moving to query agent experiments:
+
+- [ ] 166 minimal layers generated and validated
+- [ ] 166 full layers generated and validated
+- [ ] All layers compile without errors
+- [ ] Smoke tests pass for all sources
+- [ ] Column coverage analysis complete
+- [ ] 3 exemplar databases hand-verified
+
+## Cost Summary
+
+| Phase | Method | Cost |
+|-------|--------|------|
+| Minimal layers | Python script | $0 |
+| Full layers | Claude Code subscription | $0 |
+| Validation | Malloy CLI | $0 |
+| **Total** | | **$0** |
 
 ## Next Steps
 
-1. [x] Write SQL analysis script (`scripts/generate_semantic_layers.py`)
-2. [ ] Run script to generate all 166 Malloy source files
-3. [ ] Install Malloy CLI for validation
-4. [ ] Validate generated files, fix any syntax errors
-5. [ ] Run smoke tests against sample databases
-6. [ ] Begin query agent experiments (the real work!)
+1. [ ] Create 3 hand-crafted exemplar full layers
+2. [ ] Run minimal layer generation script
+3. [ ] Use Claude Code to generate full layers (batch by complexity)
+4. [ ] Validate all layers with Malloy compiler
+5. [ ] Run smoke tests
+6. [ ] Generate column coverage analysis
+7. [ ] Begin query agent experiments with FULL layers as primary target
 
 ---
 
-*This strategy allows us to focus experimentation budget on the query generation agent, where the real cost/performance tradeoffs matter.*
+*With both minimal and full layers, we can properly evaluate model performance including their ability to select the right columns - a critical real-world skill.*
