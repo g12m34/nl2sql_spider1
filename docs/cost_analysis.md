@@ -61,7 +61,29 @@ Based on analysis of the actual Spider dataset:
 | **DeepSeek** | | | |
 | DeepSeek V3 | $0.56 | $1.68 | Excellent value |
 | **MiniMax** | | | |
-| MiniMax M2 | $0.30 | $1.20 | Budget, but verbose |
+| MiniMax M2 | $0.30 | $1.20 | Strong reasoning, may be underrated |
+
+## Models of Interest
+
+### MiniMax M2 - Potential Dark Horse
+
+MiniMax M2 has been generating significant buzz in ML communities for several reasons:
+
+- **Not overfit to benchmarks**: Unlike some models that may have been trained on benchmark data, M2 appears to generalize well to novel tasks
+- **Strong tool use**: Reported state-of-the-art performance on tool use and agentic tasks
+- **Excellent price/performance**: At $0.30/$1.20 per million tokens, it's one of the cheapest capable models
+- **Fast inference**: ~100 TPS reported, nearly 2x faster than many competitors
+
+**Caveat**: M2 can be verbose, which may inflate actual costs if it uses 2-3x more output tokens than competitors. We'll measure this empirically.
+
+### Why This Matters for NL2SQL
+
+For our Malloy semantic layer approach, we need models that:
+1. Understand novel formalisms (Malloy is not well-represented in training data)
+2. Follow structured output formats reliably
+3. Reason about schema relationships
+
+Models that haven't been overfit to SQL benchmarks may actually perform *better* on Malloy, since they won't have learned SQL-specific shortcuts that don't transfer.
 
 ## Cost Estimates: 1000-Question Sample
 
@@ -106,9 +128,11 @@ For 1000 questions with ~18 unique databases:
 
 | Configuration | Agent 1 | Agent 2 | Agent 3 | **Total** |
 |---------------|---------|---------|---------|-----------|
+| All MiniMax M2 | M2 | M2 | M2 | **$0.67** |
 | All Gemini Flash | Flash | Flash | Flash | **$0.96** |
 | All DeepSeek V3 | DeepSeek | DeepSeek | DeepSeek | **$1.13** |
 | All Haiku 4.5 | Haiku | Haiku | Haiku | **$2.46** |
+| M2 + Sonnet + M2 | M2 | Sonnet | M2 | **$5.95** |
 | Haiku + Sonnet + Haiku | Haiku | Sonnet | Haiku | **$6.19** |
 | Flash + Sonnet + Haiku | Flash | Sonnet | Haiku | **$6.16** |
 
@@ -118,21 +142,24 @@ For 1000 questions with ~18 unique databases:
 
 | Experiment | Model(s) | Est. Cost |
 |------------|----------|-----------|
+| Baseline single-agent | MiniMax M2 | $0.41 |
 | Baseline single-agent | Gemini Flash | $0.57 |
 | Baseline single-agent | DeepSeek V3 | $0.69 |
 | Baseline single-agent | Haiku 4.5 | $1.49 |
 | Baseline single-agent | Sonnet 4.5 | $4.46 |
-| **Subtotal** | | **$7.21** |
+| **Subtotal** | | **$7.62** |
 
 ### Phase 2: 3-Agent Architecture (1000 questions)
 
 | Experiment | Configuration | Est. Cost |
 |------------|---------------|-----------|
+| 3-agent baseline | All MiniMax M2 | $0.67 |
 | 3-agent baseline | All Gemini Flash | $0.96 |
 | 3-agent baseline | All DeepSeek V3 | $1.13 |
 | 3-agent baseline | All Haiku 4.5 | $2.46 |
 | 3-agent hybrid | Haiku + Sonnet + Haiku | $6.19 |
-| **Subtotal** | | **$10.74** |
+| 3-agent hybrid | M2 + Sonnet + M2 | $5.95 |
+| **Subtotal** | | **$17.36** |
 
 ### Phase 3: Ablation Studies (1000 questions each)
 
@@ -148,11 +175,11 @@ For 1000 questions with ~18 unique databases:
 
 | Phase | Cost |
 |-------|------|
-| Phase 1: Baselines | $7.21 |
-| Phase 2: 3-Agent | $10.74 |
+| Phase 1: Baselines | $7.62 |
+| Phase 2: 3-Agent | $17.36 |
 | Phase 3: Ablations | $5.63 |
-| Buffer (20%) | $4.72 |
-| **Total** | **~$28** |
+| Buffer (20%) | $6.12 |
+| **Total** | **~$37** |
 
 ## Cost Optimization Strategies
 
@@ -184,9 +211,11 @@ Once we identify winning configurations from the 1000-question sample:
 
 | Configuration | 1000 Qs | Full (8034 Qs) |
 |---------------|---------|----------------|
+| MiniMax M2 (3-agent) | $0.67 | $5.41 |
 | Gemini Flash (3-agent) | $0.96 | $7.71 |
 | DeepSeek V3 (3-agent) | $1.13 | $9.11 |
 | Haiku 4.5 (3-agent) | $2.46 | $19.79 |
+| Hybrid (M2+Sonnet+M2) | $5.95 | $47.88 |
 | Hybrid (Haiku+Sonnet+Haiku) | $6.19 | $49.81 |
 | Sonnet 4.5 (3-agent) | $7.38 | $59.38 |
 
