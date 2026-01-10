@@ -8,6 +8,45 @@ The Malloy semantic layer is built **once per database** (166 databases), not pe
 3. Validate and cache results
 4. Focus experimentation on the query generation agent
 
+## Key Insight: Reverse-Engineer from Ground Truth SQL
+
+Instead of guessing what the semantic layer needs from the schema alone, we **analyze the correct SQL queries** to determine exactly what's required:
+
+```
+Ground Truth SQL Queries
+        │
+        ▼
+┌───────────────────┐
+│ Analyze patterns: │
+│ - Tables used     │
+│ - Columns in      │
+│   SELECT/WHERE/   │
+│   GROUP BY        │
+│ - Aggregations    │
+│ - Join patterns   │
+└───────────────────┘
+        │
+        ▼
+  Malloy Source File
+  (exactly what's needed)
+```
+
+### Benefits of This Approach
+
+1. **No over-engineering**: Only includes columns/measures actually used
+2. **Guaranteed coverage**: Every query pattern is captured
+3. **No LLM needed**: Deterministic extraction from SQL
+4. **Verifiable**: Can trace each element back to source queries
+
+### Analysis Results (Sample)
+
+| Database | Queries | Tables | Dimensions | Measures |
+|----------|---------|--------|------------|----------|
+| concert_singer | 45 | 4 | 18 | 5 |
+| world_1 | 120 | 3 | 19 | 15 |
+| college_2 | 170 | 10 | 35 | 14 |
+| flight_1 | 96 | 4 | 16 | 8 |
+
 ## What the Semantic Layer Should Contain
 
 For each Spider database, we need a `.malloy` file with:
@@ -73,94 +112,85 @@ source: singer_in_concert is duckdb.table('singer_in_concert') extend {
 
 ## Generation Strategy
 
-### Phase 1: Create Exemplar Models (Manual)
+### NEW: Automated Extraction from Ground Truth SQL
 
-Hand-craft Malloy models for 5-10 diverse databases:
+We now use a **deterministic script** to extract semantic layer requirements directly from the correct SQL queries. No LLM needed for this phase!
 
-| Database | Complexity | Why Include |
-|----------|------------|-------------|
-| concert_singer | Simple | Basic joins, measures |
-| pets_1 | Simple | Single table |
-| car_1 | Medium | Multiple tables, FKs |
-| flight_2 | Medium | Date handling |
-| world_1 | Complex | Many tables, aggregations |
-| college_2 | Complex | Multiple join paths |
-| hr_1 | Complex | Self-referential joins |
+**Script:** `scripts/generate_semantic_layers.py`
 
-These serve as few-shot examples and validation targets.
-
-### Phase 2: Generate Remaining Models
-
-**Prompt structure:**
-```
-You are an expert in Malloy, a semantic modeling language.
-
-Given a SQL schema, generate a complete Malloy source file that includes:
-1. Source definitions for each table
-2. Primary keys where identifiable
-3. Dimensions for all columns (with readable names)
-4. Measures for numeric columns (count, sum, avg, min, max as appropriate)
-5. Join relationships based on foreign keys
-6. Comments explaining non-obvious relationships
-
-## Examples
-[Include 3-5 exemplar models]
-
-## SQL Schema to Convert
-[Insert schema from tables.json]
-
-## Output
-Generate only the .malloy file content, no explanations.
+```bash
+# Generate all semantic layers
+python scripts/generate_semantic_layers.py
 ```
 
-**Model choice:** Claude Sonnet 4.5 or Opus 4.5
-- This is a one-time cost (~$1-2 total)
-- Quality matters more than cost here
-- Better to get it right than iterate
+This script:
+1. Loads all Spider queries (train + dev)
+2. Groups them by database
+3. Analyzes SQL patterns to extract:
+   - Tables actually used
+   - Columns used as dimensions
+   - Columns used in aggregations
+   - Join patterns
+4. Generates `.malloy` files with exactly what's needed
+5. Outputs analysis JSON for debugging
 
-### Phase 3: Validate with Malloy Compiler
+### Phase 1: Run Automated Generation (FREE)
+
+```bash
+python scripts/generate_semantic_layers.py
+```
+
+Output:
+- `malloy/sources/*.malloy` - One file per database
+- `malloy/analysis/*.json` - Detailed analysis per database
+- `malloy/analysis/_summary.json` - Overall stats
+
+**Cost: $0** - No LLM calls, pure SQL parsing
+
+### Phase 2: Validate with Malloy Compiler
 
 ```bash
 # For each generated .malloy file
-malloy compile path/to/schema.malloy
-
-# If errors, feed back to LLM for correction
+for f in malloy/sources/*.malloy; do
+  malloy compile "$f" || echo "FAILED: $f"
+done
 ```
 
-Validation loop:
-1. Attempt compilation
-2. If error, send error message + original file to LLM
-3. Get corrected version
-4. Repeat until valid (max 3 attempts)
-5. Flag for human review if still failing
+Any syntax errors are likely due to:
+- Edge cases in SQL parsing
+- Malloy syntax nuances
 
-### Phase 4: Smoke Test with Sample Queries
+These can be fixed manually or with a quick LLM pass.
 
-For each database, run 2-3 simple queries to verify:
-- Sources load correctly
-- Joins work as expected
-- Measures compute properly
+### Phase 3: Enhance with LLM (Optional)
+
+For databases where the auto-generated layer is insufficient, use an LLM to:
+1. Add missing join definitions
+2. Create derived dimensions (e.g., age groups, date parts)
+3. Add human-readable aliases
+
+**Estimated LLM cost:** $0.50-1.00 for edge cases only
+
+### Phase 4: Smoke Test
+
+Run sample queries against each database to verify the semantic layer works:
 
 ```malloy
 // Smoke test queries
-run: singer -> { aggregate: singer_count }
-run: concert -> { group_by: year; aggregate: concert_count }
-run: singer_in_concert -> {
-  group_by: singer.country
-  aggregate: concert.concert_count
-}
+run: singer -> { aggregate: row_count }
+run: concert -> { group_by: year; aggregate: row_count }
 ```
 
-## Cost Estimate
+## Cost Estimate (Revised)
 
-| Phase | Model | Est. Cost |
-|-------|-------|-----------|
-| Generate 166 schemas | Sonnet 4.5 | $1.50 |
-| Validation fixes (~30% need retry) | Sonnet 4.5 | $0.50 |
-| Smoke test queries | Haiku 4.5 | $0.20 |
-| **Total** | | **~$2.20** |
+| Phase | Method | Est. Cost |
+|-------|--------|-----------|
+| Generate 166 schemas | Python script | **$0** |
+| Fix edge cases (~10%) | LLM | ~$0.50 |
+| Smoke test queries | Malloy CLI | **$0** |
+| **Total** | | **~$0.50** |
 
-This is negligible compared to query generation experiments.
+This is essentially free compared to query generation experiments!
 
 ## File Structure
 
@@ -213,12 +243,12 @@ This is much simpler than having the agent also figure out:
 
 ## Next Steps
 
-1. [ ] Install Malloy CLI for validation
-2. [ ] Create 5-10 exemplar Malloy models manually
-3. [ ] Write generation script with validation loop
-4. [ ] Generate all 166 database models
-5. [ ] Run smoke tests
-6. [ ] Begin query agent experiments
+1. [x] Write SQL analysis script (`scripts/generate_semantic_layers.py`)
+2. [ ] Run script to generate all 166 Malloy source files
+3. [ ] Install Malloy CLI for validation
+4. [ ] Validate generated files, fix any syntax errors
+5. [ ] Run smoke tests against sample databases
+6. [ ] Begin query agent experiments (the real work!)
 
 ---
 
