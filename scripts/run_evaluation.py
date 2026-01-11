@@ -30,6 +30,33 @@ PROMPT_MODE = 'standard'
 
 EVALUATION_DIR = Path('/workspace/project/evaluation')
 RESULTS_DIR = EVALUATION_DIR / 'results'
+GOLD_SQL_BUGS_FILE = EVALUATION_DIR / 'gold_sql_bugs.json'
+
+# Cache for gold SQL corrections
+_gold_sql_corrections: Dict[int, str] = {}
+
+
+def load_gold_sql_corrections() -> Dict[int, str]:
+    """Load corrected gold SQL from bugs file."""
+    global _gold_sql_corrections
+    if _gold_sql_corrections:
+        return _gold_sql_corrections
+
+    if GOLD_SQL_BUGS_FILE.exists():
+        with open(GOLD_SQL_BUGS_FILE) as f:
+            data = json.load(f)
+        for bug in data.get('bugs', []):
+            qid = bug['question_id']
+            corrected = bug.get('gold_sql_corrected')
+            if corrected:
+                _gold_sql_corrections[qid] = corrected
+    return _gold_sql_corrections
+
+
+def get_gold_sql(question_id: int, original_gold_sql: str) -> str:
+    """Get gold SQL, using corrected version if available."""
+    corrections = load_gold_sql_corrections()
+    return corrections.get(question_id, original_gold_sql)
 
 
 def extract_sources_from_layer(malloy_layer: str) -> List[str]:
@@ -413,6 +440,10 @@ async def evaluate_question(
             'raw_response': llm_response.raw_response
         }
 
+    # Get corrected gold SQL if available (for known Spider bugs)
+    effective_gold_sql = get_gold_sql(question['id'], gold_sql)
+    gold_sql_was_corrected = (effective_gold_sql != gold_sql)
+
     # Execute gold SQL (need to wrap for DuckDB)
     # The gold SQL is for SQLite, so we need to use sqlite_scan
     try:
@@ -423,7 +454,7 @@ async def evaluate_question(
         import sqlite3
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        cursor.execute(gold_sql)
+        cursor.execute(effective_gold_sql)
         gold_results = cursor.fetchall()
         conn.close()
     except Exception as e:
@@ -432,6 +463,7 @@ async def evaluate_question(
             'db_id': db_id,
             'question': q_text,
             'gold_sql': gold_sql,
+            'gold_sql_corrected': effective_gold_sql if gold_sql_was_corrected else None,
             'predicted_malloy': malloy_query,
             'predicted_sql': compiled_sql,
             'match': False,
@@ -441,10 +473,10 @@ async def evaluate_question(
         }
 
     # Compare results
-    order_matters = 'order by' in gold_sql.lower()
+    order_matters = 'order by' in effective_gold_sql.lower()
     match = results_match(gold_results, pred_results, order_matters)
 
-    return {
+    result = {
         'question_id': question['id'],
         'db_id': db_id,
         'question': q_text,
@@ -458,6 +490,9 @@ async def evaluate_question(
         'pred_row_count': len(pred_results),
         'gold_row_count': len(gold_results)
     }
+    if gold_sql_was_corrected:
+        result['gold_sql_corrected'] = effective_gold_sql
+    return result
 
 
 async def run_evaluation_async(
