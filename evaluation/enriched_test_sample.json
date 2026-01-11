@@ -370,6 +370,8 @@
       "db_id": "activity_1",
       "question": "What are the first names of the professors who do not play Canoeing or Kayaking as activities?",
       "gold_sql": "SELECT lname FROM faculty WHERE rank  =  'Professor' EXCEPT SELECT DISTINCT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN activity AS T3 ON T2.actid  =  T2.actid WHERE T3.activity_name  =  'Canoeing' OR T3.activity_name  =  'Kayaking'",
+      "skip": true,
+      "skip_reason": "Gold SQL has 3 bugs: (1) Wrong join T2.actid=T2.actid instead of T2.actid=T3.actid, (2) Returns lname but question asks for first names, (3) Expected 25 rows doesn't match any correct interpretation",
       "difficulty": "extra",
       "source": "train_spider",
       "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
