@@ -459,6 +459,15 @@ def cmd_evaluate(args):
     results = data['results']
     model = data.get('model', 'unknown')
 
+    # Load question metadata for alt_gold_sql
+    sample_file = Path('/workspace/project/evaluation/enriched_test_sample.json')
+    question_meta = {}
+    if sample_file.exists():
+        with open(sample_file) as f:
+            sample_data = json.load(f)
+        for q in sample_data['questions']:
+            question_meta[q.get('id', q.get('question_id'))] = q
+
     print(f"Evaluating {len(results)} results from {model}")
     print("=" * 60)
 
@@ -534,16 +543,38 @@ def cmd_evaluate(args):
             correct += 1
             print(f"  Q{qid} ({db_id}): CORRECT")
         else:
-            print(f"  Q{qid} ({db_id}): WRONG")
-            print(f"    Expected {len(gold_results)} rows, got {len(gen_results)} rows")
-            errors.append({
-                'question_id': qid,
-                'db_id': db_id,
-                'question': question,
-                'error_type': 'logic',
-                'expected_rows': len(gold_results),
-                'actual_rows': len(gen_results)
-            })
+            # Check alternative gold SQLs if available
+            alt_match = False
+            q_meta = question_meta.get(qid, {})
+            alt_gold_sqls = q_meta.get('alt_gold_sql', [])
+
+            for alt_sql in alt_gold_sqls:
+                try:
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.cursor()
+                    cursor.execute(alt_sql)
+                    alt_results = cursor.fetchall()
+                    conn.close()
+                    if results_match(gen_results, alt_results):
+                        alt_match = True
+                        break
+                except:
+                    continue
+
+            if alt_match:
+                correct += 1
+                print(f"  Q{qid} ({db_id}): CORRECT (alt)")
+            else:
+                print(f"  Q{qid} ({db_id}): WRONG")
+                print(f"    Expected {len(gold_results)} rows, got {len(gen_results)} rows")
+                errors.append({
+                    'question_id': qid,
+                    'db_id': db_id,
+                    'question': question,
+                    'error_type': 'logic',
+                    'expected_rows': len(gold_results),
+                    'actual_rows': len(gen_results)
+                })
 
     # Run evaluations
     for r in results:

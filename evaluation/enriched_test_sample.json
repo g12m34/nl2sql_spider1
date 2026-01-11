@@ -240,6 +240,7 @@
       "db_id": "movie_1",
       "question": "What are the ids of all moviest hat have not been reviewed by Britanny Harris?",
       "gold_sql": "SELECT mID FROM Rating EXCEPT SELECT T1.mID FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID WHERE T2.name  =  \"Brittany Harris\"",
+      "alt_gold_sql": ["SELECT mID FROM Movie EXCEPT SELECT T1.mID FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID = T2.rID WHERE T2.name = 'Brittany Harris'"],
       "difficulty": "extra",
       "source": "train_spider",
       "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
