@@ -350,6 +350,8 @@
       "db_id": "movie_1",
       "question": "For each director, what are the titles and ratings for all the movies they reviewed?",
       "gold_sql": "SELECT T2.title ,  T1.stars ,  T2.director ,  max(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE director != \"null\" GROUP BY director",
+      "skip": true,
+      "skip_reason": "Gold SQL uses GROUP BY director returning 1 row per director, but question asks for 'all the movies' which implies multiple rows per director",
       "difficulty": "hard",
       "source": "train_spider",
       "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"

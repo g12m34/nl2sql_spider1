@@ -537,15 +537,23 @@ def cmd_evaluate(args):
     compiled = 0
     correct = 0
     errors = []
+    skipped = 0
 
     async def evaluate_one(r):
-        nonlocal total, compiled, correct
+        nonlocal total, compiled, correct, skipped
 
         qid = r['question_id']
         db_id = r['db_id']
         malloy_query = r['malloy_query']
         gold_sql = r['gold_sql']
         question = r['question']
+
+        # Check if question should be skipped
+        q_meta = question_meta.get(qid, {})
+        if q_meta.get('skip'):
+            skipped += 1
+            print(f"  Q{qid} ({db_id}): SKIPPED - {q_meta.get('skip_reason', 'flagged')}")
+            return
 
         total += 1
 
@@ -656,6 +664,8 @@ def cmd_evaluate(args):
     print("\n" + "=" * 60)
     print(f"RESULTS for {model}")
     print("=" * 60)
+    if skipped:
+        print(f"Skipped: {skipped} (problematic gold SQL)")
     print(f"Total questions: {total}")
     print(f"Compiled successfully: {compiled} ({compiled/total*100:.1f}%)")
     print(f"Execution correct: {correct} ({correct/total*100:.1f}%)")
