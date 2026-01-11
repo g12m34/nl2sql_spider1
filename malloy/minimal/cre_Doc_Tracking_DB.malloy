@@ -1,0 +1,79 @@
+// Malloy semantic layer for: cre_Doc_Tracking_DB
+// Auto-generated from 90 ground-truth SQL queries
+// Tables used: 8
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: all_documents is duckdb.table('All_Documents') extend {
+  dimension:
+    date_stored is Date_Stored
+    document_id is Document_ID
+    document_name is Document_Name
+    document_type_code is Document_Type_Code
+  measure:
+    row_count is count()
+}
+
+source: document_locations is duckdb.table('Document_Locations') extend {
+  dimension:
+    date_in_location_from is Date_in_Location_From
+    date_in_locaton_to is Date_in_Locaton_To
+    document_id is Document_ID
+    location_code is Location_Code
+  measure:
+    row_count is count()
+}
+
+source: documents_to_be_destroyed is duckdb.table('Documents_to_be_Destroyed') extend {
+  dimension:
+    destroyed_by_employee_id is Destroyed_by_Employee_ID
+    destruction_authorised_by_employee_id is Destruction_Authorised_by_Employee_ID
+  measure:
+    row_count is count()
+}
+
+source: employees is duckdb.table('Employees') extend {
+  dimension:
+    date_of_birth is Date_of_Birth
+    employee_id is Employee_ID
+    employee_name is Employee_Name
+    role_code is Role_Code
+  measure:
+    row_count is count()
+}
+
+source: ref_calendar is duckdb.table('Ref_Calendar') extend {
+  dimension:
+    calendar_date is Calendar_Date
+    day_number is Day_Number
+  measure:
+    row_count is count()
+}
+
+source: ref_document_types is duckdb.table('Ref_Document_Types') extend {
+  dimension:
+    document_type_code is Document_Type_Code
+    document_type_description is Document_Type_Description
+    document_type_name is Document_Type_Name
+  measure:
+    row_count is count()
+}
+
+source: ref_locations is duckdb.table('Ref_Locations') extend {
+  dimension:
+    location_code is Location_Code
+    location_description is Location_Description
+    location_name is Location_Name
+  measure:
+    row_count is count()
+}
+
+source: roles is duckdb.table('Roles') extend {
+  dimension:
+    role_code is Role_Code
+    role_description is Role_Description
+    role_name is Role_Name
+  measure:
+    row_count is count()
+}

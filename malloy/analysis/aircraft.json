@@ -1,0 +1,59 @@
+{
+  "db_id": "aircraft",
+  "query_count": 46,
+  "tables_used": [
+    "aircraft",
+    "airport",
+    "airport_aircraft",
+    "match",
+    "pilot"
+  ],
+  "dimensions": {
+    "aircraft": [
+      "aircraft",
+      "aircraft_id",
+      "description"
+    ],
+    "airport": [
+      "airport_id",
+      "airport_name",
+      "domestic_passengers",
+      "international_passengers",
+      "total_passengers",
+      "transit_passengers"
+    ],
+    "pilot": [
+      "age",
+      "name",
+      "pilot_id"
+    ],
+    "airport_aircraft": [
+      "aircraft_id",
+      "airport_id"
+    ],
+    "match": [
+      "country",
+      "location",
+      "winning_aircraft",
+      "winning_pilot"
+    ]
+  },
+  "measures": {
+    "airport": {
+      "avg": [
+        "international_passengers",
+        "total_passengers"
+      ],
+      "sum": [
+        "domestic_passengers"
+      ],
+      "min": [
+        "transit_passengers"
+      ],
+      "max": [
+        "transit_passengers"
+      ]
+    }
+  },
+  "joins": []
+}

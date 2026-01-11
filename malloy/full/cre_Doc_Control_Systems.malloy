@@ -1,0 +1,188 @@
+// Malloy semantic layer for: cre_Doc_Control_Systems
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite
+
+// Ref_Document_Types
+source: ref_document_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Ref_Document_Types')
+""") extend {
+  primary_key: document_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Roles
+source: roles is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Roles')
+""") extend {
+  primary_key: role_code
+
+  measure:
+    row_count is count()
+}
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Ref_Document_Status
+source: ref_document_status is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Ref_Document_Status')
+""") extend {
+  primary_key: document_status_code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Shipping_Agents
+source: ref_shipping_agents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Ref_Shipping_Agents')
+""") extend {
+  primary_key: shipping_agent_code
+
+  measure:
+    row_count is count()
+}
+
+// Employees
+source: employees is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Employees')
+""") extend {
+  primary_key: employee_id
+
+  join_one: roles on role_code = roles.role_code
+
+  measure:
+    row_count is count()
+    total_employee_id is sum(employee_id)
+    avg_employee_id is avg(employee_id)
+    max_employee_id is max(employee_id)
+    min_employee_id is min(employee_id)
+}
+
+// Documents
+source: documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Documents')
+""") extend {
+  primary_key: document_id
+
+  join_one: ref_shipping_agents on shipping_agent_code = ref_shipping_agents.shipping_agent_code
+  join_one: ref_document_status on document_status_code = ref_document_status.document_status_code
+  join_one: ref_document_types on document_type_code = ref_document_types.document_type_code
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+}
+
+// Document_Drafts
+source: document_drafts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Document_Drafts')
+""") extend {
+  primary_key: document_id
+
+  join_one: documents on document_id = documents.document_id
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+    total_draft_number is sum(draft_number)
+    avg_draft_number is avg(draft_number)
+    max_draft_number is max(draft_number)
+    min_draft_number is min(draft_number)
+}
+
+// Documents_Mailed
+source: documents_mailed is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Documents_Mailed')
+""") extend {
+  primary_key: document_id
+
+  join_one: addresses on mailed_to_address_id = addresses.address_id
+  join_one: documents on document_id = documents.document_id
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+    total_mailed_to_address_id is sum(mailed_to_address_id)
+    avg_mailed_to_address_id is avg(mailed_to_address_id)
+    max_mailed_to_address_id is max(mailed_to_address_id)
+    min_mailed_to_address_id is min(mailed_to_address_id)
+}
+
+// Draft_Copies
+source: draft_copies is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Draft_Copies')
+""") extend {
+  primary_key: document_id
+
+  join_one: document_document_drafts is document_drafts on document_id = document_document_drafts.document_id
+  join_one: draft_number_document_drafts is document_drafts on draft_number = draft_number_document_drafts.draft_number
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+    total_draft_number is sum(draft_number)
+    avg_draft_number is avg(draft_number)
+    max_draft_number is max(draft_number)
+    min_draft_number is min(draft_number)
+    total_copy_number is sum(copy_number)
+    avg_copy_number is avg(copy_number)
+    max_copy_number is max(copy_number)
+    min_copy_number is min(copy_number)
+}
+
+// Circulation_History
+source: circulation_history is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Circulation_History')
+""") extend {
+  primary_key: document_id
+
+  join_one: employees on employee_id = employees.employee_id
+  join_one: document_draft_copies is draft_copies on document_id = document_draft_copies.document_id
+  join_one: draft_number_draft_copies is draft_copies on draft_number = draft_number_draft_copies.draft_number
+  join_one: copy_number_draft_copies is draft_copies on copy_number = copy_number_draft_copies.copy_number
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+    total_draft_number is sum(draft_number)
+    avg_draft_number is avg(draft_number)
+    max_draft_number is max(draft_number)
+    min_draft_number is min(draft_number)
+    total_copy_number is sum(copy_number)
+    avg_copy_number is avg(copy_number)
+    max_copy_number is max(copy_number)
+    min_copy_number is min(copy_number)
+    total_employee_id is sum(employee_id)
+    avg_employee_id is avg(employee_id)
+    max_employee_id is max(employee_id)
+    min_employee_id is min(employee_id)
+}

@@ -1,0 +1,30 @@
+// Malloy semantic layer for: race_track
+// Auto-generated from 42 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: race is duckdb.table('race') extend {
+  dimension:
+    class is Class
+    date is Date
+    name is Name
+    track_id is Track_ID
+  measure:
+    row_count is count()
+}
+
+source: track is duckdb.table('track') extend {
+  dimension:
+    location is Location
+    name is Name
+    seating is Seating
+    track_id is Track_ID
+    year_opened is Year_Opened
+  measure:
+    row_count is count()
+    avg_seating is avg(seating)
+    min_seating is min(seating)
+    max_seating is max(seating)
+}

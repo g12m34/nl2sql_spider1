@@ -1,0 +1,147 @@
+{
+  "db_id": "department_store",
+  "query_count": 88,
+  "tables_used": [
+    "addresses",
+    "customer_addresses",
+    "customer_orders",
+    "customers",
+    "department_store_chain",
+    "department_stores",
+    "departments",
+    "order_items",
+    "product_suppliers",
+    "products",
+    "staff",
+    "staff_department_assignments",
+    "supplier_addresses",
+    "suppliers"
+  ],
+  "dimensions": {
+    "product_suppliers": [
+      "product_id",
+      "supplier_id",
+      "total_amount_purchased",
+      "total_value_purchased"
+    ],
+    "products": [
+      "product_id",
+      "product_name",
+      "product_price",
+      "product_type_code"
+    ],
+    "addresses": [
+      "address_details",
+      "address_id"
+    ],
+    "customer_addresses": [
+      "address_id",
+      "customer_id"
+    ],
+    "staff": [
+      "staff_gender",
+      "staff_id",
+      "staff_name"
+    ],
+    "staff_department_assignments": [
+      "date_assigned_from",
+      "date_assigned_to",
+      "department_id",
+      "job_title_code",
+      "staff_id"
+    ],
+    "customers": [
+      "customer_address",
+      "customer_code",
+      "customer_email",
+      "customer_id",
+      "customer_name",
+      "customer_phone",
+      "payment_method_code"
+    ],
+    "order_items": [
+      "order_id",
+      "product_id"
+    ],
+    "customer_orders": [
+      "customer_id",
+      "order_date",
+      "order_id",
+      "order_status_code"
+    ],
+    "department_store_chain": [
+      "dept_store_chain_id",
+      "dept_store_chain_name"
+    ],
+    "department_stores": [
+      "dept_store_chain_id",
+      "dept_store_id",
+      "store_name"
+    ],
+    "departments": [
+      "department_name",
+      "dept_store_id"
+    ],
+    "suppliers": [
+      "supplier_id",
+      "supplier_name",
+      "supplier_phone"
+    ],
+    "supplier_addresses": [
+      "address_id",
+      "supplier_id"
+    ]
+  },
+  "measures": {
+    "products": {
+      "count": [
+        "product_type_code"
+      ],
+      "avg": [
+        "product_price"
+      ],
+      "min": [
+        "product_price"
+      ],
+      "max": [
+        "product_price"
+      ]
+    },
+    "customer_orders": {
+      "min": [
+        "order_date"
+      ],
+      "count": [
+        "customer_id"
+      ]
+    },
+    "staff_department_assignments": {
+      "max": [
+        "date_assigned_to"
+      ]
+    },
+    "product_suppliers": {
+      "sum": [
+        "total_amount_purchased"
+      ],
+      "avg": [
+        "total_amount_purchased",
+        "total_value_purchased"
+      ]
+    },
+    "customers": {
+      "min": [
+        "customer_code"
+      ],
+      "max": [
+        "customer_code"
+      ]
+    },
+    "order_items": {
+      "count": [
+        "product_id"
+      ]
+    }
+  },
+  "joins": []
+}

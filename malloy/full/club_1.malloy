@@ -1,0 +1,77 @@
+// Malloy semantic layer for: club_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/club_1/club_1.sqlite
+
+// Student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Student')
+""") extend {
+  primary_key: StuID
+
+  dimension:
+    stu_i_d is StuID
+    l_name is LName
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Club
+source: club_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Club')
+""") extend {
+  primary_key: ClubID
+
+  dimension:
+    club_i_d is ClubID
+    club_name is ClubName
+    club_desc is ClubDesc
+    club_location is ClubLocation
+
+  measure:
+    row_count is count()
+    total_club_i_d is sum(ClubID)
+    avg_club_i_d is avg(ClubID)
+    max_club_i_d is max(ClubID)
+    min_club_i_d is min(ClubID)
+}
+
+// Member_of_club
+source: member_of_club is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Member_of_club')
+""") extend {
+  join_one: club_val on ClubID = club_val.ClubID
+  join_one: student_val on StuID = student_val.StuID
+
+  dimension:
+    stu_i_d is StuID
+    club_i_d is ClubID
+    position_val is `Position`
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_club_i_d is sum(ClubID)
+    avg_club_i_d is avg(ClubID)
+    max_club_i_d is max(ClubID)
+    min_club_i_d is min(ClubID)
+}

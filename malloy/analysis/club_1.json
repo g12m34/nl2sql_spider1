@@ -1,0 +1,50 @@
+{
+  "db_id": "club_1",
+  "query_count": 70,
+  "tables_used": [
+    "club",
+    "member_of_club",
+    "student"
+  ],
+  "dimensions": {
+    "club": [
+      "clubdesc",
+      "clubid",
+      "clublocation",
+      "clubname"
+    ],
+    "student": [
+      "advisor",
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ],
+    "member_of_club": [
+      "clubid",
+      "position",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "member_of_club": {
+      "count": [
+        "position"
+      ]
+    },
+    "club": {
+      "count": [
+        "clubname"
+      ]
+    },
+    "student": {
+      "avg": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

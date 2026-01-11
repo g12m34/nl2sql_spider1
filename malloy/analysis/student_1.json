@@ -1,0 +1,30 @@
+{
+  "db_id": "student_1",
+  "query_count": 68,
+  "tables_used": [
+    "list",
+    "teachers"
+  ],
+  "dimensions": {
+    "list": [
+      "classroom",
+      "firstname",
+      "grade",
+      "lastname"
+    ],
+    "teachers": [
+      "classroom",
+      "firstname",
+      "lastname"
+    ]
+  },
+  "measures": {
+    "list": {
+      "count": [
+        "classroom",
+        "grade"
+      ]
+    }
+  },
+  "joins": []
+}

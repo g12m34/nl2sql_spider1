@@ -1,0 +1,52 @@
+{
+  "db_id": "cinema",
+  "query_count": 30,
+  "tables_used": [
+    "cinema",
+    "film",
+    "schedule"
+  ],
+  "dimensions": {
+    "cinema": [
+      "capacity",
+      "cinema_id",
+      "location",
+      "name",
+      "openning_year"
+    ],
+    "film": [
+      "directed_by",
+      "film_id",
+      "title"
+    ],
+    "schedule": [
+      "cinema_id",
+      "date",
+      "film_id",
+      "price",
+      "show_times_per_day"
+    ]
+  },
+  "measures": {
+    "cinema": {
+      "avg": [
+        "capacity"
+      ],
+      "min": [
+        "capacity"
+      ],
+      "max": [
+        "capacity"
+      ]
+    },
+    "schedule": {
+      "sum": [
+        "show_times_per_day"
+      ],
+      "max": [
+        "price"
+      ]
+    }
+  },
+  "joins": []
+}

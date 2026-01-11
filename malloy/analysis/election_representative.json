@@ -1,0 +1,42 @@
+{
+  "db_id": "election_representative",
+  "query_count": 20,
+  "tables_used": [
+    "election",
+    "representative"
+  ],
+  "dimensions": {
+    "election": [
+      "date",
+      "representative_id",
+      "vote_percent",
+      "votes"
+    ],
+    "representative": [
+      "lifespan",
+      "name",
+      "party",
+      "representative_id",
+      "state"
+    ]
+  },
+  "measures": {
+    "election": {
+      "min": [
+        "vote_percent"
+      ],
+      "max": [
+        "vote_percent"
+      ],
+      "avg": [
+        "votes"
+      ]
+    },
+    "representative": {
+      "count": [
+        "party"
+      ]
+    }
+  },
+  "joins": []
+}

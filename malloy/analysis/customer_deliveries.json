@@ -1,0 +1,68 @@
+{
+  "db_id": "customer_deliveries",
+  "query_count": 16,
+  "tables_used": [
+    "actual_orders",
+    "addresses",
+    "customer_addresses",
+    "customers",
+    "delivery_route_locations",
+    "delivery_routes",
+    "employees",
+    "products",
+    "regular_order_products",
+    "trucks"
+  ],
+  "dimensions": {
+    "actual_orders": [
+      "actual_order_id",
+      "order_status_code"
+    ],
+    "products": [
+      "product_id",
+      "product_name",
+      "product_price"
+    ],
+    "regular_order_products": [
+      "product_id"
+    ],
+    "customers": [
+      "customer_email",
+      "customer_id",
+      "customer_name",
+      "customer_phone",
+      "date_became_customer",
+      "payment_method"
+    ],
+    "trucks": [
+      "truck_details",
+      "truck_licence_number"
+    ],
+    "addresses": [
+      "address_id",
+      "state_province_county"
+    ],
+    "customer_addresses": [
+      "address_id",
+      "customer_id"
+    ],
+    "employees": [
+      "employee_address_id"
+    ],
+    "delivery_routes": [
+      "route_id",
+      "route_name"
+    ],
+    "delivery_route_locations": [
+      "route_id"
+    ]
+  },
+  "measures": {
+    "customers": {
+      "count": [
+        "payment_method"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,58 @@
+// Malloy semantic layer for: world_1
+// Auto-generated from 120 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: city is duckdb.table('city') extend {
+  dimension:
+    countrycode is CountryCode
+    district is District
+    name is Name
+    population is Population
+  measure:
+    row_count is count()
+    sum_population is sum(population)
+    avg_population is avg(population)
+}
+
+source: country is duckdb.table('country') extend {
+  dimension:
+    code is Code
+    continent is Continent
+    gnp is GNP
+    governmentform is GovernmentForm
+    headofstate is HeadOfState
+    indepyear is IndepYear
+    lifeexpectancy is LifeExpectancy
+    name is Name
+    population is Population
+    region is Region
+    surfacearea is SurfaceArea
+  measure:
+    row_count is count()
+    sum_population is sum(population)
+    sum_surfacearea is sum(surfacearea)
+    avg_gnp is avg(gnp)
+    avg_lifeexpectancy is avg(lifeexpectancy)
+    avg_surfacearea is avg(surfacearea)
+    min_population is min(population)
+    min_surfacearea is min(surfacearea)
+    max_gnp is max(gnp)
+    max_population is max(population)
+    count_continent is count(continent)
+    count_governmentform is count(governmentform)
+}
+
+source: countrylanguage is duckdb.table('countrylanguage') extend {
+  dimension:
+    countrycode is CountryCode
+    isofficial is IsOfficial
+    language is Language
+    percentage is Percentage
+  measure:
+    row_count is count()
+    max_percentage is max(percentage)
+    count_language is count(language)
+}

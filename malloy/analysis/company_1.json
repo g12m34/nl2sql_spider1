@@ -1,0 +1,36 @@
+{
+  "db_id": "company_1",
+  "query_count": 7,
+  "tables_used": [
+    "department",
+    "dependent",
+    "dept_locations",
+    "employee"
+  ],
+  "dimensions": {
+    "department": [
+      "dname",
+      "dnumber",
+      "mgr_start_date"
+    ],
+    "dependent": [
+      "dependent_name",
+      "relationship",
+      "sex"
+    ],
+    "dept_locations": [
+      "dlocation",
+      "dnumber"
+    ],
+    "employee": [
+      "address",
+      "bdate",
+      "fname",
+      "lname",
+      "salary",
+      "sex"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

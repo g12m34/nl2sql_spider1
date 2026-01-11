@@ -1,0 +1,51 @@
+{
+  "db_id": "candidate_poll",
+  "query_count": 40,
+  "tables_used": [
+    "candidate",
+    "people"
+  ],
+  "dimensions": {
+    "candidate": [
+      "candidate_id",
+      "consider_rate",
+      "oppose_rate",
+      "people_id",
+      "poll_source",
+      "support_rate",
+      "unsure_rate"
+    ],
+    "people": [
+      "date_of_birth",
+      "height",
+      "name",
+      "people_id",
+      "sex",
+      "weight"
+    ]
+  },
+  "measures": {
+    "people": {
+      "avg": [
+        "height",
+        "weight"
+      ],
+      "min": [
+        "weight"
+      ]
+    },
+    "candidate": {
+      "min": [
+        "consider_rate",
+        "oppose_rate"
+      ],
+      "avg": [
+        "unsure_rate"
+      ],
+      "max": [
+        "support_rate"
+      ]
+    }
+  },
+  "joins": []
+}

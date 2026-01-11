@@ -1,0 +1,29 @@
+// Malloy semantic layer for: musical
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: actor is duckdb.table('actor') extend {
+  dimension:
+    age is age
+    character is Character
+    duration is Duration
+    musical_id is Musical_ID
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: musical is duckdb.table('musical') extend {
+  dimension:
+    award is Award
+    musical_id is Musical_ID
+    name is Name
+    nominee is Nominee
+    result is Result
+    year is Year
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,118 @@
+// Malloy semantic layer for: company_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/company_1/company_1.sqlite
+
+// works_on
+source: works_on is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'works_on')
+""") extend {
+  primary_key: Essn
+
+  dimension:
+    hours_val is `Hours`
+
+  measure:
+    row_count is count()
+    total_essn is sum(Essn)
+    avg_essn is avg(Essn)
+    max_essn is max(Essn)
+    min_essn is min(Essn)
+    total_pno is sum(Pno)
+    avg_pno is avg(Pno)
+    max_pno is max(Pno)
+    min_pno is min(Pno)
+    total_hours_val is sum(`Hours`)
+    avg_hours_val is avg(`Hours`)
+    max_hours_val is max(`Hours`)
+    min_hours_val is min(`Hours`)
+}
+
+// employee
+source: employee is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'employee')
+""") extend {
+  primary_key: Ssn
+
+  measure:
+    row_count is count()
+    total_ssn is sum(Ssn)
+    avg_ssn is avg(Ssn)
+    max_ssn is max(Ssn)
+    min_ssn is min(Ssn)
+    total_salary is sum(Salary)
+    avg_salary is avg(Salary)
+    max_salary is max(Salary)
+    min_salary is min(Salary)
+    total_super_ssn is sum(Super_ssn)
+    avg_super_ssn is avg(Super_ssn)
+    max_super_ssn is max(Super_ssn)
+    min_super_ssn is min(Super_ssn)
+    total_dno is sum(Dno)
+    avg_dno is avg(Dno)
+    max_dno is max(Dno)
+    min_dno is min(Dno)
+}
+
+// department
+source: department is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'department')
+""") extend {
+  primary_key: Dnumber
+
+  measure:
+    row_count is count()
+    total_dnumber is sum(Dnumber)
+    avg_dnumber is avg(Dnumber)
+    max_dnumber is max(Dnumber)
+    min_dnumber is min(Dnumber)
+    total_mgr_ssn is sum(Mgr_ssn)
+    avg_mgr_ssn is avg(Mgr_ssn)
+    max_mgr_ssn is max(Mgr_ssn)
+    min_mgr_ssn is min(Mgr_ssn)
+}
+
+// project
+source: project is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'project')
+""") extend {
+  primary_key: Pnumber
+
+  measure:
+    row_count is count()
+    total_pnumber is sum(Pnumber)
+    avg_pnumber is avg(Pnumber)
+    max_pnumber is max(Pnumber)
+    min_pnumber is min(Pnumber)
+    total_dnum is sum(Dnum)
+    avg_dnum is avg(Dnum)
+    max_dnum is max(Dnum)
+    min_dnum is min(Dnum)
+}
+
+// dependent
+source: dependent is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'dependent')
+""") extend {
+  primary_key: Essn
+
+  measure:
+    row_count is count()
+    total_essn is sum(Essn)
+    avg_essn is avg(Essn)
+    max_essn is max(Essn)
+    min_essn is min(Essn)
+}
+
+// dept_locations
+source: dept_locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'dept_locations')
+""") extend {
+  primary_key: Dnumber
+
+  measure:
+    row_count is count()
+    total_dnumber is sum(Dnumber)
+    avg_dnumber is avg(Dnumber)
+    max_dnumber is max(Dnumber)
+    min_dnumber is min(Dnumber)
+}

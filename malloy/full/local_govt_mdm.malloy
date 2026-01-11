@@ -1,0 +1,157 @@
+// Malloy semantic layer for: local_govt_mdm
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite
+
+// Customer_Master_Index
+source: customer_master_index is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Customer_Master_Index')
+""") extend {
+  primary_key: master_customer_id
+
+  measure:
+    row_count is count()
+    total_master_customer_id is sum(master_customer_id)
+    avg_master_customer_id is avg(master_customer_id)
+    max_master_customer_id is max(master_customer_id)
+    min_master_customer_id is min(master_customer_id)
+}
+
+// CMI_Cross_References
+source: c_m_i_cross_references is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'CMI_Cross_References')
+""") extend {
+  primary_key: cmi_cross_ref_id
+
+  join_one: customer_master_index on master_customer_id = customer_master_index.master_customer_id
+
+  measure:
+    row_count is count()
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+    total_master_customer_id is sum(master_customer_id)
+    avg_master_customer_id is avg(master_customer_id)
+    max_master_customer_id is max(master_customer_id)
+    min_master_customer_id is min(master_customer_id)
+}
+
+// Council_Tax
+source: council_tax is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Council_Tax')
+""") extend {
+  primary_key: council_tax_id
+
+  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+
+  measure:
+    row_count is count()
+    total_council_tax_id is sum(council_tax_id)
+    avg_council_tax_id is avg(council_tax_id)
+    max_council_tax_id is max(council_tax_id)
+    min_council_tax_id is min(council_tax_id)
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}
+
+// Business_Rates
+source: business_rates is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Business_Rates')
+""") extend {
+  primary_key: business_rates_id
+
+  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+
+  measure:
+    row_count is count()
+    total_business_rates_id is sum(business_rates_id)
+    avg_business_rates_id is avg(business_rates_id)
+    max_business_rates_id is max(business_rates_id)
+    min_business_rates_id is min(business_rates_id)
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}
+
+// Benefits_Overpayments
+source: benefits_overpayments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Benefits_Overpayments')
+""") extend {
+  primary_key: council_tax_id
+
+  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+
+  measure:
+    row_count is count()
+    total_council_tax_id is sum(council_tax_id)
+    avg_council_tax_id is avg(council_tax_id)
+    max_council_tax_id is max(council_tax_id)
+    min_council_tax_id is min(council_tax_id)
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}
+
+// Parking_Fines
+source: parking_fines is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Parking_Fines')
+""") extend {
+  primary_key: council_tax_id
+
+  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+
+  measure:
+    row_count is count()
+    total_council_tax_id is sum(council_tax_id)
+    avg_council_tax_id is avg(council_tax_id)
+    max_council_tax_id is max(council_tax_id)
+    min_council_tax_id is min(council_tax_id)
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}
+
+// Rent_Arrears
+source: rent_arrears is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Rent_Arrears')
+""") extend {
+  primary_key: council_tax_id
+
+  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+
+  measure:
+    row_count is count()
+    total_council_tax_id is sum(council_tax_id)
+    avg_council_tax_id is avg(council_tax_id)
+    max_council_tax_id is max(council_tax_id)
+    min_council_tax_id is min(council_tax_id)
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}
+
+// Electoral_Register
+source: electoral_register is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Electoral_Register')
+""") extend {
+  primary_key: electoral_register_id
+
+  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+
+  measure:
+    row_count is count()
+    total_electoral_register_id is sum(electoral_register_id)
+    avg_electoral_register_id is avg(electoral_register_id)
+    max_electoral_register_id is max(electoral_register_id)
+    min_electoral_register_id is min(electoral_register_id)
+    total_cmi_cross_ref_id is sum(cmi_cross_ref_id)
+    avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
+    max_cmi_cross_ref_id is max(cmi_cross_ref_id)
+    min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}

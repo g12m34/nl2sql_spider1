@@ -1,0 +1,35 @@
+{
+  "db_id": "singer",
+  "query_count": 30,
+  "tables_used": [
+    "singer",
+    "song"
+  ],
+  "dimensions": {
+    "singer": [
+      "birth_year",
+      "citizenship",
+      "name",
+      "net_worth_millions",
+      "singer_id"
+    ],
+    "song": [
+      "sales",
+      "singer_id",
+      "title"
+    ]
+  },
+  "measures": {
+    "singer": {
+      "max": [
+        "net_worth_millions"
+      ]
+    },
+    "song": {
+      "sum": [
+        "sales"
+      ]
+    }
+  },
+  "joins": []
+}

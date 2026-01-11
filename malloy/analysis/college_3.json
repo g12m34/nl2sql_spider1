@@ -1,0 +1,86 @@
+{
+  "db_id": "college_3",
+  "query_count": 74,
+  "tables_used": [
+    "course",
+    "department",
+    "enrolled_in",
+    "faculty",
+    "gradeconversion",
+    "member_of",
+    "minor_in",
+    "student"
+  ],
+  "dimensions": {
+    "course": [
+      "cid",
+      "cname",
+      "credits",
+      "days",
+      "dno",
+      "hours",
+      "instructor"
+    ],
+    "department": [
+      "building",
+      "division",
+      "dname",
+      "dno",
+      "dphone",
+      "room"
+    ],
+    "enrolled_in": [
+      "cid",
+      "grade",
+      "stuid"
+    ],
+    "gradeconversion": [
+      "gradepoint",
+      "lettergrade"
+    ],
+    "student": [
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "sex",
+      "stuid"
+    ],
+    "faculty": [
+      "building",
+      "facid",
+      "fname",
+      "lname",
+      "rank",
+      "room",
+      "sex"
+    ],
+    "minor_in": [
+      "dno",
+      "stuid"
+    ],
+    "member_of": [
+      "dno",
+      "facid"
+    ]
+  },
+  "measures": {
+    "enrolled_in": {
+      "count": [
+        "stuid"
+      ]
+    },
+    "gradeconversion": {
+      "min": [
+        "gradepoint"
+      ],
+      "max": [
+        "gradepoint"
+      ],
+      "avg": [
+        "gradepoint"
+      ]
+    }
+  },
+  "joins": []
+}

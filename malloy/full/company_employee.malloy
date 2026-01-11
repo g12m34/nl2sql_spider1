@@ -1,0 +1,88 @@
+// Malloy semantic layer for: company_employee
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/company_employee/company_employee.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// company
+source: company is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'company')
+""") extend {
+  primary_key: Company_ID
+
+  dimension:
+    company_i_d is Company_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_company_i_d is sum(Company_ID)
+    avg_company_i_d is avg(Company_ID)
+    max_company_i_d is max(Company_ID)
+    min_company_i_d is min(Company_ID)
+    total_sales_in_billion is sum(Sales_in_Billion)
+    avg_sales_in_billion is avg(Sales_in_Billion)
+    max_sales_in_billion is max(Sales_in_Billion)
+    min_sales_in_billion is min(Sales_in_Billion)
+    total_profits_in_billion is sum(Profits_in_Billion)
+    avg_profits_in_billion is avg(Profits_in_Billion)
+    max_profits_in_billion is max(Profits_in_Billion)
+    min_profits_in_billion is min(Profits_in_Billion)
+    total_assets_in_billion is sum(Assets_in_Billion)
+    avg_assets_in_billion is avg(Assets_in_Billion)
+    max_assets_in_billion is max(Assets_in_Billion)
+    min_assets_in_billion is min(Assets_in_Billion)
+    total_market_value_in_billion is sum(Market_Value_in_Billion)
+    avg_market_value_in_billion is avg(Market_Value_in_Billion)
+    max_market_value_in_billion is max(Market_Value_in_Billion)
+    min_market_value_in_billion is min(Market_Value_in_Billion)
+}
+
+// employment
+source: employment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'employment')
+""") extend {
+  primary_key: Company_ID
+
+  join_one: people_val on People_ID = people_val.People_ID
+  join_one: company on Company_ID = company.Company_ID
+
+  dimension:
+    company_i_d is Company_ID
+    people_i_d is People_ID
+
+  measure:
+    row_count is count()
+    total_company_i_d is sum(Company_ID)
+    avg_company_i_d is avg(Company_ID)
+    max_company_i_d is max(Company_ID)
+    min_company_i_d is min(Company_ID)
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_year_working is sum(Year_working)
+    avg_year_working is avg(Year_working)
+    max_year_working is max(Year_working)
+    min_year_working is min(Year_working)
+}

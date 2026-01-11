@@ -1,0 +1,56 @@
+{
+  "db_id": "tvshow",
+  "query_count": 62,
+  "tables_used": [
+    "cartoon",
+    "tv_channel",
+    "tv_series"
+  ],
+  "dimensions": {
+    "cartoon": [
+      "channel",
+      "directed_by",
+      "id",
+      "original_air_date",
+      "production_code",
+      "title",
+      "written_by"
+    ],
+    "tv_channel": [
+      "content",
+      "country",
+      "hight_definition_tv",
+      "id",
+      "language",
+      "package_option",
+      "pixel_aspect_ratio_par",
+      "series_name"
+    ],
+    "tv_series": [
+      "air_date",
+      "channel",
+      "episode",
+      "id",
+      "rating",
+      "share",
+      "weekly_rank"
+    ]
+  },
+  "measures": {
+    "tv_channel": {
+      "count": [
+        "content",
+        "series_name"
+      ]
+    },
+    "tv_series": {
+      "min": [
+        "share"
+      ],
+      "max": [
+        "share"
+      ]
+    }
+  },
+  "joins": []
+}

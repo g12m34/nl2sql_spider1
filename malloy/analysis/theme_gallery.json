@@ -1,0 +1,57 @@
+{
+  "db_id": "theme_gallery",
+  "query_count": 40,
+  "tables_used": [
+    "artist",
+    "exhibition",
+    "exhibition_record"
+  ],
+  "dimensions": {
+    "artist": [
+      "age",
+      "artist_id",
+      "country",
+      "name",
+      "year_join"
+    ],
+    "exhibition": [
+      "artist_id",
+      "exhibition_id",
+      "theme",
+      "ticket_price",
+      "year"
+    ],
+    "exhibition_record": [
+      "attendance",
+      "date",
+      "exhibition_id"
+    ]
+  },
+  "measures": {
+    "artist": {
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ]
+    },
+    "exhibition": {
+      "avg": [
+        "ticket_price"
+      ],
+      "min": [
+        "ticket_price"
+      ],
+      "max": [
+        "ticket_price"
+      ]
+    },
+    "exhibition_record": {
+      "avg": [
+        "attendance"
+      ]
+    }
+  },
+  "joins": []
+}

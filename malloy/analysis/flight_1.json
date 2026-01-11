@@ -1,0 +1,69 @@
+{
+  "db_id": "flight_1",
+  "query_count": 96,
+  "tables_used": [
+    "aircraft",
+    "certificate",
+    "employee",
+    "flight"
+  ],
+  "dimensions": {
+    "aircraft": [
+      "aid",
+      "distance",
+      "name"
+    ],
+    "employee": [
+      "eid",
+      "name",
+      "salary"
+    ],
+    "flight": [
+      "aid",
+      "arrival_date",
+      "departure_date",
+      "destination",
+      "distance",
+      "flno",
+      "origin",
+      "price"
+    ],
+    "certificate": [
+      "aid",
+      "eid"
+    ]
+  },
+  "measures": {
+    "aircraft": {
+      "avg": [
+        "distance"
+      ],
+      "min": [
+        "distance"
+      ],
+      "max": [
+        "distance"
+      ]
+    },
+    "employee": {
+      "avg": [
+        "salary"
+      ],
+      "max": [
+        "salary"
+      ]
+    },
+    "flight": {
+      "avg": [
+        "distance",
+        "price"
+      ]
+    },
+    "certificate": {
+      "count": [
+        "eid"
+      ]
+    }
+  },
+  "joins": []
+}

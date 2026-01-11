@@ -1,0 +1,57 @@
+{
+  "db_id": "manufactory_1",
+  "query_count": 80,
+  "tables_used": [
+    "manufacturers",
+    "products"
+  ],
+  "dimensions": {
+    "manufacturers": [
+      "code",
+      "founder",
+      "headquarter",
+      "name",
+      "revenue"
+    ],
+    "products": [
+      "code",
+      "manufacturer",
+      "name",
+      "price"
+    ]
+  },
+  "measures": {
+    "manufacturers": {
+      "sum": [
+        "revenue"
+      ],
+      "avg": [
+        "revenue"
+      ],
+      "max": [
+        "revenue"
+      ],
+      "min": [
+        "revenue"
+      ],
+      "count": [
+        "name"
+      ]
+    },
+    "products": {
+      "avg": [
+        "price"
+      ],
+      "count": [
+        "name"
+      ],
+      "max": [
+        "price"
+      ],
+      "min": [
+        "price"
+      ]
+    }
+  },
+  "joins": []
+}

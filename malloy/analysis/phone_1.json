@@ -1,0 +1,60 @@
+{
+  "db_id": "phone_1",
+  "query_count": 29,
+  "tables_used": [
+    "chip_model",
+    "phone",
+    "screen_mode"
+  ],
+  "dimensions": {
+    "chip_model": [
+      "launch_year",
+      "model_name",
+      "ram_mib",
+      "rom_mib",
+      "wifi"
+    ],
+    "phone": [
+      "accreditation_level",
+      "accreditation_type",
+      "chip_model",
+      "company_name",
+      "hardware_model_name",
+      "screen_mode"
+    ],
+    "screen_mode": [
+      "char_cells",
+      "graphics_mode",
+      "hardware_colours",
+      "pixels",
+      "type",
+      "used_kb"
+    ]
+  },
+  "measures": {
+    "chip_model": {
+      "min": [
+        "ram_mib"
+      ],
+      "max": [
+        "ram_mib"
+      ],
+      "avg": [
+        "ram_mib",
+        "rom_mib"
+      ]
+    },
+    "screen_mode": {
+      "avg": [
+        "used_kb"
+      ],
+      "min": [
+        "used_kb"
+      ],
+      "max": [
+        "used_kb"
+      ]
+    }
+  },
+  "joins": []
+}

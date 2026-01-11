@@ -1,0 +1,39 @@
+{
+  "db_id": "coffee_shop",
+  "query_count": 18,
+  "tables_used": [
+    "happy_hour",
+    "member",
+    "shop"
+  ],
+  "dimensions": {
+    "member": [
+      "address",
+      "age",
+      "member_id",
+      "membership_card",
+      "name",
+      "time_of_purchase"
+    ],
+    "shop": [
+      "address",
+      "num_of_staff",
+      "open_year",
+      "score",
+      "shop_id"
+    ],
+    "happy_hour": [
+      "month",
+      "shop_id"
+    ]
+  },
+  "measures": {
+    "shop": {
+      "avg": [
+        "num_of_staff",
+        "score"
+      ]
+    }
+  },
+  "joins": []
+}

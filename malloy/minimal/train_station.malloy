@@ -1,0 +1,42 @@
+// Malloy semantic layer for: train_station
+// Auto-generated from 23 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: station is duckdb.table('station') extend {
+  dimension:
+    annual_entry_exit is Annual_entry_exit
+    annual_interchanges is Annual_interchanges
+    location is Location
+    main_services is Main_Services
+    name is Name
+    number_of_platforms is Number_of_Platforms
+    station_id is Station_ID
+    total_passengers is Total_Passengers
+  measure:
+    row_count is count()
+    sum_number_of_platforms is sum(number_of_platforms)
+    sum_total_passengers is sum(total_passengers)
+    avg_total_passengers is avg(total_passengers)
+    max_total_passengers is max(total_passengers)
+}
+
+source: train is duckdb.table('train') extend {
+  dimension:
+    name is Name
+    service is Service
+    time is Time
+    train_id is Train_ID
+  measure:
+    row_count is count()
+}
+
+source: train_station is duckdb.table('train_station') extend {
+  dimension:
+    station_id is Station_ID
+    train_id is Train_ID
+  measure:
+    row_count is count()
+}

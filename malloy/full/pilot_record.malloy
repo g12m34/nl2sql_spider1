@@ -1,0 +1,86 @@
+// Malloy semantic layer for: pilot_record
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite
+
+// aircraft
+source: aircraft is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite', 'aircraft')
+""") extend {
+  primary_key: Aircraft_ID
+
+  dimension:
+    aircraft_i_d is Aircraft_ID
+
+  measure:
+    row_count is count()
+    total_aircraft_i_d is sum(Aircraft_ID)
+    avg_aircraft_i_d is avg(Aircraft_ID)
+    max_aircraft_i_d is max(Aircraft_ID)
+    min_aircraft_i_d is min(Aircraft_ID)
+    total_order_year is sum(Order_Year)
+    avg_order_year is avg(Order_Year)
+    max_order_year is max(Order_Year)
+    min_order_year is min(Order_Year)
+}
+
+// pilot
+source: pilot is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite', 'pilot')
+""") extend {
+  primary_key: Pilot_ID
+
+  dimension:
+    pilot_i_d is Pilot_ID
+    rank_val is `Rank`
+    position_val is `Position`
+
+  measure:
+    row_count is count()
+    total_pilot_i_d is sum(Pilot_ID)
+    avg_pilot_i_d is avg(Pilot_ID)
+    max_pilot_i_d is max(Pilot_ID)
+    min_pilot_i_d is min(Pilot_ID)
+    total_rank_val is sum(`Rank`)
+    avg_rank_val is avg(`Rank`)
+    max_rank_val is max(`Rank`)
+    min_rank_val is min(`Rank`)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_join_year is sum(Join_Year)
+    avg_join_year is avg(Join_Year)
+    max_join_year is max(Join_Year)
+    min_join_year is min(Join_Year)
+}
+
+// pilot_record
+source: pilot_record is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite', 'pilot_record')
+""") extend {
+  primary_key: Pilot_ID
+
+  join_one: aircraft on Aircraft_ID = aircraft.Aircraft_ID
+  join_one: pilot on Pilot_ID = pilot.Pilot_ID
+
+  dimension:
+    record_i_d is Record_ID
+    pilot_i_d is Pilot_ID
+    aircraft_i_d is Aircraft_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_record_i_d is sum(Record_ID)
+    avg_record_i_d is avg(Record_ID)
+    max_record_i_d is max(Record_ID)
+    min_record_i_d is min(Record_ID)
+    total_pilot_i_d is sum(Pilot_ID)
+    avg_pilot_i_d is avg(Pilot_ID)
+    max_pilot_i_d is max(Pilot_ID)
+    min_pilot_i_d is min(Pilot_ID)
+    total_aircraft_i_d is sum(Aircraft_ID)
+    avg_aircraft_i_d is avg(Aircraft_ID)
+    max_aircraft_i_d is max(Aircraft_ID)
+    min_aircraft_i_d is min(Aircraft_ID)
+}

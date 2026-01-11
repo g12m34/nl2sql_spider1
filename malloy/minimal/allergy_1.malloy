@@ -1,0 +1,42 @@
+// Malloy semantic layer for: allergy_1
+// Auto-generated from 98 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: allergy_type is duckdb.table('Allergy_Type') extend {
+  dimension:
+    allergy is Allergy
+    allergytype is AllergyType
+  measure:
+    row_count is count()
+    count_allergy is count(allergy)
+    count_allergytype is count(allergytype)
+}
+
+source: has_allergy is duckdb.table('Has_Allergy') extend {
+  dimension:
+    allergy is Allergy
+    stuid is StuID
+  measure:
+    row_count is count()
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    advisor is Advisor
+    age is Age
+    city_code is city_code
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    max_age is max(age)
+    count_advisor is count(advisor)
+}

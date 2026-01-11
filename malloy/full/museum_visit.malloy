@@ -1,0 +1,80 @@
+// Malloy semantic layer for: museum_visit
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite
+
+// museum
+source: museum is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite', 'museum')
+""") extend {
+  primary_key: Museum_ID
+
+  dimension:
+    museum_i_d is Museum_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_museum_i_d is sum(Museum_ID)
+    avg_museum_i_d is avg(Museum_ID)
+    max_museum_i_d is max(Museum_ID)
+    min_museum_i_d is min(Museum_ID)
+    total_num_of_staff is sum(Num_of_Staff)
+    avg_num_of_staff is avg(Num_of_Staff)
+    max_num_of_staff is max(Num_of_Staff)
+    min_num_of_staff is min(Num_of_Staff)
+}
+
+// visitor
+source: visitor is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite', 'visitor')
+""") extend {
+  primary_key: ID
+
+  dimension:
+    i_d is ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_i_d is sum(ID)
+    avg_i_d is avg(ID)
+    max_i_d is max(ID)
+    min_i_d is min(ID)
+    total_level_of_membership is sum(Level_of_membership)
+    avg_level_of_membership is avg(Level_of_membership)
+    max_level_of_membership is max(Level_of_membership)
+    min_level_of_membership is min(Level_of_membership)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// visit
+source: visit is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite', 'visit')
+""") extend {
+  primary_key: Museum_ID
+
+  join_one: visitor on visitor_ID = visitor.ID
+  join_one: museum on Museum_ID = museum.Museum_ID
+
+  dimension:
+    museum_i_d is Museum_ID
+    visitor_i_d is visitor_ID
+
+  measure:
+    row_count is count()
+    total_museum_i_d is sum(Museum_ID)
+    avg_museum_i_d is avg(Museum_ID)
+    max_museum_i_d is max(Museum_ID)
+    min_museum_i_d is min(Museum_ID)
+    total_num_of_ticket is sum(Num_of_Ticket)
+    avg_num_of_ticket is avg(Num_of_Ticket)
+    max_num_of_ticket is max(Num_of_Ticket)
+    min_num_of_ticket is min(Num_of_Ticket)
+    total_total_spent is sum(Total_spent)
+    avg_total_spent is avg(Total_spent)
+    max_total_spent is max(Total_spent)
+    min_total_spent is min(Total_spent)
+}

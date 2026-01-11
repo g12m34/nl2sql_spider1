@@ -1,0 +1,60 @@
+{
+  "db_id": "student_assessment",
+  "query_count": 53,
+  "tables_used": [
+    "addresses",
+    "candidate_assessments",
+    "candidates",
+    "courses",
+    "people",
+    "people_addresses",
+    "student_course_attendance",
+    "student_course_registrations",
+    "students"
+  ],
+  "dimensions": {
+    "courses": [
+      "course_id",
+      "course_name"
+    ],
+    "student_course_registrations": [
+      "course_id",
+      "registration_date",
+      "student_id"
+    ],
+    "people": [
+      "cell_mobile_number",
+      "email_address",
+      "first_name",
+      "last_name",
+      "person_id"
+    ],
+    "candidates": [
+      "candidate_id"
+    ],
+    "students": [
+      "student_details",
+      "student_id"
+    ],
+    "student_course_attendance": [
+      "course_id",
+      "date_of_attendance",
+      "student_id"
+    ],
+    "candidate_assessments": [
+      "asessment_outcome_code",
+      "assessment_date",
+      "candidate_id"
+    ],
+    "addresses": [
+      "address_id",
+      "city"
+    ],
+    "people_addresses": [
+      "address_id",
+      "person_id"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

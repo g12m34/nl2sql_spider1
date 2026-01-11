@@ -1,0 +1,131 @@
+// Malloy semantic layer for: document_management
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/document_management/document_management.sqlite
+
+// Roles
+source: roles is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Roles')
+""") extend {
+  primary_key: role_code
+
+  measure:
+    row_count is count()
+}
+
+// Document_Structures
+source: document_structures is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Structures')
+""") extend {
+  primary_key: document_structure_code
+
+  measure:
+    row_count is count()
+}
+
+// Functional_Areas
+source: functional_areas is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Functional_Areas')
+""") extend {
+  primary_key: functional_area_code
+
+  measure:
+    row_count is count()
+}
+
+// Images
+source: images is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Images')
+""") extend {
+  primary_key: image_id
+
+  measure:
+    row_count is count()
+    total_image_id is sum(image_id)
+    avg_image_id is avg(image_id)
+    max_image_id is max(image_id)
+    min_image_id is min(image_id)
+}
+
+// Users
+source: users is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Users')
+""") extend {
+  primary_key: user_id
+
+  join_one: roles on role_code = roles.role_code
+
+  measure:
+    row_count is count()
+    total_user_id is sum(user_id)
+    avg_user_id is avg(user_id)
+    max_user_id is max(user_id)
+    min_user_id is min(user_id)
+}
+
+// Documents
+source: documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Documents')
+""") extend {
+  primary_key: document_code
+
+  join_one: document_structures on document_structure_code = document_structures.document_structure_code
+
+  measure:
+    row_count is count()
+    total_access_count is sum(access_count)
+    avg_access_count is avg(access_count)
+    max_access_count is max(access_count)
+    min_access_count is min(access_count)
+}
+
+// Document_Functional_Areas
+source: document_functional_areas is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Functional_Areas')
+""") extend {
+  join_one: functional_areas on functional_area_code = functional_areas.functional_area_code
+  join_one: documents on document_code = documents.document_code
+
+  measure:
+    row_count is count()
+}
+
+// Document_Sections
+source: document_sections is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Sections')
+""") extend {
+  primary_key: section_id
+
+  join_one: documents on document_code = documents.document_code
+
+  measure:
+    row_count is count()
+    total_section_id is sum(section_id)
+    avg_section_id is avg(section_id)
+    max_section_id is max(section_id)
+    min_section_id is min(section_id)
+    total_section_sequence is sum(section_sequence)
+    avg_section_sequence is avg(section_sequence)
+    max_section_sequence is max(section_sequence)
+    min_section_sequence is min(section_sequence)
+}
+
+// Document_Sections_Images
+source: document_sections_images is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Sections_Images')
+""") extend {
+  primary_key: section_id
+
+  join_one: images on image_id = images.image_id
+  join_one: document_sections on section_id = document_sections.section_id
+
+  measure:
+    row_count is count()
+    total_section_id is sum(section_id)
+    avg_section_id is avg(section_id)
+    max_section_id is max(section_id)
+    min_section_id is min(section_id)
+    total_image_id is sum(image_id)
+    avg_image_id is avg(image_id)
+    max_image_id is max(image_id)
+    min_image_id is min(image_id)
+}

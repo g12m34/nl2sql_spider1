@@ -1,0 +1,33 @@
+// Malloy semantic layer for: county_public_safety
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: city is duckdb.table('city') extend {
+  dimension:
+    black is Black
+    county_id is County_ID
+    hispanic is Hispanic
+    name is Name
+    white is White
+  measure:
+    row_count is count()
+}
+
+source: county_public_safety is duckdb.table('county_public_safety') extend {
+  dimension:
+    case_burden is Case_burden
+    county_id is County_ID
+    crime_rate is Crime_rate
+    location is Location
+    name is Name
+    police_force is Police_force
+    police_officers is Police_officers
+    population is Population
+  measure:
+    row_count is count()
+    min_crime_rate is min(crime_rate)
+    max_crime_rate is max(crime_rate)
+}

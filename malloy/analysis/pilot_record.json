@@ -1,0 +1,32 @@
+{
+  "db_id": "pilot_record",
+  "query_count": 15,
+  "tables_used": [
+    "aircraft",
+    "pilot",
+    "pilot_record"
+  ],
+  "dimensions": {
+    "pilot": [
+      "age",
+      "join_year",
+      "nationality",
+      "pilot_id",
+      "pilot_name",
+      "position",
+      "rank",
+      "team"
+    ],
+    "aircraft": [
+      "aircraft_id",
+      "fleet_series",
+      "model"
+    ],
+    "pilot_record": [
+      "aircraft_id",
+      "pilot_id"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

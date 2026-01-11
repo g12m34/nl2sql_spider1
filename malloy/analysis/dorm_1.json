@@ -1,0 +1,74 @@
+{
+  "db_id": "dorm_1",
+  "query_count": 100,
+  "tables_used": [
+    "dorm",
+    "dorm_amenity",
+    "has_amenity",
+    "lives_in",
+    "student"
+  ],
+  "dimensions": {
+    "dorm": [
+      "dorm_name",
+      "dormid",
+      "gender",
+      "student_capacity"
+    ],
+    "student": [
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ],
+    "has_amenity": [
+      "amenid",
+      "dormid"
+    ],
+    "dorm_amenity": [
+      "amenid",
+      "amenity_name"
+    ],
+    "lives_in": [
+      "dormid",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "dorm": {
+      "sum": [
+        "student_capacity"
+      ],
+      "avg": [
+        "student_capacity"
+      ],
+      "count": [
+        "gender"
+      ],
+      "max": [
+        "student_capacity"
+      ]
+    },
+    "student": {
+      "avg": [
+        "age"
+      ],
+      "count": [
+        "city_code",
+        "major"
+      ],
+      "max": [
+        "age"
+      ]
+    },
+    "has_amenity": {
+      "count": [
+        "dormid"
+      ]
+    }
+  },
+  "joins": []
+}

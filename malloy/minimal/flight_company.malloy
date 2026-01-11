@@ -1,0 +1,44 @@
+// Malloy semantic layer for: flight_company
+// Auto-generated from 19 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: airport is duckdb.table('airport') extend {
+  dimension:
+    city is City
+    country is Country
+    iata is IATA
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: flight is duckdb.table('flight') extend {
+  dimension:
+    airport_id is airport_id
+    altitude is Altitude
+    company_id is company_id
+    date is Date
+    id is id
+    pilot is Pilot
+    vehicle_flight_number is Vehicle_Flight_number
+    velocity is Velocity
+  measure:
+    row_count is count()
+    avg_velocity is avg(velocity)
+}
+
+source: operate_company is duckdb.table('operate_company') extend {
+  dimension:
+    group_equity_shareholding is Group_Equity_Shareholding
+    id is id
+    name is name
+    principal_activities is Principal_activities
+    type is Type
+  measure:
+    row_count is count()
+    max_group_equity_shareholding is max(group_equity_shareholding)
+}

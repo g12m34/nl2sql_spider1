@@ -1,0 +1,84 @@
+// Malloy semantic layer for: customers_and_invoices
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: accounts is duckdb.table('Accounts') extend {
+  dimension:
+    account_id is account_id
+    account_name is account_name
+    customer_id is customer_id
+    date_account_opened is date_account_opened
+    other_account_details is other_account_details
+  measure:
+    row_count is count()
+    count_customer_id is count(customer_id)
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_first_name is customer_first_name
+    customer_id is customer_id
+    customer_last_name is customer_last_name
+    gender is gender
+    phone_number is phone_number
+  measure:
+    row_count is count()
+}
+
+source: financial_transactions is duckdb.table('Financial_Transactions') extend {
+  dimension:
+    account_id is account_id
+    invoice_number is invoice_number
+    transaction_amount is transaction_amount
+    transaction_id is transaction_id
+    transaction_type is transaction_type
+  measure:
+    row_count is count()
+    sum_transaction_amount is sum(transaction_amount)
+    avg_transaction_amount is avg(transaction_amount)
+    min_transaction_amount is min(transaction_amount)
+    max_transaction_amount is max(transaction_amount)
+}
+
+source: invoices is duckdb.table('Invoices') extend {
+  dimension:
+    invoice_date is invoice_date
+    invoice_number is invoice_number
+    order_id is order_id
+  measure:
+    row_count is count()
+}
+
+source: order_items is duckdb.table('Order_Items') extend {
+  dimension:
+    order_id is order_id
+    product_id is product_id
+    product_quantity is product_quantity
+  measure:
+    row_count is count()
+    sum_product_quantity is sum(product_quantity)
+    count_order_id is count(order_id)
+    count_product_id is count(product_id)
+}
+
+source: orders is duckdb.table('Orders') extend {
+  dimension:
+    customer_id is customer_id
+    order_details is order_details
+    order_id is order_id
+  measure:
+    row_count is count()
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_color is product_color
+    product_id is product_id
+    product_name is product_name
+    product_size is product_size
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,85 @@
+// Malloy semantic layer for: customers_and_addresses
+// Auto-generated from 88 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_content is address_content
+    address_id is address_id
+    city is city
+    country is country
+    state_province_county is state_province_county
+    zip_postcode is zip_postcode
+  measure:
+    row_count is count()
+    count_address_id is count(address_id)
+}
+
+source: customer_addresses is duckdb.table('Customer_Addresses') extend {
+  dimension:
+    address_id is address_id
+    customer_id is customer_id
+  measure:
+    row_count is count()
+}
+
+source: customer_contact_channels is duckdb.table('Customer_Contact_Channels') extend {
+  dimension:
+    active_from_date is active_from_date
+    active_to_date is active_to_date
+    channel_code is channel_code
+    contact_number is contact_number
+    customer_id is customer_id
+  measure:
+    row_count is count()
+    avg_active_from_date is avg(active_from_date)
+    avg_active_to_date is avg(active_to_date)
+    max_active_to_date is max(active_to_date)
+    count_customer_id is count(customer_id)
+}
+
+source: customer_orders is duckdb.table('Customer_Orders') extend {
+  dimension:
+    customer_id is customer_id
+    order_date is order_date
+    order_details is order_details
+    order_id is order_id
+    order_status is order_status
+  measure:
+    row_count is count()
+    count_customer_id is count(customer_id)
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_id is customer_id
+    customer_name is customer_name
+    date_became_customer is date_became_customer
+    payment_method is payment_method
+  measure:
+    row_count is count()
+}
+
+source: order_items is duckdb.table('Order_Items') extend {
+  dimension:
+    order_id is order_id
+    order_quantity is order_quantity
+    product_id is product_id
+  measure:
+    row_count is count()
+    sum_order_quantity is sum(order_quantity)
+    avg_order_quantity is avg(order_quantity)
+    max_order_quantity is max(order_quantity)
+    count_product_id is count(product_id)
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_details is product_details
+    product_id is product_id
+  measure:
+    row_count is count()
+}

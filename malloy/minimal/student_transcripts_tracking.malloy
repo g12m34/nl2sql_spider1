@@ -1,0 +1,116 @@
+// Malloy semantic layer for: student_transcripts_tracking
+// Auto-generated from 78 ground-truth SQL queries
+// Tables used: 11
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is address_id
+    city is city
+    country is country
+    line_1 is line_1
+    line_2 is line_2
+    state_province_county is state_province_county
+    zip_postcode is zip_postcode
+  measure:
+    row_count is count()
+}
+
+source: courses is duckdb.table('Courses') extend {
+  dimension:
+    course_description is course_description
+    course_id is course_id
+    course_name is course_name
+  measure:
+    row_count is count()
+}
+
+source: degree_programs is duckdb.table('Degree_Programs') extend {
+  dimension:
+    degree_program_id is degree_program_id
+    degree_summary_name is degree_summary_name
+    department_id is department_id
+  measure:
+    row_count is count()
+    count_degree_summary_name is count(degree_summary_name)
+    count_department_id is count(department_id)
+}
+
+source: departments is duckdb.table('Departments') extend {
+  dimension:
+    department_description is department_description
+    department_id is department_id
+    department_name is department_name
+  measure:
+    row_count is count()
+}
+
+source: sections is duckdb.table('Sections') extend {
+  dimension:
+    course_id is course_id
+    section_description is section_description
+    section_name is section_name
+  measure:
+    row_count is count()
+}
+
+source: semesters is duckdb.table('Semesters') extend {
+  dimension:
+    semester_id is semester_id
+    semester_name is semester_name
+  measure:
+    row_count is count()
+}
+
+source: student_enrolment is duckdb.table('Student_Enrolment') extend {
+  dimension:
+    degree_program_id is degree_program_id
+    semester_id is semester_id
+    student_id is student_id
+  measure:
+    row_count is count()
+}
+
+source: student_enrolment_courses is duckdb.table('Student_Enrolment_Courses') extend {
+  dimension:
+    course_id is course_id
+  measure:
+    row_count is count()
+}
+
+source: students is duckdb.table('Students') extend {
+  dimension:
+    cell_mobile_number is cell_mobile_number
+    current_address_id is current_address_id
+    date_first_registered is date_first_registered
+    date_left is date_left
+    first_name is first_name
+    last_name is last_name
+    middle_name is middle_name
+    other_student_details is other_student_details
+    permanent_address_id is permanent_address_id
+    student_id is student_id
+  measure:
+    row_count is count()
+    count_current_address_id is count(current_address_id)
+}
+
+source: transcript_contents is duckdb.table('Transcript_Contents') extend {
+  dimension:
+    student_course_id is student_course_id
+    transcript_id is transcript_id
+  measure:
+    row_count is count()
+}
+
+source: transcripts is duckdb.table('Transcripts') extend {
+  dimension:
+    other_details is other_details
+    transcript_date is transcript_date
+    transcript_id is transcript_id
+  measure:
+    row_count is count()
+    avg_transcript_date is avg(transcript_date)
+}

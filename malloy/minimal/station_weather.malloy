@@ -1,0 +1,55 @@
+// Malloy semantic layer for: station_weather
+// Auto-generated from 16 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: route is duckdb.table('route') extend {
+  dimension:
+    station_id is station_id
+    train_id is train_id
+  measure:
+    row_count is count()
+}
+
+source: station is duckdb.table('station') extend {
+  dimension:
+    id is id
+    local_authority is local_authority
+    network_name is network_name
+    services is services
+  measure:
+    row_count is count()
+    count_services is count(services)
+}
+
+source: train is duckdb.table('train') extend {
+  dimension:
+    destination is destination
+    id is id
+    name is name
+    origin is origin
+    time is time
+    train_number is train_number
+  measure:
+    row_count is count()
+}
+
+source: weekly_weather is duckdb.table('weekly_weather') extend {
+  dimension:
+    day_of_week is day_of_week
+    high_temperature is high_temperature
+    low_temperature is low_temperature
+    precipitation is precipitation
+    station_id is station_id
+    wind_speed_mph is wind_speed_mph
+  measure:
+    row_count is count()
+    avg_high_temperature is avg(high_temperature)
+    avg_precipitation is avg(precipitation)
+    min_low_temperature is min(low_temperature)
+    max_low_temperature is max(low_temperature)
+    max_precipitation is max(precipitation)
+    max_wind_speed_mph is max(wind_speed_mph)
+}

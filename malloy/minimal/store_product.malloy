@@ -1,0 +1,55 @@
+// Malloy semantic layer for: store_product
+// Auto-generated from 44 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: district is duckdb.table('district') extend {
+  dimension:
+    city_area is City_Area
+    city_population is City_Population
+    district_id is District_ID
+    district_name is District_name
+    headquartered_city is Headquartered_City
+  measure:
+    row_count is count()
+    sum_city_population is sum(city_population)
+    avg_city_area is avg(city_area)
+}
+
+source: product is duckdb.table('product') extend {
+  dimension:
+    max_page_size is max_page_size
+    pages_per_minute_color is pages_per_minute_color
+    product is product
+    product_id is product_id
+  measure:
+    row_count is count()
+    avg_pages_per_minute_color is avg(pages_per_minute_color)
+}
+
+source: store is duckdb.table('store') extend {
+  dimension:
+    store_id is Store_ID
+    store_name is Store_Name
+    type is Type
+  measure:
+    row_count is count()
+}
+
+source: store_district is duckdb.table('store_district') extend {
+  dimension:
+    district_id is District_ID
+    store_id is Store_ID
+  measure:
+    row_count is count()
+}
+
+source: store_product is duckdb.table('store_product') extend {
+  dimension:
+    product_id is Product_ID
+    store_id is Store_ID
+  measure:
+    row_count is count()
+}

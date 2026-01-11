@@ -1,0 +1,38 @@
+// Malloy semantic layer for: wrestler
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/wrestler/wrestler.sqlite
+
+// wrestler
+source: wrestler is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wrestler/wrestler.sqlite', 'wrestler')
+""") extend {
+  primary_key: Wrestler_ID
+
+  dimension:
+    wrestler_i_d is Wrestler_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_wrestler_i_d is sum(Wrestler_ID)
+    avg_wrestler_i_d is avg(Wrestler_ID)
+    max_wrestler_i_d is max(Wrestler_ID)
+    min_wrestler_i_d is min(Wrestler_ID)
+}
+
+// Elimination
+source: elimination is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wrestler/wrestler.sqlite', 'Elimination')
+""") extend {
+  primary_key: Elimination_ID
+
+  join_one: wrestler on Wrestler_ID = wrestler.Wrestler_ID
+
+  dimension:
+    elimination_i_d is Elimination_ID
+    wrestler_i_d is Wrestler_ID
+    time_val is `Time`
+
+  measure:
+    row_count is count()
+}

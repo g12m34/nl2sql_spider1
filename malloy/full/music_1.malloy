@@ -1,0 +1,67 @@
+// Malloy semantic layer for: music_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/music_1/music_1.sqlite
+
+// genre
+source: genre is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'genre')
+""") extend {
+  primary_key: g_name
+
+  measure:
+    row_count is count()
+}
+
+// artist
+source: artist is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'artist')
+""") extend {
+  primary_key: artist_name
+
+  join_one: genre on preferred_genre = genre.g_name
+
+  measure:
+    row_count is count()
+}
+
+// files
+source: files is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'files')
+""") extend {
+  primary_key: f_id
+
+  join_one: artist on artist_name = artist.artist_name
+
+  measure:
+    row_count is count()
+    total_f_id is sum(f_id)
+    avg_f_id is avg(f_id)
+    max_f_id is max(f_id)
+    min_f_id is min(f_id)
+}
+
+// song
+source: song is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'song')
+""") extend {
+  primary_key: song_name
+
+  join_one: genre on genre_is = genre.g_name
+  join_one: files on f_id = files.f_id
+  join_one: artist on artist_name = artist.artist_name
+
+  measure:
+    row_count is count()
+    total_f_id is sum(f_id)
+    avg_f_id is avg(f_id)
+    max_f_id is max(f_id)
+    min_f_id is min(f_id)
+    total_rating is sum(rating)
+    avg_rating is avg(rating)
+    max_rating is max(rating)
+    min_rating is min(rating)
+    total_resolution is sum(resolution)
+    avg_resolution is avg(resolution)
+    max_resolution is max(resolution)
+    min_resolution is min(resolution)
+}

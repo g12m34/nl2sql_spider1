@@ -1,0 +1,71 @@
+// Malloy semantic layer for: phone_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/phone_1/phone_1.sqlite
+
+// chip_model
+source: chip_model is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'chip_model')
+""") extend {
+  primary_key: Model_name
+
+  dimension:
+    r_a_m_mi_b is RAM_MiB
+    r_o_m_mi_b is ROM_MiB
+    wi_fi is WiFi
+
+  measure:
+    row_count is count()
+    total_launch_year is sum(Launch_year)
+    avg_launch_year is avg(Launch_year)
+    max_launch_year is max(Launch_year)
+    min_launch_year is min(Launch_year)
+    total_r_a_m_mi_b is sum(RAM_MiB)
+    avg_r_a_m_mi_b is avg(RAM_MiB)
+    max_r_a_m_mi_b is max(RAM_MiB)
+    min_r_a_m_mi_b is min(RAM_MiB)
+    total_r_o_m_mi_b is sum(ROM_MiB)
+    avg_r_o_m_mi_b is avg(ROM_MiB)
+    max_r_o_m_mi_b is max(ROM_MiB)
+    min_r_o_m_mi_b is min(ROM_MiB)
+}
+
+// screen_mode
+source: screen_mode is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'screen_mode')
+""") extend {
+  primary_key: Graphics_mode
+
+  dimension:
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_graphics_mode is sum(Graphics_mode)
+    avg_graphics_mode is avg(Graphics_mode)
+    max_graphics_mode is max(Graphics_mode)
+    min_graphics_mode is min(Graphics_mode)
+    total_hardware_colours is sum(Hardware_colours)
+    avg_hardware_colours is avg(Hardware_colours)
+    max_hardware_colours is max(Hardware_colours)
+    min_hardware_colours is min(Hardware_colours)
+    total_used_kb is sum(used_kb)
+    avg_used_kb is avg(used_kb)
+    max_used_kb is max(used_kb)
+    min_used_kb is min(used_kb)
+}
+
+// phone
+source: phone is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'phone')
+""") extend {
+  primary_key: Hardware_Model_name
+
+  join_one: ref_chip_model is chip_model on chip_model = ref_chip_model.Model_name
+  join_one: ref_screen_mode is screen_mode on screen_mode = ref_screen_mode.Graphics_mode
+
+  dimension:
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+}

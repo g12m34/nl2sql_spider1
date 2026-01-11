@@ -1,0 +1,39 @@
+// Malloy semantic layer for: real_estate_properties
+// Auto-generated from 4 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: other_available_features is duckdb.table('Other_Available_Features') extend {
+  dimension:
+    feature_name is feature_name
+    feature_type_code is feature_type_code
+  measure:
+    row_count is count()
+}
+
+source: properties is duckdb.table('Properties') extend {
+  dimension:
+    property_name is property_name
+    property_type_code is property_type_code
+    room_count is room_count
+  measure:
+    row_count is count()
+}
+
+source: ref_feature_types is duckdb.table('Ref_Feature_Types') extend {
+  dimension:
+    feature_type_code is feature_type_code
+    feature_type_name is feature_type_name
+  measure:
+    row_count is count()
+}
+
+source: ref_property_types is duckdb.table('Ref_Property_Types') extend {
+  dimension:
+    property_type_code is property_type_code
+    property_type_description is property_type_description
+  measure:
+    row_count is count()
+}

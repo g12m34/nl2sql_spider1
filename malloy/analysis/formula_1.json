@@ -1,0 +1,90 @@
+{
+  "db_id": "formula_1",
+  "query_count": 80,
+  "tables_used": [
+    "circuits",
+    "constructors",
+    "constructorstandings",
+    "drivers",
+    "driverstandings",
+    "laptimes",
+    "pitstops",
+    "races",
+    "results"
+  ],
+  "dimensions": {
+    "races": [
+      "circuitid",
+      "date",
+      "name",
+      "raceid",
+      "time",
+      "year"
+    ],
+    "drivers": [
+      "driverid",
+      "forename",
+      "nationality",
+      "surname"
+    ],
+    "laptimes": [
+      "driverid",
+      "milliseconds",
+      "position"
+    ],
+    "results": [
+      "driverid",
+      "fastestlapspeed",
+      "raceid"
+    ],
+    "driverstandings": [
+      "driverid",
+      "points",
+      "position",
+      "wins"
+    ],
+    "constructors": [
+      "constructorid",
+      "name",
+      "nationality"
+    ],
+    "constructorstandings": [
+      "constructorid",
+      "points"
+    ],
+    "circuits": [
+      "circuitid",
+      "country",
+      "location",
+      "name"
+    ],
+    "pitstops": [
+      "driverid",
+      "duration",
+      "raceid",
+      "stop"
+    ]
+  },
+  "measures": {
+    "results": {
+      "count": [
+        "driverid"
+      ],
+      "avg": [
+        "fastestlapspeed"
+      ],
+      "max": [
+        "fastestlapspeed"
+      ]
+    },
+    "pitstops": {
+      "max": [
+        "duration"
+      ],
+      "min": [
+        "duration"
+      ]
+    }
+  },
+  "joins": []
+}

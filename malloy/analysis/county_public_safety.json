@@ -1,0 +1,38 @@
+{
+  "db_id": "county_public_safety",
+  "query_count": 40,
+  "tables_used": [
+    "city",
+    "county_public_safety"
+  ],
+  "dimensions": {
+    "county_public_safety": [
+      "case_burden",
+      "county_id",
+      "crime_rate",
+      "location",
+      "name",
+      "police_force",
+      "police_officers",
+      "population"
+    ],
+    "city": [
+      "black",
+      "county_id",
+      "hispanic",
+      "name",
+      "white"
+    ]
+  },
+  "measures": {
+    "county_public_safety": {
+      "min": [
+        "crime_rate"
+      ],
+      "max": [
+        "crime_rate"
+      ]
+    }
+  },
+  "joins": []
+}

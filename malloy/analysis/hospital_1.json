@@ -1,0 +1,142 @@
+{
+  "db_id": "hospital_1",
+  "query_count": 100,
+  "tables_used": [
+    "affiliated_with",
+    "appointment",
+    "block",
+    "department",
+    "medication",
+    "nurse",
+    "on_call",
+    "patient",
+    "physician",
+    "prescribes",
+    "procedures",
+    "room",
+    "stay",
+    "trained_in",
+    "undergoes"
+  ],
+  "dimensions": {
+    "department": [
+      "departmentid",
+      "head",
+      "name"
+    ],
+    "physician": [
+      "employeeid",
+      "name",
+      "position",
+      "ssn"
+    ],
+    "patient": [
+      "name",
+      "pcp",
+      "phone",
+      "ssn"
+    ],
+    "appointment": [
+      "appointmentid",
+      "patient",
+      "physician",
+      "prepnurse",
+      "start"
+    ],
+    "affiliated_with": [
+      "department",
+      "physician",
+      "primaryaffiliation"
+    ],
+    "stay": [
+      "patient",
+      "room",
+      "stayid",
+      "staystart"
+    ],
+    "prescribes": [
+      "dose",
+      "medication",
+      "patient",
+      "physician"
+    ],
+    "medication": [
+      "brand",
+      "code",
+      "name"
+    ],
+    "nurse": [
+      "employeeid",
+      "name"
+    ],
+    "block": [
+      "blockcode",
+      "blockfloor"
+    ],
+    "room": [
+      "blockcode",
+      "blockfloor",
+      "roomtype",
+      "unavailable"
+    ],
+    "undergoes": [
+      "assistingnurse",
+      "dateundergoes",
+      "patient",
+      "stay"
+    ],
+    "on_call": [
+      "blockcode",
+      "blockfloor",
+      "nurse"
+    ],
+    "procedures": [
+      "code",
+      "cost",
+      "name"
+    ],
+    "trained_in": [
+      "physician",
+      "treatment"
+    ]
+  },
+  "measures": {
+    "department": {
+      "count": [
+        "departmentid"
+      ]
+    },
+    "stay": {
+      "count": [
+        "patient"
+      ]
+    },
+    "physician": {
+      "count": [
+        "ssn"
+      ]
+    },
+    "patient": {
+      "count": [
+        "ssn"
+      ]
+    },
+    "room": {
+      "count": [
+        "roomtype"
+      ]
+    },
+    "procedures": {
+      "avg": [
+        "cost"
+      ],
+      "min": [
+        "cost"
+      ],
+      "max": [
+        "cost"
+      ]
+    }
+  },
+  "joins": []
+}

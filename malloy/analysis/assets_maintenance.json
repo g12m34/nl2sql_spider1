@@ -1,0 +1,98 @@
+{
+  "db_id": "assets_maintenance",
+  "query_count": 31,
+  "tables_used": [
+    "asset_parts",
+    "assets",
+    "engineer_skills",
+    "engineer_visits",
+    "fault_log",
+    "fault_log_parts",
+    "maintenance_contracts",
+    "maintenance_engineers",
+    "part_faults",
+    "parts",
+    "skills",
+    "skills_required_to_fix",
+    "staff",
+    "third_party_companies"
+  ],
+  "dimensions": {
+    "assets": [
+      "asset_acquired_date",
+      "asset_details",
+      "asset_disposed_date",
+      "asset_id",
+      "asset_make",
+      "asset_model",
+      "maintenance_contract_id",
+      "supplier_company_id"
+    ],
+    "asset_parts": [
+      "asset_id",
+      "part_id"
+    ],
+    "fault_log": [
+      "asset_id",
+      "fault_description",
+      "fault_log_entry_datetime",
+      "fault_log_entry_id",
+      "recorded_by_staff_id"
+    ],
+    "maintenance_contracts": [
+      "contract_end_date",
+      "contract_start_date",
+      "maintenance_contract_company_id",
+      "maintenance_contract_id"
+    ],
+    "third_party_companies": [
+      "company_id",
+      "company_name"
+    ],
+    "maintenance_engineers": [
+      "company_id",
+      "engineer_id",
+      "first_name",
+      "last_name",
+      "other_details"
+    ],
+    "staff": [
+      "gender",
+      "staff_id",
+      "staff_name"
+    ],
+    "engineer_visits": [
+      "contact_staff_id",
+      "engineer_id",
+      "fault_log_entry_id"
+    ],
+    "parts": [
+      "chargeable_amount",
+      "part_id",
+      "part_name"
+    ],
+    "part_faults": [
+      "fault_short_name",
+      "part_fault_id",
+      "part_id"
+    ],
+    "skills": [
+      "skill_description",
+      "skill_id"
+    ],
+    "engineer_skills": [
+      "engineer_id",
+      "skill_id"
+    ],
+    "skills_required_to_fix": [
+      "part_fault_id",
+      "skill_id"
+    ],
+    "fault_log_parts": [
+      "fault_log_entry_id",
+      "fault_status"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

@@ -1,0 +1,65 @@
+{
+  "db_id": "soccer_2",
+  "query_count": 106,
+  "tables_used": [
+    "college",
+    "player",
+    "tryout"
+  ],
+  "dimensions": {
+    "college": [
+      "cname",
+      "enr",
+      "state"
+    ],
+    "player": [
+      "hs",
+      "pid",
+      "pname",
+      "ycard"
+    ],
+    "tryout": [
+      "cname",
+      "decision",
+      "pid",
+      "ppos"
+    ]
+  },
+  "measures": {
+    "college": {
+      "sum": [
+        "enr"
+      ],
+      "avg": [
+        "enr"
+      ],
+      "min": [
+        "enr"
+      ],
+      "max": [
+        "enr"
+      ],
+      "count": [
+        "state"
+      ]
+    },
+    "player": {
+      "avg": [
+        "hs"
+      ],
+      "min": [
+        "hs"
+      ],
+      "max": [
+        "hs"
+      ]
+    },
+    "tryout": {
+      "count": [
+        "cname",
+        "ppos"
+      ]
+    }
+  },
+  "joins": []
+}

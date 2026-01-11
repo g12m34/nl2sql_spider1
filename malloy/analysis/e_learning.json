@@ -1,0 +1,61 @@
+{
+  "db_id": "e_learning",
+  "query_count": 82,
+  "tables_used": [
+    "course_authors_and_tutors",
+    "courses",
+    "student_course_enrolment",
+    "student_tests_taken",
+    "students",
+    "subjects"
+  ],
+  "dimensions": {
+    "courses": [
+      "author_id",
+      "course_description",
+      "course_id",
+      "course_name",
+      "subject_id"
+    ],
+    "course_authors_and_tutors": [
+      "address_line_1",
+      "author_id",
+      "family_name",
+      "login_name",
+      "personal_name"
+    ],
+    "student_course_enrolment": [
+      "course_id",
+      "date_of_completion",
+      "date_of_enrolment",
+      "registration_id",
+      "student_id"
+    ],
+    "student_tests_taken": [
+      "date_test_taken",
+      "registration_id",
+      "test_result"
+    ],
+    "students": [
+      "date_of_latest_logon",
+      "family_name",
+      "login_name",
+      "middle_name",
+      "personal_name",
+      "student_id"
+    ],
+    "subjects": [
+      "subject_id",
+      "subject_name"
+    ]
+  },
+  "measures": {
+    "student_course_enrolment": {
+      "count": [
+        "course_id",
+        "student_id"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,28 @@
+// Malloy semantic layer for: singer
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: singer is duckdb.table('singer') extend {
+  dimension:
+    birth_year is Birth_Year
+    citizenship is Citizenship
+    name is Name
+    net_worth_millions is Net_Worth_Millions
+    singer_id is Singer_ID
+  measure:
+    row_count is count()
+    max_net_worth_millions is max(net_worth_millions)
+}
+
+source: song is duckdb.table('song') extend {
+  dimension:
+    sales is Sales
+    singer_id is Singer_ID
+    title is Title
+  measure:
+    row_count is count()
+    sum_sales is sum(sales)
+}

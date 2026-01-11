@@ -21,7 +21,22 @@ from pathlib import Path
 
 def load_spider_data(base_path):
     """Load Spider dataset files."""
-    examples_path = base_path / 'spider' / 'evaluation_examples' / 'examples'
+    # Try multiple possible paths
+    possible_paths = [
+        base_path,
+        base_path / 'spider',
+        base_path / 'evaluation_examples' / 'examples',
+        base_path / 'spider' / 'evaluation_examples' / 'examples',
+    ]
+
+    examples_path = None
+    for p in possible_paths:
+        if (p / 'dev.json').exists():
+            examples_path = p
+            break
+
+    if examples_path is None:
+        raise FileNotFoundError(f"Could not find Spider data files in {base_path}")
 
     with open(examples_path / 'dev.json', 'r') as f:
         dev_data = json.load(f)
@@ -179,10 +194,10 @@ def generate_analysis_report(db_id, analysis):
 
 
 def main():
-    # Paths
-    base_path = Path(__file__).parent.parent.parent / 'spider1'
-    output_dir = Path(__file__).parent.parent / 'malloy' / 'sources'
-    analysis_dir = Path(__file__).parent.parent / 'malloy' / 'analysis'
+    # Paths - using the downloaded Spider dataset
+    base_path = Path('/workspace/spider')  # Contains evaluation_examples/examples/
+    output_dir = Path('/workspace/project/malloy/minimal')
+    analysis_dir = Path('/workspace/project/malloy/analysis')
 
     output_dir.mkdir(parents=True, exist_ok=True)
     analysis_dir.mkdir(parents=True, exist_ok=True)

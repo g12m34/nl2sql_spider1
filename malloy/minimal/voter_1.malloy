@@ -1,0 +1,36 @@
+// Malloy semantic layer for: voter_1
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: area_code_state is duckdb.table('AREA_CODE_STATE') extend {
+  dimension:
+    area_code is area_code
+    state is state
+  measure:
+    row_count is count()
+    min_area_code is min(area_code)
+    max_area_code is max(area_code)
+}
+
+source: contestants is duckdb.table('CONTESTANTS') extend {
+  dimension:
+    contestant_name is contestant_name
+    contestant_number is contestant_number
+  measure:
+    row_count is count()
+}
+
+source: votes is duckdb.table('VOTES') extend {
+  dimension:
+    contestant_number is contestant_number
+    created is created
+    phone_number is phone_number
+    state is state
+    vote_id is vote_id
+  measure:
+    row_count is count()
+    max_created is max(created)
+}

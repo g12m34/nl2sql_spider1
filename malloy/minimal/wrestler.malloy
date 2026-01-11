@@ -1,0 +1,29 @@
+// Malloy semantic layer for: wrestler
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: elimination is duckdb.table('Elimination') extend {
+  dimension:
+    eliminated_by is Eliminated_By
+    elimination_move is Elimination_Move
+    team is Team
+    time is Time
+    wrestler_id is Wrestler_ID
+  measure:
+    row_count is count()
+    count_team is count(team)
+}
+
+source: wrestler is duckdb.table('wrestler') extend {
+  dimension:
+    days_held is Days_held
+    location is Location
+    name is Name
+    reign is Reign
+    wrestler_id is Wrestler_ID
+  measure:
+    row_count is count()
+}

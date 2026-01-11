@@ -1,0 +1,36 @@
+// Malloy semantic layer for: manufactory_1
+// Auto-generated from 80 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: manufacturers is duckdb.table('Manufacturers') extend {
+  dimension:
+    code is Code
+    founder is Founder
+    headquarter is Headquarter
+    name is Name
+    revenue is Revenue
+  measure:
+    row_count is count()
+    sum_revenue is sum(revenue)
+    avg_revenue is avg(revenue)
+    min_revenue is min(revenue)
+    max_revenue is max(revenue)
+    count_name is count(name)
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    code is Code
+    manufacturer is Manufacturer
+    name is Name
+    price is Price
+  measure:
+    row_count is count()
+    avg_price is avg(price)
+    min_price is min(price)
+    max_price is max(price)
+    count_name is count(name)
+}

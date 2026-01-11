@@ -1,0 +1,50 @@
+{
+  "db_id": "voter_2",
+  "query_count": 72,
+  "tables_used": [
+    "student",
+    "voting_record"
+  ],
+  "dimensions": {
+    "voting_record": [
+      "class_president_vote",
+      "class_senator_vote",
+      "election_cycle",
+      "president_vote",
+      "registration_date",
+      "secretary_vote",
+      "stuid",
+      "treasurer_vote",
+      "vice_president_vote"
+    ],
+    "student": [
+      "advisor",
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "voting_record": {
+      "count": [
+        "president_vote"
+      ]
+    },
+    "student": {
+      "max": [
+        "age"
+      ],
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

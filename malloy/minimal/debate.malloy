@@ -1,0 +1,35 @@
+// Malloy semantic layer for: debate
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: debate is duckdb.table('debate') extend {
+  dimension:
+    date is Date
+    debate_id is Debate_ID
+    num_of_audience is Num_of_Audience
+    venue is Venue
+  measure:
+    row_count is count()
+}
+
+source: debate_people is duckdb.table('debate_people') extend {
+  dimension:
+    affirmative is Affirmative
+    debate_id is Debate_ID
+    negative is Negative
+  measure:
+    row_count is count()
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    age is Age
+    name is Name
+    party is Party
+    people_id is People_ID
+  measure:
+    row_count is count()
+}

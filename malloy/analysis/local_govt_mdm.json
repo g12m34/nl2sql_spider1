@@ -1,0 +1,55 @@
+{
+  "db_id": "local_govt_mdm",
+  "query_count": 14,
+  "tables_used": [
+    "benefits_overpayments",
+    "business_rates",
+    "cmi_cross_references",
+    "council_tax",
+    "customer_master_index",
+    "electoral_register",
+    "parking_fines",
+    "rent_arrears"
+  ],
+  "dimensions": {
+    "customer_master_index": [
+      "cmi_details",
+      "master_customer_id"
+    ],
+    "cmi_cross_references": [
+      "cmi_cross_ref_id",
+      "master_customer_id",
+      "source_system_code"
+    ],
+    "council_tax": [
+      "cmi_cross_ref_id"
+    ],
+    "business_rates": [
+      "cmi_cross_ref_id"
+    ],
+    "benefits_overpayments": [
+      "cmi_cross_ref_id",
+      "council_tax_id"
+    ],
+    "parking_fines": [
+      "cmi_cross_ref_id",
+      "council_tax_id"
+    ],
+    "rent_arrears": [
+      "cmi_cross_ref_id",
+      "council_tax_id"
+    ],
+    "electoral_register": [
+      "cmi_cross_ref_id",
+      "electoral_register_id"
+    ]
+  },
+  "measures": {
+    "cmi_cross_references": {
+      "count": [
+        "source_system_code"
+      ]
+    }
+  },
+  "joins": []
+}

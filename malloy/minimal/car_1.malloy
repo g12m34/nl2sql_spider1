@@ -1,0 +1,73 @@
+// Malloy semantic layer for: car_1
+// Auto-generated from 92 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: car_makers is duckdb.table('car_makers') extend {
+  dimension:
+    country is Country
+    fullname is FullName
+    id is Id
+    maker is Maker
+  measure:
+    row_count is count()
+}
+
+source: car_names is duckdb.table('car_names') extend {
+  dimension:
+    make is Make
+    makeid is MakeId
+    model is Model
+  measure:
+    row_count is count()
+}
+
+source: cars_data is duckdb.table('cars_data') extend {
+  dimension:
+    accelerate is Accelerate
+    cylinders is Cylinders
+    edispl is Edispl
+    horsepower is Horsepower
+    id is Id
+    mpg is MPG
+    weight is Weight
+    year is Year
+  measure:
+    row_count is count()
+    avg_edispl is avg(edispl)
+    avg_horsepower is avg(horsepower)
+    avg_mpg is avg(mpg)
+    avg_weight is avg(weight)
+    min_horsepower is min(horsepower)
+    min_weight is min(weight)
+    min_year is min(year)
+    max_accelerate is max(accelerate)
+    max_mpg is max(mpg)
+}
+
+source: continents is duckdb.table('continents') extend {
+  dimension:
+    contid is ContId
+    continent is Continent
+  measure:
+    row_count is count()
+}
+
+source: countries is duckdb.table('countries') extend {
+  dimension:
+    continent is Continent
+    countryid is CountryId
+    countryname is CountryName
+  measure:
+    row_count is count()
+}
+
+source: model_list is duckdb.table('model_list') extend {
+  dimension:
+    maker is Maker
+    model is Model
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,47 @@
+// Malloy semantic layer for: battle_death
+// Auto-generated from 16 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: battle is duckdb.table('battle') extend {
+  dimension:
+    bulgarian_commander is bulgarian_commander
+    date is date
+    id is id
+    latin_commander is latin_commander
+    name is name
+    result is result
+  measure:
+    row_count is count()
+    count_result is count(result)
+}
+
+source: death is duckdb.table('death') extend {
+  dimension:
+    caused_by_ship_id is caused_by_ship_id
+    id is id
+    injured is injured
+    killed is killed
+    note is note
+  measure:
+    row_count is count()
+    sum_killed is sum(killed)
+    avg_injured is avg(injured)
+    min_killed is min(killed)
+    max_killed is max(killed)
+}
+
+source: ship is duckdb.table('ship') extend {
+  dimension:
+    disposition_of_ship is disposition_of_ship
+    id is id
+    location is location
+    lost_in_battle is lost_in_battle
+    name is name
+    ship_type is ship_type
+    tonnage is tonnage
+  measure:
+    row_count is count()
+}

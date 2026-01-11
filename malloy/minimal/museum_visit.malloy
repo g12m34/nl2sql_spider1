@@ -1,0 +1,42 @@
+// Malloy semantic layer for: museum_visit
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: museum is duckdb.table('museum') extend {
+  dimension:
+    museum_id is Museum_ID
+    name is Name
+    num_of_staff is Num_of_Staff
+    open_year is Open_Year
+  measure:
+    row_count is count()
+    avg_num_of_staff is avg(num_of_staff)
+    min_num_of_staff is min(num_of_staff)
+}
+
+source: visit is duckdb.table('visit') extend {
+  dimension:
+    museum_id is Museum_ID
+    num_of_ticket is Num_of_Ticket
+    total_spent is Total_spent
+    visitor_id is visitor_ID
+  measure:
+    row_count is count()
+    sum_total_spent is sum(total_spent)
+    avg_num_of_ticket is avg(num_of_ticket)
+    max_num_of_ticket is max(num_of_ticket)
+}
+
+source: visitor is duckdb.table('visitor') extend {
+  dimension:
+    age is Age
+    id is ID
+    level_of_membership is Level_of_membership
+    name is Name
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+}

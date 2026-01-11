@@ -1,0 +1,48 @@
+{
+  "db_id": "inn_1",
+  "query_count": 74,
+  "tables_used": [
+    "reservations",
+    "rooms"
+  ],
+  "dimensions": {
+    "rooms": [
+      "baseprice",
+      "beds",
+      "bedtype",
+      "decor",
+      "maxoccupancy",
+      "roomid",
+      "roomname"
+    ],
+    "reservations": [
+      "adults",
+      "checkin",
+      "checkout",
+      "firstname",
+      "kids",
+      "lastname",
+      "rate",
+      "room"
+    ]
+  },
+  "measures": {
+    "rooms": {
+      "sum": [
+        "beds",
+        "maxoccupancy"
+      ],
+      "avg": [
+        "baseprice"
+      ],
+      "count": [
+        "bedtype",
+        "decor"
+      ],
+      "min": [
+        "baseprice"
+      ]
+    }
+  },
+  "joins": []
+}

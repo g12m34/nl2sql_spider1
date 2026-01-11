@@ -1,0 +1,108 @@
+// Malloy semantic layer for: tracking_software_problems
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite
+
+// Problem_Category_Codes
+source: problem_category_codes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Category_Codes')
+""") extend {
+  primary_key: problem_category_code
+
+  measure:
+    row_count is count()
+}
+
+// Problem_Status_Codes
+source: problem_status_codes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Status_Codes')
+""") extend {
+  primary_key: problem_status_code
+
+  measure:
+    row_count is count()
+}
+
+// Product
+source: product is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Product')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Staff')
+""") extend {
+  primary_key: staff_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+}
+
+// Problems
+source: problems is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problems')
+""") extend {
+  primary_key: problem_id
+
+  join_one: reported_by_staff_staff_val is staff_val on reported_by_staff_id = reported_by_staff_staff_val.staff_id
+  join_one: product on product_id = product.product_id
+  join_one: closure_authorised_by_staff_staff_val is staff_val on closure_authorised_by_staff_id = closure_authorised_by_staff_staff_val.staff_id
+
+  measure:
+    row_count is count()
+    total_problem_id is sum(problem_id)
+    avg_problem_id is avg(problem_id)
+    max_problem_id is max(problem_id)
+    min_problem_id is min(problem_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_closure_authorised_by_staff_id is sum(closure_authorised_by_staff_id)
+    avg_closure_authorised_by_staff_id is avg(closure_authorised_by_staff_id)
+    max_closure_authorised_by_staff_id is max(closure_authorised_by_staff_id)
+    min_closure_authorised_by_staff_id is min(closure_authorised_by_staff_id)
+    total_reported_by_staff_id is sum(reported_by_staff_id)
+    avg_reported_by_staff_id is avg(reported_by_staff_id)
+    max_reported_by_staff_id is max(reported_by_staff_id)
+    min_reported_by_staff_id is min(reported_by_staff_id)
+}
+
+// Problem_Log
+source: problem_log is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Log')
+""") extend {
+  primary_key: problem_log_id
+
+  join_one: problem_status_codes on problem_status_code = problem_status_codes.problem_status_code
+  join_one: problems on problem_id = problems.problem_id
+  join_one: staff_val on assigned_to_staff_id = staff_val.staff_id
+  join_one: problem_category_codes on problem_category_code = problem_category_codes.problem_category_code
+
+  measure:
+    row_count is count()
+    total_problem_log_id is sum(problem_log_id)
+    avg_problem_log_id is avg(problem_log_id)
+    max_problem_log_id is max(problem_log_id)
+    min_problem_log_id is min(problem_log_id)
+    total_assigned_to_staff_id is sum(assigned_to_staff_id)
+    avg_assigned_to_staff_id is avg(assigned_to_staff_id)
+    max_assigned_to_staff_id is max(assigned_to_staff_id)
+    min_assigned_to_staff_id is min(assigned_to_staff_id)
+    total_problem_id is sum(problem_id)
+    avg_problem_id is avg(problem_id)
+    max_problem_id is max(problem_id)
+    min_problem_id is min(problem_id)
+}

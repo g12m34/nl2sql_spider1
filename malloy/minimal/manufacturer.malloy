@@ -1,0 +1,41 @@
+// Malloy semantic layer for: manufacturer
+// Auto-generated from 16 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: furniture is duckdb.table('furniture') extend {
+  dimension:
+    furniture_id is Furniture_ID
+    market_rate is Market_Rate
+    name is Name
+    num_of_component is Num_of_Component
+  measure:
+    row_count is count()
+    sum_market_rate is sum(market_rate)
+    sum_num_of_component is sum(num_of_component)
+}
+
+source: furniture_manufacte is duckdb.table('furniture_manufacte') extend {
+  dimension:
+    furniture_id is Furniture_ID
+    manufacturer_id is Manufacturer_ID
+    price_in_dollar is Price_in_Dollar
+  measure:
+    row_count is count()
+    max_price_in_dollar is max(price_in_dollar)
+}
+
+source: manufacturer is duckdb.table('manufacturer') extend {
+  dimension:
+    manufacturer_id is Manufacturer_ID
+    name is Name
+    num_of_factories is Num_of_Factories
+    num_of_shops is Num_of_Shops
+    open_year is Open_Year
+  measure:
+    row_count is count()
+    avg_num_of_factories is avg(num_of_factories)
+    max_num_of_shops is max(num_of_shops)
+}

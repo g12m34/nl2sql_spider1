@@ -1,0 +1,42 @@
+{
+  "db_id": "voter_1",
+  "query_count": 15,
+  "tables_used": [
+    "area_code_state",
+    "contestants",
+    "votes"
+  ],
+  "dimensions": {
+    "contestants": [
+      "contestant_name",
+      "contestant_number"
+    ],
+    "votes": [
+      "contestant_number",
+      "created",
+      "phone_number",
+      "state",
+      "vote_id"
+    ],
+    "area_code_state": [
+      "area_code",
+      "state"
+    ]
+  },
+  "measures": {
+    "area_code_state": {
+      "min": [
+        "area_code"
+      ],
+      "max": [
+        "area_code"
+      ]
+    },
+    "votes": {
+      "max": [
+        "created"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,37 @@
+// Malloy semantic layer for: scientist_1
+// Auto-generated from 48 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: assignedto is duckdb.table('AssignedTo') extend {
+  dimension:
+    project is Project
+    scientist is Scientist
+  measure:
+    row_count is count()
+    count_scientist is count(scientist)
+}
+
+source: projects is duckdb.table('Projects') extend {
+  dimension:
+    code is Code
+    hours is Hours
+    name is Name
+  measure:
+    row_count is count()
+    sum_hours is sum(hours)
+    avg_hours is avg(hours)
+    min_hours is min(hours)
+    max_hours is max(hours)
+    count_name is count(name)
+}
+
+source: scientists is duckdb.table('Scientists') extend {
+  dimension:
+    name is Name
+    ssn is SSN
+  measure:
+    row_count is count()
+}

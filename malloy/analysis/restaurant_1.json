@@ -1,0 +1,83 @@
+{
+  "db_id": "restaurant_1",
+  "query_count": 22,
+  "tables_used": [
+    "restaurant",
+    "restaurant_type",
+    "student",
+    "type_of_restaurant",
+    "visits_restaurant"
+  ],
+  "dimensions": {
+    "restaurant": [
+      "address",
+      "rating",
+      "resid",
+      "resname"
+    ],
+    "restaurant_type": [
+      "restypedescription",
+      "restypeid",
+      "restypename"
+    ],
+    "student": [
+      "advisor",
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ],
+    "type_of_restaurant": [
+      "resid",
+      "restypeid"
+    ],
+    "visits_restaurant": [
+      "resid",
+      "spent",
+      "stuid",
+      "time"
+    ]
+  },
+  "measures": {
+    "student": {
+      "count": [
+        "advisor",
+        "major"
+      ]
+    },
+    "visits_restaurant": {
+      "sum": [
+        "spent"
+      ]
+    }
+  },
+  "joins": [
+    {
+      "left_table": "restaurant",
+      "left_col": "resid",
+      "right_table": "type_of_restaurant",
+      "right_col": "resid"
+    },
+    {
+      "left_table": "restaurant",
+      "left_col": "resid",
+      "right_table": "visits_restaurant",
+      "right_col": "resid"
+    },
+    {
+      "left_table": "restaurant_type",
+      "left_col": "restypeid",
+      "right_table": "type_of_restaurant",
+      "right_col": "restypeid"
+    },
+    {
+      "left_table": "student",
+      "left_col": "stuid",
+      "right_table": "visits_restaurant",
+      "right_col": "stuid"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+// Malloy semantic layer for: driving_school
+// Auto-generated from 93 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is address_id
+    city is city
+    country is country
+    state_province_county is state_province_county
+    zip_postcode is zip_postcode
+  measure:
+    row_count is count()
+}
+
+source: customer_payments is duckdb.table('Customer_Payments') extend {
+  dimension:
+    amount_payment is amount_payment
+    customer_id is customer_id
+    payment_method_code is payment_method_code
+  measure:
+    row_count is count()
+    sum_amount_payment is sum(amount_payment)
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    amount_outstanding is amount_outstanding
+    cell_mobile_phone_number is cell_mobile_phone_number
+    customer_address_id is customer_address_id
+    customer_id is customer_id
+    customer_status_code is customer_status_code
+    date_became_customer is date_became_customer
+    date_of_birth is date_of_birth
+    email_address is email_address
+    first_name is first_name
+    last_name is last_name
+    phone_number is phone_number
+  measure:
+    row_count is count()
+    avg_amount_outstanding is avg(amount_outstanding)
+    min_amount_outstanding is min(amount_outstanding)
+    max_amount_outstanding is max(amount_outstanding)
+}
+
+source: lessons is duckdb.table('Lessons') extend {
+  dimension:
+    customer_id is customer_id
+    lesson_id is lesson_id
+    lesson_status_code is lesson_status_code
+    lesson_time is lesson_time
+    price is price
+    staff_id is staff_id
+    vehicle_id is vehicle_id
+  measure:
+    row_count is count()
+    sum_lesson_time is sum(lesson_time)
+    avg_price is avg(price)
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    date_joined_staff is date_joined_staff
+    date_left_staff is date_left_staff
+    date_of_birth is date_of_birth
+    first_name is first_name
+    last_name is last_name
+    middle_name is middle_name
+    nickname is nickname
+    staff_address_id is staff_address_id
+    staff_id is staff_id
+  measure:
+    row_count is count()
+}
+
+source: vehicles is duckdb.table('Vehicles') extend {
+  dimension:
+    vehicle_details is vehicle_details
+    vehicle_id is vehicle_id
+  measure:
+    row_count is count()
+}

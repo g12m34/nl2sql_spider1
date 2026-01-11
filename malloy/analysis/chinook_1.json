@@ -1,0 +1,88 @@
+{
+  "db_id": "chinook_1",
+  "query_count": 84,
+  "tables_used": [
+    "album",
+    "artist",
+    "customer",
+    "employee",
+    "genre",
+    "invoice",
+    "mediatype",
+    "track"
+  ],
+  "dimensions": {
+    "genre": [
+      "genreid",
+      "name"
+    ],
+    "customer": [
+      "address",
+      "city",
+      "country",
+      "customerid",
+      "email",
+      "firstname",
+      "lastname",
+      "postalcode",
+      "state",
+      "supportrepid"
+    ],
+    "employee": [
+      "birthdate",
+      "city",
+      "employeeid",
+      "firstname",
+      "lastname",
+      "phone",
+      "postalcode"
+    ],
+    "invoice": [
+      "billingcountry",
+      "customerid",
+      "invoicedate",
+      "total"
+    ],
+    "artist": [
+      "artistid",
+      "name"
+    ],
+    "album": [
+      "albumid",
+      "artistid",
+      "title"
+    ],
+    "track": [
+      "albumid",
+      "genreid",
+      "mediatypeid",
+      "milliseconds",
+      "name",
+      "unitprice"
+    ],
+    "mediatype": [
+      "mediatypeid",
+      "name"
+    ]
+  },
+  "measures": {
+    "track": {
+      "avg": [
+        "milliseconds",
+        "unitprice"
+      ],
+      "min": [
+        "milliseconds"
+      ],
+      "max": [
+        "milliseconds"
+      ]
+    },
+    "employee": {
+      "count": [
+        "city"
+      ]
+    }
+  },
+  "joins": []
+}

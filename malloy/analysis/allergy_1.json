@@ -1,0 +1,52 @@
+{
+  "db_id": "allergy_1",
+  "query_count": 98,
+  "tables_used": [
+    "allergy_type",
+    "has_allergy",
+    "student"
+  ],
+  "dimensions": {
+    "allergy_type": [
+      "allergy",
+      "allergytype"
+    ],
+    "student": [
+      "advisor",
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ],
+    "has_allergy": [
+      "allergy",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "allergy_type": {
+      "count": [
+        "allergy",
+        "allergytype"
+      ]
+    },
+    "student": {
+      "count": [
+        "advisor"
+      ],
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ],
+      "max": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

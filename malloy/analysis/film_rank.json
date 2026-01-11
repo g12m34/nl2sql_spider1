@@ -1,0 +1,50 @@
+{
+  "db_id": "film_rank",
+  "query_count": 48,
+  "tables_used": [
+    "film",
+    "film_market_estimation",
+    "market"
+  ],
+  "dimensions": {
+    "film": [
+      "director",
+      "film_id",
+      "gross_in_dollar",
+      "studio",
+      "title"
+    ],
+    "film_market_estimation": [
+      "film_id",
+      "high_estimate",
+      "low_estimate",
+      "market_id",
+      "type",
+      "year"
+    ],
+    "market": [
+      "country",
+      "market_id",
+      "number_cities"
+    ]
+  },
+  "measures": {
+    "film": {
+      "avg": [
+        "gross_in_dollar"
+      ]
+    },
+    "market": {
+      "min": [
+        "number_cities"
+      ],
+      "max": [
+        "number_cities"
+      ],
+      "avg": [
+        "number_cities"
+      ]
+    }
+  },
+  "joins": []
+}

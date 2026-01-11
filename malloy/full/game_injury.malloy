@@ -1,0 +1,83 @@
+// Malloy semantic layer for: game_injury
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/game_injury/game_injury.sqlite
+
+// stadium
+source: stadium is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'stadium')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_home_games is sum(Home_Games)
+    avg_home_games is avg(Home_Games)
+    max_home_games is max(Home_Games)
+    min_home_games is min(Home_Games)
+    total_average_attendance is sum(Average_Attendance)
+    avg_average_attendance is avg(Average_Attendance)
+    max_average_attendance is max(Average_Attendance)
+    min_average_attendance is min(Average_Attendance)
+    total_total_attendance is sum(Total_Attendance)
+    avg_total_attendance is avg(Total_Attendance)
+    max_total_attendance is max(Total_Attendance)
+    min_total_attendance is min(Total_Attendance)
+    total_capacity_percentage is sum(Capacity_Percentage)
+    avg_capacity_percentage is avg(Capacity_Percentage)
+    max_capacity_percentage is max(Capacity_Percentage)
+    min_capacity_percentage is min(Capacity_Percentage)
+}
+
+// game
+source: game is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'game')
+""") extend {
+  primary_key: id
+
+  join_one: stadium on stadium_id = stadium.id
+
+  dimension:
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_stadium_id is sum(stadium_id)
+    avg_stadium_id is avg(stadium_id)
+    max_stadium_id is max(stadium_id)
+    min_stadium_id is min(stadium_id)
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_season is sum(Season)
+    avg_season is avg(Season)
+    max_season is max(Season)
+    min_season is min(Season)
+}
+
+// injury_accident
+source: injury_accident is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'injury_accident')
+""") extend {
+  primary_key: id
+
+  join_one: game on game_id = game.id
+
+  measure:
+    row_count is count()
+    total_game_id is sum(game_id)
+    avg_game_id is avg(game_id)
+    max_game_id is max(game_id)
+    min_game_id is min(game_id)
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}

@@ -1,0 +1,101 @@
+// Malloy semantic layer for: concert_singer
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite
+
+// stadium
+source: stadium is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'stadium')
+""") extend {
+  primary_key: Stadium_ID
+
+  dimension:
+    stadium_i_d is Stadium_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_stadium_i_d is sum(Stadium_ID)
+    avg_stadium_i_d is avg(Stadium_ID)
+    max_stadium_i_d is max(Stadium_ID)
+    min_stadium_i_d is min(Stadium_ID)
+    total_capacity is sum(Capacity)
+    avg_capacity is avg(Capacity)
+    max_capacity is max(Capacity)
+    min_capacity is min(Capacity)
+    total_highest is sum(Highest)
+    avg_highest is avg(Highest)
+    max_highest is max(Highest)
+    min_highest is min(Highest)
+    total_lowest is sum(Lowest)
+    avg_lowest is avg(Lowest)
+    max_lowest is max(Lowest)
+    min_lowest is min(Lowest)
+    total_average is sum(Average)
+    avg_average is avg(Average)
+    max_average is max(Average)
+    min_average is min(Average)
+}
+
+// singer
+source: singer is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'singer')
+""") extend {
+  primary_key: Singer_ID
+
+  dimension:
+    singer_i_d is Singer_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_singer_i_d is sum(Singer_ID)
+    avg_singer_i_d is avg(Singer_ID)
+    max_singer_i_d is max(Singer_ID)
+    min_singer_i_d is min(Singer_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// concert
+source: concert is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'concert')
+""") extend {
+  primary_key: concert_ID
+
+  join_one: stadium on Stadium_ID = stadium.Stadium_ID
+
+  dimension:
+    concert_i_d is concert_ID
+    stadium_i_d is Stadium_ID
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_concert_i_d is sum(concert_ID)
+    avg_concert_i_d is avg(concert_ID)
+    max_concert_i_d is max(concert_ID)
+    min_concert_i_d is min(concert_ID)
+}
+
+// singer_in_concert
+source: singer_in_concert is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'singer_in_concert')
+""") extend {
+  primary_key: concert_ID
+
+  join_one: singer on Singer_ID = singer.Singer_ID
+  join_one: concert on concert_ID = concert.concert_ID
+
+  dimension:
+    concert_i_d is concert_ID
+    singer_i_d is Singer_ID
+
+  measure:
+    row_count is count()
+    total_concert_i_d is sum(concert_ID)
+    avg_concert_i_d is avg(concert_ID)
+    max_concert_i_d is max(concert_ID)
+    min_concert_i_d is min(concert_ID)
+}

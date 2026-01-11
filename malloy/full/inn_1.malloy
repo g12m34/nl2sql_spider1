@@ -1,0 +1,67 @@
+// Malloy semantic layer for: inn_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/inn_1/inn_1.sqlite
+
+// Rooms
+source: rooms is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/inn_1/inn_1.sqlite', 'Rooms')
+""") extend {
+  primary_key: RoomId
+
+  dimension:
+    room_id is RoomId
+    room_name is roomName
+    bed_type is bedType
+    max_occupancy is maxOccupancy
+    base_price is basePrice
+
+  measure:
+    row_count is count()
+    total_beds is sum(beds)
+    avg_beds is avg(beds)
+    max_beds is max(beds)
+    min_beds is min(beds)
+    total_max_occupancy is sum(maxOccupancy)
+    avg_max_occupancy is avg(maxOccupancy)
+    max_max_occupancy is max(maxOccupancy)
+    min_max_occupancy is min(maxOccupancy)
+    total_base_price is sum(basePrice)
+    avg_base_price is avg(basePrice)
+    max_base_price is max(basePrice)
+    min_base_price is min(basePrice)
+}
+
+// Reservations
+source: reservations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/inn_1/inn_1.sqlite', 'Reservations')
+""") extend {
+  primary_key: `Code`
+
+  join_one: rooms on Room = rooms.RoomId
+
+  dimension:
+    code_val is `Code`
+    check_in is CheckIn
+    check_out is CheckOut
+    last_name is LastName
+    first_name is FirstName
+
+  measure:
+    row_count is count()
+    total_code_val is sum(`Code`)
+    avg_code_val is avg(`Code`)
+    max_code_val is max(`Code`)
+    min_code_val is min(`Code`)
+    total_rate is sum(Rate)
+    avg_rate is avg(Rate)
+    max_rate is max(Rate)
+    min_rate is min(Rate)
+    total_adults is sum(Adults)
+    avg_adults is avg(Adults)
+    max_adults is max(Adults)
+    min_adults is min(Adults)
+    total_kids is sum(Kids)
+    avg_kids is avg(Kids)
+    max_kids is max(Kids)
+    min_kids is min(Kids)
+}

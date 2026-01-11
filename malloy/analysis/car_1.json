@@ -1,0 +1,68 @@
+{
+  "db_id": "car_1",
+  "query_count": 92,
+  "tables_used": [
+    "car_makers",
+    "car_names",
+    "cars_data",
+    "continents",
+    "countries",
+    "model_list"
+  ],
+  "dimensions": {
+    "continents": [
+      "contid",
+      "continent"
+    ],
+    "countries": [
+      "continent",
+      "countryid",
+      "countryname"
+    ],
+    "car_makers": [
+      "country",
+      "fullname",
+      "id",
+      "maker"
+    ],
+    "model_list": [
+      "maker",
+      "model"
+    ],
+    "car_names": [
+      "make",
+      "makeid",
+      "model"
+    ],
+    "cars_data": [
+      "accelerate",
+      "cylinders",
+      "edispl",
+      "horsepower",
+      "id",
+      "mpg",
+      "weight",
+      "year"
+    ]
+  },
+  "measures": {
+    "cars_data": {
+      "avg": [
+        "edispl",
+        "horsepower",
+        "mpg",
+        "weight"
+      ],
+      "min": [
+        "horsepower",
+        "weight",
+        "year"
+      ],
+      "max": [
+        "accelerate",
+        "mpg"
+      ]
+    }
+  },
+  "joins": []
+}

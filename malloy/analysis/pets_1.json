@@ -1,0 +1,50 @@
+{
+  "db_id": "pets_1",
+  "query_count": 42,
+  "tables_used": [
+    "has_pet",
+    "pets",
+    "student"
+  ],
+  "dimensions": {
+    "pets": [
+      "pet_age",
+      "petid",
+      "pettype",
+      "weight"
+    ],
+    "student": [
+      "age",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ],
+    "has_pet": [
+      "petid",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "pets": {
+      "max": [
+        "pet_age",
+        "weight"
+      ],
+      "count": [
+        "pettype"
+      ],
+      "avg": [
+        "pet_age",
+        "weight"
+      ]
+    },
+    "student": {
+      "avg": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

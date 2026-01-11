@@ -1,0 +1,41 @@
+// Malloy semantic layer for: local_govt_in_alabama
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: events is duckdb.table('Events') extend {
+  dimension:
+    event_details is Event_Details
+    event_id is Event_ID
+    service_id is Service_ID
+  measure:
+    row_count is count()
+}
+
+source: participants is duckdb.table('Participants') extend {
+  dimension:
+    participant_details is Participant_Details
+    participant_id is Participant_ID
+    participant_type_code is Participant_Type_Code
+  measure:
+    row_count is count()
+}
+
+source: participants_in_events is duckdb.table('Participants_in_Events') extend {
+  dimension:
+    event_id is Event_ID
+    participant_id is Participant_ID
+  measure:
+    row_count is count()
+    count_participant_id is count(participant_id)
+}
+
+source: services is duckdb.table('Services') extend {
+  dimension:
+    service_id is Service_ID
+    service_type_code is Service_Type_Code
+  measure:
+    row_count is count()
+}

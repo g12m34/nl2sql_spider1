@@ -1,0 +1,60 @@
+{
+  "db_id": "sports_competition",
+  "query_count": 52,
+  "tables_used": [
+    "club",
+    "club_rank",
+    "competition",
+    "player"
+  ],
+  "dimensions": {
+    "club": [
+      "club_id",
+      "name",
+      "region",
+      "start_year"
+    ],
+    "club_rank": [
+      "gold",
+      "silver",
+      "total"
+    ],
+    "competition": [
+      "competition_type",
+      "country",
+      "year"
+    ],
+    "player": [
+      "club_id",
+      "name",
+      "player_id",
+      "points",
+      "position"
+    ]
+  },
+  "measures": {
+    "club_rank": {
+      "avg": [
+        "gold"
+      ],
+      "min": [
+        "silver"
+      ],
+      "max": [
+        "silver"
+      ]
+    },
+    "player": {
+      "avg": [
+        "points"
+      ],
+      "sum": [
+        "points"
+      ],
+      "count": [
+        "position"
+      ]
+    }
+  },
+  "joins": []
+}

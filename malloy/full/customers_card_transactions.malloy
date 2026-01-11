@@ -1,0 +1,84 @@
+// Malloy semantic layer for: customers_card_transactions
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite
+
+// Accounts
+source: accounts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Accounts')
+""") extend {
+  primary_key: account_id
+
+  measure:
+    row_count is count()
+    total_account_id is sum(account_id)
+    avg_account_id is avg(account_id)
+    max_account_id is max(account_id)
+    min_account_id is min(account_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Customers_Cards
+source: customers_cards is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Customers_Cards')
+""") extend {
+  primary_key: card_id
+
+  measure:
+    row_count is count()
+    total_card_id is sum(card_id)
+    avg_card_id is avg(card_id)
+    max_card_id is max(card_id)
+    min_card_id is min(card_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Financial_Transactions
+source: financial_transactions is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Financial_Transactions')
+""") extend {
+  join_one: accounts on account_id = accounts.account_id
+  join_one: customers_cards on card_id = customers_cards.card_id
+
+  measure:
+    row_count is count()
+    total_transaction_id is sum(transaction_id)
+    avg_transaction_id is avg(transaction_id)
+    max_transaction_id is max(transaction_id)
+    min_transaction_id is min(transaction_id)
+    total_previous_transaction_id is sum(previous_transaction_id)
+    avg_previous_transaction_id is avg(previous_transaction_id)
+    max_previous_transaction_id is max(previous_transaction_id)
+    min_previous_transaction_id is min(previous_transaction_id)
+    total_account_id is sum(account_id)
+    avg_account_id is avg(account_id)
+    max_account_id is max(account_id)
+    min_account_id is min(account_id)
+    total_card_id is sum(card_id)
+    avg_card_id is avg(card_id)
+    max_card_id is max(card_id)
+    min_card_id is min(card_id)
+    total_transaction_amount is sum(transaction_amount)
+    avg_transaction_amount is avg(transaction_amount)
+    max_transaction_amount is max(transaction_amount)
+    min_transaction_amount is min(transaction_amount)
+}

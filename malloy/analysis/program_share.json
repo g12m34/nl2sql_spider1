@@ -1,0 +1,47 @@
+{
+  "db_id": "program_share",
+  "query_count": 40,
+  "tables_used": [
+    "broadcast",
+    "channel",
+    "program"
+  ],
+  "dimensions": {
+    "channel": [
+      "channel_id",
+      "name",
+      "owner",
+      "rating_in_percent",
+      "share_in_percent"
+    ],
+    "program": [
+      "launch",
+      "name",
+      "origin",
+      "owner",
+      "program_id"
+    ],
+    "broadcast": [
+      "channel_id",
+      "program_id",
+      "time_of_day"
+    ]
+  },
+  "measures": {
+    "channel": {
+      "sum": [
+        "rating_in_percent",
+        "share_in_percent"
+      ],
+      "count": [
+        "owner"
+      ]
+    },
+    "broadcast": {
+      "count": [
+        "program_id"
+      ]
+    }
+  },
+  "joins": []
+}

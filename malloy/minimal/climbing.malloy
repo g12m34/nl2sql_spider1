@@ -1,0 +1,31 @@
+// Malloy semantic layer for: climbing
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: climber is duckdb.table('climber') extend {
+  dimension:
+    country is Country
+    mountain_id is Mountain_ID
+    name is Name
+    points is Points
+    time is Time
+  measure:
+    row_count is count()
+    max_points is max(points)
+    count_country is count(country)
+}
+
+source: mountain is duckdb.table('mountain') extend {
+  dimension:
+    country is Country
+    height is Height
+    mountain_id is Mountain_ID
+    name is Name
+    prominence is Prominence
+    range is Range
+  measure:
+    row_count is count()
+}

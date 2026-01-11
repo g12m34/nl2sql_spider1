@@ -1,0 +1,91 @@
+// Malloy semantic layer for: icfp_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite
+
+// Inst
+source: inst is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Inst')
+""") extend {
+  primary_key: instID
+
+  dimension:
+    inst_i_d is instID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_inst_i_d is sum(instID)
+    avg_inst_i_d is avg(instID)
+    max_inst_i_d is max(instID)
+    min_inst_i_d is min(instID)
+}
+
+// Authors
+source: authors is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Authors')
+""") extend {
+  primary_key: authID
+
+  dimension:
+    auth_i_d is authID
+
+  measure:
+    row_count is count()
+    total_auth_i_d is sum(authID)
+    avg_auth_i_d is avg(authID)
+    max_auth_i_d is max(authID)
+    min_auth_i_d is min(authID)
+}
+
+// Papers
+source: papers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Papers')
+""") extend {
+  primary_key: paperID
+
+  dimension:
+    paper_i_d is paperID
+
+  measure:
+    row_count is count()
+    total_paper_i_d is sum(paperID)
+    avg_paper_i_d is avg(paperID)
+    max_paper_i_d is max(paperID)
+    min_paper_i_d is min(paperID)
+}
+
+// Authorship
+source: authorship is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Authorship')
+""") extend {
+  primary_key: authID
+
+  join_one: papers on paperID = papers.paperID
+  join_one: inst on instID = inst.instID
+  join_one: authors on authID = authors.authID
+
+  dimension:
+    auth_i_d is authID
+    inst_i_d is instID
+    paper_i_d is paperID
+    auth_order is authOrder
+
+  measure:
+    row_count is count()
+    total_auth_i_d is sum(authID)
+    avg_auth_i_d is avg(authID)
+    max_auth_i_d is max(authID)
+    min_auth_i_d is min(authID)
+    total_inst_i_d is sum(instID)
+    avg_inst_i_d is avg(instID)
+    max_inst_i_d is max(instID)
+    min_inst_i_d is min(instID)
+    total_paper_i_d is sum(paperID)
+    avg_paper_i_d is avg(paperID)
+    max_paper_i_d is max(paperID)
+    min_paper_i_d is min(paperID)
+    total_auth_order is sum(authOrder)
+    avg_auth_order is avg(authOrder)
+    max_auth_order is max(authOrder)
+    min_auth_order is min(authOrder)
+}

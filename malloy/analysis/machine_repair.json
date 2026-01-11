@@ -1,0 +1,30 @@
+{
+  "db_id": "machine_repair",
+  "query_count": 30,
+  "tables_used": [
+    "machine",
+    "repair_assignment",
+    "technician"
+  ],
+  "dimensions": {
+    "technician": [
+      "age",
+      "name",
+      "starting_year",
+      "team",
+      "technician_id"
+    ],
+    "machine": [
+      "machine_id",
+      "machine_series",
+      "quality_rank",
+      "value_points"
+    ],
+    "repair_assignment": [
+      "machine_id",
+      "technician_id"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

@@ -1,0 +1,35 @@
+// Malloy semantic layer for: journal_committee
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: editor is duckdb.table('editor') extend {
+  dimension:
+    age is Age
+    editor_id is Editor_ID
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: journal is duckdb.table('journal') extend {
+  dimension:
+    date is Date
+    journal_id is Journal_ID
+    sales is Sales
+    theme is Theme
+  measure:
+    row_count is count()
+    avg_sales is avg(sales)
+}
+
+source: journal_committee is duckdb.table('journal_committee') extend {
+  dimension:
+    editor_id is Editor_ID
+    journal_id is Journal_ID
+    work_type is Work_Type
+  measure:
+    row_count is count()
+}

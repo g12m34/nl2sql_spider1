@@ -1,0 +1,88 @@
+{
+  "db_id": "customers_and_invoices",
+  "query_count": 82,
+  "tables_used": [
+    "accounts",
+    "customers",
+    "financial_transactions",
+    "invoices",
+    "order_items",
+    "orders",
+    "products"
+  ],
+  "dimensions": {
+    "accounts": [
+      "account_id",
+      "account_name",
+      "customer_id",
+      "date_account_opened",
+      "other_account_details"
+    ],
+    "customers": [
+      "customer_first_name",
+      "customer_id",
+      "customer_last_name",
+      "gender",
+      "phone_number"
+    ],
+    "financial_transactions": [
+      "account_id",
+      "invoice_number",
+      "transaction_amount",
+      "transaction_id",
+      "transaction_type"
+    ],
+    "products": [
+      "product_color",
+      "product_id",
+      "product_name",
+      "product_size"
+    ],
+    "invoices": [
+      "invoice_date",
+      "invoice_number",
+      "order_id"
+    ],
+    "orders": [
+      "customer_id",
+      "order_details",
+      "order_id"
+    ],
+    "order_items": [
+      "order_id",
+      "product_id",
+      "product_quantity"
+    ]
+  },
+  "measures": {
+    "accounts": {
+      "count": [
+        "customer_id"
+      ]
+    },
+    "financial_transactions": {
+      "sum": [
+        "transaction_amount"
+      ],
+      "avg": [
+        "transaction_amount"
+      ],
+      "min": [
+        "transaction_amount"
+      ],
+      "max": [
+        "transaction_amount"
+      ]
+    },
+    "order_items": {
+      "sum": [
+        "product_quantity"
+      ],
+      "count": [
+        "order_id",
+        "product_id"
+      ]
+    }
+  },
+  "joins": []
+}

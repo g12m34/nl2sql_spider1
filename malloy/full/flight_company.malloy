@@ -1,0 +1,80 @@
+// Malloy semantic layer for: flight_company
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/flight_company/flight_company.sqlite
+
+// airport
+source: airport is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'airport')
+""") extend {
+  primary_key: id
+
+  dimension:
+    i_a_t_a is IATA
+    i_c_a_o is ICAO
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// operate_company
+source: operate_company is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'operate_company')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_group_equity_shareholding is sum(Group_Equity_Shareholding)
+    avg_group_equity_shareholding is avg(Group_Equity_Shareholding)
+    max_group_equity_shareholding is max(Group_Equity_Shareholding)
+    min_group_equity_shareholding is min(Group_Equity_Shareholding)
+}
+
+// flight
+source: flight is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'flight')
+""") extend {
+  primary_key: id
+
+  join_one: operate_company on company_id = operate_company.id
+  join_one: airport on airport_id = airport.id
+
+  dimension:
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_velocity is sum(Velocity)
+    avg_velocity is avg(Velocity)
+    max_velocity is max(Velocity)
+    min_velocity is min(Velocity)
+    total_altitude is sum(Altitude)
+    avg_altitude is avg(Altitude)
+    max_altitude is max(Altitude)
+    min_altitude is min(Altitude)
+    total_airport_id is sum(airport_id)
+    avg_airport_id is avg(airport_id)
+    max_airport_id is max(airport_id)
+    min_airport_id is min(airport_id)
+    total_company_id is sum(company_id)
+    avg_company_id is avg(company_id)
+    max_company_id is max(company_id)
+    min_company_id is min(company_id)
+}

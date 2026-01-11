@@ -1,0 +1,48 @@
+// Malloy semantic layer for: epinions_1
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: item is duckdb.table('item') extend {
+  dimension:
+    i_id is i_id
+    title is title
+  measure:
+    row_count is count()
+}
+
+source: review is duckdb.table('review') extend {
+  dimension:
+    i_id is i_id
+    rank is rank
+    rating is rating
+    u_id is u_id
+  measure:
+    row_count is count()
+    avg_rank is avg(rank)
+    avg_rating is avg(rating)
+    min_rank is min(rank)
+    max_rating is max(rating)
+    count_i_id is count(i_id)
+    count_u_id is count(u_id)
+}
+
+source: trust is duckdb.table('trust') extend {
+  dimension:
+    source_u_id is source_u_id
+    target_u_id is target_u_id
+    trust is trust
+  measure:
+    row_count is count()
+    avg_trust is avg(trust)
+}
+
+source: useracct is duckdb.table('useracct') extend {
+  dimension:
+    name is name
+    u_id is u_id
+  measure:
+    row_count is count()
+}

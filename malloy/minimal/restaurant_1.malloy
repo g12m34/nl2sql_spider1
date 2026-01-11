@@ -1,0 +1,66 @@
+// Malloy semantic layer for: restaurant_1
+// Auto-generated from 22 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: restaurant is duckdb.table('Restaurant') extend {
+  dimension:
+    address is Address
+    rating is Rating
+    resid is ResID
+    resname is ResName
+  measure:
+    row_count is count()
+}
+
+source: restaurant_type is duckdb.table('Restaurant_Type') extend {
+  dimension:
+    restypedescription is ResTypeDescription
+    restypeid is ResTypeID
+    restypename is ResTypeName
+  measure:
+    row_count is count()
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    advisor is Advisor
+    age is Age
+    city_code is city_code
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    count_advisor is count(advisor)
+    count_major is count(major)
+}
+
+source: type_of_restaurant is duckdb.table('Type_Of_Restaurant') extend {
+  dimension:
+    resid is ResID
+    restypeid is ResTypeID
+  measure:
+    row_count is count()
+}
+
+source: visits_restaurant is duckdb.table('Visits_Restaurant') extend {
+  dimension:
+    resid is ResID
+    spent is Spent
+    stuid is StuID
+    time is Time
+  measure:
+    row_count is count()
+    sum_spent is sum(spent)
+}
+
+// Join patterns detected in queries:
+// JOIN: restaurant.resid = type_of_restaurant.resid
+// JOIN: restaurant.resid = visits_restaurant.resid
+// JOIN: restaurant_type.restypeid = type_of_restaurant.restypeid
+// JOIN: student.stuid = visits_restaurant.stuid

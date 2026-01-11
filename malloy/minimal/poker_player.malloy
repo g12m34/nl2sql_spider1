@@ -1,0 +1,31 @@
+// Malloy semantic layer for: poker_player
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    birth_date is Birth_Date
+    height is Height
+    name is Name
+    nationality is Nationality
+    people_id is People_ID
+  measure:
+    row_count is count()
+    count_nationality is count(nationality)
+}
+
+source: poker_player is duckdb.table('poker_player') extend {
+  dimension:
+    best_finish is Best_Finish
+    earnings is Earnings
+    final_table_made is Final_Table_Made
+    money_rank is Money_Rank
+    people_id is People_ID
+  measure:
+    row_count is count()
+    avg_earnings is avg(earnings)
+    max_final_table_made is max(final_table_made)
+}

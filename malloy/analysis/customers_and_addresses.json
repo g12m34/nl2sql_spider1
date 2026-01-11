@@ -1,0 +1,95 @@
+{
+  "db_id": "customers_and_addresses",
+  "query_count": 88,
+  "tables_used": [
+    "addresses",
+    "customer_addresses",
+    "customer_contact_channels",
+    "customer_orders",
+    "customers",
+    "order_items",
+    "products"
+  ],
+  "dimensions": {
+    "customers": [
+      "customer_id",
+      "customer_name",
+      "date_became_customer",
+      "payment_method"
+    ],
+    "order_items": [
+      "order_id",
+      "order_quantity",
+      "product_id"
+    ],
+    "products": [
+      "product_details",
+      "product_id"
+    ],
+    "addresses": [
+      "address_content",
+      "address_id",
+      "city",
+      "country",
+      "state_province_county",
+      "zip_postcode"
+    ],
+    "customer_addresses": [
+      "address_id",
+      "customer_id"
+    ],
+    "customer_contact_channels": [
+      "active_from_date",
+      "active_to_date",
+      "channel_code",
+      "contact_number",
+      "customer_id"
+    ],
+    "customer_orders": [
+      "customer_id",
+      "order_date",
+      "order_details",
+      "order_id",
+      "order_status"
+    ]
+  },
+  "measures": {
+    "order_items": {
+      "avg": [
+        "order_quantity"
+      ],
+      "max": [
+        "order_quantity"
+      ],
+      "sum": [
+        "order_quantity"
+      ],
+      "count": [
+        "product_id"
+      ]
+    },
+    "addresses": {
+      "count": [
+        "address_id"
+      ]
+    },
+    "customer_contact_channels": {
+      "count": [
+        "customer_id"
+      ],
+      "max": [
+        "active_to_date"
+      ],
+      "avg": [
+        "active_from_date",
+        "active_to_date"
+      ]
+    },
+    "customer_orders": {
+      "count": [
+        "customer_id"
+      ]
+    }
+  },
+  "joins": []
+}

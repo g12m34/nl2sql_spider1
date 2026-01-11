@@ -1,0 +1,259 @@
+// Malloy semantic layer for: store_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/store_1/store_1.sqlite
+
+// artists
+source: artists is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'artists')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// employees
+source: employees is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'employees')
+""") extend {
+  primary_key: id
+
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_reports_to is sum(reports_to)
+    avg_reports_to is avg(reports_to)
+    max_reports_to is max(reports_to)
+    min_reports_to is min(reports_to)
+}
+
+// genres
+source: genres is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'genres')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// media_types
+source: media_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'media_types')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// playlists
+source: playlists is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'playlists')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// albums
+source: albums is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'albums')
+""") extend {
+  primary_key: id
+
+  join_one: artists on artist_id = artists.id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_artist_id is sum(artist_id)
+    avg_artist_id is avg(artist_id)
+    max_artist_id is max(artist_id)
+    min_artist_id is min(artist_id)
+}
+
+// customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'customers')
+""") extend {
+  primary_key: id
+
+  join_one: employees on support_rep_id = employees.id
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_support_rep_id is sum(support_rep_id)
+    avg_support_rep_id is avg(support_rep_id)
+    max_support_rep_id is max(support_rep_id)
+    min_support_rep_id is min(support_rep_id)
+}
+
+// tracks
+source: tracks is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'tracks')
+""") extend {
+  primary_key: id
+
+  join_one: media_types on media_type_id = media_types.id
+  join_one: genres on genre_id = genres.id
+  join_one: albums on album_id = albums.id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_album_id is sum(album_id)
+    avg_album_id is avg(album_id)
+    max_album_id is max(album_id)
+    min_album_id is min(album_id)
+    total_media_type_id is sum(media_type_id)
+    avg_media_type_id is avg(media_type_id)
+    max_media_type_id is max(media_type_id)
+    min_media_type_id is min(media_type_id)
+    total_genre_id is sum(genre_id)
+    avg_genre_id is avg(genre_id)
+    max_genre_id is max(genre_id)
+    min_genre_id is min(genre_id)
+    total_milliseconds is sum(milliseconds)
+    avg_milliseconds is avg(milliseconds)
+    max_milliseconds is max(milliseconds)
+    min_milliseconds is min(milliseconds)
+    total_bytes is sum(bytes)
+    avg_bytes is avg(bytes)
+    max_bytes is max(bytes)
+    min_bytes is min(bytes)
+    total_unit_price is sum(unit_price)
+    avg_unit_price is avg(unit_price)
+    max_unit_price is max(unit_price)
+    min_unit_price is min(unit_price)
+}
+
+// invoices
+source: invoices is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'invoices')
+""") extend {
+  primary_key: id
+
+  join_one: customers on customer_id = customers.id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_total is sum(total)
+    avg_total is avg(total)
+    max_total is max(total)
+    min_total is min(total)
+}
+
+// playlist_tracks
+source: playlist_tracks is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'playlist_tracks')
+""") extend {
+  primary_key: playlist_id
+
+  join_one: tracks on track_id = tracks.id
+  join_one: playlists on playlist_id = playlists.id
+
+  measure:
+    row_count is count()
+    total_playlist_id is sum(playlist_id)
+    avg_playlist_id is avg(playlist_id)
+    max_playlist_id is max(playlist_id)
+    min_playlist_id is min(playlist_id)
+    total_track_id is sum(track_id)
+    avg_track_id is avg(track_id)
+    max_track_id is max(track_id)
+    min_track_id is min(track_id)
+}
+
+// invoice_lines
+source: invoice_lines is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'invoice_lines')
+""") extend {
+  primary_key: id
+
+  join_one: tracks on track_id = tracks.id
+  join_one: invoices on invoice_id = invoices.id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_invoice_id is sum(invoice_id)
+    avg_invoice_id is avg(invoice_id)
+    max_invoice_id is max(invoice_id)
+    min_invoice_id is min(invoice_id)
+    total_track_id is sum(track_id)
+    avg_track_id is avg(track_id)
+    max_track_id is max(track_id)
+    min_track_id is min(track_id)
+    total_unit_price is sum(unit_price)
+    avg_unit_price is avg(unit_price)
+    max_unit_price is max(unit_price)
+    min_unit_price is min(unit_price)
+    total_quantity is sum(quantity)
+    avg_quantity is avg(quantity)
+    max_quantity is max(quantity)
+    min_quantity is min(quantity)
+}

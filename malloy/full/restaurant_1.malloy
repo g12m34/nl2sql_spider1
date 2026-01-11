@@ -1,0 +1,125 @@
+// Malloy semantic layer for: restaurant_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite
+
+// Student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Student')
+""") extend {
+  primary_key: StuID
+
+  dimension:
+    stu_i_d is StuID
+    l_name is LName
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Restaurant
+source: restaurant is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Restaurant')
+""") extend {
+  primary_key: ResID
+
+  dimension:
+    res_i_d is ResID
+    res_name is ResName
+
+  measure:
+    row_count is count()
+    total_res_i_d is sum(ResID)
+    avg_res_i_d is avg(ResID)
+    max_res_i_d is max(ResID)
+    min_res_i_d is min(ResID)
+    total_rating is sum(Rating)
+    avg_rating is avg(Rating)
+    max_rating is max(Rating)
+    min_rating is min(Rating)
+}
+
+// Restaurant_Type
+source: restaurant_type is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Restaurant_Type')
+""") extend {
+  primary_key: ResTypeID
+
+  dimension:
+    res_type_i_d is ResTypeID
+    res_type_name is ResTypeName
+    res_type_description is ResTypeDescription
+
+  measure:
+    row_count is count()
+    total_res_type_i_d is sum(ResTypeID)
+    avg_res_type_i_d is avg(ResTypeID)
+    max_res_type_i_d is max(ResTypeID)
+    min_res_type_i_d is min(ResTypeID)
+}
+
+// Visits_Restaurant
+source: visits_restaurant is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Visits_Restaurant')
+""") extend {
+  join_one: restaurant on ResID = restaurant.ResID
+  join_one: student_val on StuID = student_val.StuID
+
+  dimension:
+    stu_i_d is StuID
+    res_i_d is ResID
+    time_val is `Time`
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_res_i_d is sum(ResID)
+    avg_res_i_d is avg(ResID)
+    max_res_i_d is max(ResID)
+    min_res_i_d is min(ResID)
+    total_spent is sum(Spent)
+    avg_spent is avg(Spent)
+    max_spent is max(Spent)
+    min_spent is min(Spent)
+}
+
+// Type_Of_Restaurant
+source: type_of_restaurant is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Type_Of_Restaurant')
+""") extend {
+  join_one: restaurant_type on ResTypeID = restaurant_type.ResTypeID
+  join_one: restaurant on ResID = restaurant.ResID
+
+  dimension:
+    res_i_d is ResID
+    res_type_i_d is ResTypeID
+
+  measure:
+    row_count is count()
+    total_res_i_d is sum(ResID)
+    avg_res_i_d is avg(ResID)
+    max_res_i_d is max(ResID)
+    min_res_i_d is min(ResID)
+    total_res_type_i_d is sum(ResTypeID)
+    avg_res_type_i_d is avg(ResTypeID)
+    max_res_type_i_d is max(ResTypeID)
+    min_res_type_i_d is min(ResTypeID)
+}

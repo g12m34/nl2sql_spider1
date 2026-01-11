@@ -1,0 +1,42 @@
+// Malloy semantic layer for: club_1
+// Auto-generated from 70 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: club is duckdb.table('Club') extend {
+  dimension:
+    clubdesc is ClubDesc
+    clubid is ClubID
+    clublocation is ClubLocation
+    clubname is ClubName
+  measure:
+    row_count is count()
+    count_clubname is count(clubname)
+}
+
+source: member_of_club is duckdb.table('Member_of_club') extend {
+  dimension:
+    clubid is ClubID
+    position is Position
+    stuid is StuID
+  measure:
+    row_count is count()
+    count_position is count(position)
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    advisor is Advisor
+    age is Age
+    city_code is city_code
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+}

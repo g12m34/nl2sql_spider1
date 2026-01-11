@@ -1,0 +1,31 @@
+{
+  "db_id": "flight_2",
+  "query_count": 80,
+  "tables_used": [
+    "airlines",
+    "airports",
+    "flights"
+  ],
+  "dimensions": {
+    "airlines": [
+      "abbreviation",
+      "airline",
+      "country",
+      "uid"
+    ],
+    "airports": [
+      "airportcode",
+      "airportname",
+      "city",
+      "country"
+    ],
+    "flights": [
+      "airline",
+      "destairport",
+      "flightno",
+      "sourceairport"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

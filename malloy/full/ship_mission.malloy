@@ -1,0 +1,59 @@
+// Malloy semantic layer for: ship_mission
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite
+
+// ship
+source: ship is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'ship')
+""") extend {
+  primary_key: Ship_ID
+
+  dimension:
+    ship_i_d is Ship_ID
+    name_val is `Name`
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_ship_i_d is sum(Ship_ID)
+    avg_ship_i_d is avg(Ship_ID)
+    max_ship_i_d is max(Ship_ID)
+    min_ship_i_d is min(Ship_ID)
+    total_tonnage is sum(Tonnage)
+    avg_tonnage is avg(Tonnage)
+    max_tonnage is max(Tonnage)
+    min_tonnage is min(Tonnage)
+}
+
+// mission
+source: mission is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'mission')
+""") extend {
+  primary_key: Mission_ID
+
+  join_one: ship on Ship_ID = ship.Ship_ID
+
+  dimension:
+    mission_i_d is Mission_ID
+    ship_i_d is Ship_ID
+    code_val is `Code`
+
+  measure:
+    row_count is count()
+    total_mission_i_d is sum(Mission_ID)
+    avg_mission_i_d is avg(Mission_ID)
+    max_mission_i_d is max(Mission_ID)
+    min_mission_i_d is min(Mission_ID)
+    total_ship_i_d is sum(Ship_ID)
+    avg_ship_i_d is avg(Ship_ID)
+    max_ship_i_d is max(Ship_ID)
+    min_ship_i_d is min(Ship_ID)
+    total_launched_year is sum(Launched_Year)
+    avg_launched_year is avg(Launched_Year)
+    max_launched_year is max(Launched_Year)
+    min_launched_year is min(Launched_Year)
+    total_speed_knots is sum(Speed_knots)
+    avg_speed_knots is avg(Speed_knots)
+    max_speed_knots is max(Speed_knots)
+    min_speed_knots is min(Speed_knots)
+}

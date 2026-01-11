@@ -1,0 +1,45 @@
+{
+  "db_id": "icfp_1",
+  "query_count": 66,
+  "tables_used": [
+    "authors",
+    "authorship",
+    "inst",
+    "papers"
+  ],
+  "dimensions": {
+    "authors": [
+      "authid",
+      "fname",
+      "lname"
+    ],
+    "papers": [
+      "paperid",
+      "title"
+    ],
+    "authorship": [
+      "authid",
+      "authorder",
+      "instid",
+      "paperid"
+    ],
+    "inst": [
+      "country",
+      "instid",
+      "name"
+    ]
+  },
+  "measures": {
+    "papers": {
+      "count": [
+        "title"
+      ]
+    },
+    "authorship": {
+      "max": [
+        "authorder"
+      ]
+    }
+  },
+  "joins": []
+}

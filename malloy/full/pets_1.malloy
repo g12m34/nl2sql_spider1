@@ -1,0 +1,82 @@
+// Malloy semantic layer for: pets_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/pets_1/pets_1.sqlite
+
+// Student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Student')
+""") extend {
+  primary_key: StuID
+
+  dimension:
+    stu_i_d is StuID
+    l_name is LName
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Pets
+source: pets is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Pets')
+""") extend {
+  primary_key: PetID
+
+  dimension:
+    pet_i_d is PetID
+    pet_type is PetType
+
+  measure:
+    row_count is count()
+    total_pet_i_d is sum(PetID)
+    avg_pet_i_d is avg(PetID)
+    max_pet_i_d is max(PetID)
+    min_pet_i_d is min(PetID)
+    total_pet_age is sum(pet_age)
+    avg_pet_age is avg(pet_age)
+    max_pet_age is max(pet_age)
+    min_pet_age is min(pet_age)
+    total_weight is sum(weight)
+    avg_weight is avg(weight)
+    max_weight is max(weight)
+    min_weight is min(weight)
+}
+
+// Has_Pet
+source: has_pet is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Has_Pet')
+""") extend {
+  join_one: student_val on StuID = student_val.StuID
+  join_one: pets on PetID = pets.PetID
+
+  dimension:
+    stu_i_d is StuID
+    pet_i_d is PetID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_pet_i_d is sum(PetID)
+    avg_pet_i_d is avg(PetID)
+    max_pet_i_d is max(PetID)
+    min_pet_i_d is min(PetID)
+}

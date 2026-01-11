@@ -1,0 +1,51 @@
+{
+  "db_id": "protein_institute",
+  "query_count": 20,
+  "tables_used": [
+    "building",
+    "institution",
+    "protein"
+  ],
+  "dimensions": {
+    "building": [
+      "building_id",
+      "floors",
+      "height_feet",
+      "name",
+      "street_address"
+    ],
+    "institution": [
+      "building_id",
+      "enrollment",
+      "founded",
+      "institution",
+      "institution_id",
+      "location",
+      "type"
+    ],
+    "protein": [
+      "institution_id",
+      "protein_name"
+    ]
+  },
+  "measures": {
+    "building": {
+      "avg": [
+        "floors",
+        "height_feet"
+      ],
+      "min": [
+        "floors"
+      ],
+      "max": [
+        "floors"
+      ]
+    },
+    "institution": {
+      "sum": [
+        "enrollment"
+      ]
+    }
+  },
+  "joins": []
+}

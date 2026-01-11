@@ -1,0 +1,57 @@
+{
+  "db_id": "cre_Docs_and_Epenses",
+  "query_count": 84,
+  "tables_used": [
+    "accounts",
+    "documents",
+    "documents_with_expenses",
+    "projects",
+    "ref_budget_codes",
+    "ref_document_types",
+    "statements"
+  ],
+  "dimensions": {
+    "accounts": [
+      "account_details",
+      "account_id",
+      "statement_id"
+    ],
+    "statements": [
+      "statement_details",
+      "statement_id"
+    ],
+    "documents": [
+      "document_date",
+      "document_description",
+      "document_id",
+      "document_name",
+      "document_type_code",
+      "project_id"
+    ],
+    "projects": [
+      "project_details",
+      "project_id"
+    ],
+    "ref_document_types": [
+      "document_type_code",
+      "document_type_description",
+      "document_type_name"
+    ],
+    "ref_budget_codes": [
+      "budget_type_code",
+      "budget_type_description"
+    ],
+    "documents_with_expenses": [
+      "budget_type_code",
+      "document_id"
+    ]
+  },
+  "measures": {
+    "accounts": {
+      "max": [
+        "account_details"
+      ]
+    }
+  },
+  "joins": []
+}

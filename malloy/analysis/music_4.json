@@ -1,0 +1,54 @@
+{
+  "db_id": "music_4",
+  "query_count": 60,
+  "tables_used": [
+    "artist",
+    "music_festival",
+    "volume"
+  ],
+  "dimensions": {
+    "artist": [
+      "age",
+      "artist",
+      "artist_id",
+      "famous_release_date",
+      "famous_title"
+    ],
+    "music_festival": [
+      "category",
+      "date_of_ceremony",
+      "music_festival",
+      "result",
+      "volume"
+    ],
+    "volume": [
+      "artist_id",
+      "issue_date",
+      "song",
+      "volume_id",
+      "weeks_on_top"
+    ]
+  },
+  "measures": {
+    "artist": {
+      "avg": [
+        "age"
+      ]
+    },
+    "volume": {
+      "min": [
+        "weeks_on_top"
+      ],
+      "max": [
+        "weeks_on_top"
+      ],
+      "count": [
+        "artist_id"
+      ],
+      "avg": [
+        "weeks_on_top"
+      ]
+    }
+  },
+  "joins": []
+}

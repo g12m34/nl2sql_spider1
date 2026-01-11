@@ -1,0 +1,41 @@
+// Malloy semantic layer for: news_report
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: event is duckdb.table('event') extend {
+  dimension:
+    date is Date
+    event_attendance is Event_Attendance
+    event_id is Event_ID
+    name is Name
+    venue is Venue
+  measure:
+    row_count is count()
+    avg_event_attendance is avg(event_attendance)
+    max_event_attendance is max(event_attendance)
+}
+
+source: journalist is duckdb.table('journalist') extend {
+  dimension:
+    age is Age
+    journalist_id is journalist_ID
+    name is Name
+    nationality is Nationality
+    years_working is Years_working
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    avg_years_working is avg(years_working)
+}
+
+source: news_report is duckdb.table('news_report') extend {
+  dimension:
+    event_id is Event_ID
+    journalist_id is journalist_ID
+    work_type is Work_Type
+  measure:
+    row_count is count()
+}

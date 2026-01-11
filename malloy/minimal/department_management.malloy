@@ -1,0 +1,41 @@
+// Malloy semantic layer for: department_management
+// Auto-generated from 16 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: department is duckdb.table('department') extend {
+  dimension:
+    budget_in_billions is Budget_in_Billions
+    creation is Creation
+    department_id is Department_ID
+    name is Name
+    num_employees is Num_Employees
+    ranking is Ranking
+  measure:
+    row_count is count()
+    avg_num_employees is avg(num_employees)
+    min_budget_in_billions is min(budget_in_billions)
+    max_budget_in_billions is max(budget_in_billions)
+}
+
+source: head is duckdb.table('head') extend {
+  dimension:
+    age is age
+    born_state is born_state
+    head_id is head_ID
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: management is duckdb.table('management') extend {
+  dimension:
+    department_id is department_ID
+    head_id is head_ID
+    temporary_acting is temporary_acting
+  measure:
+    row_count is count()
+    count_temporary_acting is count(temporary_acting)
+}

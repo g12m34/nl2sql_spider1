@@ -1,0 +1,129 @@
+// Malloy semantic layer for: driving_school
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/driving_school/driving_school.sqlite
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Vehicles
+source: vehicles is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Vehicles')
+""") extend {
+  primary_key: vehicle_id
+
+  measure:
+    row_count is count()
+    total_vehicle_id is sum(vehicle_id)
+    avg_vehicle_id is avg(vehicle_id)
+    max_vehicle_id is max(vehicle_id)
+    min_vehicle_id is min(vehicle_id)
+}
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Staff')
+""") extend {
+  primary_key: staff_id
+
+  join_one: addresses on staff_address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_staff_address_id is sum(staff_address_id)
+    avg_staff_address_id is avg(staff_address_id)
+    max_staff_address_id is max(staff_address_id)
+    min_staff_address_id is min(staff_address_id)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  join_one: addresses on customer_address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_customer_address_id is sum(customer_address_id)
+    avg_customer_address_id is avg(customer_address_id)
+    max_customer_address_id is max(customer_address_id)
+    min_customer_address_id is min(customer_address_id)
+    total_amount_outstanding is sum(amount_outstanding)
+    avg_amount_outstanding is avg(amount_outstanding)
+    max_amount_outstanding is max(amount_outstanding)
+    min_amount_outstanding is min(amount_outstanding)
+}
+
+// Customer_Payments
+source: customer_payments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Customer_Payments')
+""") extend {
+  primary_key: customer_id
+
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_amount_payment is sum(amount_payment)
+    avg_amount_payment is avg(amount_payment)
+    max_amount_payment is max(amount_payment)
+    min_amount_payment is min(amount_payment)
+}
+
+// Lessons
+source: lessons is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Lessons')
+""") extend {
+  primary_key: lesson_id
+
+  join_one: customers on customer_id = customers.customer_id
+  join_one: staff_val on staff_id = staff_val.staff_id
+  join_one: vehicles on vehicle_id = vehicles.vehicle_id
+
+  measure:
+    row_count is count()
+    total_lesson_id is sum(lesson_id)
+    avg_lesson_id is avg(lesson_id)
+    max_lesson_id is max(lesson_id)
+    min_lesson_id is min(lesson_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_vehicle_id is sum(vehicle_id)
+    avg_vehicle_id is avg(vehicle_id)
+    max_vehicle_id is max(vehicle_id)
+    min_vehicle_id is min(vehicle_id)
+    total_price is sum(price)
+    avg_price is avg(price)
+    max_price is max(price)
+    min_price is min(price)
+}

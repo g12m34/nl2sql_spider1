@@ -1,0 +1,37 @@
+// Malloy semantic layer for: pilot_record
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: aircraft is duckdb.table('aircraft') extend {
+  dimension:
+    aircraft_id is Aircraft_ID
+    fleet_series is Fleet_Series
+    model is Model
+  measure:
+    row_count is count()
+}
+
+source: pilot is duckdb.table('pilot') extend {
+  dimension:
+    age is Age
+    join_year is Join_Year
+    nationality is Nationality
+    pilot_id is Pilot_ID
+    pilot_name is Pilot_name
+    position is Position
+    rank is Rank
+    team is Team
+  measure:
+    row_count is count()
+}
+
+source: pilot_record is duckdb.table('pilot_record') extend {
+  dimension:
+    aircraft_id is Aircraft_ID
+    pilot_id is Pilot_ID
+  measure:
+    row_count is count()
+}

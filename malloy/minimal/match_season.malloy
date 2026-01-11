@@ -1,0 +1,50 @@
+// Malloy semantic layer for: match_season
+// Auto-generated from 58 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: country is duckdb.table('country') extend {
+  dimension:
+    capital is Capital
+    country_id is Country_id
+    country_name is Country_name
+    official_native_language is Official_native_language
+  measure:
+    row_count is count()
+    count_official_native_language is count(official_native_language)
+}
+
+source: match_season is duckdb.table('match_season') extend {
+  dimension:
+    college is College
+    country is Country
+    draft_class is Draft_Class
+    draft_pick_number is Draft_Pick_Number
+    player is Player
+    position is Position
+    season is Season
+    team is Team
+  measure:
+    row_count is count()
+    count_college is count(college)
+    count_team is count(team)
+}
+
+source: player is duckdb.table('player') extend {
+  dimension:
+    player is Player
+    team is Team
+    years_played is Years_Played
+  measure:
+    row_count is count()
+}
+
+source: team is duckdb.table('team') extend {
+  dimension:
+    name is Name
+    team_id is Team_id
+  measure:
+    row_count is count()
+}

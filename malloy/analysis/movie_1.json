@@ -1,0 +1,49 @@
+{
+  "db_id": "movie_1",
+  "query_count": 98,
+  "tables_used": [
+    "movie",
+    "rating",
+    "reviewer"
+  ],
+  "dimensions": {
+    "movie": [
+      "director",
+      "mid",
+      "title",
+      "year"
+    ],
+    "reviewer": [
+      "name",
+      "rid"
+    ],
+    "rating": [
+      "mid",
+      "ratingdate",
+      "rid",
+      "stars"
+    ]
+  },
+  "measures": {
+    "rating": {
+      "min": [
+        "stars"
+      ],
+      "max": [
+        "stars"
+      ],
+      "avg": [
+        "stars"
+      ]
+    },
+    "movie": {
+      "min": [
+        "year"
+      ],
+      "max": [
+        "year"
+      ]
+    }
+  },
+  "joins": []
+}

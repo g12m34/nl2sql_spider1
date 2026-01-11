@@ -1,0 +1,92 @@
+// Malloy semantic layer for: station_weather
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/station_weather/station_weather.sqlite
+
+// train
+source: train is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'train')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+    time_val is `time`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_train_number is sum(train_number)
+    avg_train_number is avg(train_number)
+    max_train_number is max(train_number)
+    min_train_number is min(train_number)
+}
+
+// station
+source: station is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'station')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// route
+source: route is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'route')
+""") extend {
+  primary_key: train_id
+
+  join_one: station on station_id = station.id
+  join_one: train on train_id = train.id
+
+  measure:
+    row_count is count()
+    total_train_id is sum(train_id)
+    avg_train_id is avg(train_id)
+    max_train_id is max(train_id)
+    min_train_id is min(train_id)
+    total_station_id is sum(station_id)
+    avg_station_id is avg(station_id)
+    max_station_id is max(station_id)
+    min_station_id is min(station_id)
+}
+
+// weekly_weather
+source: weekly_weather is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'weekly_weather')
+""") extend {
+  primary_key: station_id
+
+  join_one: station on station_id = station.id
+
+  measure:
+    row_count is count()
+    total_station_id is sum(station_id)
+    avg_station_id is avg(station_id)
+    max_station_id is max(station_id)
+    min_station_id is min(station_id)
+    total_high_temperature is sum(high_temperature)
+    avg_high_temperature is avg(high_temperature)
+    max_high_temperature is max(high_temperature)
+    min_high_temperature is min(high_temperature)
+    total_low_temperature is sum(low_temperature)
+    avg_low_temperature is avg(low_temperature)
+    max_low_temperature is max(low_temperature)
+    min_low_temperature is min(low_temperature)
+    total_precipitation is sum(precipitation)
+    avg_precipitation is avg(precipitation)
+    max_precipitation is max(precipitation)
+    min_precipitation is min(precipitation)
+    total_wind_speed_mph is sum(wind_speed_mph)
+    avg_wind_speed_mph is avg(wind_speed_mph)
+    max_wind_speed_mph is max(wind_speed_mph)
+    min_wind_speed_mph is min(wind_speed_mph)
+}

@@ -1,0 +1,240 @@
+// Malloy semantic layer for: customer_deliveries
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_product_price is sum(product_price)
+    avg_product_price is avg(product_price)
+    max_product_price is max(product_price)
+    min_product_price is min(product_price)
+}
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Delivery_Routes
+source: delivery_routes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Delivery_Routes')
+""") extend {
+  primary_key: route_id
+
+  measure:
+    row_count is count()
+    total_route_id is sum(route_id)
+    avg_route_id is avg(route_id)
+    max_route_id is max(route_id)
+    min_route_id is min(route_id)
+}
+
+// Trucks
+source: trucks is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Trucks')
+""") extend {
+  primary_key: truck_id
+
+  measure:
+    row_count is count()
+    total_truck_id is sum(truck_id)
+    avg_truck_id is avg(truck_id)
+    max_truck_id is max(truck_id)
+    min_truck_id is min(truck_id)
+}
+
+// Employees
+source: employees is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Employees')
+""") extend {
+  primary_key: employee_id
+
+  join_one: addresses on employee_address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_employee_id is sum(employee_id)
+    avg_employee_id is avg(employee_id)
+    max_employee_id is max(employee_id)
+    min_employee_id is min(employee_id)
+    total_employee_address_id is sum(employee_address_id)
+    avg_employee_address_id is avg(employee_address_id)
+    max_employee_address_id is max(employee_address_id)
+    min_employee_address_id is min(employee_address_id)
+}
+
+// Regular_Orders
+source: regular_orders is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Regular_Orders')
+""") extend {
+  primary_key: regular_order_id
+
+  join_one: customers on distributer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_regular_order_id is sum(regular_order_id)
+    avg_regular_order_id is avg(regular_order_id)
+    max_regular_order_id is max(regular_order_id)
+    min_regular_order_id is min(regular_order_id)
+    total_distributer_id is sum(distributer_id)
+    avg_distributer_id is avg(distributer_id)
+    max_distributer_id is max(distributer_id)
+    min_distributer_id is min(distributer_id)
+}
+
+// Customer_Addresses
+source: customer_addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Customer_Addresses')
+""") extend {
+  join_one: addresses on address_id = addresses.address_id
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Delivery_Route_Locations
+source: delivery_route_locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Delivery_Route_Locations')
+""") extend {
+  primary_key: location_code
+
+  join_one: delivery_routes on route_id = delivery_routes.route_id
+  join_one: addresses on location_address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_route_id is sum(route_id)
+    avg_route_id is avg(route_id)
+    max_route_id is max(route_id)
+    min_route_id is min(route_id)
+    total_location_address_id is sum(location_address_id)
+    avg_location_address_id is avg(location_address_id)
+    max_location_address_id is max(location_address_id)
+    min_location_address_id is min(location_address_id)
+}
+
+// Regular_Order_Products
+source: regular_order_products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Regular_Order_Products')
+""") extend {
+  join_one: regular_orders on regular_order_id = regular_orders.regular_order_id
+  join_one: products on product_id = products.product_id
+
+  measure:
+    row_count is count()
+    total_regular_order_id is sum(regular_order_id)
+    avg_regular_order_id is avg(regular_order_id)
+    max_regular_order_id is max(regular_order_id)
+    min_regular_order_id is min(regular_order_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Actual_Orders
+source: actual_orders is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Actual_Orders')
+""") extend {
+  primary_key: actual_order_id
+
+  join_one: regular_orders on regular_order_id = regular_orders.regular_order_id
+
+  measure:
+    row_count is count()
+    total_actual_order_id is sum(actual_order_id)
+    avg_actual_order_id is avg(actual_order_id)
+    max_actual_order_id is max(actual_order_id)
+    min_actual_order_id is min(actual_order_id)
+    total_regular_order_id is sum(regular_order_id)
+    avg_regular_order_id is avg(regular_order_id)
+    max_regular_order_id is max(regular_order_id)
+    min_regular_order_id is min(regular_order_id)
+}
+
+// Actual_Order_Products
+source: actual_order_products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Actual_Order_Products')
+""") extend {
+  join_one: actual_orders on actual_order_id = actual_orders.actual_order_id
+  join_one: products on product_id = products.product_id
+
+  measure:
+    row_count is count()
+    total_actual_order_id is sum(actual_order_id)
+    avg_actual_order_id is avg(actual_order_id)
+    max_actual_order_id is max(actual_order_id)
+    min_actual_order_id is min(actual_order_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Order_Deliveries
+source: order_deliveries is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_deliveries/customer_deliveries.sqlite', 'Order_Deliveries')
+""") extend {
+  join_one: employees on driver_employee_id = employees.employee_id
+  join_one: delivery_route_locations on location_code = delivery_route_locations.location_code
+  join_one: actual_orders on actual_order_id = actual_orders.actual_order_id
+  join_one: trucks on truck_id = trucks.truck_id
+
+  measure:
+    row_count is count()
+    total_actual_order_id is sum(actual_order_id)
+    avg_actual_order_id is avg(actual_order_id)
+    max_actual_order_id is max(actual_order_id)
+    min_actual_order_id is min(actual_order_id)
+    total_driver_employee_id is sum(driver_employee_id)
+    avg_driver_employee_id is avg(driver_employee_id)
+    max_driver_employee_id is max(driver_employee_id)
+    min_driver_employee_id is min(driver_employee_id)
+    total_truck_id is sum(truck_id)
+    avg_truck_id is avg(truck_id)
+    max_truck_id is max(truck_id)
+    min_truck_id is min(truck_id)
+}

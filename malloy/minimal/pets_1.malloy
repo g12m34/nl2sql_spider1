@@ -1,0 +1,42 @@
+// Malloy semantic layer for: pets_1
+// Auto-generated from 42 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: has_pet is duckdb.table('Has_Pet') extend {
+  dimension:
+    petid is PetID
+    stuid is StuID
+  measure:
+    row_count is count()
+}
+
+source: pets is duckdb.table('Pets') extend {
+  dimension:
+    pet_age is pet_age
+    petid is PetID
+    pettype is PetType
+    weight is weight
+  measure:
+    row_count is count()
+    avg_pet_age is avg(pet_age)
+    avg_weight is avg(weight)
+    max_pet_age is max(pet_age)
+    max_weight is max(weight)
+    count_pettype is count(pettype)
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    age is Age
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+}

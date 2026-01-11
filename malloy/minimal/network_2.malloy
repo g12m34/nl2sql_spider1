@@ -1,0 +1,36 @@
+// Malloy semantic layer for: network_2
+// Auto-generated from 86 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: person is duckdb.table('Person') extend {
+  dimension:
+    age is age
+    city is city
+    gender is gender
+    job is job
+    name is name
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    max_age is max(age)
+    count_city is count(city)
+    count_job is count(job)
+    count_name is count(name)
+}
+
+source: personfriend is duckdb.table('PersonFriend') extend {
+  dimension:
+    friend is friend
+    name is name
+    year is year
+  measure:
+    row_count is count()
+    min_year is min(year)
+    max_year is max(year)
+    count_friend is count(friend)
+    count_name is count(name)
+}

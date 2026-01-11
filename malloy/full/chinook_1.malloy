@@ -1,0 +1,304 @@
+// Malloy semantic layer for: chinook_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite
+
+// Artist
+source: artist is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Artist')
+""") extend {
+  primary_key: ArtistId
+
+  dimension:
+    artist_id is ArtistId
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_artist_id is sum(ArtistId)
+    avg_artist_id is avg(ArtistId)
+    max_artist_id is max(ArtistId)
+    min_artist_id is min(ArtistId)
+}
+
+// Employee
+source: employee is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Employee')
+""") extend {
+  primary_key: EmployeeId
+
+
+  dimension:
+    employee_id is EmployeeId
+    last_name is LastName
+    first_name is FirstName
+    reports_to is ReportsTo
+    birth_date is BirthDate
+    hire_date is HireDate
+    state_val is `State`
+    postal_code is PostalCode
+
+  measure:
+    row_count is count()
+    total_employee_id is sum(EmployeeId)
+    avg_employee_id is avg(EmployeeId)
+    max_employee_id is max(EmployeeId)
+    min_employee_id is min(EmployeeId)
+    total_reports_to is sum(ReportsTo)
+    avg_reports_to is avg(ReportsTo)
+    max_reports_to is max(ReportsTo)
+    min_reports_to is min(ReportsTo)
+}
+
+// Genre
+source: genre is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Genre')
+""") extend {
+  primary_key: GenreId
+
+  dimension:
+    genre_id is GenreId
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_genre_id is sum(GenreId)
+    avg_genre_id is avg(GenreId)
+    max_genre_id is max(GenreId)
+    min_genre_id is min(GenreId)
+}
+
+// MediaType
+source: media_type is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'MediaType')
+""") extend {
+  primary_key: MediaTypeId
+
+  dimension:
+    media_type_id is MediaTypeId
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_media_type_id is sum(MediaTypeId)
+    avg_media_type_id is avg(MediaTypeId)
+    max_media_type_id is max(MediaTypeId)
+    min_media_type_id is min(MediaTypeId)
+}
+
+// Playlist
+source: playlist is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Playlist')
+""") extend {
+  primary_key: PlaylistId
+
+  dimension:
+    playlist_id is PlaylistId
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_playlist_id is sum(PlaylistId)
+    avg_playlist_id is avg(PlaylistId)
+    max_playlist_id is max(PlaylistId)
+    min_playlist_id is min(PlaylistId)
+}
+
+// Album
+source: album is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Album')
+""") extend {
+  primary_key: AlbumId
+
+  join_one: artist on ArtistId = artist.ArtistId
+
+  dimension:
+    album_id is AlbumId
+    artist_id is ArtistId
+
+  measure:
+    row_count is count()
+    total_album_id is sum(AlbumId)
+    avg_album_id is avg(AlbumId)
+    max_album_id is max(AlbumId)
+    min_album_id is min(AlbumId)
+    total_artist_id is sum(ArtistId)
+    avg_artist_id is avg(ArtistId)
+    max_artist_id is max(ArtistId)
+    min_artist_id is min(ArtistId)
+}
+
+// Customer
+source: customer is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Customer')
+""") extend {
+  primary_key: CustomerId
+
+  join_one: employee on SupportRepId = employee.EmployeeId
+
+  dimension:
+    customer_id is CustomerId
+    first_name is FirstName
+    last_name is LastName
+    state_val is `State`
+    postal_code is PostalCode
+    support_rep_id is SupportRepId
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(CustomerId)
+    avg_customer_id is avg(CustomerId)
+    max_customer_id is max(CustomerId)
+    min_customer_id is min(CustomerId)
+    total_support_rep_id is sum(SupportRepId)
+    avg_support_rep_id is avg(SupportRepId)
+    max_support_rep_id is max(SupportRepId)
+    min_support_rep_id is min(SupportRepId)
+}
+
+// Track
+source: track is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Track')
+""") extend {
+  primary_key: TrackId
+
+  join_one: media_type on MediaTypeId = media_type.MediaTypeId
+  join_one: genre on GenreId = genre.GenreId
+  join_one: album on AlbumId = album.AlbumId
+
+  dimension:
+    track_id is TrackId
+    name_val is `Name`
+    album_id is AlbumId
+    media_type_id is MediaTypeId
+    genre_id is GenreId
+    unit_price is UnitPrice
+
+  measure:
+    row_count is count()
+    total_track_id is sum(TrackId)
+    avg_track_id is avg(TrackId)
+    max_track_id is max(TrackId)
+    min_track_id is min(TrackId)
+    total_album_id is sum(AlbumId)
+    avg_album_id is avg(AlbumId)
+    max_album_id is max(AlbumId)
+    min_album_id is min(AlbumId)
+    total_media_type_id is sum(MediaTypeId)
+    avg_media_type_id is avg(MediaTypeId)
+    max_media_type_id is max(MediaTypeId)
+    min_media_type_id is min(MediaTypeId)
+    total_genre_id is sum(GenreId)
+    avg_genre_id is avg(GenreId)
+    max_genre_id is max(GenreId)
+    min_genre_id is min(GenreId)
+    total_milliseconds is sum(Milliseconds)
+    avg_milliseconds is avg(Milliseconds)
+    max_milliseconds is max(Milliseconds)
+    min_milliseconds is min(Milliseconds)
+    total_bytes is sum(Bytes)
+    avg_bytes is avg(Bytes)
+    max_bytes is max(Bytes)
+    min_bytes is min(Bytes)
+    total_unit_price is sum(UnitPrice)
+    avg_unit_price is avg(UnitPrice)
+    max_unit_price is max(UnitPrice)
+    min_unit_price is min(UnitPrice)
+}
+
+// Invoice
+source: invoice is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'Invoice')
+""") extend {
+  primary_key: InvoiceId
+
+  join_one: customer on CustomerId = customer.CustomerId
+
+  dimension:
+    invoice_id is InvoiceId
+    customer_id is CustomerId
+    invoice_date is InvoiceDate
+    billing_address is BillingAddress
+    billing_city is BillingCity
+    billing_state is BillingState
+    billing_country is BillingCountry
+    billing_postal_code is BillingPostalCode
+
+  measure:
+    row_count is count()
+    total_invoice_id is sum(InvoiceId)
+    avg_invoice_id is avg(InvoiceId)
+    max_invoice_id is max(InvoiceId)
+    min_invoice_id is min(InvoiceId)
+    total_customer_id is sum(CustomerId)
+    avg_customer_id is avg(CustomerId)
+    max_customer_id is max(CustomerId)
+    min_customer_id is min(CustomerId)
+    total_total is sum(Total)
+    avg_total is avg(Total)
+    max_total is max(Total)
+    min_total is min(Total)
+}
+
+// PlaylistTrack
+source: playlist_track is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'PlaylistTrack')
+""") extend {
+  primary_key: PlaylistId
+
+  join_one: track on TrackId = track.TrackId
+  join_one: playlist on PlaylistId = playlist.PlaylistId
+
+  dimension:
+    playlist_id is PlaylistId
+    track_id is TrackId
+
+  measure:
+    row_count is count()
+    total_playlist_id is sum(PlaylistId)
+    avg_playlist_id is avg(PlaylistId)
+    max_playlist_id is max(PlaylistId)
+    min_playlist_id is min(PlaylistId)
+    total_track_id is sum(TrackId)
+    avg_track_id is avg(TrackId)
+    max_track_id is max(TrackId)
+    min_track_id is min(TrackId)
+}
+
+// InvoiceLine
+source: invoice_line is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite', 'InvoiceLine')
+""") extend {
+  primary_key: InvoiceLineId
+
+  join_one: track on TrackId = track.TrackId
+  join_one: invoice on InvoiceId = invoice.InvoiceId
+
+  dimension:
+    invoice_line_id is InvoiceLineId
+    invoice_id is InvoiceId
+    track_id is TrackId
+    unit_price is UnitPrice
+
+  measure:
+    row_count is count()
+    total_invoice_line_id is sum(InvoiceLineId)
+    avg_invoice_line_id is avg(InvoiceLineId)
+    max_invoice_line_id is max(InvoiceLineId)
+    min_invoice_line_id is min(InvoiceLineId)
+    total_invoice_id is sum(InvoiceId)
+    avg_invoice_id is avg(InvoiceId)
+    max_invoice_id is max(InvoiceId)
+    min_invoice_id is min(InvoiceId)
+    total_track_id is sum(TrackId)
+    avg_track_id is avg(TrackId)
+    max_track_id is max(TrackId)
+    min_track_id is min(TrackId)
+    total_unit_price is sum(UnitPrice)
+    avg_unit_price is avg(UnitPrice)
+    max_unit_price is max(UnitPrice)
+    min_unit_price is min(UnitPrice)
+    total_quantity is sum(Quantity)
+    avg_quantity is avg(Quantity)
+    max_quantity is max(Quantity)
+    min_quantity is min(Quantity)
+}

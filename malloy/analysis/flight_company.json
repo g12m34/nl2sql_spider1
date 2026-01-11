@@ -1,0 +1,48 @@
+{
+  "db_id": "flight_company",
+  "query_count": 19,
+  "tables_used": [
+    "airport",
+    "flight",
+    "operate_company"
+  ],
+  "dimensions": {
+    "flight": [
+      "airport_id",
+      "altitude",
+      "company_id",
+      "date",
+      "id",
+      "pilot",
+      "vehicle_flight_number",
+      "velocity"
+    ],
+    "airport": [
+      "city",
+      "country",
+      "iata",
+      "id",
+      "name"
+    ],
+    "operate_company": [
+      "group_equity_shareholding",
+      "id",
+      "name",
+      "principal_activities",
+      "type"
+    ]
+  },
+  "measures": {
+    "operate_company": {
+      "max": [
+        "group_equity_shareholding"
+      ]
+    },
+    "flight": {
+      "avg": [
+        "velocity"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,36 @@
+// Malloy semantic layer for: flight_2
+// Auto-generated from 80 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: airlines is duckdb.table('airlines') extend {
+  dimension:
+    abbreviation is Abbreviation
+    airline is Airline
+    country is Country
+    uid is uid
+  measure:
+    row_count is count()
+}
+
+source: airports is duckdb.table('airports') extend {
+  dimension:
+    airportcode is AirportCode
+    airportname is AirportName
+    city is City
+    country is Country
+  measure:
+    row_count is count()
+}
+
+source: flights is duckdb.table('flights') extend {
+  dimension:
+    airline is Airline
+    destairport is DestAirport
+    flightno is FlightNo
+    sourceairport is SourceAirport
+  measure:
+    row_count is count()
+}

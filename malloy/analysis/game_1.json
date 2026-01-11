@@ -1,0 +1,76 @@
+{
+  "db_id": "game_1",
+  "query_count": 86,
+  "tables_used": [
+    "plays_games",
+    "sportsinfo",
+    "student",
+    "video_games"
+  ],
+  "dimensions": {
+    "video_games": [
+      "gameid",
+      "gname",
+      "gtype"
+    ],
+    "student": [
+      "advisor",
+      "age",
+      "city_code",
+      "fname",
+      "lname",
+      "major",
+      "sex",
+      "stuid"
+    ],
+    "sportsinfo": [
+      "gamesplayed",
+      "hoursperweek",
+      "onscholarship",
+      "sportname",
+      "stuid"
+    ],
+    "plays_games": [
+      "gameid",
+      "hours_played",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "video_games": {
+      "count": [
+        "gtype"
+      ]
+    },
+    "student": {
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ],
+      "max": [
+        "age"
+      ]
+    },
+    "sportsinfo": {
+      "count": [
+        "sportname",
+        "stuid"
+      ],
+      "sum": [
+        "gamesplayed",
+        "hoursperweek"
+      ]
+    },
+    "plays_games": {
+      "count": [
+        "stuid"
+      ],
+      "sum": [
+        "hours_played"
+      ]
+    }
+  },
+  "joins": []
+}

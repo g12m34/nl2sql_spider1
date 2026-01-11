@@ -1,0 +1,60 @@
+{
+  "db_id": "product_catalog",
+  "query_count": 42,
+  "tables_used": [
+    "attribute_definitions",
+    "catalog_contents",
+    "catalog_contents_additional_attributes",
+    "catalog_structure",
+    "catalogs"
+  ],
+  "dimensions": {
+    "catalog_contents": [
+      "capacity",
+      "catalog_entry_id",
+      "catalog_entry_name",
+      "catalog_level_number",
+      "height",
+      "length",
+      "next_entry_id",
+      "price_in_dollars",
+      "price_in_euros",
+      "product_stock_number",
+      "width"
+    ],
+    "attribute_definitions": [
+      "attribute_data_type",
+      "attribute_id",
+      "attribute_name"
+    ],
+    "catalog_structure": [
+      "catalog_id",
+      "catalog_level_name",
+      "catalog_level_number"
+    ],
+    "catalogs": [
+      "catalog_id",
+      "catalog_name",
+      "catalog_publisher",
+      "date_of_latest_revision",
+      "date_of_publication"
+    ],
+    "catalog_contents_additional_attributes": [
+      "attribute_id",
+      "attribute_value",
+      "catalog_entry_id",
+      "catalog_level_number"
+    ]
+  },
+  "measures": {
+    "catalog_contents": {
+      "avg": [
+        "price_in_euros"
+      ],
+      "min": [
+        "price_in_euros"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,84 @@
+// Malloy semantic layer for: school_finance
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/school_finance/school_finance.sqlite
+
+// School
+source: school is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'School')
+""") extend {
+  primary_key: School_id
+
+  dimension:
+    i_h_s_a_a_class is IHSAA_Class
+    i_h_s_a_a_football_class is IHSAA_Football_Class
+
+  measure:
+    row_count is count()
+    total_enrollment is sum(Enrollment)
+    avg_enrollment is avg(Enrollment)
+    max_enrollment is max(Enrollment)
+    min_enrollment is min(Enrollment)
+}
+
+// budget
+source: budget is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'budget')
+""") extend {
+  primary_key: School_id
+
+  join_one: school on School_id = school.School_id
+
+  dimension:
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_school_id is sum(School_id)
+    avg_school_id is avg(School_id)
+    max_school_id is max(School_id)
+    min_school_id is min(School_id)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+    total_budgeted is sum(Budgeted)
+    avg_budgeted is avg(Budgeted)
+    max_budgeted is max(Budgeted)
+    min_budgeted is min(Budgeted)
+    total_total_budget_percent_budgeted is sum(total_budget_percent_budgeted)
+    avg_total_budget_percent_budgeted is avg(total_budget_percent_budgeted)
+    max_total_budget_percent_budgeted is max(total_budget_percent_budgeted)
+    min_total_budget_percent_budgeted is min(total_budget_percent_budgeted)
+    total_invested is sum(Invested)
+    avg_invested is avg(Invested)
+    max_invested is max(Invested)
+    min_invested is min(Invested)
+    total_total_budget_percent_invested is sum(total_budget_percent_invested)
+    avg_total_budget_percent_invested is avg(total_budget_percent_invested)
+    max_total_budget_percent_invested is max(total_budget_percent_invested)
+    min_total_budget_percent_invested is min(total_budget_percent_invested)
+}
+
+// endowment
+source: endowment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'endowment')
+""") extend {
+  primary_key: endowment_id
+
+  join_one: school on School_id = school.School_id
+
+  measure:
+    row_count is count()
+    total_endowment_id is sum(endowment_id)
+    avg_endowment_id is avg(endowment_id)
+    max_endowment_id is max(endowment_id)
+    min_endowment_id is min(endowment_id)
+    total_school_id is sum(School_id)
+    avg_school_id is avg(School_id)
+    max_school_id is max(School_id)
+    min_school_id is min(School_id)
+    total_amount is sum(amount)
+    avg_amount is avg(amount)
+    max_amount is max(amount)
+    min_amount is min(amount)
+}

@@ -1,0 +1,124 @@
+{
+  "db_id": "store_1",
+  "query_count": 112,
+  "tables_used": [
+    "albums",
+    "artists",
+    "customers",
+    "employees",
+    "genres",
+    "invoice_lines",
+    "invoices",
+    "media_types",
+    "playlist_tracks",
+    "playlists",
+    "tracks"
+  ],
+  "dimensions": {
+    "invoices": [
+      "billing_city",
+      "billing_country",
+      "billing_state",
+      "customer_id",
+      "id",
+      "invoice_date",
+      "total"
+    ],
+    "customers": [
+      "city",
+      "company",
+      "country",
+      "email",
+      "first_name",
+      "id",
+      "last_name",
+      "phone",
+      "state",
+      "support_rep_id"
+    ],
+    "genres": [
+      "id",
+      "name"
+    ],
+    "tracks": [
+      "album_id",
+      "composer",
+      "genre_id",
+      "id",
+      "media_type_id",
+      "milliseconds",
+      "name",
+      "unit_price"
+    ],
+    "albums": [
+      "artist_id",
+      "id",
+      "title"
+    ],
+    "artists": [
+      "id",
+      "name"
+    ],
+    "employees": [
+      "address",
+      "birth_date",
+      "city",
+      "country",
+      "first_name",
+      "hire_date",
+      "id",
+      "last_name",
+      "phone",
+      "reports_to",
+      "title"
+    ],
+    "media_types": [
+      "id",
+      "name"
+    ],
+    "playlists": [
+      "id",
+      "name"
+    ],
+    "playlist_tracks": [
+      "playlist_id",
+      "track_id"
+    ],
+    "invoice_lines": [
+      "id",
+      "invoice_id",
+      "track_id"
+    ]
+  },
+  "measures": {
+    "invoices": {
+      "sum": [
+        "total"
+      ],
+      "avg": [
+        "total"
+      ]
+    },
+    "employees": {
+      "count": [
+        "reports_to"
+      ]
+    },
+    "albums": {
+      "count": [
+        "id"
+      ]
+    },
+    "tracks": {
+      "count": [
+        "id"
+      ]
+    },
+    "playlist_tracks": {
+      "count": [
+        "track_id"
+      ]
+    }
+  },
+  "joins": []
+}

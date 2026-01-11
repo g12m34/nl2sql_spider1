@@ -1,0 +1,130 @@
+{
+  "db_id": "college_2",
+  "query_count": 170,
+  "tables_used": [
+    "advisor",
+    "classroom",
+    "course",
+    "department",
+    "instructor",
+    "prereq",
+    "section",
+    "student",
+    "takes",
+    "teaches"
+  ],
+  "dimensions": {
+    "classroom": [
+      "building",
+      "capacity",
+      "room_number"
+    ],
+    "department": [
+      "budget",
+      "building",
+      "dept_name"
+    ],
+    "student": [
+      "dept_name",
+      "id",
+      "name",
+      "tot_cred"
+    ],
+    "advisor": [
+      "i_id",
+      "s_id"
+    ],
+    "course": [
+      "course_id",
+      "credits",
+      "dept_name",
+      "title"
+    ],
+    "prereq": [
+      "course_id",
+      "prereq_id"
+    ],
+    "teaches": [
+      "course_id",
+      "id",
+      "semester",
+      "year"
+    ],
+    "instructor": [
+      "dept_name",
+      "id",
+      "name",
+      "salary"
+    ],
+    "takes": [
+      "course_id",
+      "id",
+      "semester",
+      "year"
+    ],
+    "section": [
+      "building",
+      "course_id",
+      "room_number",
+      "semester",
+      "year"
+    ]
+  },
+  "measures": {
+    "department": {
+      "avg": [
+        "budget"
+      ],
+      "sum": [
+        "budget"
+      ]
+    },
+    "advisor": {
+      "count": [
+        "s_id"
+      ]
+    },
+    "course": {
+      "count": [
+        "course_id",
+        "dept_name"
+      ],
+      "sum": [
+        "credits"
+      ]
+    },
+    "teaches": {
+      "count": [
+        "id"
+      ]
+    },
+    "classroom": {
+      "avg": [
+        "capacity"
+      ],
+      "max": [
+        "capacity"
+      ]
+    },
+    "instructor": {
+      "avg": [
+        "salary"
+      ],
+      "min": [
+        "salary"
+      ],
+      "count": [
+        "id"
+      ],
+      "max": [
+        "salary"
+      ]
+    },
+    "student": {
+      "count": [
+        "id"
+      ]
+    }
+  },
+  "joins": []
+}

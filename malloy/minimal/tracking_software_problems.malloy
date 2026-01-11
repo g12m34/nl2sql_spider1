@@ -1,0 +1,48 @@
+// Malloy semantic layer for: tracking_software_problems
+// Auto-generated from 48 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: problem_log is duckdb.table('Problem_Log') extend {
+  dimension:
+    assigned_to_staff_id is assigned_to_staff_id
+    log_entry_date is log_entry_date
+    log_entry_description is log_entry_description
+    problem_id is problem_id
+    problem_log_id is problem_log_id
+  measure:
+    row_count is count()
+}
+
+source: problems is duckdb.table('Problems') extend {
+  dimension:
+    closure_authorised_by_staff_id is closure_authorised_by_staff_id
+    date_problem_reported is date_problem_reported
+    problem_description is problem_description
+    problem_id is problem_id
+    product_id is product_id
+    reported_by_staff_id is reported_by_staff_id
+  measure:
+    row_count is count()
+    min_date_problem_reported is min(date_problem_reported)
+    max_date_problem_reported is max(date_problem_reported)
+}
+
+source: product is duckdb.table('Product') extend {
+  dimension:
+    product_id is product_id
+    product_name is product_name
+  measure:
+    row_count is count()
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    staff_first_name is staff_first_name
+    staff_id is staff_id
+    staff_last_name is staff_last_name
+  measure:
+    row_count is count()
+}

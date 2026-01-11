@@ -1,0 +1,33 @@
+// Malloy semantic layer for: network_1
+// Auto-generated from 56 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: friend is duckdb.table('Friend') extend {
+  dimension:
+    friend_id is friend_id
+    student_id is student_id
+  measure:
+    row_count is count()
+}
+
+source: highschooler is duckdb.table('Highschooler') extend {
+  dimension:
+    grade is grade
+    id is ID
+    name is name
+  measure:
+    row_count is count()
+    avg_grade is avg(grade)
+    min_grade is min(grade)
+}
+
+source: likes is duckdb.table('Likes') extend {
+  dimension:
+    liked_id is liked_id
+    student_id is student_id
+  measure:
+    row_count is count()
+}

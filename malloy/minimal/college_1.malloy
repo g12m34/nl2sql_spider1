@@ -1,0 +1,95 @@
+// Malloy semantic layer for: college_1
+// Auto-generated from 164 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: class is duckdb.table('CLASS') extend {
+  dimension:
+    class_code is CLASS_CODE
+    class_room is CLASS_ROOM
+    class_section is CLASS_SECTION
+    crs_code is CRS_CODE
+    prof_num is PROF_NUM
+  measure:
+    row_count is count()
+    count_class_code is count(class_code)
+    count_class_section is count(class_section)
+    count_crs_code is count(crs_code)
+    count_prof_num is count(prof_num)
+}
+
+source: course is duckdb.table('COURSE') extend {
+  dimension:
+    crs_code is CRS_CODE
+    crs_credit is CRS_CREDIT
+    crs_description is CRS_DESCRIPTION
+    dept_code is DEPT_CODE
+  measure:
+    row_count is count()
+    sum_crs_credit is sum(crs_credit)
+}
+
+source: department is duckdb.table('DEPARTMENT') extend {
+  dimension:
+    dept_address is DEPT_ADDRESS
+    dept_code is DEPT_CODE
+    dept_name is DEPT_NAME
+    emp_num is EMP_NUM
+    school_code is SCHOOL_CODE
+  measure:
+    row_count is count()
+    count_dept_address is count(dept_address)
+    count_dept_name is count(dept_name)
+    count_school_code is count(school_code)
+}
+
+source: employee is duckdb.table('EMPLOYEE') extend {
+  dimension:
+    emp_dob is EMP_DOB
+    emp_fname is EMP_FNAME
+    emp_hiredate is EMP_HIREDATE
+    emp_jobcode is EMP_JOBCODE
+    emp_lname is EMP_LNAME
+    emp_num is EMP_NUM
+  measure:
+    row_count is count()
+}
+
+source: enroll is duckdb.table('ENROLL') extend {
+  dimension:
+    class_code is CLASS_CODE
+    enroll_grade is ENROLL_GRADE
+    stu_num is STU_NUM
+  measure:
+    row_count is count()
+}
+
+source: professor is duckdb.table('PROFESSOR') extend {
+  dimension:
+    dept_code is DEPT_CODE
+    emp_num is EMP_NUM
+    prof_high_degree is PROF_HIGH_DEGREE
+    prof_office is PROF_OFFICE
+  measure:
+    row_count is count()
+}
+
+source: student is duckdb.table('STUDENT') extend {
+  dimension:
+    dept_code is DEPT_CODE
+    stu_dob is STU_DOB
+    stu_fname is STU_FNAME
+    stu_gpa is STU_GPA
+    stu_hrs is STU_HRS
+    stu_lname is STU_LNAME
+    stu_num is STU_NUM
+    stu_phone is STU_PHONE
+  measure:
+    row_count is count()
+    sum_stu_hrs is sum(stu_hrs)
+    avg_stu_gpa is avg(stu_gpa)
+    min_stu_gpa is min(stu_gpa)
+    max_stu_gpa is max(stu_gpa)
+}

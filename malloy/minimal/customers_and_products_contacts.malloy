@@ -1,0 +1,69 @@
+// Malloy semantic layer for: customers_and_products_contacts
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is address_id
+    city is city
+    country is country
+    state_province_county is state_province_county
+  measure:
+    row_count is count()
+}
+
+source: customer_address_history is duckdb.table('Customer_Address_History') extend {
+  dimension:
+    address_id is address_id
+    customer_id is customer_id
+    date_from is date_from
+    date_to is date_to
+  measure:
+    row_count is count()
+}
+
+source: customer_orders is duckdb.table('Customer_Orders') extend {
+  dimension:
+    customer_id is customer_id
+    order_id is order_id
+    order_status_code is order_status_code
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_id is customer_id
+    customer_name is customer_name
+    customer_number is customer_number
+    customer_phone is customer_phone
+    payment_method_code is payment_method_code
+  measure:
+    row_count is count()
+}
+
+source: order_items is duckdb.table('Order_Items') extend {
+  dimension:
+    order_id is order_id
+    order_quantity is order_quantity
+    product_id is product_id
+  measure:
+    row_count is count()
+    sum_order_quantity is sum(order_quantity)
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_id is product_id
+    product_name is product_name
+    product_price is product_price
+    product_type_code is product_type_code
+  measure:
+    row_count is count()
+    avg_product_price is avg(product_price)
+    min_product_price is min(product_price)
+    max_product_price is max(product_price)
+}

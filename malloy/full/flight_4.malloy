@@ -1,0 +1,79 @@
+// Malloy semantic layer for: flight_4
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/flight_4/flight_4.sqlite
+
+// airports
+source: airports is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'airports')
+""") extend {
+  primary_key: apid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_apid is sum(apid)
+    avg_apid is avg(apid)
+    max_apid is max(apid)
+    min_apid is min(apid)
+    total_x is sum(x)
+    avg_x is avg(x)
+    max_x is max(x)
+    min_x is min(x)
+    total_y is sum(y)
+    avg_y is avg(y)
+    max_y is max(y)
+    min_y is min(y)
+    total_elevation is sum(elevation)
+    avg_elevation is avg(elevation)
+    max_elevation is max(elevation)
+    min_elevation is min(elevation)
+}
+
+// airlines
+source: airlines is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'airlines')
+""") extend {
+  primary_key: alid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_alid is sum(alid)
+    avg_alid is avg(alid)
+    max_alid is max(alid)
+    min_alid is min(alid)
+}
+
+// routes
+source: routes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'routes')
+""") extend {
+  primary_key: rid
+
+  join_one: airlines on alid = airlines.alid
+  join_one: src_apid_airports is airports on src_apid = src_apid_airports.apid
+  join_one: dst_apid_airports is airports on dst_apid = dst_apid_airports.apid
+
+  measure:
+    row_count is count()
+    total_rid is sum(rid)
+    avg_rid is avg(rid)
+    max_rid is max(rid)
+    min_rid is min(rid)
+    total_dst_apid is sum(dst_apid)
+    avg_dst_apid is avg(dst_apid)
+    max_dst_apid is max(dst_apid)
+    min_dst_apid is min(dst_apid)
+    total_src_apid is sum(src_apid)
+    avg_src_apid is avg(src_apid)
+    max_src_apid is max(src_apid)
+    min_src_apid is min(src_apid)
+    total_alid is sum(alid)
+    avg_alid is avg(alid)
+    max_alid is max(alid)
+    min_alid is min(alid)
+}

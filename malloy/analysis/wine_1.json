@@ -1,0 +1,48 @@
+{
+  "db_id": "wine_1",
+  "query_count": 82,
+  "tables_used": [
+    "appellations",
+    "grapes",
+    "wine"
+  ],
+  "dimensions": {
+    "wine": [
+      "appelation",
+      "cases",
+      "grape",
+      "name",
+      "price",
+      "score",
+      "winery",
+      "year"
+    ],
+    "appellations": [
+      "appelation",
+      "area",
+      "county"
+    ],
+    "grapes": [
+      "color",
+      "grape"
+    ]
+  },
+  "measures": {
+    "wine": {
+      "avg": [
+        "cases",
+        "price",
+        "score"
+      ],
+      "max": [
+        "price",
+        "score"
+      ],
+      "min": [
+        "price",
+        "year"
+      ]
+    }
+  },
+  "joins": []
+}

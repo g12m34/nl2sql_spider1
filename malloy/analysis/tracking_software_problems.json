@@ -1,0 +1,47 @@
+{
+  "db_id": "tracking_software_problems",
+  "query_count": 48,
+  "tables_used": [
+    "problem_log",
+    "problems",
+    "product",
+    "staff"
+  ],
+  "dimensions": {
+    "problem_log": [
+      "assigned_to_staff_id",
+      "log_entry_date",
+      "log_entry_description",
+      "problem_id",
+      "problem_log_id"
+    ],
+    "staff": [
+      "staff_first_name",
+      "staff_id",
+      "staff_last_name"
+    ],
+    "product": [
+      "product_id",
+      "product_name"
+    ],
+    "problems": [
+      "closure_authorised_by_staff_id",
+      "date_problem_reported",
+      "problem_description",
+      "problem_id",
+      "product_id",
+      "reported_by_staff_id"
+    ]
+  },
+  "measures": {
+    "problems": {
+      "min": [
+        "date_problem_reported"
+      ],
+      "max": [
+        "date_problem_reported"
+      ]
+    }
+  },
+  "joins": []
+}

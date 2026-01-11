@@ -1,0 +1,66 @@
+// Malloy semantic layer for: browser_web
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/browser_web/browser_web.sqlite
+
+// Web_client_accelerator
+source: web_client_accelerator is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'Web_client_accelerator')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// browser
+source: browser is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'browser')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_market_share is sum(market_share)
+    avg_market_share is avg(market_share)
+    max_market_share is max(market_share)
+    min_market_share is min(market_share)
+}
+
+// accelerator_compatible_browser
+source: accelerator_compatible_browser is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'accelerator_compatible_browser')
+""") extend {
+  primary_key: accelerator_id
+
+  join_one: browser on browser_id = browser.id
+  join_one: web_client_accelerator on accelerator_id = web_client_accelerator.id
+
+  measure:
+    row_count is count()
+    total_accelerator_id is sum(accelerator_id)
+    avg_accelerator_id is avg(accelerator_id)
+    max_accelerator_id is max(accelerator_id)
+    min_accelerator_id is min(accelerator_id)
+    total_browser_id is sum(browser_id)
+    avg_browser_id is avg(browser_id)
+    max_browser_id is max(browser_id)
+    min_browser_id is min(browser_id)
+    total_compatible_since_year is sum(compatible_since_year)
+    avg_compatible_since_year is avg(compatible_since_year)
+    max_compatible_since_year is max(compatible_since_year)
+    min_compatible_since_year is min(compatible_since_year)
+}

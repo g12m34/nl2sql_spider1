@@ -1,0 +1,70 @@
+// Malloy semantic layer for: candidate_poll
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/candidate_poll/candidate_poll.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/candidate_poll/candidate_poll.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+    total_weight is sum(Weight)
+    avg_weight is avg(Weight)
+    max_weight is max(Weight)
+    min_weight is min(Weight)
+}
+
+// candidate
+source: candidate is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/candidate_poll/candidate_poll.sqlite', 'candidate')
+""") extend {
+  primary_key: Candidate_ID
+
+  join_one: people_val on People_ID = people_val.People_ID
+
+  dimension:
+    candidate_i_d is Candidate_ID
+    people_i_d is People_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_candidate_i_d is sum(Candidate_ID)
+    avg_candidate_i_d is avg(Candidate_ID)
+    max_candidate_i_d is max(Candidate_ID)
+    min_candidate_i_d is min(Candidate_ID)
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_support_rate is sum(Support_rate)
+    avg_support_rate is avg(Support_rate)
+    max_support_rate is max(Support_rate)
+    min_support_rate is min(Support_rate)
+    total_consider_rate is sum(Consider_rate)
+    avg_consider_rate is avg(Consider_rate)
+    max_consider_rate is max(Consider_rate)
+    min_consider_rate is min(Consider_rate)
+    total_oppose_rate is sum(Oppose_rate)
+    avg_oppose_rate is avg(Oppose_rate)
+    max_oppose_rate is max(Oppose_rate)
+    min_oppose_rate is min(Oppose_rate)
+    total_unsure_rate is sum(Unsure_rate)
+    avg_unsure_rate is avg(Unsure_rate)
+    max_unsure_rate is max(Unsure_rate)
+    min_unsure_rate is min(Unsure_rate)
+}

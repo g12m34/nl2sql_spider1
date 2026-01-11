@@ -1,0 +1,91 @@
+// Malloy semantic layer for: gas_company
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/gas_company/gas_company.sqlite
+
+// company
+source: company is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'company')
+""") extend {
+  primary_key: Company_ID
+
+  dimension:
+    company_i_d is Company_ID
+    rank_val is `Rank`
+
+  measure:
+    row_count is count()
+    total_company_i_d is sum(Company_ID)
+    avg_company_i_d is avg(Company_ID)
+    max_company_i_d is max(Company_ID)
+    min_company_i_d is min(Company_ID)
+    total_rank_val is sum(`Rank`)
+    avg_rank_val is avg(`Rank`)
+    max_rank_val is max(`Rank`)
+    min_rank_val is min(`Rank`)
+    total_sales_billion is sum(Sales_billion)
+    avg_sales_billion is avg(Sales_billion)
+    max_sales_billion is max(Sales_billion)
+    min_sales_billion is min(Sales_billion)
+    total_profits_billion is sum(Profits_billion)
+    avg_profits_billion is avg(Profits_billion)
+    max_profits_billion is max(Profits_billion)
+    min_profits_billion is min(Profits_billion)
+    total_assets_billion is sum(Assets_billion)
+    avg_assets_billion is avg(Assets_billion)
+    max_assets_billion is max(Assets_billion)
+    min_assets_billion is min(Assets_billion)
+    total_market_value is sum(Market_Value)
+    avg_market_value is avg(Market_Value)
+    max_market_value is max(Market_Value)
+    min_market_value is min(Market_Value)
+}
+
+// gas_station
+source: gas_station is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'gas_station')
+""") extend {
+  primary_key: Station_ID
+
+  dimension:
+    station_i_d is Station_ID
+
+  measure:
+    row_count is count()
+    total_station_i_d is sum(Station_ID)
+    avg_station_i_d is avg(Station_ID)
+    max_station_i_d is max(Station_ID)
+    min_station_i_d is min(Station_ID)
+    total_open_year is sum(Open_Year)
+    avg_open_year is avg(Open_Year)
+    max_open_year is max(Open_Year)
+    min_open_year is min(Open_Year)
+}
+
+// station_company
+source: station_company is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'station_company')
+""") extend {
+  primary_key: Station_ID
+
+  join_one: company on Company_ID = company.Company_ID
+  join_one: gas_station on Station_ID = gas_station.Station_ID
+
+  dimension:
+    station_i_d is Station_ID
+    company_i_d is Company_ID
+
+  measure:
+    row_count is count()
+    total_station_i_d is sum(Station_ID)
+    avg_station_i_d is avg(Station_ID)
+    max_station_i_d is max(Station_ID)
+    min_station_i_d is min(Station_ID)
+    total_company_i_d is sum(Company_ID)
+    avg_company_i_d is avg(Company_ID)
+    max_company_i_d is max(Company_ID)
+    min_company_i_d is min(Company_ID)
+    total_rank_of_the_year is sum(Rank_of_the_Year)
+    avg_rank_of_the_year is avg(Rank_of_the_Year)
+    max_rank_of_the_year is max(Rank_of_the_Year)
+    min_rank_of_the_year is min(Rank_of_the_Year)
+}

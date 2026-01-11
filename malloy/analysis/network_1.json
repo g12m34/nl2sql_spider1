@@ -1,0 +1,35 @@
+{
+  "db_id": "network_1",
+  "query_count": 56,
+  "tables_used": [
+    "friend",
+    "highschooler",
+    "likes"
+  ],
+  "dimensions": {
+    "highschooler": [
+      "grade",
+      "id",
+      "name"
+    ],
+    "friend": [
+      "friend_id",
+      "student_id"
+    ],
+    "likes": [
+      "liked_id",
+      "student_id"
+    ]
+  },
+  "measures": {
+    "highschooler": {
+      "avg": [
+        "grade"
+      ],
+      "min": [
+        "grade"
+      ]
+    }
+  },
+  "joins": []
+}

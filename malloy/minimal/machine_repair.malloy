@@ -1,0 +1,35 @@
+// Malloy semantic layer for: machine_repair
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: machine is duckdb.table('machine') extend {
+  dimension:
+    machine_id is Machine_ID
+    machine_series is Machine_series
+    quality_rank is quality_rank
+    value_points is value_points
+  measure:
+    row_count is count()
+}
+
+source: repair_assignment is duckdb.table('repair_assignment') extend {
+  dimension:
+    machine_id is Machine_ID
+    technician_id is technician_id
+  measure:
+    row_count is count()
+}
+
+source: technician is duckdb.table('technician') extend {
+  dimension:
+    age is Age
+    name is Name
+    starting_year is Starting_Year
+    team is Team
+    technician_id is technician_id
+  measure:
+    row_count is count()
+}

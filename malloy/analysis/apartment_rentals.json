@@ -1,0 +1,74 @@
+{
+  "db_id": "apartment_rentals",
+  "query_count": 80,
+  "tables_used": [
+    "apartment_bookings",
+    "apartment_buildings",
+    "apartment_facilities",
+    "apartments",
+    "guests",
+    "view_unit_status"
+  ],
+  "dimensions": {
+    "apartment_bookings": [
+      "apt_id",
+      "booking_end_date",
+      "booking_start_date",
+      "booking_status_code",
+      "guest_id"
+    ],
+    "apartment_buildings": [
+      "building_address",
+      "building_description",
+      "building_full_name",
+      "building_id",
+      "building_manager",
+      "building_phone",
+      "building_short_name"
+    ],
+    "apartments": [
+      "apt_id",
+      "apt_number",
+      "apt_type_code",
+      "bathroom_count",
+      "bedroom_count",
+      "building_id",
+      "room_count"
+    ],
+    "guests": [
+      "date_of_birth",
+      "gender_code",
+      "guest_first_name",
+      "guest_id",
+      "guest_last_name"
+    ],
+    "apartment_facilities": [
+      "apt_id",
+      "facility_code"
+    ],
+    "view_unit_status": [
+      "apt_id",
+      "available_yn"
+    ]
+  },
+  "measures": {
+    "apartments": {
+      "min": [
+        "bathroom_count",
+        "room_count"
+      ],
+      "max": [
+        "bathroom_count",
+        "room_count"
+      ],
+      "avg": [
+        "bedroom_count",
+        "room_count"
+      ],
+      "sum": [
+        "room_count"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,89 @@
+// Malloy semantic layer for: customer_deliveries
+// Auto-generated from 16 ground-truth SQL queries
+// Tables used: 10
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: actual_orders is duckdb.table('Actual_Orders') extend {
+  dimension:
+    actual_order_id is actual_order_id
+    order_status_code is order_status_code
+  measure:
+    row_count is count()
+}
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is address_id
+    state_province_county is state_province_county
+  measure:
+    row_count is count()
+}
+
+source: customer_addresses is duckdb.table('Customer_Addresses') extend {
+  dimension:
+    address_id is address_id
+    customer_id is customer_id
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_email is customer_email
+    customer_id is customer_id
+    customer_name is customer_name
+    customer_phone is customer_phone
+    date_became_customer is date_became_customer
+    payment_method is payment_method
+  measure:
+    row_count is count()
+    count_payment_method is count(payment_method)
+}
+
+source: delivery_route_locations is duckdb.table('Delivery_Route_Locations') extend {
+  dimension:
+    route_id is route_id
+  measure:
+    row_count is count()
+}
+
+source: delivery_routes is duckdb.table('Delivery_Routes') extend {
+  dimension:
+    route_id is route_id
+    route_name is route_name
+  measure:
+    row_count is count()
+}
+
+source: employees is duckdb.table('Employees') extend {
+  dimension:
+    employee_address_id is employee_address_id
+  measure:
+    row_count is count()
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_id is product_id
+    product_name is product_name
+    product_price is product_price
+  measure:
+    row_count is count()
+}
+
+source: regular_order_products is duckdb.table('Regular_Order_Products') extend {
+  dimension:
+    product_id is product_id
+  measure:
+    row_count is count()
+}
+
+source: trucks is duckdb.table('Trucks') extend {
+  dimension:
+    truck_details is truck_details
+    truck_licence_number is truck_licence_number
+  measure:
+    row_count is count()
+}

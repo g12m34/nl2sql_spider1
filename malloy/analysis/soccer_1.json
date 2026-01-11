@@ -1,0 +1,58 @@
+{
+  "db_id": "soccer_1",
+  "query_count": 14,
+  "tables_used": [
+    "country",
+    "league",
+    "player",
+    "player_attributes"
+  ],
+  "dimensions": {
+    "league": [
+      "country_id",
+      "id",
+      "name"
+    ],
+    "country": [
+      "id",
+      "name"
+    ],
+    "player": [
+      "birthday",
+      "height",
+      "player_api_id",
+      "player_name",
+      "weight"
+    ],
+    "player_attributes": [
+      "crossing",
+      "dribbling",
+      "overall_rating",
+      "player_api_id",
+      "potential",
+      "preferred_foot"
+    ]
+  },
+  "measures": {
+    "player": {
+      "avg": [
+        "weight"
+      ],
+      "min": [
+        "weight"
+      ],
+      "max": [
+        "weight"
+      ]
+    },
+    "player_attributes": {
+      "avg": [
+        "overall_rating"
+      ],
+      "max": [
+        "overall_rating"
+      ]
+    }
+  },
+  "joins": []
+}

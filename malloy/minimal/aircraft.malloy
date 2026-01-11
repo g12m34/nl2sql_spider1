@@ -1,0 +1,59 @@
+// Malloy semantic layer for: aircraft
+// Auto-generated from 46 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: aircraft is duckdb.table('aircraft') extend {
+  dimension:
+    aircraft is Aircraft
+    aircraft_id is Aircraft_ID
+    description is Description
+  measure:
+    row_count is count()
+}
+
+source: airport is duckdb.table('airport') extend {
+  dimension:
+    airport_id is Airport_ID
+    airport_name is Airport_Name
+    domestic_passengers is Domestic_Passengers
+    international_passengers is International_Passengers
+    total_passengers is Total_Passengers
+    transit_passengers is Transit_Passengers
+  measure:
+    row_count is count()
+    sum_domestic_passengers is sum(domestic_passengers)
+    avg_international_passengers is avg(international_passengers)
+    avg_total_passengers is avg(total_passengers)
+    min_transit_passengers is min(transit_passengers)
+    max_transit_passengers is max(transit_passengers)
+}
+
+source: airport_aircraft is duckdb.table('airport_aircraft') extend {
+  dimension:
+    aircraft_id is Aircraft_ID
+    airport_id is Airport_ID
+  measure:
+    row_count is count()
+}
+
+source: match is duckdb.table('match') extend {
+  dimension:
+    country is Country
+    location is Location
+    winning_aircraft is Winning_Aircraft
+    winning_pilot is Winning_Pilot
+  measure:
+    row_count is count()
+}
+
+source: pilot is duckdb.table('pilot') extend {
+  dimension:
+    age is Age
+    name is Name
+    pilot_id is Pilot_Id
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,115 @@
+// Malloy semantic layer for: college_2
+// Auto-generated from 170 ground-truth SQL queries
+// Tables used: 10
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: advisor is duckdb.table('advisor') extend {
+  dimension:
+    i_id is i_ID
+    s_id is s_ID
+  measure:
+    row_count is count()
+    count_s_id is count(s_id)
+}
+
+source: classroom is duckdb.table('classroom') extend {
+  dimension:
+    building is building
+    capacity is capacity
+    room_number is room_number
+  measure:
+    row_count is count()
+    avg_capacity is avg(capacity)
+    max_capacity is max(capacity)
+}
+
+source: course is duckdb.table('course') extend {
+  dimension:
+    course_id is course_id
+    credits is credits
+    dept_name is dept_name
+    title is title
+  measure:
+    row_count is count()
+    sum_credits is sum(credits)
+    count_course_id is count(course_id)
+    count_dept_name is count(dept_name)
+}
+
+source: department is duckdb.table('department') extend {
+  dimension:
+    budget is budget
+    building is building
+    dept_name is dept_name
+  measure:
+    row_count is count()
+    sum_budget is sum(budget)
+    avg_budget is avg(budget)
+}
+
+source: instructor is duckdb.table('instructor') extend {
+  dimension:
+    dept_name is dept_name
+    id is ID
+    name is name
+    salary is salary
+  measure:
+    row_count is count()
+    avg_salary is avg(salary)
+    min_salary is min(salary)
+    max_salary is max(salary)
+    count_id is count(id)
+}
+
+source: prereq is duckdb.table('prereq') extend {
+  dimension:
+    course_id is course_id
+    prereq_id is prereq_id
+  measure:
+    row_count is count()
+}
+
+source: section is duckdb.table('section') extend {
+  dimension:
+    building is building
+    course_id is course_id
+    room_number is room_number
+    semester is semester
+    year is year
+  measure:
+    row_count is count()
+}
+
+source: student is duckdb.table('student') extend {
+  dimension:
+    dept_name is dept_name
+    id is ID
+    name is name
+    tot_cred is tot_cred
+  measure:
+    row_count is count()
+    count_id is count(id)
+}
+
+source: takes is duckdb.table('takes') extend {
+  dimension:
+    course_id is course_id
+    id is ID
+    semester is semester
+    year is year
+  measure:
+    row_count is count()
+}
+
+source: teaches is duckdb.table('teaches') extend {
+  dimension:
+    course_id is course_id
+    id is ID
+    semester is semester
+    year is year
+  measure:
+    row_count is count()
+    count_id is count(id)
+}

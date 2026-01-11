@@ -1,0 +1,85 @@
+// Malloy semantic layer for: products_gen_characteristics
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite
+
+// Ref_Characteristic_Types
+source: ref_characteristic_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Ref_Characteristic_Types')
+""") extend {
+  primary_key: characteristic_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Colors
+source: ref_colors is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Ref_Colors')
+""") extend {
+  primary_key: color_code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Product_Categories
+source: ref_product_categories is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Ref_Product_Categories')
+""") extend {
+  primary_key: product_category_code
+
+  measure:
+    row_count is count()
+}
+
+// Characteristics
+source: characteristics is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Characteristics')
+""") extend {
+  primary_key: characteristic_id
+
+  join_one: ref_characteristic_types on characteristic_type_code = ref_characteristic_types.characteristic_type_code
+
+  measure:
+    row_count is count()
+    total_characteristic_id is sum(characteristic_id)
+    avg_characteristic_id is avg(characteristic_id)
+    max_characteristic_id is max(characteristic_id)
+    min_characteristic_id is min(characteristic_id)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  join_one: ref_colors on color_code = ref_colors.color_code
+  join_one: ref_product_categories on product_category_code = ref_product_categories.product_category_code
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Product_Characteristics
+source: product_characteristics is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Product_Characteristics')
+""") extend {
+  join_one: products on product_id = products.product_id
+  join_one: characteristics on characteristic_id = characteristics.characteristic_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_characteristic_id is sum(characteristic_id)
+    avg_characteristic_id is avg(characteristic_id)
+    max_characteristic_id is max(characteristic_id)
+    min_characteristic_id is min(characteristic_id)
+}

@@ -1,0 +1,43 @@
+{
+  "db_id": "railway",
+  "query_count": 21,
+  "tables_used": [
+    "manager",
+    "railway",
+    "train"
+  ],
+  "dimensions": {
+    "railway": [
+      "builder",
+      "location",
+      "objectnumber",
+      "railway",
+      "railway_id",
+      "wheels"
+    ],
+    "manager": [
+      "age",
+      "country",
+      "level",
+      "name",
+      "working_year_starts"
+    ],
+    "train": [
+      "arrival",
+      "from",
+      "name",
+      "railway_id"
+    ]
+  },
+  "measures": {
+    "manager": {
+      "max": [
+        "level"
+      ],
+      "avg": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

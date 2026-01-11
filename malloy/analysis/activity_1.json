@@ -1,0 +1,50 @@
+{
+  "db_id": "activity_1",
+  "query_count": 88,
+  "tables_used": [
+    "activity",
+    "faculty",
+    "faculty_participates_in",
+    "participates_in",
+    "student"
+  ],
+  "dimensions": {
+    "faculty": [
+      "building",
+      "facid",
+      "fname",
+      "lname",
+      "phone",
+      "rank",
+      "room",
+      "sex"
+    ],
+    "student": [
+      "advisor",
+      "age",
+      "fname",
+      "lname",
+      "stuid"
+    ],
+    "activity": [
+      "actid",
+      "activity_name"
+    ],
+    "faculty_participates_in": [
+      "actid",
+      "facid"
+    ],
+    "participates_in": [
+      "actid",
+      "stuid"
+    ]
+  },
+  "measures": {
+    "faculty_participates_in": {
+      "count": [
+        "facid"
+      ]
+    }
+  },
+  "joins": []
+}

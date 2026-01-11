@@ -1,0 +1,43 @@
+// Malloy semantic layer for: company_office
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: buildings is duckdb.table('buildings') extend {
+  dimension:
+    height is Height
+    id is id
+    name is name
+    status is Status
+    stories is Stories
+  measure:
+    row_count is count()
+}
+
+source: companies is duckdb.table('Companies') extend {
+  dimension:
+    assets_billion is Assets_billion
+    headquarters is Headquarters
+    id is id
+    industry is Industry
+    market_value_billion is Market_Value_billion
+    name is name
+    profits_billion is Profits_billion
+    sales_billion is Sales_billion
+  measure:
+    row_count is count()
+    avg_profits_billion is avg(profits_billion)
+    min_sales_billion is min(sales_billion)
+    max_sales_billion is max(sales_billion)
+    count_industry is count(industry)
+}
+
+source: office_locations is duckdb.table('Office_locations') extend {
+  dimension:
+    building_id is building_id
+    company_id is company_id
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,39 @@
+// Malloy semantic layer for: browser_web
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: accelerator_compatible_browser is duckdb.table('accelerator_compatible_browser') extend {
+  dimension:
+    accelerator_id is accelerator_id
+    browser_id is browser_id
+    compatible_since_year is compatible_since_year
+  measure:
+    row_count is count()
+}
+
+source: browser is duckdb.table('browser') extend {
+  dimension:
+    id is id
+    market_share is market_share
+    name is name
+  measure:
+    row_count is count()
+    avg_market_share is avg(market_share)
+    min_market_share is min(market_share)
+    max_market_share is max(market_share)
+}
+
+source: web_client_accelerator is duckdb.table('Web_client_accelerator') extend {
+  dimension:
+    client is Client
+    connection is Connection
+    id is id
+    name is name
+    operating_system is Operating_system
+  measure:
+    row_count is count()
+    count_client is count(client)
+}

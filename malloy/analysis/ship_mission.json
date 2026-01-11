@@ -1,0 +1,31 @@
+{
+  "db_id": "ship_mission",
+  "query_count": 30,
+  "tables_used": [
+    "mission",
+    "ship"
+  ],
+  "dimensions": {
+    "ship": [
+      "name",
+      "nationality",
+      "ship_id",
+      "tonnage",
+      "type"
+    ],
+    "mission": [
+      "code",
+      "fate",
+      "launched_year",
+      "ship_id"
+    ]
+  },
+  "measures": {
+    "ship": {
+      "avg": [
+        "tonnage"
+      ]
+    }
+  },
+  "joins": []
+}

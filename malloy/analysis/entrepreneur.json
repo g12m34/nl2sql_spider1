@@ -1,0 +1,37 @@
+{
+  "db_id": "entrepreneur",
+  "query_count": 40,
+  "tables_used": [
+    "entrepreneur",
+    "people"
+  ],
+  "dimensions": {
+    "entrepreneur": [
+      "company",
+      "investor",
+      "money_requested",
+      "people_id"
+    ],
+    "people": [
+      "date_of_birth",
+      "height",
+      "name",
+      "people_id",
+      "weight"
+    ]
+  },
+  "measures": {
+    "entrepreneur": {
+      "avg": [
+        "money_requested"
+      ],
+      "sum": [
+        "money_requested"
+      ],
+      "count": [
+        "company"
+      ]
+    }
+  },
+  "joins": []
+}

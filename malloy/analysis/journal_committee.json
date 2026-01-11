@@ -1,0 +1,35 @@
+{
+  "db_id": "journal_committee",
+  "query_count": 18,
+  "tables_used": [
+    "editor",
+    "journal",
+    "journal_committee"
+  ],
+  "dimensions": {
+    "editor": [
+      "age",
+      "editor_id",
+      "name"
+    ],
+    "journal": [
+      "date",
+      "journal_id",
+      "sales",
+      "theme"
+    ],
+    "journal_committee": [
+      "editor_id",
+      "journal_id",
+      "work_type"
+    ]
+  },
+  "measures": {
+    "journal": {
+      "avg": [
+        "sales"
+      ]
+    }
+  },
+  "joins": []
+}

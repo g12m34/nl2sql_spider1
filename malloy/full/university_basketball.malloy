@@ -1,0 +1,60 @@
+// Malloy semantic layer for: university_basketball
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/university_basketball/university_basketball.sqlite
+
+// university
+source: university is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/university_basketball/university_basketball.sqlite', 'university')
+""") extend {
+  primary_key: School_ID
+
+  dimension:
+    school_i_d is School_ID
+
+  measure:
+    row_count is count()
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+    total_founded is sum(Founded)
+    avg_founded is avg(Founded)
+    max_founded is max(Founded)
+    min_founded is min(Founded)
+    total_enrollment is sum(Enrollment)
+    avg_enrollment is avg(Enrollment)
+    max_enrollment is max(Enrollment)
+    min_enrollment is min(Enrollment)
+}
+
+// basketball_match
+source: basketball_match is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/university_basketball/university_basketball.sqlite', 'basketball_match')
+""") extend {
+  primary_key: Team_ID
+
+  join_one: university on School_ID = university.School_ID
+
+  dimension:
+    team_i_d is Team_ID
+    school_i_d is School_ID
+    a_c_c_regular_season is ACC_Regular_Season
+    a_c_c_percent is ACC_Percent
+    a_c_c_home is ACC_Home
+    a_c_c_road is ACC_Road
+
+  measure:
+    row_count is count()
+    total_team_i_d is sum(Team_ID)
+    avg_team_i_d is avg(Team_ID)
+    max_team_i_d is max(Team_ID)
+    min_team_i_d is min(Team_ID)
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+    total_all_games_percent is sum(All_Games_Percent)
+    avg_all_games_percent is avg(All_Games_Percent)
+    max_all_games_percent is max(All_Games_Percent)
+    min_all_games_percent is min(All_Games_Percent)
+}

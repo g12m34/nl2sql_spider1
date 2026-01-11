@@ -1,0 +1,28 @@
+// Malloy semantic layer for: ship_mission
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: mission is duckdb.table('mission') extend {
+  dimension:
+    code is Code
+    fate is Fate
+    launched_year is Launched_Year
+    ship_id is Ship_ID
+  measure:
+    row_count is count()
+}
+
+source: ship is duckdb.table('ship') extend {
+  dimension:
+    name is Name
+    nationality is Nationality
+    ship_id is Ship_ID
+    tonnage is Tonnage
+    type is Type
+  measure:
+    row_count is count()
+    avg_tonnage is avg(tonnage)
+}

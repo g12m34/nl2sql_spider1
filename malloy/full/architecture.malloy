@@ -1,0 +1,75 @@
+// Malloy semantic layer for: architecture
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/architecture/architecture.sqlite
+
+// architect
+source: architect is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'architect')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+}
+
+// bridge
+source: bridge is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'bridge')
+""") extend {
+  primary_key: id
+
+  join_one: architect on architect_id = architect.id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_architect_id is sum(architect_id)
+    avg_architect_id is avg(architect_id)
+    max_architect_id is max(architect_id)
+    min_architect_id is min(architect_id)
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_length_meters is sum(length_meters)
+    avg_length_meters is avg(length_meters)
+    max_length_meters is max(length_meters)
+    min_length_meters is min(length_meters)
+    total_length_feet is sum(length_feet)
+    avg_length_feet is avg(length_feet)
+    max_length_feet is max(length_feet)
+    min_length_feet is min(length_feet)
+}
+
+// mill
+source: mill is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'mill')
+""") extend {
+  primary_key: id
+
+  join_one: architect on architect_id = architect.id
+
+  dimension:
+    name_val is `name`
+    type_val is `type`
+
+  measure:
+    row_count is count()
+    total_architect_id is sum(architect_id)
+    avg_architect_id is avg(architect_id)
+    max_architect_id is max(architect_id)
+    min_architect_id is min(architect_id)
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_built_year is sum(built_year)
+    avg_built_year is avg(built_year)
+    max_built_year is max(built_year)
+    min_built_year is min(built_year)
+}

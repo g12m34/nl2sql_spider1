@@ -1,0 +1,38 @@
+{
+  "db_id": "local_govt_in_alabama",
+  "query_count": 15,
+  "tables_used": [
+    "events",
+    "participants",
+    "participants_in_events",
+    "services"
+  ],
+  "dimensions": {
+    "services": [
+      "service_id",
+      "service_type_code"
+    ],
+    "events": [
+      "event_details",
+      "event_id",
+      "service_id"
+    ],
+    "participants_in_events": [
+      "event_id",
+      "participant_id"
+    ],
+    "participants": [
+      "participant_details",
+      "participant_id",
+      "participant_type_code"
+    ]
+  },
+  "measures": {
+    "participants_in_events": {
+      "count": [
+        "participant_id"
+      ]
+    }
+  },
+  "joins": []
+}

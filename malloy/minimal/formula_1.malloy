@@ -1,0 +1,98 @@
+// Malloy semantic layer for: formula_1
+// Auto-generated from 80 ground-truth SQL queries
+// Tables used: 9
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: circuits is duckdb.table('circuits') extend {
+  dimension:
+    circuitid is circuitId
+    country is country
+    location is location
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: constructors is duckdb.table('constructors') extend {
+  dimension:
+    constructorid is constructorId
+    name is name
+    nationality is nationality
+  measure:
+    row_count is count()
+}
+
+source: constructorstandings is duckdb.table('constructorStandings') extend {
+  dimension:
+    constructorid is constructorId
+    points is points
+  measure:
+    row_count is count()
+}
+
+source: drivers is duckdb.table('drivers') extend {
+  dimension:
+    driverid is driverId
+    forename is forename
+    nationality is nationality
+    surname is surname
+  measure:
+    row_count is count()
+}
+
+source: driverstandings is duckdb.table('driverStandings') extend {
+  dimension:
+    driverid is driverId
+    points is points
+    position is position
+    wins is wins
+  measure:
+    row_count is count()
+}
+
+source: laptimes is duckdb.table('lapTimes') extend {
+  dimension:
+    driverid is driverId
+    milliseconds is milliseconds
+    position is position
+  measure:
+    row_count is count()
+}
+
+source: pitstops is duckdb.table('pitStops') extend {
+  dimension:
+    driverid is driverId
+    duration is duration
+    raceid is raceId
+    stop is stop
+  measure:
+    row_count is count()
+    min_duration is min(duration)
+    max_duration is max(duration)
+}
+
+source: races is duckdb.table('races') extend {
+  dimension:
+    circuitid is circuitId
+    date is date
+    name is name
+    raceid is raceId
+    time is time
+    year is year
+  measure:
+    row_count is count()
+}
+
+source: results is duckdb.table('results') extend {
+  dimension:
+    driverid is driverId
+    fastestlapspeed is fastestLapSpeed
+    raceid is raceId
+  measure:
+    row_count is count()
+    avg_fastestlapspeed is avg(fastestlapspeed)
+    max_fastestlapspeed is max(fastestlapspeed)
+    count_driverid is count(driverid)
+}

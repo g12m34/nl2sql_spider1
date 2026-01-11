@@ -1,0 +1,68 @@
+// Malloy semantic layer for: perpetrator
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+    home_town is `Home Town`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+    total_weight is sum(Weight)
+    avg_weight is avg(Weight)
+    max_weight is max(Weight)
+    min_weight is min(Weight)
+}
+
+// perpetrator
+source: perpetrator is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'perpetrator')
+""") extend {
+  primary_key: Perpetrator_ID
+
+  join_one: people_val on People_ID = people_val.People_ID
+
+  dimension:
+    perpetrator_i_d is Perpetrator_ID
+    people_i_d is People_ID
+    date_val is `Date`
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_perpetrator_i_d is sum(Perpetrator_ID)
+    avg_perpetrator_i_d is avg(Perpetrator_ID)
+    max_perpetrator_i_d is max(Perpetrator_ID)
+    min_perpetrator_i_d is min(Perpetrator_ID)
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+    total_killed is sum(Killed)
+    avg_killed is avg(Killed)
+    max_killed is max(Killed)
+    min_killed is min(Killed)
+    total_injured is sum(Injured)
+    avg_injured is avg(Injured)
+    max_injured is max(Injured)
+    min_injured is min(Injured)
+}

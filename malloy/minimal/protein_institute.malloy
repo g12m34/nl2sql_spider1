@@ -1,0 +1,43 @@
+// Malloy semantic layer for: protein_institute
+// Auto-generated from 20 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: building is duckdb.table('building') extend {
+  dimension:
+    building_id is building_id
+    floors is Floors
+    height_feet is Height_feet
+    name is Name
+    street_address is Street_address
+  measure:
+    row_count is count()
+    avg_floors is avg(floors)
+    avg_height_feet is avg(height_feet)
+    min_floors is min(floors)
+    max_floors is max(floors)
+}
+
+source: institution is duckdb.table('Institution') extend {
+  dimension:
+    building_id is building_id
+    enrollment is Enrollment
+    founded is Founded
+    institution is Institution
+    institution_id is Institution_id
+    location is Location
+    type is Type
+  measure:
+    row_count is count()
+    sum_enrollment is sum(enrollment)
+}
+
+source: protein is duckdb.table('protein') extend {
+  dimension:
+    institution_id is Institution_id
+    protein_name is protein_name
+  measure:
+    row_count is count()
+}

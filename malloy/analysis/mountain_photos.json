@@ -1,0 +1,55 @@
+{
+  "db_id": "mountain_photos",
+  "query_count": 17,
+  "tables_used": [
+    "camera_lens",
+    "mountain",
+    "photos"
+  ],
+  "dimensions": {
+    "camera_lens": [
+      "brand",
+      "focal_length_mm",
+      "id",
+      "max_aperture",
+      "name"
+    ],
+    "photos": [
+      "camera_lens_id",
+      "color",
+      "id",
+      "mountain_id",
+      "name"
+    ],
+    "mountain": [
+      "country",
+      "height",
+      "id",
+      "name",
+      "prominence",
+      "range"
+    ]
+  },
+  "measures": {
+    "mountain": {
+      "avg": [
+        "height",
+        "prominence"
+      ],
+      "max": [
+        "height"
+      ]
+    },
+    "camera_lens": {
+      "count": [
+        "brand"
+      ]
+    },
+    "photos": {
+      "count": [
+        "camera_lens_id"
+      ]
+    }
+  },
+  "joins": []
+}

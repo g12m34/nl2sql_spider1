@@ -1,0 +1,92 @@
+{
+  "db_id": "tracking_grants_for_research",
+  "query_count": 78,
+  "tables_used": [
+    "document_types",
+    "documents",
+    "grants",
+    "organisation_types",
+    "organisations",
+    "project_outcomes",
+    "project_staff",
+    "projects",
+    "research_outcomes",
+    "research_staff",
+    "staff_roles",
+    "tasks"
+  ],
+  "dimensions": {
+    "documents": [
+      "document_type_code",
+      "grant_id",
+      "response_received_date",
+      "sent_date"
+    ],
+    "grants": [
+      "grant_amount",
+      "grant_end_date",
+      "grant_id",
+      "grant_start_date",
+      "organisation_id"
+    ],
+    "project_outcomes": [
+      "outcome_code",
+      "project_id"
+    ],
+    "projects": [
+      "organisation_id",
+      "project_details",
+      "project_id"
+    ],
+    "organisation_types": [
+      "organisation_type",
+      "organisation_type_description"
+    ],
+    "organisations": [
+      "organisation_details",
+      "organisation_id",
+      "organisation_type"
+    ],
+    "project_staff": [
+      "date_from",
+      "date_to",
+      "project_id",
+      "role_code",
+      "staff_id"
+    ],
+    "research_staff": [
+      "employer_organisation_id",
+      "staff_details"
+    ],
+    "document_types": [
+      "document_description",
+      "document_type_code"
+    ],
+    "tasks": [
+      "project_id",
+      "task_details",
+      "task_id"
+    ],
+    "research_outcomes": [
+      "outcome_code",
+      "outcome_description"
+    ],
+    "staff_roles": [
+      "role_code",
+      "role_description"
+    ]
+  },
+  "measures": {
+    "grants": {
+      "sum": [
+        "grant_amount"
+      ]
+    },
+    "project_staff": {
+      "count": [
+        "role_code"
+      ]
+    }
+  },
+  "joins": []
+}

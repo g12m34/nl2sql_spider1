@@ -1,0 +1,110 @@
+// Malloy semantic layer for: geo
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/geo/geo.sqlite
+
+// state
+source: state_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'state')
+""") extend {
+  primary_key: state_name
+
+  measure:
+    row_count is count()
+    total_population is sum(population)
+    avg_population is avg(population)
+    max_population is max(population)
+    min_population is min(population)
+    total_area is sum(area)
+    avg_area is avg(area)
+    max_area is max(area)
+    min_area is min(area)
+    total_density is sum(density)
+    avg_density is avg(density)
+    max_density is max(density)
+    min_density is min(density)
+}
+
+// lake
+source: lake is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'lake')
+""") extend {
+  measure:
+    row_count is count()
+    total_area is sum(area)
+    avg_area is avg(area)
+    max_area is max(area)
+    min_area is min(area)
+}
+
+// city
+source: city is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'city')
+""") extend {
+  primary_key: city_name
+
+  join_one: state_val on state_name = state_val.state_name
+
+  measure:
+    row_count is count()
+    total_population is sum(population)
+    avg_population is avg(population)
+    max_population is max(population)
+    min_population is min(population)
+}
+
+// border_info
+source: border_info is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'border_info')
+""") extend {
+  primary_key: border
+
+  join_one: border_state_val is state_val on border = border_state_val.state_name
+  join_one: state_name_state_val is state_val on state_name = state_name_state_val.state_name
+
+  measure:
+    row_count is count()
+}
+
+// highlow
+source: highlow is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'highlow')
+""") extend {
+  primary_key: state_name
+
+  join_one: state_val on state_name = state_val.state_name
+
+  measure:
+    row_count is count()
+}
+
+// mountain
+source: mountain is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'mountain')
+""") extend {
+  primary_key: mountain_name
+
+  join_one: state_val on state_name = state_val.state_name
+
+  measure:
+    row_count is count()
+    total_mountain_altitude is sum(mountain_altitude)
+    avg_mountain_altitude is avg(mountain_altitude)
+    max_mountain_altitude is max(mountain_altitude)
+    min_mountain_altitude is min(mountain_altitude)
+}
+
+// river
+source: river is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'river')
+""") extend {
+  primary_key: river_name
+
+  join_one: state_val on traverse = state_val.state_name
+
+  measure:
+    row_count is count()
+    total_length is sum(length)
+    avg_length is avg(length)
+    max_length is max(length)
+    min_length is min(length)
+}

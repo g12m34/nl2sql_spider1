@@ -1,0 +1,30 @@
+{
+  "db_id": "decoration_competition",
+  "query_count": 15,
+  "tables_used": [
+    "college",
+    "member",
+    "round"
+  ],
+  "dimensions": {
+    "member": [
+      "college_id",
+      "country",
+      "member_id",
+      "name"
+    ],
+    "college": [
+      "college_id",
+      "college_location",
+      "leader_name",
+      "name"
+    ],
+    "round": [
+      "decoration_theme",
+      "member_id",
+      "rank_in_round"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

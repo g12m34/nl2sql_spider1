@@ -1,0 +1,191 @@
+// Malloy semantic layer for: bike_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/bike_1/bike_1.sqlite
+
+// station
+source: station is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'station')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_lat is sum(lat)
+    avg_lat is avg(lat)
+    max_lat is max(lat)
+    min_lat is min(lat)
+    total_long is sum(long)
+    avg_long is avg(long)
+    max_long is max(long)
+    min_long is min(long)
+    total_dock_count is sum(dock_count)
+    avg_dock_count is avg(dock_count)
+    max_dock_count is max(dock_count)
+    min_dock_count is min(dock_count)
+}
+
+// trip
+source: trip is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'trip')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_duration is sum(duration)
+    avg_duration is avg(duration)
+    max_duration is max(duration)
+    min_duration is min(duration)
+    total_start_station_id is sum(start_station_id)
+    avg_start_station_id is avg(start_station_id)
+    max_start_station_id is max(start_station_id)
+    min_start_station_id is min(start_station_id)
+    total_end_station_id is sum(end_station_id)
+    avg_end_station_id is avg(end_station_id)
+    max_end_station_id is max(end_station_id)
+    min_end_station_id is min(end_station_id)
+    total_bike_id is sum(bike_id)
+    avg_bike_id is avg(bike_id)
+    max_bike_id is max(bike_id)
+    min_bike_id is min(bike_id)
+    total_zip_code is sum(zip_code)
+    avg_zip_code is avg(zip_code)
+    max_zip_code is max(zip_code)
+    min_zip_code is min(zip_code)
+}
+
+// weather
+source: weather is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'weather')
+""") extend {
+  dimension:
+    date_val is `date`
+    events_val is `events`
+
+  measure:
+    row_count is count()
+    total_max_temperature_f is sum(max_temperature_f)
+    avg_max_temperature_f is avg(max_temperature_f)
+    max_max_temperature_f is max(max_temperature_f)
+    min_max_temperature_f is min(max_temperature_f)
+    total_mean_temperature_f is sum(mean_temperature_f)
+    avg_mean_temperature_f is avg(mean_temperature_f)
+    max_mean_temperature_f is max(mean_temperature_f)
+    min_mean_temperature_f is min(mean_temperature_f)
+    total_min_temperature_f is sum(min_temperature_f)
+    avg_min_temperature_f is avg(min_temperature_f)
+    max_min_temperature_f is max(min_temperature_f)
+    min_min_temperature_f is min(min_temperature_f)
+    total_max_dew_point_f is sum(max_dew_point_f)
+    avg_max_dew_point_f is avg(max_dew_point_f)
+    max_max_dew_point_f is max(max_dew_point_f)
+    min_max_dew_point_f is min(max_dew_point_f)
+    total_mean_dew_point_f is sum(mean_dew_point_f)
+    avg_mean_dew_point_f is avg(mean_dew_point_f)
+    max_mean_dew_point_f is max(mean_dew_point_f)
+    min_mean_dew_point_f is min(mean_dew_point_f)
+    total_min_dew_point_f is sum(min_dew_point_f)
+    avg_min_dew_point_f is avg(min_dew_point_f)
+    max_min_dew_point_f is max(min_dew_point_f)
+    min_min_dew_point_f is min(min_dew_point_f)
+    total_max_humidity is sum(max_humidity)
+    avg_max_humidity is avg(max_humidity)
+    max_max_humidity is max(max_humidity)
+    min_max_humidity is min(max_humidity)
+    total_mean_humidity is sum(mean_humidity)
+    avg_mean_humidity is avg(mean_humidity)
+    max_mean_humidity is max(mean_humidity)
+    min_mean_humidity is min(mean_humidity)
+    total_min_humidity is sum(min_humidity)
+    avg_min_humidity is avg(min_humidity)
+    max_min_humidity is max(min_humidity)
+    min_min_humidity is min(min_humidity)
+    total_max_sea_level_pressure_inches is sum(max_sea_level_pressure_inches)
+    avg_max_sea_level_pressure_inches is avg(max_sea_level_pressure_inches)
+    max_max_sea_level_pressure_inches is max(max_sea_level_pressure_inches)
+    min_max_sea_level_pressure_inches is min(max_sea_level_pressure_inches)
+    total_mean_sea_level_pressure_inches is sum(mean_sea_level_pressure_inches)
+    avg_mean_sea_level_pressure_inches is avg(mean_sea_level_pressure_inches)
+    max_mean_sea_level_pressure_inches is max(mean_sea_level_pressure_inches)
+    min_mean_sea_level_pressure_inches is min(mean_sea_level_pressure_inches)
+    total_min_sea_level_pressure_inches is sum(min_sea_level_pressure_inches)
+    avg_min_sea_level_pressure_inches is avg(min_sea_level_pressure_inches)
+    max_min_sea_level_pressure_inches is max(min_sea_level_pressure_inches)
+    min_min_sea_level_pressure_inches is min(min_sea_level_pressure_inches)
+    total_max_visibility_miles is sum(max_visibility_miles)
+    avg_max_visibility_miles is avg(max_visibility_miles)
+    max_max_visibility_miles is max(max_visibility_miles)
+    min_max_visibility_miles is min(max_visibility_miles)
+    total_mean_visibility_miles is sum(mean_visibility_miles)
+    avg_mean_visibility_miles is avg(mean_visibility_miles)
+    max_mean_visibility_miles is max(mean_visibility_miles)
+    min_mean_visibility_miles is min(mean_visibility_miles)
+    total_min_visibility_miles is sum(min_visibility_miles)
+    avg_min_visibility_miles is avg(min_visibility_miles)
+    max_min_visibility_miles is max(min_visibility_miles)
+    min_min_visibility_miles is min(min_visibility_miles)
+    total_max_wind_speed_mph is sum(max_wind_Speed_mph)
+    avg_max_wind_speed_mph is avg(max_wind_Speed_mph)
+    max_max_wind_speed_mph is max(max_wind_Speed_mph)
+    min_max_wind_speed_mph is min(max_wind_Speed_mph)
+    total_mean_wind_speed_mph is sum(mean_wind_speed_mph)
+    avg_mean_wind_speed_mph is avg(mean_wind_speed_mph)
+    max_mean_wind_speed_mph is max(mean_wind_speed_mph)
+    min_mean_wind_speed_mph is min(mean_wind_speed_mph)
+    total_max_gust_speed_mph is sum(max_gust_speed_mph)
+    avg_max_gust_speed_mph is avg(max_gust_speed_mph)
+    max_max_gust_speed_mph is max(max_gust_speed_mph)
+    min_max_gust_speed_mph is min(max_gust_speed_mph)
+    total_precipitation_inches is sum(precipitation_inches)
+    avg_precipitation_inches is avg(precipitation_inches)
+    max_precipitation_inches is max(precipitation_inches)
+    min_precipitation_inches is min(precipitation_inches)
+    total_cloud_cover is sum(cloud_cover)
+    avg_cloud_cover is avg(cloud_cover)
+    max_cloud_cover is max(cloud_cover)
+    min_cloud_cover is min(cloud_cover)
+    total_wind_dir_degrees is sum(wind_dir_degrees)
+    avg_wind_dir_degrees is avg(wind_dir_degrees)
+    max_wind_dir_degrees is max(wind_dir_degrees)
+    min_wind_dir_degrees is min(wind_dir_degrees)
+    total_zip_code is sum(zip_code)
+    avg_zip_code is avg(zip_code)
+    max_zip_code is max(zip_code)
+    min_zip_code is min(zip_code)
+}
+
+// status
+source: status is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'status')
+""") extend {
+  join_one: station on station_id = station.id
+
+  dimension:
+    time_val is `time`
+
+  measure:
+    row_count is count()
+    total_station_id is sum(station_id)
+    avg_station_id is avg(station_id)
+    max_station_id is max(station_id)
+    min_station_id is min(station_id)
+    total_bikes_available is sum(bikes_available)
+    avg_bikes_available is avg(bikes_available)
+    max_bikes_available is max(bikes_available)
+    min_bikes_available is min(bikes_available)
+    total_docks_available is sum(docks_available)
+    avg_docks_available is avg(docks_available)
+    max_docks_available is max(docks_available)
+    min_docks_available is min(docks_available)
+}

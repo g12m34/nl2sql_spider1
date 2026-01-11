@@ -1,0 +1,179 @@
+// Malloy semantic layer for: insurance_and_eClaims
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Customers')
+""") extend {
+  primary_key: Customer_ID
+
+  dimension:
+    customer_i_d is Customer_ID
+
+  measure:
+    row_count is count()
+    total_customer_i_d is sum(Customer_ID)
+    avg_customer_i_d is avg(Customer_ID)
+    max_customer_i_d is max(Customer_ID)
+    min_customer_i_d is min(Customer_ID)
+}
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Staff')
+""") extend {
+  primary_key: Staff_ID
+
+  dimension:
+    staff_i_d is Staff_ID
+
+  measure:
+    row_count is count()
+    total_staff_i_d is sum(Staff_ID)
+    avg_staff_i_d is avg(Staff_ID)
+    max_staff_i_d is max(Staff_ID)
+    min_staff_i_d is min(Staff_ID)
+}
+
+// Claims_Processing_Stages
+source: claims_processing_stages is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Processing_Stages')
+""") extend {
+  primary_key: Claim_Stage_ID
+
+  dimension:
+    claim_stage_i_d is Claim_Stage_ID
+    next_claim_stage_i_d is Next_Claim_Stage_ID
+
+  measure:
+    row_count is count()
+    total_claim_stage_i_d is sum(Claim_Stage_ID)
+    avg_claim_stage_i_d is avg(Claim_Stage_ID)
+    max_claim_stage_i_d is max(Claim_Stage_ID)
+    min_claim_stage_i_d is min(Claim_Stage_ID)
+    total_next_claim_stage_i_d is sum(Next_Claim_Stage_ID)
+    avg_next_claim_stage_i_d is avg(Next_Claim_Stage_ID)
+    max_next_claim_stage_i_d is max(Next_Claim_Stage_ID)
+    min_next_claim_stage_i_d is min(Next_Claim_Stage_ID)
+}
+
+// Policies
+source: policies is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Policies')
+""") extend {
+  primary_key: Policy_ID
+
+  join_one: customers on Customer_ID = customers.Customer_ID
+
+  dimension:
+    policy_i_d is Policy_ID
+    customer_i_d is Customer_ID
+
+  measure:
+    row_count is count()
+    total_policy_i_d is sum(Policy_ID)
+    avg_policy_i_d is avg(Policy_ID)
+    max_policy_i_d is max(Policy_ID)
+    min_policy_i_d is min(Policy_ID)
+    total_customer_i_d is sum(Customer_ID)
+    avg_customer_i_d is avg(Customer_ID)
+    max_customer_i_d is max(Customer_ID)
+    min_customer_i_d is min(Customer_ID)
+}
+
+// Claim_Headers
+source: claim_headers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claim_Headers')
+""") extend {
+  primary_key: Claim_Header_ID
+
+  join_one: policies on Policy_ID = policies.Policy_ID
+
+  dimension:
+    claim_header_i_d is Claim_Header_ID
+    policy_i_d is Policy_ID
+
+  measure:
+    row_count is count()
+    total_claim_header_i_d is sum(Claim_Header_ID)
+    avg_claim_header_i_d is avg(Claim_Header_ID)
+    max_claim_header_i_d is max(Claim_Header_ID)
+    min_claim_header_i_d is min(Claim_Header_ID)
+    total_policy_i_d is sum(Policy_ID)
+    avg_policy_i_d is avg(Policy_ID)
+    max_policy_i_d is max(Policy_ID)
+    min_policy_i_d is min(Policy_ID)
+    total_amount_claimed is sum(Amount_Claimed)
+    avg_amount_claimed is avg(Amount_Claimed)
+    max_amount_claimed is max(Amount_Claimed)
+    min_amount_claimed is min(Amount_Claimed)
+    total_amount_piad is sum(Amount_Piad)
+    avg_amount_piad is avg(Amount_Piad)
+    max_amount_piad is max(Amount_Piad)
+    min_amount_piad is min(Amount_Piad)
+}
+
+// Claims_Documents
+source: claims_documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Documents')
+""") extend {
+  primary_key: Claim_ID
+
+  join_one: staff_val on Created_by_Staff_ID = staff_val.Staff_ID
+  join_one: claim_headers on Claim_ID = claim_headers.Claim_Header_ID
+
+  dimension:
+    claim_i_d is Claim_ID
+    created_by_staff_i_d is Created_by_Staff_ID
+
+  measure:
+    row_count is count()
+    total_claim_i_d is sum(Claim_ID)
+    avg_claim_i_d is avg(Claim_ID)
+    max_claim_i_d is max(Claim_ID)
+    min_claim_i_d is min(Claim_ID)
+    total_created_by_staff_i_d is sum(Created_by_Staff_ID)
+    avg_created_by_staff_i_d is avg(Created_by_Staff_ID)
+    max_created_by_staff_i_d is max(Created_by_Staff_ID)
+    min_created_by_staff_i_d is min(Created_by_Staff_ID)
+    total_created_date is sum(Created_Date)
+    avg_created_date is avg(Created_Date)
+    max_created_date is max(Created_Date)
+    min_created_date is min(Created_Date)
+}
+
+// Claims_Processing
+source: claims_processing is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Processing')
+""") extend {
+  primary_key: Claim_Processing_ID
+
+  join_one: staff_val on Staff_ID = staff_val.Staff_ID
+  join_one: claim_headers on Claim_ID = claim_headers.Claim_Header_ID
+
+  dimension:
+    claim_processing_i_d is Claim_Processing_ID
+    claim_i_d is Claim_ID
+    claim_stage_i_d is Claim_Stage_ID
+    staff_i_d is Staff_ID
+
+  measure:
+    row_count is count()
+    total_claim_processing_i_d is sum(Claim_Processing_ID)
+    avg_claim_processing_i_d is avg(Claim_Processing_ID)
+    max_claim_processing_i_d is max(Claim_Processing_ID)
+    min_claim_processing_i_d is min(Claim_Processing_ID)
+    total_claim_i_d is sum(Claim_ID)
+    avg_claim_i_d is avg(Claim_ID)
+    max_claim_i_d is max(Claim_ID)
+    min_claim_i_d is min(Claim_ID)
+    total_claim_stage_i_d is sum(Claim_Stage_ID)
+    avg_claim_stage_i_d is avg(Claim_Stage_ID)
+    max_claim_stage_i_d is max(Claim_Stage_ID)
+    min_claim_stage_i_d is min(Claim_Stage_ID)
+    total_staff_i_d is sum(Staff_ID)
+    avg_staff_i_d is avg(Staff_ID)
+    max_staff_i_d is max(Staff_ID)
+    min_staff_i_d is min(Staff_ID)
+}

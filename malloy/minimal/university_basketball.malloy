@@ -1,0 +1,38 @@
+// Malloy semantic layer for: university_basketball
+// Auto-generated from 46 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: basketball_match is duckdb.table('basketball_match') extend {
+  dimension:
+    acc_percent is ACC_Percent
+    acc_regular_season is ACC_Regular_Season
+    all_games is All_Games
+    all_home is All_Home
+    school_id is School_ID
+    team_name is Team_Name
+  measure:
+    row_count is count()
+    count_school_id is count(school_id)
+}
+
+source: university is duckdb.table('university') extend {
+  dimension:
+    affiliation is Affiliation
+    enrollment is Enrollment
+    founded is Founded
+    location is Location
+    nickname is Nickname
+    primary_conference is Primary_conference
+    school is School
+    school_id is School_ID
+  measure:
+    row_count is count()
+    sum_enrollment is sum(enrollment)
+    avg_enrollment is avg(enrollment)
+    min_enrollment is min(enrollment)
+    max_enrollment is max(enrollment)
+    count_affiliation is count(affiliation)
+}

@@ -1,0 +1,90 @@
+// Malloy semantic layer for: real_estate_properties
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite
+
+// Ref_Feature_Types
+source: ref_feature_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Ref_Feature_Types')
+""") extend {
+  primary_key: feature_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Property_Types
+source: ref_property_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Ref_Property_Types')
+""") extend {
+  primary_key: property_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Other_Available_Features
+source: other_available_features is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Other_Available_Features')
+""") extend {
+  primary_key: feature_id
+
+  join_one: ref_feature_types on feature_type_code = ref_feature_types.feature_type_code
+
+  measure:
+    row_count is count()
+    total_feature_id is sum(feature_id)
+    avg_feature_id is avg(feature_id)
+    max_feature_id is max(feature_id)
+    min_feature_id is min(feature_id)
+}
+
+// Properties
+source: properties is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Properties')
+""") extend {
+  primary_key: property_id
+
+  join_one: ref_property_types on property_type_code = ref_property_types.property_type_code
+
+  measure:
+    row_count is count()
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+    total_room_count is sum(room_count)
+    avg_room_count is avg(room_count)
+    max_room_count is max(room_count)
+    min_room_count is min(room_count)
+    total_vendor_requested_price is sum(vendor_requested_price)
+    avg_vendor_requested_price is avg(vendor_requested_price)
+    max_vendor_requested_price is max(vendor_requested_price)
+    min_vendor_requested_price is min(vendor_requested_price)
+    total_buyer_offered_price is sum(buyer_offered_price)
+    avg_buyer_offered_price is avg(buyer_offered_price)
+    max_buyer_offered_price is max(buyer_offered_price)
+    min_buyer_offered_price is min(buyer_offered_price)
+    total_agreed_selling_price is sum(agreed_selling_price)
+    avg_agreed_selling_price is avg(agreed_selling_price)
+    max_agreed_selling_price is max(agreed_selling_price)
+    min_agreed_selling_price is min(agreed_selling_price)
+}
+
+// Other_Property_Features
+source: other_property_features is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Other_Property_Features')
+""") extend {
+  join_one: properties on property_id = properties.property_id
+  join_one: other_available_features on feature_id = other_available_features.feature_id
+
+  measure:
+    row_count is count()
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+    total_feature_id is sum(feature_id)
+    avg_feature_id is avg(feature_id)
+    max_feature_id is max(feature_id)
+    min_feature_id is min(feature_id)
+}

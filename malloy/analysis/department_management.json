@@ -1,0 +1,49 @@
+{
+  "db_id": "department_management",
+  "query_count": 16,
+  "tables_used": [
+    "department",
+    "head",
+    "management"
+  ],
+  "dimensions": {
+    "head": [
+      "age",
+      "born_state",
+      "head_id",
+      "name"
+    ],
+    "department": [
+      "budget_in_billions",
+      "creation",
+      "department_id",
+      "name",
+      "num_employees",
+      "ranking"
+    ],
+    "management": [
+      "department_id",
+      "head_id",
+      "temporary_acting"
+    ]
+  },
+  "measures": {
+    "department": {
+      "min": [
+        "budget_in_billions"
+      ],
+      "max": [
+        "budget_in_billions"
+      ],
+      "avg": [
+        "num_employees"
+      ]
+    },
+    "management": {
+      "count": [
+        "temporary_acting"
+      ]
+    }
+  },
+  "joins": []
+}

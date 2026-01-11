@@ -1,0 +1,42 @@
+{
+  "db_id": "school_bus",
+  "query_count": 18,
+  "tables_used": [
+    "driver",
+    "school",
+    "school_bus"
+  ],
+  "dimensions": {
+    "driver": [
+      "age",
+      "driver_id",
+      "home_city",
+      "name",
+      "party"
+    ],
+    "school_bus": [
+      "driver_id",
+      "school_id",
+      "years_working"
+    ],
+    "school": [
+      "school",
+      "school_id",
+      "type"
+    ]
+  },
+  "measures": {
+    "school_bus": {
+      "avg": [
+        "years_working"
+      ],
+      "min": [
+        "years_working"
+      ],
+      "max": [
+        "years_working"
+      ]
+    }
+  },
+  "joins": []
+}

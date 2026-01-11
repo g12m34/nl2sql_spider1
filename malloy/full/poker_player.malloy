@@ -1,0 +1,65 @@
+// Malloy semantic layer for: poker_player
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/poker_player/poker_player.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/poker_player/poker_player.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+}
+
+// poker_player
+source: poker_player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/poker_player/poker_player.sqlite', 'poker_player')
+""") extend {
+  primary_key: Poker_Player_ID
+
+  join_one: people_val on People_ID = people_val.People_ID
+
+  dimension:
+    poker_player_i_d is Poker_Player_ID
+    people_i_d is People_ID
+
+  measure:
+    row_count is count()
+    total_poker_player_i_d is sum(Poker_Player_ID)
+    avg_poker_player_i_d is avg(Poker_Player_ID)
+    max_poker_player_i_d is max(Poker_Player_ID)
+    min_poker_player_i_d is min(Poker_Player_ID)
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_final_table_made is sum(Final_Table_Made)
+    avg_final_table_made is avg(Final_Table_Made)
+    max_final_table_made is max(Final_Table_Made)
+    min_final_table_made is min(Final_Table_Made)
+    total_best_finish is sum(Best_Finish)
+    avg_best_finish is avg(Best_Finish)
+    max_best_finish is max(Best_Finish)
+    min_best_finish is min(Best_Finish)
+    total_money_rank is sum(Money_Rank)
+    avg_money_rank is avg(Money_Rank)
+    max_money_rank is max(Money_Rank)
+    min_money_rank is min(Money_Rank)
+    total_earnings is sum(Earnings)
+    avg_earnings is avg(Earnings)
+    max_earnings is max(Earnings)
+    min_earnings is min(Earnings)
+}

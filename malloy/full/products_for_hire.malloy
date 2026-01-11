@@ -1,0 +1,178 @@
+// Malloy semantic layer for: products_for_hire
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite
+
+// Discount_Coupons
+source: discount_coupons is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Discount_Coupons')
+""") extend {
+  primary_key: coupon_id
+
+  measure:
+    row_count is count()
+    total_coupon_id is sum(coupon_id)
+    avg_coupon_id is avg(coupon_id)
+    max_coupon_id is max(coupon_id)
+    min_coupon_id is min(coupon_id)
+    total_coupon_amount is sum(coupon_amount)
+    avg_coupon_amount is avg(coupon_amount)
+    max_coupon_amount is max(coupon_amount)
+    min_coupon_amount is min(coupon_amount)
+}
+
+// Products_for_Hire
+source: products_for_hire is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Products_for_Hire')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_daily_hire_cost is sum(daily_hire_cost)
+    avg_daily_hire_cost is avg(daily_hire_cost)
+    max_daily_hire_cost is max(daily_hire_cost)
+    min_daily_hire_cost is min(daily_hire_cost)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  join_one: discount_coupons on coupon_id = discount_coupons.coupon_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_coupon_id is sum(coupon_id)
+    avg_coupon_id is avg(coupon_id)
+    max_coupon_id is max(coupon_id)
+    min_coupon_id is min(coupon_id)
+}
+
+// Bookings
+source: bookings is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Bookings')
+""") extend {
+  primary_key: booking_id
+
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_booking_id is sum(booking_id)
+    avg_booking_id is avg(booking_id)
+    max_booking_id is max(booking_id)
+    min_booking_id is min(booking_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_amount_payable is sum(amount_payable)
+    avg_amount_payable is avg(amount_payable)
+    max_amount_payable is max(amount_payable)
+    min_amount_payable is min(amount_payable)
+    total_amount_of_discount is sum(amount_of_discount)
+    avg_amount_of_discount is avg(amount_of_discount)
+    max_amount_of_discount is max(amount_of_discount)
+    min_amount_of_discount is min(amount_of_discount)
+    total_amount_outstanding is sum(amount_outstanding)
+    avg_amount_outstanding is avg(amount_outstanding)
+    max_amount_outstanding is max(amount_outstanding)
+    min_amount_outstanding is min(amount_outstanding)
+    total_amount_of_refund is sum(amount_of_refund)
+    avg_amount_of_refund is avg(amount_of_refund)
+    max_amount_of_refund is max(amount_of_refund)
+    min_amount_of_refund is min(amount_of_refund)
+}
+
+// Payments
+source: payments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Payments')
+""") extend {
+  primary_key: payment_id
+
+  join_one: customers on customer_id = customers.customer_id
+  join_one: bookings on booking_id = bookings.booking_id
+
+  measure:
+    row_count is count()
+    total_payment_id is sum(payment_id)
+    avg_payment_id is avg(payment_id)
+    max_payment_id is max(payment_id)
+    min_payment_id is min(payment_id)
+    total_booking_id is sum(booking_id)
+    avg_booking_id is avg(booking_id)
+    max_booking_id is max(booking_id)
+    min_booking_id is min(booking_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_amount_due is sum(amount_due)
+    avg_amount_due is avg(amount_due)
+    max_amount_due is max(amount_due)
+    min_amount_due is min(amount_due)
+    total_amount_paid is sum(amount_paid)
+    avg_amount_paid is avg(amount_paid)
+    max_amount_paid is max(amount_paid)
+    min_amount_paid is min(amount_paid)
+}
+
+// Products_Booked
+source: products_booked is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Products_Booked')
+""") extend {
+  primary_key: booking_id
+
+  join_one: products_for_hire on product_id = products_for_hire.product_id
+  join_one: bookings on booking_id = bookings.booking_id
+
+  measure:
+    row_count is count()
+    total_booking_id is sum(booking_id)
+    avg_booking_id is avg(booking_id)
+    max_booking_id is max(booking_id)
+    min_booking_id is min(booking_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_booked_count is sum(booked_count)
+    avg_booked_count is avg(booked_count)
+    max_booked_count is max(booked_count)
+    min_booked_count is min(booked_count)
+    total_booked_amount is sum(booked_amount)
+    avg_booked_amount is avg(booked_amount)
+    max_booked_amount is max(booked_amount)
+    min_booked_amount is min(booked_amount)
+}
+
+// View_Product_Availability
+source: view_product_availability is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'View_Product_Availability')
+""") extend {
+  primary_key: status_date
+
+  join_one: products_for_hire on product_id = products_for_hire.product_id
+  join_one: bookings on booking_id = bookings.booking_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_booking_id is sum(booking_id)
+    avg_booking_id is avg(booking_id)
+    max_booking_id is max(booking_id)
+    min_booking_id is min(booking_id)
+}

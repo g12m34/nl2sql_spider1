@@ -1,0 +1,51 @@
+// Malloy semantic layer for: soccer_1
+// Auto-generated from 14 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: country is duckdb.table('Country') extend {
+  dimension:
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: league is duckdb.table('League') extend {
+  dimension:
+    country_id is country_id
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: player is duckdb.table('Player') extend {
+  dimension:
+    birthday is birthday
+    height is height
+    player_api_id is player_api_id
+    player_name is player_name
+    weight is weight
+  measure:
+    row_count is count()
+    avg_weight is avg(weight)
+    min_weight is min(weight)
+    max_weight is max(weight)
+}
+
+source: player_attributes is duckdb.table('Player_Attributes') extend {
+  dimension:
+    crossing is crossing
+    dribbling is dribbling
+    overall_rating is overall_rating
+    player_api_id is player_api_id
+    potential is potential
+    preferred_foot is preferred_foot
+  measure:
+    row_count is count()
+    avg_overall_rating is avg(overall_rating)
+    max_overall_rating is max(overall_rating)
+}

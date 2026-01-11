@@ -1,0 +1,100 @@
+{
+  "db_id": "behavior_monitoring",
+  "query_count": 40,
+  "tables_used": [
+    "addresses",
+    "assessment_notes",
+    "behavior_incident",
+    "detention",
+    "ref_detention_type",
+    "ref_incident_type",
+    "student_addresses",
+    "students",
+    "students_in_detention",
+    "teachers"
+  ],
+  "dimensions": {
+    "assessment_notes": [
+      "date_of_notes",
+      "student_id",
+      "teacher_id",
+      "text_of_notes"
+    ],
+    "addresses": [
+      "address_id",
+      "city",
+      "line_1",
+      "state_province_county",
+      "zip_postcode"
+    ],
+    "behavior_incident": [
+      "date_incident_end",
+      "date_incident_start",
+      "incident_type_code",
+      "student_id"
+    ],
+    "detention": [
+      "datetime_detention_end",
+      "datetime_detention_start",
+      "detention_summary",
+      "detention_type_code",
+      "teacher_id"
+    ],
+    "students": [
+      "address_id",
+      "cell_mobile_number",
+      "email_address",
+      "first_name",
+      "last_name",
+      "student_id"
+    ],
+    "students_in_detention": [
+      "student_id"
+    ],
+    "teachers": [
+      "address_id",
+      "email_address",
+      "first_name",
+      "gender",
+      "last_name",
+      "teacher_id"
+    ],
+    "ref_incident_type": [
+      "incident_type_code",
+      "incident_type_description"
+    ],
+    "student_addresses": [
+      "address_id",
+      "monthly_rental",
+      "student_id"
+    ],
+    "ref_detention_type": [
+      "detention_type_code",
+      "detention_type_description"
+    ]
+  },
+  "measures": {
+    "behavior_incident": {
+      "count": [
+        "incident_type_code"
+      ]
+    },
+    "students_in_detention": {
+      "count": [
+        "student_id"
+      ]
+    },
+    "student_addresses": {
+      "min": [
+        "monthly_rental"
+      ],
+      "max": [
+        "monthly_rental"
+      ],
+      "avg": [
+        "monthly_rental"
+      ]
+    }
+  },
+  "joins": []
+}

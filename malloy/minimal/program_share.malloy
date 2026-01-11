@@ -1,0 +1,41 @@
+// Malloy semantic layer for: program_share
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: broadcast is duckdb.table('broadcast') extend {
+  dimension:
+    channel_id is Channel_ID
+    program_id is Program_ID
+    time_of_day is Time_of_day
+  measure:
+    row_count is count()
+    count_program_id is count(program_id)
+}
+
+source: channel is duckdb.table('channel') extend {
+  dimension:
+    channel_id is Channel_ID
+    name is Name
+    owner is Owner
+    rating_in_percent is Rating_in_percent
+    share_in_percent is Share_in_percent
+  measure:
+    row_count is count()
+    sum_rating_in_percent is sum(rating_in_percent)
+    sum_share_in_percent is sum(share_in_percent)
+    count_owner is count(owner)
+}
+
+source: program is duckdb.table('program') extend {
+  dimension:
+    launch is Launch
+    name is Name
+    origin is Origin
+    owner is Owner
+    program_id is Program_ID
+  measure:
+    row_count is count()
+}

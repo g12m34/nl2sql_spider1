@@ -1,0 +1,53 @@
+{
+  "db_id": "storm_record",
+  "query_count": 44,
+  "tables_used": [
+    "affected_region",
+    "region",
+    "storm"
+  ],
+  "dimensions": {
+    "region": [
+      "region_code",
+      "region_id",
+      "region_name"
+    ],
+    "storm": [
+      "damage_millions_usd",
+      "dates_active",
+      "max_speed",
+      "name",
+      "number_deaths",
+      "storm_id"
+    ],
+    "affected_region": [
+      "number_city_affected",
+      "region_id",
+      "storm_id"
+    ]
+  },
+  "measures": {
+    "storm": {
+      "avg": [
+        "damage_millions_usd",
+        "max_speed"
+      ],
+      "max": [
+        "damage_millions_usd"
+      ],
+      "sum": [
+        "damage_millions_usd",
+        "number_deaths"
+      ]
+    },
+    "affected_region": {
+      "count": [
+        "region_id"
+      ],
+      "sum": [
+        "number_city_affected"
+      ]
+    }
+  },
+  "joins": []
+}

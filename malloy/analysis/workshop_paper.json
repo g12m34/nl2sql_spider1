@@ -1,0 +1,39 @@
+{
+  "db_id": "workshop_paper",
+  "query_count": 30,
+  "tables_used": [
+    "acceptance",
+    "submission",
+    "workshop"
+  ],
+  "dimensions": {
+    "submission": [
+      "author",
+      "college",
+      "scores",
+      "submission_id"
+    ],
+    "acceptance": [
+      "result",
+      "submission_id",
+      "workshop_id"
+    ],
+    "workshop": [
+      "date",
+      "venue"
+    ]
+  },
+  "measures": {
+    "submission": {
+      "avg": [
+        "scores"
+      ]
+    },
+    "acceptance": {
+      "count": [
+        "workshop_id"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,69 @@
+{
+  "db_id": "document_management",
+  "query_count": 44,
+  "tables_used": [
+    "document_functional_areas",
+    "document_sections",
+    "document_sections_images",
+    "document_structures",
+    "documents",
+    "functional_areas",
+    "images",
+    "roles",
+    "users"
+  ],
+  "dimensions": {
+    "documents": [
+      "access_count",
+      "document_code",
+      "document_name",
+      "document_structure_code",
+      "document_type_code"
+    ],
+    "document_structures": [
+      "document_structure_code",
+      "document_structure_description"
+    ],
+    "document_sections": [
+      "document_code",
+      "section_id",
+      "section_title"
+    ],
+    "users": [
+      "password",
+      "role_code",
+      "user_login",
+      "user_name"
+    ],
+    "functional_areas": [
+      "functional_area_code",
+      "functional_area_description"
+    ],
+    "document_functional_areas": [
+      "document_code",
+      "functional_area_code"
+    ],
+    "document_sections_images": [
+      "section_id"
+    ],
+    "roles": [
+      "role_code",
+      "role_description"
+    ],
+    "images": [
+      "image_name",
+      "image_url"
+    ]
+  },
+  "measures": {
+    "documents": {
+      "sum": [
+        "access_count"
+      ],
+      "avg": [
+        "access_count"
+      ]
+    }
+  },
+  "joins": []
+}

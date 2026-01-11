@@ -1,0 +1,35 @@
+// Malloy semantic layer for: small_bank_1
+// Auto-generated from 50 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: accounts is duckdb.table('ACCOUNTS') extend {
+  dimension:
+    custid is custid
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: checking is duckdb.table('CHECKING') extend {
+  dimension:
+    balance is balance
+    custid is custid
+  measure:
+    row_count is count()
+    sum_balance is sum(balance)
+    avg_balance is avg(balance)
+    max_balance is max(balance)
+}
+
+source: savings is duckdb.table('SAVINGS') extend {
+  dimension:
+    balance is balance
+    custid is custid
+  measure:
+    row_count is count()
+    sum_balance is sum(balance)
+    avg_balance is avg(balance)
+}

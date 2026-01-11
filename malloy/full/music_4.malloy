@@ -1,0 +1,76 @@
+// Malloy semantic layer for: music_4
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/music_4/music_4.sqlite
+
+// artist
+source: artist is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_4/music_4.sqlite', 'artist')
+""") extend {
+  primary_key: Artist_ID
+
+  dimension:
+    artist_i_d is Artist_ID
+
+  measure:
+    row_count is count()
+    total_artist_i_d is sum(Artist_ID)
+    avg_artist_i_d is avg(Artist_ID)
+    max_artist_i_d is max(Artist_ID)
+    min_artist_i_d is min(Artist_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// volume
+source: volume is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_4/music_4.sqlite', 'volume')
+""") extend {
+  primary_key: Volume_ID
+
+  join_one: artist on Artist_ID = artist.Artist_ID
+
+  dimension:
+    volume_i_d is Volume_ID
+    artist_i_d is Artist_ID
+
+  measure:
+    row_count is count()
+    total_volume_i_d is sum(Volume_ID)
+    avg_volume_i_d is avg(Volume_ID)
+    max_volume_i_d is max(Volume_ID)
+    min_volume_i_d is min(Volume_ID)
+    total_weeks_on_top is sum(Weeks_on_Top)
+    avg_weeks_on_top is avg(Weeks_on_Top)
+    max_weeks_on_top is max(Weeks_on_Top)
+    min_weeks_on_top is min(Weeks_on_Top)
+    total_artist_i_d is sum(Artist_ID)
+    avg_artist_i_d is avg(Artist_ID)
+    max_artist_i_d is max(Artist_ID)
+    min_artist_i_d is min(Artist_ID)
+}
+
+// music_festival
+source: music_festival is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_4/music_4.sqlite', 'music_festival')
+""") extend {
+  primary_key: ID
+
+  join_one: ref_volume is volume on Volume = ref_volume.Volume_ID
+
+  dimension:
+    i_d is ID
+    result_val is `Result`
+
+  measure:
+    row_count is count()
+    total_i_d is sum(ID)
+    avg_i_d is avg(ID)
+    max_i_d is max(ID)
+    min_i_d is min(ID)
+    total_volume is sum(Volume)
+    avg_volume is avg(Volume)
+    max_volume is max(Volume)
+    min_volume is min(Volume)
+}

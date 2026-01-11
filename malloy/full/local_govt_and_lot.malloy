@@ -1,0 +1,239 @@
+// Malloy semantic layer for: local_govt_and_lot
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Properties
+source: properties is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Properties')
+""") extend {
+  primary_key: property_id
+
+  measure:
+    row_count is count()
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+}
+
+// Organizations
+source: organizations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Organizations')
+""") extend {
+  primary_key: organization_id
+
+  measure:
+    row_count is count()
+    total_organization_id is sum(organization_id)
+    avg_organization_id is avg(organization_id)
+    max_organization_id is max(organization_id)
+    min_organization_id is min(organization_id)
+    total_parent_organization_id is sum(parent_organization_id)
+    avg_parent_organization_id is avg(parent_organization_id)
+    max_parent_organization_id is max(parent_organization_id)
+    min_parent_organization_id is min(parent_organization_id)
+}
+
+// Residents
+source: residents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Residents')
+""") extend {
+  primary_key: resident_id
+
+  join_one: properties on property_id = properties.property_id
+
+  measure:
+    row_count is count()
+    total_resident_id is sum(resident_id)
+    avg_resident_id is avg(resident_id)
+    max_resident_id is max(resident_id)
+    min_resident_id is min(resident_id)
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+}
+
+// Services
+source: services is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Services')
+""") extend {
+  primary_key: service_id
+
+  join_one: organizations on organization_id = organizations.organization_id
+
+  measure:
+    row_count is count()
+    total_service_id is sum(service_id)
+    avg_service_id is avg(service_id)
+    max_service_id is max(service_id)
+    min_service_id is min(service_id)
+    total_organization_id is sum(organization_id)
+    avg_organization_id is avg(organization_id)
+    max_organization_id is max(organization_id)
+    min_organization_id is min(organization_id)
+}
+
+// Things
+source: things is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Things')
+""") extend {
+  primary_key: thing_id
+
+  join_one: organizations on organization_id = organizations.organization_id
+
+  measure:
+    row_count is count()
+    total_thing_id is sum(thing_id)
+    avg_thing_id is avg(thing_id)
+    max_thing_id is max(thing_id)
+    min_thing_id is min(thing_id)
+    total_organization_id is sum(organization_id)
+    avg_organization_id is avg(organization_id)
+    max_organization_id is max(organization_id)
+    min_organization_id is min(organization_id)
+}
+
+// Residents_Services
+source: residents_services is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Residents_Services')
+""") extend {
+  primary_key: resident_id
+
+  join_one: resident_residents is residents on resident_id = resident_residents.resident_id
+  join_one: property_residents is residents on property_id = property_residents.property_id
+  join_one: date_moved_in_residents is residents on date_moved_in = date_moved_in_residents.date_moved_in
+  join_one: services on service_id = services.service_id
+
+  measure:
+    row_count is count()
+    total_resident_id is sum(resident_id)
+    avg_resident_id is avg(resident_id)
+    max_resident_id is max(resident_id)
+    min_resident_id is min(resident_id)
+    total_service_id is sum(service_id)
+    avg_service_id is avg(service_id)
+    max_service_id is max(service_id)
+    min_service_id is min(service_id)
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+}
+
+// Customer_Events
+source: customer_events is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customer_Events')
+""") extend {
+  primary_key: Customer_Event_ID
+
+  join_one: resident_residents is residents on resident_id = resident_residents.resident_id
+  join_one: property_residents is residents on property_id = property_residents.property_id
+  join_one: date_moved_in_residents is residents on date_moved_in = date_moved_in_residents.date_moved_in
+  join_one: customers on customer_id = customers.customer_id
+  join_one: things on thing_id = things.thing_id
+
+  dimension:
+    customer_event_i_d is Customer_Event_ID
+
+  measure:
+    row_count is count()
+    total_customer_event_i_d is sum(Customer_Event_ID)
+    avg_customer_event_i_d is avg(Customer_Event_ID)
+    max_customer_event_i_d is max(Customer_Event_ID)
+    min_customer_event_i_d is min(Customer_Event_ID)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+    total_resident_id is sum(resident_id)
+    avg_resident_id is avg(resident_id)
+    max_resident_id is max(resident_id)
+    min_resident_id is min(resident_id)
+    total_thing_id is sum(thing_id)
+    avg_thing_id is avg(thing_id)
+    max_thing_id is max(thing_id)
+    min_thing_id is min(thing_id)
+}
+
+// Timed_Status_of_Things
+source: timed_status_of_things is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Timed_Status_of_Things')
+""") extend {
+  primary_key: thing_id
+
+  join_one: things on thing_id = things.thing_id
+
+  measure:
+    row_count is count()
+    total_thing_id is sum(thing_id)
+    avg_thing_id is avg(thing_id)
+    max_thing_id is max(thing_id)
+    min_thing_id is min(thing_id)
+}
+
+// Timed_Locations_of_Things
+source: timed_locations_of_things is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Timed_Locations_of_Things')
+""") extend {
+  primary_key: thing_id
+
+  join_one: things on thing_id = things.thing_id
+
+  measure:
+    row_count is count()
+    total_thing_id is sum(thing_id)
+    avg_thing_id is avg(thing_id)
+    max_thing_id is max(thing_id)
+    min_thing_id is min(thing_id)
+}
+
+// Customer_Event_Notes
+source: customer_event_notes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customer_Event_Notes')
+""") extend {
+  primary_key: Customer_Event_Note_ID
+
+  join_one: customer_events on Customer_Event_ID = customer_events.Customer_Event_ID
+
+  dimension:
+    customer_event_note_i_d is Customer_Event_Note_ID
+    customer_event_i_d is Customer_Event_ID
+
+  measure:
+    row_count is count()
+    total_customer_event_note_i_d is sum(Customer_Event_Note_ID)
+    avg_customer_event_note_i_d is avg(Customer_Event_Note_ID)
+    max_customer_event_note_i_d is max(Customer_Event_Note_ID)
+    min_customer_event_note_i_d is min(Customer_Event_Note_ID)
+    total_customer_event_i_d is sum(Customer_Event_ID)
+    avg_customer_event_i_d is avg(Customer_Event_ID)
+    max_customer_event_i_d is max(Customer_Event_ID)
+    min_customer_event_i_d is min(Customer_Event_ID)
+    total_resident_id is sum(resident_id)
+    avg_resident_id is avg(resident_id)
+    max_resident_id is max(resident_id)
+    min_resident_id is min(resident_id)
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+}

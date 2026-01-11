@@ -1,0 +1,70 @@
+// Malloy semantic layer for: csu_1
+// Auto-generated from 70 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: campuses is duckdb.table('Campuses') extend {
+  dimension:
+    campus is Campus
+    county is County
+    id is Id
+    location is Location
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: csu_fees is duckdb.table('csu_fees') extend {
+  dimension:
+    campus is Campus
+    campusfee is CampusFee
+    year is Year
+  measure:
+    row_count is count()
+    avg_campusfee is avg(campusfee)
+}
+
+source: degrees is duckdb.table('degrees') extend {
+  dimension:
+    campus is Campus
+    degrees is Degrees
+    year is Year
+  measure:
+    row_count is count()
+    sum_degrees is sum(degrees)
+}
+
+source: discipline_enrollments is duckdb.table('discipline_enrollments') extend {
+  dimension:
+    campus is Campus
+    graduate is Graduate
+    undergraduate is Undergraduate
+    year is Year
+  measure:
+    row_count is count()
+    sum_graduate is sum(graduate)
+    sum_undergraduate is sum(undergraduate)
+}
+
+source: enrollments is duckdb.table('enrollments') extend {
+  dimension:
+    campus is Campus
+    fte_ay is FTE_AY
+    totalenrollment_ay is TotalEnrollment_AY
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: faculty is duckdb.table('faculty') extend {
+  dimension:
+    campus is Campus
+    faculty is Faculty
+    year is Year
+  measure:
+    row_count is count()
+    sum_faculty is sum(faculty)
+    max_faculty is max(faculty)
+}

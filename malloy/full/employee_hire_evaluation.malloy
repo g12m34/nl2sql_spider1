@@ -1,0 +1,91 @@
+// Malloy semantic layer for: employee_hire_evaluation
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite
+
+// employee
+source: employee is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'employee')
+""") extend {
+  primary_key: Employee_ID
+
+  dimension:
+    employee_i_d is Employee_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_employee_i_d is sum(Employee_ID)
+    avg_employee_i_d is avg(Employee_ID)
+    max_employee_i_d is max(Employee_ID)
+    min_employee_i_d is min(Employee_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// shop
+source: shop is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'shop')
+""") extend {
+  primary_key: Shop_ID
+
+  dimension:
+    shop_i_d is Shop_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_shop_i_d is sum(Shop_ID)
+    avg_shop_i_d is avg(Shop_ID)
+    max_shop_i_d is max(Shop_ID)
+    min_shop_i_d is min(Shop_ID)
+    total_number_products is sum(Number_products)
+    avg_number_products is avg(Number_products)
+    max_number_products is max(Number_products)
+    min_number_products is min(Number_products)
+}
+
+// evaluation
+source: evaluation is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'evaluation')
+""") extend {
+  primary_key: Employee_ID
+
+  join_one: employee on Employee_ID = employee.Employee_ID
+
+  dimension:
+    employee_i_d is Employee_ID
+
+  measure:
+    row_count is count()
+    total_bonus is sum(Bonus)
+    avg_bonus is avg(Bonus)
+    max_bonus is max(Bonus)
+    min_bonus is min(Bonus)
+}
+
+// hiring
+source: hiring is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'hiring')
+""") extend {
+  primary_key: Employee_ID
+
+  join_one: employee on Employee_ID = employee.Employee_ID
+  join_one: shop on Shop_ID = shop.Shop_ID
+
+  dimension:
+    shop_i_d is Shop_ID
+    employee_i_d is Employee_ID
+
+  measure:
+    row_count is count()
+    total_shop_i_d is sum(Shop_ID)
+    avg_shop_i_d is avg(Shop_ID)
+    max_shop_i_d is max(Shop_ID)
+    min_shop_i_d is min(Shop_ID)
+    total_employee_i_d is sum(Employee_ID)
+    avg_employee_i_d is avg(Employee_ID)
+    max_employee_i_d is max(Employee_ID)
+    min_employee_i_d is min(Employee_ID)
+}

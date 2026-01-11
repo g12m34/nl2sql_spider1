@@ -1,0 +1,46 @@
+{
+  "db_id": "train_station",
+  "query_count": 23,
+  "tables_used": [
+    "station",
+    "train",
+    "train_station"
+  ],
+  "dimensions": {
+    "station": [
+      "annual_entry_exit",
+      "annual_interchanges",
+      "location",
+      "main_services",
+      "name",
+      "number_of_platforms",
+      "station_id",
+      "total_passengers"
+    ],
+    "train": [
+      "name",
+      "service",
+      "time",
+      "train_id"
+    ],
+    "train_station": [
+      "station_id",
+      "train_id"
+    ]
+  },
+  "measures": {
+    "station": {
+      "avg": [
+        "total_passengers"
+      ],
+      "max": [
+        "total_passengers"
+      ],
+      "sum": [
+        "number_of_platforms",
+        "total_passengers"
+      ]
+    }
+  },
+  "joins": []
+}

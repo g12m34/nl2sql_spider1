@@ -1,0 +1,40 @@
+// Malloy semantic layer for: medicine_enzyme_interaction
+// Auto-generated from 44 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: enzyme is duckdb.table('enzyme') extend {
+  dimension:
+    chromosome is Chromosome
+    id is id
+    location is Location
+    name is name
+    omim is OMIM
+    porphyria is Porphyria
+    product is Product
+  measure:
+    row_count is count()
+    max_omim is max(omim)
+}
+
+source: medicine is duckdb.table('medicine') extend {
+  dimension:
+    fda_approved is FDA_approved
+    id is id
+    name is name
+    trade_name is Trade_Name
+  measure:
+    row_count is count()
+    count_fda_approved is count(fda_approved)
+}
+
+source: medicine_enzyme_interaction is duckdb.table('medicine_enzyme_interaction') extend {
+  dimension:
+    enzyme_id is enzyme_id
+    interaction_type is interaction_type
+    medicine_id is medicine_id
+  measure:
+    row_count is count()
+}

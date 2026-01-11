@@ -1,0 +1,62 @@
+{
+  "db_id": "shop_membership",
+  "query_count": 44,
+  "tables_used": [
+    "branch",
+    "member",
+    "membership_register_branch",
+    "purchase"
+  ],
+  "dimensions": {
+    "branch": [
+      "address_road",
+      "branch_id",
+      "city",
+      "membership_amount",
+      "name",
+      "open_year"
+    ],
+    "member": [
+      "card_number",
+      "hometown",
+      "level",
+      "member_id",
+      "name"
+    ],
+    "membership_register_branch": [
+      "branch_id",
+      "member_id",
+      "register_year"
+    ],
+    "purchase": [
+      "branch_id",
+      "member_id",
+      "total_pounds",
+      "year"
+    ]
+  },
+  "measures": {
+    "branch": {
+      "avg": [
+        "membership_amount"
+      ],
+      "min": [
+        "membership_amount"
+      ],
+      "max": [
+        "membership_amount"
+      ]
+    },
+    "member": {
+      "count": [
+        "level"
+      ]
+    },
+    "purchase": {
+      "sum": [
+        "total_pounds"
+      ]
+    }
+  },
+  "joins": []
+}

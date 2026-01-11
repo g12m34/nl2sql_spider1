@@ -1,0 +1,84 @@
+// Malloy semantic layer for: products_for_hire
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: bookings is duckdb.table('Bookings') extend {
+  dimension:
+    amount_of_refund is amount_of_refund
+    booking_end_date is booking_end_date
+    booking_id is booking_id
+    booking_start_date is booking_start_date
+    customer_id is customer_id
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    coupon_id is coupon_id
+    customer_id is customer_id
+    first_name is first_name
+    gender_mf is gender_mf
+    good_or_bad_customer is good_or_bad_customer
+    last_name is last_name
+  measure:
+    row_count is count()
+}
+
+source: discount_coupons is duckdb.table('Discount_Coupons') extend {
+  dimension:
+    coupon_amount is coupon_amount
+    coupon_id is coupon_id
+  measure:
+    row_count is count()
+}
+
+source: payments is duckdb.table('Payments') extend {
+  dimension:
+    amount_due is amount_due
+    amount_paid is amount_paid
+    booking_id is booking_id
+    customer_id is customer_id
+    payment_date is payment_date
+    payment_type_code is payment_type_code
+  measure:
+    row_count is count()
+    sum_amount_paid is sum(amount_paid)
+    avg_amount_due is avg(amount_due)
+}
+
+source: products_booked is duckdb.table('Products_Booked') extend {
+  dimension:
+    booked_amount is booked_amount
+    booked_count is booked_count
+    booking_id is booking_id
+    product_id is product_id
+  measure:
+    row_count is count()
+    avg_booked_count is avg(booked_count)
+    min_booked_count is min(booked_count)
+    max_booked_count is max(booked_count)
+}
+
+source: products_for_hire is duckdb.table('Products_for_Hire') extend {
+  dimension:
+    daily_hire_cost is daily_hire_cost
+    product_description is product_description
+    product_id is product_id
+    product_name is product_name
+    product_type_code is product_type_code
+  measure:
+    row_count is count()
+    count_product_type_code is count(product_type_code)
+}
+
+source: view_product_availability is duckdb.table('View_Product_Availability') extend {
+  dimension:
+    available_yn is available_yn
+    product_id is product_id
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,79 @@
+// Malloy semantic layer for: loan_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/loan_1/loan_1.sqlite
+
+// bank
+source: bank is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'bank')
+""") extend {
+  primary_key: branch_ID
+
+  dimension:
+    branch_i_d is branch_ID
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_branch_i_d is sum(branch_ID)
+    avg_branch_i_d is avg(branch_ID)
+    max_branch_i_d is max(branch_ID)
+    min_branch_i_d is min(branch_ID)
+    total_no_of_customers is sum(no_of_customers)
+    avg_no_of_customers is avg(no_of_customers)
+    max_no_of_customers is max(no_of_customers)
+    min_no_of_customers is min(no_of_customers)
+}
+
+// customer
+source: customer is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'customer')
+""") extend {
+  primary_key: cust_ID
+
+  join_one: bank on branch_ID = bank.branch_ID
+
+  dimension:
+    cust_i_d is cust_ID
+    branch_i_d is branch_ID
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_acc_bal is sum(acc_bal)
+    avg_acc_bal is avg(acc_bal)
+    max_acc_bal is max(acc_bal)
+    min_acc_bal is min(acc_bal)
+    total_no_of_loans is sum(no_of_loans)
+    avg_no_of_loans is avg(no_of_loans)
+    max_no_of_loans is max(no_of_loans)
+    min_no_of_loans is min(no_of_loans)
+    total_credit_score is sum(credit_score)
+    avg_credit_score is avg(credit_score)
+    max_credit_score is max(credit_score)
+    min_credit_score is min(credit_score)
+    total_branch_i_d is sum(branch_ID)
+    avg_branch_i_d is avg(branch_ID)
+    max_branch_i_d is max(branch_ID)
+    min_branch_i_d is min(branch_ID)
+}
+
+// loan
+source: loan is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'loan')
+""") extend {
+  primary_key: loan_ID
+
+  join_one: bank on branch_ID = bank.branch_ID
+
+  dimension:
+    loan_i_d is loan_ID
+    cust_i_d is cust_ID
+    branch_i_d is branch_ID
+
+  measure:
+    row_count is count()
+    total_amount is sum(amount)
+    avg_amount is avg(amount)
+    max_amount is max(amount)
+    min_amount is min(amount)
+}

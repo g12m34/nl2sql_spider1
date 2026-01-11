@@ -1,0 +1,129 @@
+{
+  "db_id": "cre_Drama_Workshop_Groups",
+  "query_count": 82,
+  "tables_used": [
+    "addresses",
+    "bookings",
+    "clients",
+    "customer_orders",
+    "customers",
+    "drama_workshop_groups",
+    "invoices",
+    "marketing_regions",
+    "order_items",
+    "performers",
+    "products",
+    "ref_service_types",
+    "services",
+    "stores"
+  ],
+  "dimensions": {
+    "bookings": [
+      "actual_delivery_date",
+      "customer_id",
+      "order_date",
+      "planned_delivery_date",
+      "status_code",
+      "workshop_group_id"
+    ],
+    "customers": [
+      "address_id",
+      "customer_email_address",
+      "customer_name",
+      "customer_phone"
+    ],
+    "drama_workshop_groups": [
+      "address_id",
+      "currency_code",
+      "marketing_region_code",
+      "store_email_address",
+      "store_name",
+      "store_phone",
+      "workshop_group_id"
+    ],
+    "invoices": [
+      "order_quantity",
+      "payment_method_code",
+      "product_id"
+    ],
+    "marketing_regions": [
+      "marketing_region_code",
+      "marketing_region_descriptrion",
+      "marketing_region_name"
+    ],
+    "products": [
+      "product_id",
+      "product_name",
+      "product_price"
+    ],
+    "performers": [
+      "address_id",
+      "customer_name",
+      "customer_phone"
+    ],
+    "addresses": [
+      "address_id",
+      "city_town",
+      "state_county"
+    ],
+    "stores": [
+      "address_id",
+      "marketing_region_code",
+      "store_name"
+    ],
+    "ref_service_types": [
+      "service_type_code",
+      "service_type_description"
+    ],
+    "services": [
+      "product_name",
+      "product_price",
+      "service_type_code",
+      "workshop_group_id"
+    ],
+    "order_items": [
+      "order_id",
+      "order_quantity",
+      "other_item_details",
+      "product_id"
+    ],
+    "customer_orders": [
+      "actual_delivery_date",
+      "order_date",
+      "order_id"
+    ],
+    "clients": [
+      "client_id",
+      "customer_name"
+    ]
+  },
+  "measures": {
+    "invoices": {
+      "avg": [
+        "order_quantity"
+      ],
+      "min": [
+        "order_quantity"
+      ],
+      "max": [
+        "order_quantity"
+      ]
+    },
+    "products": {
+      "avg": [
+        "product_price"
+      ]
+    },
+    "order_items": {
+      "sum": [
+        "order_quantity"
+      ]
+    },
+    "drama_workshop_groups": {
+      "count": [
+        "currency_code"
+      ]
+    }
+  },
+  "joins": []
+}

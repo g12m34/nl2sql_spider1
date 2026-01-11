@@ -1,0 +1,76 @@
+// Malloy semantic layer for: gymnast
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/gymnast/gymnast.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+}
+
+// gymnast
+source: gymnast is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'gymnast')
+""") extend {
+  primary_key: Gymnast_ID
+
+  join_one: people_val on Gymnast_ID = people_val.People_ID
+
+  dimension:
+    gymnast_i_d is Gymnast_ID
+
+  measure:
+    row_count is count()
+    total_gymnast_i_d is sum(Gymnast_ID)
+    avg_gymnast_i_d is avg(Gymnast_ID)
+    max_gymnast_i_d is max(Gymnast_ID)
+    min_gymnast_i_d is min(Gymnast_ID)
+    total_floor_exercise_points is sum(Floor_Exercise_Points)
+    avg_floor_exercise_points is avg(Floor_Exercise_Points)
+    max_floor_exercise_points is max(Floor_Exercise_Points)
+    min_floor_exercise_points is min(Floor_Exercise_Points)
+    total_pommel_horse_points is sum(Pommel_Horse_Points)
+    avg_pommel_horse_points is avg(Pommel_Horse_Points)
+    max_pommel_horse_points is max(Pommel_Horse_Points)
+    min_pommel_horse_points is min(Pommel_Horse_Points)
+    total_rings_points is sum(Rings_Points)
+    avg_rings_points is avg(Rings_Points)
+    max_rings_points is max(Rings_Points)
+    min_rings_points is min(Rings_Points)
+    total_vault_points is sum(Vault_Points)
+    avg_vault_points is avg(Vault_Points)
+    max_vault_points is max(Vault_Points)
+    min_vault_points is min(Vault_Points)
+    total_parallel_bars_points is sum(Parallel_Bars_Points)
+    avg_parallel_bars_points is avg(Parallel_Bars_Points)
+    max_parallel_bars_points is max(Parallel_Bars_Points)
+    min_parallel_bars_points is min(Parallel_Bars_Points)
+    total_horizontal_bar_points is sum(Horizontal_Bar_Points)
+    avg_horizontal_bar_points is avg(Horizontal_Bar_Points)
+    max_horizontal_bar_points is max(Horizontal_Bar_Points)
+    min_horizontal_bar_points is min(Horizontal_Bar_Points)
+    total_total_points is sum(Total_Points)
+    avg_total_points is avg(Total_Points)
+    max_total_points is max(Total_Points)
+    min_total_points is min(Total_Points)
+}

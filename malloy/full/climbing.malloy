@@ -1,0 +1,60 @@
+// Malloy semantic layer for: climbing
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/climbing/climbing.sqlite
+
+// mountain
+source: mountain is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/climbing/climbing.sqlite', 'mountain')
+""") extend {
+  primary_key: Mountain_ID
+
+  dimension:
+    mountain_i_d is Mountain_ID
+    name_val is `Name`
+    range_val is `Range`
+
+  measure:
+    row_count is count()
+    total_mountain_i_d is sum(Mountain_ID)
+    avg_mountain_i_d is avg(Mountain_ID)
+    max_mountain_i_d is max(Mountain_ID)
+    min_mountain_i_d is min(Mountain_ID)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+    total_prominence is sum(Prominence)
+    avg_prominence is avg(Prominence)
+    max_prominence is max(Prominence)
+    min_prominence is min(Prominence)
+}
+
+// climber
+source: climber is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/climbing/climbing.sqlite', 'climber')
+""") extend {
+  primary_key: Climber_ID
+
+  join_one: mountain on Mountain_ID = mountain.Mountain_ID
+
+  dimension:
+    climber_i_d is Climber_ID
+    name_val is `Name`
+    time_val is `Time`
+    mountain_i_d is Mountain_ID
+
+  measure:
+    row_count is count()
+    total_climber_i_d is sum(Climber_ID)
+    avg_climber_i_d is avg(Climber_ID)
+    max_climber_i_d is max(Climber_ID)
+    min_climber_i_d is min(Climber_ID)
+    total_points is sum(Points)
+    avg_points is avg(Points)
+    max_points is max(Points)
+    min_points is min(Points)
+    total_mountain_i_d is sum(Mountain_ID)
+    avg_mountain_i_d is avg(Mountain_ID)
+    max_mountain_i_d is max(Mountain_ID)
+    min_mountain_i_d is min(Mountain_ID)
+}

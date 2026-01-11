@@ -1,0 +1,67 @@
+// Malloy semantic layer for: protein_institute
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite
+
+// building
+source: building is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'building')
+""") extend {
+  primary_key: building_id
+
+  dimension:
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_height_feet is sum(Height_feet)
+    avg_height_feet is avg(Height_feet)
+    max_height_feet is max(Height_feet)
+    min_height_feet is min(Height_feet)
+    total_floors is sum(Floors)
+    avg_floors is avg(Floors)
+    max_floors is max(Floors)
+    min_floors is min(Floors)
+}
+
+// Institution
+source: institution is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'Institution')
+""") extend {
+  primary_key: Institution_id
+
+  join_one: building on building_id = building.building_id
+
+  dimension:
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_founded is sum(Founded)
+    avg_founded is avg(Founded)
+    max_founded is max(Founded)
+    min_founded is min(Founded)
+    total_enrollment is sum(Enrollment)
+    avg_enrollment is avg(Enrollment)
+    max_enrollment is max(Enrollment)
+    min_enrollment is min(Enrollment)
+}
+
+// protein
+source: protein is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'protein')
+""") extend {
+  primary_key: common_name
+
+  join_one: institution on Institution_id = institution.Institution_id
+
+  measure:
+    row_count is count()
+    total_divergence_from_human_lineage is sum(divergence_from_human_lineage)
+    avg_divergence_from_human_lineage is avg(divergence_from_human_lineage)
+    max_divergence_from_human_lineage is max(divergence_from_human_lineage)
+    min_divergence_from_human_lineage is min(divergence_from_human_lineage)
+    total_sequence_length is sum(sequence_length)
+    avg_sequence_length is avg(sequence_length)
+    max_sequence_length is max(sequence_length)
+    min_sequence_length is min(sequence_length)
+}

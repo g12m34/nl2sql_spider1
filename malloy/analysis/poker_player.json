@@ -1,0 +1,40 @@
+{
+  "db_id": "poker_player",
+  "query_count": 40,
+  "tables_used": [
+    "people",
+    "poker_player"
+  ],
+  "dimensions": {
+    "poker_player": [
+      "best_finish",
+      "earnings",
+      "final_table_made",
+      "money_rank",
+      "people_id"
+    ],
+    "people": [
+      "birth_date",
+      "height",
+      "name",
+      "nationality",
+      "people_id"
+    ]
+  },
+  "measures": {
+    "poker_player": {
+      "avg": [
+        "earnings"
+      ],
+      "max": [
+        "final_table_made"
+      ]
+    },
+    "people": {
+      "count": [
+        "nationality"
+      ]
+    }
+  },
+  "joins": []
+}

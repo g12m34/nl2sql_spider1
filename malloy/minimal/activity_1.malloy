@@ -1,0 +1,56 @@
+// Malloy semantic layer for: activity_1
+// Auto-generated from 88 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: activity is duckdb.table('Activity') extend {
+  dimension:
+    actid is actid
+    activity_name is activity_name
+  measure:
+    row_count is count()
+}
+
+source: faculty is duckdb.table('Faculty') extend {
+  dimension:
+    building is Building
+    facid is FacID
+    fname is Fname
+    lname is Lname
+    phone is Phone
+    rank is Rank
+    room is Room
+    sex is Sex
+  measure:
+    row_count is count()
+}
+
+source: faculty_participates_in is duckdb.table('Faculty_Participates_in') extend {
+  dimension:
+    actid is actid
+    facid is FacID
+  measure:
+    row_count is count()
+    count_facid is count(facid)
+}
+
+source: participates_in is duckdb.table('Participates_in') extend {
+  dimension:
+    actid is actid
+    stuid is stuid
+  measure:
+    row_count is count()
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    advisor is Advisor
+    age is Age
+    fname is Fname
+    lname is LName
+    stuid is StuID
+  measure:
+    row_count is count()
+}

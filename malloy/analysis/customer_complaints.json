@@ -1,0 +1,57 @@
+{
+  "db_id": "customer_complaints",
+  "query_count": 46,
+  "tables_used": [
+    "complaints",
+    "customers",
+    "products",
+    "staff"
+  ],
+  "dimensions": {
+    "customers": [
+      "address_line_1",
+      "address_line_2",
+      "customer_id",
+      "customer_type_code",
+      "email_address",
+      "phone_number",
+      "state",
+      "town_city"
+    ],
+    "products": [
+      "product_category_code",
+      "product_description",
+      "product_id",
+      "product_name",
+      "product_price"
+    ],
+    "complaints": [
+      "complaint_status_code",
+      "complaint_type_code",
+      "customer_id",
+      "date_complaint_raised",
+      "product_id",
+      "staff_id"
+    ],
+    "staff": [
+      "email_address",
+      "first_name",
+      "last_name",
+      "phone_number",
+      "staff_id"
+    ]
+  },
+  "measures": {
+    "products": {
+      "avg": [
+        "product_price"
+      ]
+    },
+    "complaints": {
+      "count": [
+        "complaint_type_code"
+      ]
+    }
+  },
+  "joins": []
+}

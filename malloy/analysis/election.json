@@ -1,0 +1,55 @@
+{
+  "db_id": "election",
+  "query_count": 68,
+  "tables_used": [
+    "county",
+    "election",
+    "party"
+  ],
+  "dimensions": {
+    "county": [
+      "county_id",
+      "county_name",
+      "population",
+      "zip_code"
+    ],
+    "election": [
+      "committee",
+      "delegate",
+      "district",
+      "party"
+    ],
+    "party": [
+      "comptroller",
+      "governor",
+      "lieutenant_governor",
+      "party",
+      "party_id",
+      "year"
+    ]
+  },
+  "measures": {
+    "county": {
+      "avg": [
+        "population"
+      ],
+      "min": [
+        "population"
+      ],
+      "max": [
+        "population"
+      ]
+    },
+    "party": {
+      "count": [
+        "governor"
+      ]
+    },
+    "election": {
+      "count": [
+        "delegate"
+      ]
+    }
+  },
+  "joins": []
+}

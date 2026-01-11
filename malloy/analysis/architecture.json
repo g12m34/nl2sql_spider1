@@ -1,0 +1,44 @@
+{
+  "db_id": "architecture",
+  "query_count": 17,
+  "tables_used": [
+    "architect",
+    "bridge",
+    "mill"
+  ],
+  "dimensions": {
+    "architect": [
+      "gender",
+      "id",
+      "name",
+      "nationality"
+    ],
+    "bridge": [
+      "architect_id",
+      "id",
+      "length_feet",
+      "length_meters",
+      "location",
+      "name"
+    ],
+    "mill": [
+      "architect_id",
+      "built_year",
+      "id",
+      "location",
+      "name",
+      "type"
+    ]
+  },
+  "measures": {
+    "bridge": {
+      "max": [
+        "length_meters"
+      ],
+      "avg": [
+        "length_feet"
+      ]
+    }
+  },
+  "joins": []
+}

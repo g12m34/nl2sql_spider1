@@ -1,0 +1,27 @@
+// Malloy semantic layer for: book_2
+// Auto-generated from 21 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: book is duckdb.table('book') extend {
+  dimension:
+    book_id is Book_ID
+    issues is Issues
+    title is Title
+    writer is Writer
+  measure:
+    row_count is count()
+}
+
+source: publication is duckdb.table('publication') extend {
+  dimension:
+    book_id is Book_ID
+    price is Price
+    publication_date is Publication_Date
+    publisher is Publisher
+  measure:
+    row_count is count()
+    count_publication_date is count(publication_date)
+}

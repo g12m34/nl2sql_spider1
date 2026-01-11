@@ -1,0 +1,51 @@
+{
+  "db_id": "manufacturer",
+  "query_count": 16,
+  "tables_used": [
+    "furniture",
+    "furniture_manufacte",
+    "manufacturer"
+  ],
+  "dimensions": {
+    "furniture": [
+      "furniture_id",
+      "market_rate",
+      "name",
+      "num_of_component"
+    ],
+    "furniture_manufacte": [
+      "furniture_id",
+      "manufacturer_id",
+      "price_in_dollar"
+    ],
+    "manufacturer": [
+      "manufacturer_id",
+      "name",
+      "num_of_factories",
+      "num_of_shops",
+      "open_year"
+    ]
+  },
+  "measures": {
+    "furniture": {
+      "sum": [
+        "market_rate",
+        "num_of_component"
+      ]
+    },
+    "furniture_manufacte": {
+      "max": [
+        "price_in_dollar"
+      ]
+    },
+    "manufacturer": {
+      "avg": [
+        "num_of_factories"
+      ],
+      "max": [
+        "num_of_shops"
+      ]
+    }
+  },
+  "joins": []
+}

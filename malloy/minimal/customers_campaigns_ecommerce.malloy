@@ -1,0 +1,58 @@
+// Malloy semantic layer for: customers_campaigns_ecommerce
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: customer_addresses is duckdb.table('Customer_Addresses') extend {
+  dimension:
+    address_type_code is address_type_code
+    premise_id is premise_id
+  measure:
+    row_count is count()
+}
+
+source: customer_orders is duckdb.table('Customer_Orders') extend {
+  dimension:
+    customer_id is customer_id
+    order_shipping_charges is order_shipping_charges
+    order_status_code is order_status_code
+    shipping_method_code is shipping_method_code
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_id is customer_id
+    customer_name is customer_name
+    customer_phone is customer_phone
+    payment_method is payment_method
+  measure:
+    row_count is count()
+}
+
+source: mailshot_campaigns is duckdb.table('Mailshot_Campaigns') extend {
+  dimension:
+    product_category is product_category
+  measure:
+    row_count is count()
+}
+
+source: mailshot_customers is duckdb.table('Mailshot_Customers') extend {
+  dimension:
+    customer_id is customer_id
+    outcome_code is outcome_code
+  measure:
+    row_count is count()
+}
+
+source: premises is duckdb.table('Premises') extend {
+  dimension:
+    premise_details is premise_details
+    premise_id is premise_id
+    premises_type is premises_type
+  measure:
+    row_count is count()
+}

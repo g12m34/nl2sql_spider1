@@ -1,0 +1,137 @@
+// Malloy semantic layer for: baseball_1
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 13
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: all_star is duckdb.table('all_star') extend {
+  dimension:
+    player_id is player_id
+    year is year
+  measure:
+    row_count is count()
+}
+
+source: college is duckdb.table('college') extend {
+  dimension:
+    college_id is college_id
+    name_full is name_full
+  measure:
+    row_count is count()
+}
+
+source: hall_of_fame is duckdb.table('hall_of_fame') extend {
+  dimension:
+    yearid is yearid
+  measure:
+    row_count is count()
+}
+
+source: home_game is duckdb.table('home_game') extend {
+  dimension:
+    attendance is attendance
+    games is games
+    park_id is park_id
+    team_id is team_id
+    year is year
+  measure:
+    row_count is count()
+    sum_attendance is sum(attendance)
+    sum_games is sum(games)
+    avg_attendance is avg(attendance)
+}
+
+source: manager_award is duckdb.table('manager_award') extend {
+  dimension:
+    player_id is player_id
+  measure:
+    row_count is count()
+}
+
+source: park is duckdb.table('park') extend {
+  dimension:
+    city is city
+    park_id is park_id
+    park_name is park_name
+    state is state
+  measure:
+    row_count is count()
+}
+
+source: player is duckdb.table('player') extend {
+  dimension:
+    bats is bats
+    birth_country is birth_country
+    death_year is death_year
+    height is height
+    name_first is name_first
+    name_last is name_last
+    player_id is player_id
+    weight is weight
+  measure:
+    row_count is count()
+    avg_height is avg(height)
+}
+
+source: player_award is duckdb.table('player_award') extend {
+  dimension:
+    player_id is player_id
+    year is year
+  measure:
+    row_count is count()
+}
+
+source: player_college is duckdb.table('player_college') extend {
+  dimension:
+    college_id is college_id
+    player_id is player_id
+  measure:
+    row_count is count()
+}
+
+source: postseason is duckdb.table('postseason') extend {
+  dimension:
+    team_id_loser is team_id_loser
+    team_id_winner is team_id_winner
+    ties is ties
+    wins is wins
+    year is year
+  measure:
+    row_count is count()
+    max_wins is max(wins)
+}
+
+source: salary is duckdb.table('salary') extend {
+  dimension:
+    player_id is player_id
+    salary is salary
+    team_id is team_id
+    year is year
+  measure:
+    row_count is count()
+    sum_salary is sum(salary)
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+}
+
+source: team is duckdb.table('team') extend {
+  dimension:
+    attendance is attendance
+    name is name
+    rank is rank
+    team_id is team_id
+    team_id_br is team_id_br
+    year is year
+  measure:
+    row_count is count()
+    sum_attendance is sum(attendance)
+    avg_attendance is avg(attendance)
+}
+
+source: team_franchise is duckdb.table('team_franchise') extend {
+  dimension:
+    active is active
+  measure:
+    row_count is count()
+}

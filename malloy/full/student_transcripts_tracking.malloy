@@ -1,0 +1,212 @@
+// Malloy semantic layer for: student_transcripts_tracking
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Courses
+source: courses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Courses')
+""") extend {
+  primary_key: course_id
+
+  measure:
+    row_count is count()
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+}
+
+// Departments
+source: departments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Departments')
+""") extend {
+  primary_key: department_id
+
+  measure:
+    row_count is count()
+    total_department_id is sum(department_id)
+    avg_department_id is avg(department_id)
+    max_department_id is max(department_id)
+    min_department_id is min(department_id)
+}
+
+// Semesters
+source: semesters is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Semesters')
+""") extend {
+  primary_key: semester_id
+
+  measure:
+    row_count is count()
+    total_semester_id is sum(semester_id)
+    avg_semester_id is avg(semester_id)
+    max_semester_id is max(semester_id)
+    min_semester_id is min(semester_id)
+}
+
+// Transcripts
+source: transcripts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Transcripts')
+""") extend {
+  primary_key: transcript_id
+
+  measure:
+    row_count is count()
+    total_transcript_id is sum(transcript_id)
+    avg_transcript_id is avg(transcript_id)
+    max_transcript_id is max(transcript_id)
+    min_transcript_id is min(transcript_id)
+}
+
+// Students
+source: students is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Students')
+""") extend {
+  primary_key: student_id
+
+  join_one: permanent_address_addresses is addresses on permanent_address_id = permanent_address_addresses.address_id
+  join_one: current_address_addresses is addresses on current_address_id = current_address_addresses.address_id
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_current_address_id is sum(current_address_id)
+    avg_current_address_id is avg(current_address_id)
+    max_current_address_id is max(current_address_id)
+    min_current_address_id is min(current_address_id)
+    total_permanent_address_id is sum(permanent_address_id)
+    avg_permanent_address_id is avg(permanent_address_id)
+    max_permanent_address_id is max(permanent_address_id)
+    min_permanent_address_id is min(permanent_address_id)
+}
+
+// Sections
+source: sections is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Sections')
+""") extend {
+  primary_key: section_id
+
+  join_one: courses on course_id = courses.course_id
+
+  measure:
+    row_count is count()
+    total_section_id is sum(section_id)
+    avg_section_id is avg(section_id)
+    max_section_id is max(section_id)
+    min_section_id is min(section_id)
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+}
+
+// Degree_Programs
+source: degree_programs is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Degree_Programs')
+""") extend {
+  primary_key: degree_program_id
+
+  join_one: departments on department_id = departments.department_id
+
+  measure:
+    row_count is count()
+    total_degree_program_id is sum(degree_program_id)
+    avg_degree_program_id is avg(degree_program_id)
+    max_degree_program_id is max(degree_program_id)
+    min_degree_program_id is min(degree_program_id)
+    total_department_id is sum(department_id)
+    avg_department_id is avg(department_id)
+    max_department_id is max(department_id)
+    min_department_id is min(department_id)
+}
+
+// Student_Enrolment
+source: student_enrolment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Student_Enrolment')
+""") extend {
+  primary_key: student_enrolment_id
+
+  join_one: students on student_id = students.student_id
+  join_one: semesters on semester_id = semesters.semester_id
+  join_one: degree_programs on degree_program_id = degree_programs.degree_program_id
+
+  measure:
+    row_count is count()
+    total_student_enrolment_id is sum(student_enrolment_id)
+    avg_student_enrolment_id is avg(student_enrolment_id)
+    max_student_enrolment_id is max(student_enrolment_id)
+    min_student_enrolment_id is min(student_enrolment_id)
+    total_degree_program_id is sum(degree_program_id)
+    avg_degree_program_id is avg(degree_program_id)
+    max_degree_program_id is max(degree_program_id)
+    min_degree_program_id is min(degree_program_id)
+    total_semester_id is sum(semester_id)
+    avg_semester_id is avg(semester_id)
+    max_semester_id is max(semester_id)
+    min_semester_id is min(semester_id)
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+}
+
+// Student_Enrolment_Courses
+source: student_enrolment_courses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Student_Enrolment_Courses')
+""") extend {
+  primary_key: student_course_id
+
+  join_one: student_enrolment on student_enrolment_id = student_enrolment.student_enrolment_id
+  join_one: courses on course_id = courses.course_id
+
+  measure:
+    row_count is count()
+    total_student_course_id is sum(student_course_id)
+    avg_student_course_id is avg(student_course_id)
+    max_student_course_id is max(student_course_id)
+    min_student_course_id is min(student_course_id)
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+    total_student_enrolment_id is sum(student_enrolment_id)
+    avg_student_enrolment_id is avg(student_enrolment_id)
+    max_student_enrolment_id is max(student_enrolment_id)
+    min_student_enrolment_id is min(student_enrolment_id)
+}
+
+// Transcript_Contents
+source: transcript_contents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Transcript_Contents')
+""") extend {
+  join_one: transcripts on transcript_id = transcripts.transcript_id
+  join_one: student_enrolment_courses on student_course_id = student_enrolment_courses.student_course_id
+
+  measure:
+    row_count is count()
+    total_student_course_id is sum(student_course_id)
+    avg_student_course_id is avg(student_course_id)
+    max_student_course_id is max(student_course_id)
+    min_student_course_id is min(student_course_id)
+    total_transcript_id is sum(transcript_id)
+    avg_transcript_id is avg(transcript_id)
+    max_transcript_id is max(transcript_id)
+    min_transcript_id is min(transcript_id)
+}

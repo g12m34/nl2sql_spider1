@@ -1,0 +1,47 @@
+{
+  "db_id": "news_report",
+  "query_count": 18,
+  "tables_used": [
+    "event",
+    "journalist",
+    "news_report"
+  ],
+  "dimensions": {
+    "journalist": [
+      "age",
+      "journalist_id",
+      "name",
+      "nationality",
+      "years_working"
+    ],
+    "event": [
+      "date",
+      "event_attendance",
+      "event_id",
+      "name",
+      "venue"
+    ],
+    "news_report": [
+      "event_id",
+      "journalist_id",
+      "work_type"
+    ]
+  },
+  "measures": {
+    "journalist": {
+      "avg": [
+        "age",
+        "years_working"
+      ]
+    },
+    "event": {
+      "avg": [
+        "event_attendance"
+      ],
+      "max": [
+        "event_attendance"
+      ]
+    }
+  },
+  "joins": []
+}

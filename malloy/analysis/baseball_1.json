@@ -1,0 +1,131 @@
+{
+  "db_id": "baseball_1",
+  "query_count": 82,
+  "tables_used": [
+    "all_star",
+    "college",
+    "hall_of_fame",
+    "home_game",
+    "manager_award",
+    "park",
+    "player",
+    "player_award",
+    "player_college",
+    "postseason",
+    "salary",
+    "team",
+    "team_franchise"
+  ],
+  "dimensions": {
+    "player_college": [
+      "college_id",
+      "player_id"
+    ],
+    "college": [
+      "college_id",
+      "name_full"
+    ],
+    "salary": [
+      "player_id",
+      "salary",
+      "team_id",
+      "year"
+    ],
+    "team": [
+      "attendance",
+      "name",
+      "rank",
+      "team_id",
+      "team_id_br",
+      "year"
+    ],
+    "all_star": [
+      "player_id",
+      "year"
+    ],
+    "player": [
+      "bats",
+      "birth_country",
+      "death_year",
+      "height",
+      "name_first",
+      "name_last",
+      "player_id",
+      "weight"
+    ],
+    "hall_of_fame": [
+      "yearid"
+    ],
+    "home_game": [
+      "attendance",
+      "games",
+      "park_id",
+      "team_id",
+      "year"
+    ],
+    "manager_award": [
+      "player_id"
+    ],
+    "park": [
+      "city",
+      "park_id",
+      "park_name",
+      "state"
+    ],
+    "player_award": [
+      "player_id",
+      "year"
+    ],
+    "postseason": [
+      "team_id_loser",
+      "team_id_winner",
+      "ties",
+      "wins",
+      "year"
+    ],
+    "team_franchise": [
+      "active"
+    ]
+  },
+  "measures": {
+    "salary": {
+      "avg": [
+        "salary"
+      ],
+      "max": [
+        "salary"
+      ],
+      "sum": [
+        "salary"
+      ]
+    },
+    "home_game": {
+      "avg": [
+        "attendance"
+      ],
+      "sum": [
+        "attendance",
+        "games"
+      ]
+    },
+    "team": {
+      "avg": [
+        "attendance"
+      ],
+      "sum": [
+        "attendance"
+      ]
+    },
+    "player": {
+      "avg": [
+        "height"
+      ]
+    },
+    "postseason": {
+      "max": [
+        "wins"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,47 @@
+{
+  "db_id": "browser_web",
+  "query_count": 18,
+  "tables_used": [
+    "accelerator_compatible_browser",
+    "browser",
+    "web_client_accelerator"
+  ],
+  "dimensions": {
+    "browser": [
+      "id",
+      "market_share",
+      "name"
+    ],
+    "web_client_accelerator": [
+      "client",
+      "connection",
+      "id",
+      "name",
+      "operating_system"
+    ],
+    "accelerator_compatible_browser": [
+      "accelerator_id",
+      "browser_id",
+      "compatible_since_year"
+    ]
+  },
+  "measures": {
+    "browser": {
+      "avg": [
+        "market_share"
+      ],
+      "min": [
+        "market_share"
+      ],
+      "max": [
+        "market_share"
+      ]
+    },
+    "web_client_accelerator": {
+      "count": [
+        "client"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,31 @@
+// Malloy semantic layer for: roller_coaster
+// Auto-generated from 17 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: country is duckdb.table('country') extend {
+  dimension:
+    area is Area
+    country_id is Country_ID
+    languages is Languages
+    name is Name
+    population is Population
+  measure:
+    row_count is count()
+}
+
+source: roller_coaster is duckdb.table('roller_coaster') extend {
+  dimension:
+    country_id is Country_ID
+    height is Height
+    length is Length
+    name is Name
+    park is Park
+    speed is Speed
+    status is Status
+  measure:
+    row_count is count()
+    avg_speed is avg(speed)
+}

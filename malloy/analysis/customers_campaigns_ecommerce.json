@@ -1,0 +1,44 @@
+{
+  "db_id": "customers_campaigns_ecommerce",
+  "query_count": 15,
+  "tables_used": [
+    "customer_addresses",
+    "customer_orders",
+    "customers",
+    "mailshot_campaigns",
+    "mailshot_customers",
+    "premises"
+  ],
+  "dimensions": {
+    "premises": [
+      "premise_details",
+      "premise_id",
+      "premises_type"
+    ],
+    "mailshot_campaigns": [
+      "product_category"
+    ],
+    "customers": [
+      "customer_id",
+      "customer_name",
+      "customer_phone",
+      "payment_method"
+    ],
+    "mailshot_customers": [
+      "customer_id",
+      "outcome_code"
+    ],
+    "customer_addresses": [
+      "address_type_code",
+      "premise_id"
+    ],
+    "customer_orders": [
+      "customer_id",
+      "order_shipping_charges",
+      "order_status_code",
+      "shipping_method_code"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

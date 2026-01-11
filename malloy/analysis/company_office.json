@@ -1,0 +1,49 @@
+{
+  "db_id": "company_office",
+  "query_count": 40,
+  "tables_used": [
+    "buildings",
+    "companies",
+    "office_locations"
+  ],
+  "dimensions": {
+    "companies": [
+      "assets_billion",
+      "headquarters",
+      "id",
+      "industry",
+      "market_value_billion",
+      "name",
+      "profits_billion",
+      "sales_billion"
+    ],
+    "buildings": [
+      "height",
+      "id",
+      "name",
+      "status",
+      "stories"
+    ],
+    "office_locations": [
+      "building_id",
+      "company_id"
+    ]
+  },
+  "measures": {
+    "companies": {
+      "avg": [
+        "profits_billion"
+      ],
+      "min": [
+        "sales_billion"
+      ],
+      "max": [
+        "sales_billion"
+      ],
+      "count": [
+        "industry"
+      ]
+    }
+  },
+  "joins": []
+}

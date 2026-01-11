@@ -1,0 +1,68 @@
+// Malloy semantic layer for: performance_attendance
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite
+
+// member
+source: member is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'member')
+""") extend {
+  primary_key: Member_ID
+
+  dimension:
+    member_i_d is Member_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+}
+
+// performance
+source: performance is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'performance')
+""") extend {
+  primary_key: Performance_ID
+
+  dimension:
+    performance_i_d is Performance_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_performance_i_d is sum(Performance_ID)
+    avg_performance_i_d is avg(Performance_ID)
+    max_performance_i_d is max(Performance_ID)
+    min_performance_i_d is min(Performance_ID)
+    total_attendance is sum(Attendance)
+    avg_attendance is avg(Attendance)
+    max_attendance is max(Attendance)
+    min_attendance is min(Attendance)
+}
+
+// member_attendance
+source: member_attendance is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'member_attendance')
+""") extend {
+  primary_key: Member_ID
+
+  join_one: performance on Performance_ID = performance.Performance_ID
+  join_one: member on Member_ID = member.Member_ID
+
+  dimension:
+    member_i_d is Member_ID
+    performance_i_d is Performance_ID
+
+  measure:
+    row_count is count()
+    total_member_i_d is sum(Member_ID)
+    avg_member_i_d is avg(Member_ID)
+    max_member_i_d is max(Member_ID)
+    min_member_i_d is min(Member_ID)
+    total_performance_i_d is sum(Performance_ID)
+    avg_performance_i_d is avg(Performance_ID)
+    max_performance_i_d is max(Performance_ID)
+    min_performance_i_d is min(Performance_ID)
+    total_num_of_pieces is sum(Num_of_Pieces)
+    avg_num_of_pieces is avg(Num_of_Pieces)
+    max_num_of_pieces is max(Num_of_Pieces)
+    min_num_of_pieces is min(Num_of_Pieces)
+}

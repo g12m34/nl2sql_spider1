@@ -1,0 +1,76 @@
+// Malloy semantic layer for: election
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/election/election.sqlite
+
+// county
+source: county is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'county')
+""") extend {
+  primary_key: County_Id
+
+  measure:
+    row_count is count()
+    total_county_id is sum(County_Id)
+    avg_county_id is avg(County_Id)
+    max_county_id is max(County_Id)
+    min_county_id is min(County_Id)
+    total_population is sum(Population)
+    avg_population is avg(Population)
+    max_population is max(Population)
+    min_population is min(Population)
+}
+
+// party
+source: party is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'party')
+""") extend {
+  primary_key: Party_ID
+
+  dimension:
+    party_i_d is Party_ID
+    year_val is `Year`
+    u_s_senate is US_Senate
+
+  measure:
+    row_count is count()
+    total_party_i_d is sum(Party_ID)
+    avg_party_i_d is avg(Party_ID)
+    max_party_i_d is max(Party_ID)
+    min_party_i_d is min(Party_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+}
+
+// election
+source: election is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'election')
+""") extend {
+  primary_key: Election_ID
+
+  join_one: county on District = county.County_Id
+  join_one: ref_party is party on Party = ref_party.Party_ID
+
+  dimension:
+    election_i_d is Election_ID
+
+  measure:
+    row_count is count()
+    total_election_i_d is sum(Election_ID)
+    avg_election_i_d is avg(Election_ID)
+    max_election_i_d is max(Election_ID)
+    min_election_i_d is min(Election_ID)
+    total_district is sum(District)
+    avg_district is avg(District)
+    max_district is max(District)
+    min_district is min(District)
+    total_party is sum(Party)
+    avg_party is avg(Party)
+    max_party is max(Party)
+    min_party is min(Party)
+    total_first_elected is sum(First_Elected)
+    avg_first_elected is avg(First_Elected)
+    max_first_elected is max(First_Elected)
+    min_first_elected is min(First_Elected)
+}

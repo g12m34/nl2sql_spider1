@@ -1,0 +1,53 @@
+{
+  "db_id": "university_basketball",
+  "query_count": 46,
+  "tables_used": [
+    "basketball_match",
+    "university"
+  ],
+  "dimensions": {
+    "university": [
+      "affiliation",
+      "enrollment",
+      "founded",
+      "location",
+      "nickname",
+      "primary_conference",
+      "school",
+      "school_id"
+    ],
+    "basketball_match": [
+      "acc_percent",
+      "acc_regular_season",
+      "all_games",
+      "all_home",
+      "school_id",
+      "team_name"
+    ]
+  },
+  "measures": {
+    "basketball_match": {
+      "count": [
+        "school_id"
+      ]
+    },
+    "university": {
+      "avg": [
+        "enrollment"
+      ],
+      "sum": [
+        "enrollment"
+      ],
+      "min": [
+        "enrollment"
+      ],
+      "count": [
+        "affiliation"
+      ],
+      "max": [
+        "enrollment"
+      ]
+    }
+  },
+  "joins": []
+}

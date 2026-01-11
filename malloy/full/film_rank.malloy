@@ -1,0 +1,89 @@
+// Malloy semantic layer for: film_rank
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/film_rank/film_rank.sqlite
+
+// film
+source: film is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/film_rank/film_rank.sqlite', 'film')
+""") extend {
+  primary_key: Film_ID
+
+  dimension:
+    film_i_d is Film_ID
+
+  measure:
+    row_count is count()
+    total_film_i_d is sum(Film_ID)
+    avg_film_i_d is avg(Film_ID)
+    max_film_i_d is max(Film_ID)
+    min_film_i_d is min(Film_ID)
+    total_gross_in_dollar is sum(Gross_in_dollar)
+    avg_gross_in_dollar is avg(Gross_in_dollar)
+    max_gross_in_dollar is max(Gross_in_dollar)
+    min_gross_in_dollar is min(Gross_in_dollar)
+}
+
+// market
+source: market is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/film_rank/film_rank.sqlite', 'market')
+""") extend {
+  primary_key: Market_ID
+
+  dimension:
+    market_i_d is Market_ID
+
+  measure:
+    row_count is count()
+    total_market_i_d is sum(Market_ID)
+    avg_market_i_d is avg(Market_ID)
+    max_market_i_d is max(Market_ID)
+    min_market_i_d is min(Market_ID)
+    total_number_cities is sum(Number_cities)
+    avg_number_cities is avg(Number_cities)
+    max_number_cities is max(Number_cities)
+    min_number_cities is min(Number_cities)
+}
+
+// film_market_estimation
+source: film_market_estimation is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/film_rank/film_rank.sqlite', 'film_market_estimation')
+""") extend {
+  primary_key: Estimation_ID
+
+  join_one: market on Market_ID = market.Market_ID
+  join_one: film on Film_ID = film.Film_ID
+
+  dimension:
+    estimation_i_d is Estimation_ID
+    film_i_d is Film_ID
+    type_val is `Type`
+    market_i_d is Market_ID
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_estimation_i_d is sum(Estimation_ID)
+    avg_estimation_i_d is avg(Estimation_ID)
+    max_estimation_i_d is max(Estimation_ID)
+    min_estimation_i_d is min(Estimation_ID)
+    total_low_estimate is sum(Low_Estimate)
+    avg_low_estimate is avg(Low_Estimate)
+    max_low_estimate is max(Low_Estimate)
+    min_low_estimate is min(Low_Estimate)
+    total_high_estimate is sum(High_Estimate)
+    avg_high_estimate is avg(High_Estimate)
+    max_high_estimate is max(High_Estimate)
+    min_high_estimate is min(High_Estimate)
+    total_film_i_d is sum(Film_ID)
+    avg_film_i_d is avg(Film_ID)
+    max_film_i_d is max(Film_ID)
+    min_film_i_d is min(Film_ID)
+    total_market_i_d is sum(Market_ID)
+    avg_market_i_d is avg(Market_ID)
+    max_market_i_d is max(Market_ID)
+    min_market_i_d is min(Market_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+}

@@ -1,0 +1,155 @@
+// Malloy semantic layer for: sakila_1
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 15
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: actor is duckdb.table('actor') extend {
+  dimension:
+    actor_id is actor_id
+    first_name is first_name
+    last_name is last_name
+  measure:
+    row_count is count()
+    count_last_name is count(last_name)
+}
+
+source: address is duckdb.table('address') extend {
+  dimension:
+    address is address
+    address_id is address_id
+    city_id is city_id
+    district is district
+    phone is phone
+    postal_code is postal_code
+  measure:
+    row_count is count()
+}
+
+source: category is duckdb.table('category') extend {
+  dimension:
+    category_id is category_id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: city is duckdb.table('city') extend {
+  dimension:
+    city is city
+    city_id is city_id
+    country_id is country_id
+  measure:
+    row_count is count()
+}
+
+source: country is duckdb.table('country') extend {
+  dimension:
+    country is country
+    country_id is country_id
+  measure:
+    row_count is count()
+}
+
+source: customer is duckdb.table('customer') extend {
+  dimension:
+    active is active
+    address_id is address_id
+    customer_id is customer_id
+    email is email
+    first_name is first_name
+    last_name is last_name
+    store_id is store_id
+  measure:
+    row_count is count()
+}
+
+source: film is duckdb.table('film') extend {
+  dimension:
+    description is description
+    film_id is film_id
+    language_id is language_id
+    length is length
+    rating is rating
+    rental_rate is rental_rate
+    replacement_cost is replacement_cost
+    special_features is special_features
+    title is title
+  measure:
+    row_count is count()
+    count_language_id is count(language_id)
+    count_rating is count(rating)
+}
+
+source: film_actor is duckdb.table('film_actor') extend {
+  dimension:
+    actor_id is actor_id
+    film_id is film_id
+  measure:
+    row_count is count()
+}
+
+source: film_category is duckdb.table('film_category') extend {
+  dimension:
+    category_id is category_id
+    film_id is film_id
+  measure:
+    row_count is count()
+}
+
+source: inventory is duckdb.table('inventory') extend {
+  dimension:
+    film_id is film_id
+    inventory_id is inventory_id
+    store_id is store_id
+  measure:
+    row_count is count()
+}
+
+source: language is duckdb.table('language') extend {
+  dimension:
+    language_id is language_id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: payment is duckdb.table('payment') extend {
+  dimension:
+    amount is amount
+    customer_id is customer_id
+    payment_date is payment_date
+    staff_id is staff_id
+  measure:
+    row_count is count()
+    sum_amount is sum(amount)
+}
+
+source: rental is duckdb.table('rental') extend {
+  dimension:
+    customer_id is customer_id
+    inventory_id is inventory_id
+    rental_date is rental_date
+    staff_id is staff_id
+  measure:
+    row_count is count()
+}
+
+source: staff is duckdb.table('staff') extend {
+  dimension:
+    address_id is address_id
+    first_name is first_name
+    last_name is last_name
+    staff_id is staff_id
+  measure:
+    row_count is count()
+}
+
+source: store is duckdb.table('store') extend {
+  dimension:
+    address_id is address_id
+    store_id is store_id
+  measure:
+    row_count is count()
+}

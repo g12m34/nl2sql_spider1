@@ -1,0 +1,74 @@
+// Malloy semantic layer for: culture_company
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/culture_company/culture_company.sqlite
+
+// book_club
+source: book_club is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/culture_company/culture_company.sqlite', 'book_club')
+""") extend {
+  primary_key: book_club_id
+
+  dimension:
+    year_val is `Year`
+    result_val is `Result`
+
+  measure:
+    row_count is count()
+    total_book_club_id is sum(book_club_id)
+    avg_book_club_id is avg(book_club_id)
+    max_book_club_id is max(book_club_id)
+    min_book_club_id is min(book_club_id)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+}
+
+// movie
+source: movie is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/culture_company/culture_company.sqlite', 'movie')
+""") extend {
+  primary_key: movie_id
+
+  dimension:
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_movie_id is sum(movie_id)
+    avg_movie_id is avg(movie_id)
+    max_movie_id is max(movie_id)
+    min_movie_id is min(movie_id)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+    total_budget_million is sum(Budget_million)
+    avg_budget_million is avg(Budget_million)
+    max_budget_million is max(Budget_million)
+    min_budget_million is min(Budget_million)
+    total_gross_worldwide is sum(Gross_worldwide)
+    avg_gross_worldwide is avg(Gross_worldwide)
+    max_gross_worldwide is max(Gross_worldwide)
+    min_gross_worldwide is min(Gross_worldwide)
+}
+
+// culture_company
+source: culture_company is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/culture_company/culture_company.sqlite', 'culture_company')
+""") extend {
+  primary_key: Company_name
+
+  join_one: movie on movie_id = movie.movie_id
+  join_one: book_club on book_club_id = book_club.book_club_id
+
+  dimension:
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_group_equity_shareholding is sum(Group_Equity_Shareholding)
+    avg_group_equity_shareholding is avg(Group_Equity_Shareholding)
+    max_group_equity_shareholding is max(Group_Equity_Shareholding)
+    min_group_equity_shareholding is min(Group_Equity_Shareholding)
+}

@@ -1,0 +1,37 @@
+// Malloy semantic layer for: party_host
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: host is duckdb.table('host') extend {
+  dimension:
+    age is Age
+    host_id is Host_ID
+    name is Name
+    nationality is Nationality
+  measure:
+    row_count is count()
+}
+
+source: party is duckdb.table('party') extend {
+  dimension:
+    first_year is First_year
+    last_year is Last_year
+    location is Location
+    number_of_hosts is Number_of_hosts
+    party_id is Party_ID
+    party_theme is Party_Theme
+  measure:
+    row_count is count()
+    avg_number_of_hosts is avg(number_of_hosts)
+}
+
+source: party_host is duckdb.table('party_host') extend {
+  dimension:
+    host_id is Host_ID
+    party_id is Party_ID
+  measure:
+    row_count is count()
+}

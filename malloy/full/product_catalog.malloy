@@ -1,0 +1,118 @@
+// Malloy semantic layer for: product_catalog
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite
+
+// Attribute_Definitions
+source: attribute_definitions is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Attribute_Definitions')
+""") extend {
+  primary_key: attribute_id
+
+  measure:
+    row_count is count()
+    total_attribute_id is sum(attribute_id)
+    avg_attribute_id is avg(attribute_id)
+    max_attribute_id is max(attribute_id)
+    min_attribute_id is min(attribute_id)
+}
+
+// Catalogs
+source: catalogs is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalogs')
+""") extend {
+  primary_key: catalog_id
+
+  measure:
+    row_count is count()
+    total_catalog_id is sum(catalog_id)
+    avg_catalog_id is avg(catalog_id)
+    max_catalog_id is max(catalog_id)
+    min_catalog_id is min(catalog_id)
+}
+
+// Catalog_Structure
+source: catalog_structure is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalog_Structure')
+""") extend {
+  primary_key: catalog_level_number
+
+  join_one: catalogs on catalog_id = catalogs.catalog_id
+
+  measure:
+    row_count is count()
+    total_catalog_level_number is sum(catalog_level_number)
+    avg_catalog_level_number is avg(catalog_level_number)
+    max_catalog_level_number is max(catalog_level_number)
+    min_catalog_level_number is min(catalog_level_number)
+    total_catalog_id is sum(catalog_id)
+    avg_catalog_id is avg(catalog_id)
+    max_catalog_id is max(catalog_id)
+    min_catalog_id is min(catalog_id)
+}
+
+// Catalog_Contents
+source: catalog_contents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalog_Contents')
+""") extend {
+  primary_key: catalog_entry_id
+
+  join_one: catalog_structure on catalog_level_number = catalog_structure.catalog_level_number
+
+  measure:
+    row_count is count()
+    total_catalog_entry_id is sum(catalog_entry_id)
+    avg_catalog_entry_id is avg(catalog_entry_id)
+    max_catalog_entry_id is max(catalog_entry_id)
+    min_catalog_entry_id is min(catalog_entry_id)
+    total_catalog_level_number is sum(catalog_level_number)
+    avg_catalog_level_number is avg(catalog_level_number)
+    max_catalog_level_number is max(catalog_level_number)
+    min_catalog_level_number is min(catalog_level_number)
+    total_parent_entry_id is sum(parent_entry_id)
+    avg_parent_entry_id is avg(parent_entry_id)
+    max_parent_entry_id is max(parent_entry_id)
+    min_parent_entry_id is min(parent_entry_id)
+    total_previous_entry_id is sum(previous_entry_id)
+    avg_previous_entry_id is avg(previous_entry_id)
+    max_previous_entry_id is max(previous_entry_id)
+    min_previous_entry_id is min(previous_entry_id)
+    total_next_entry_id is sum(next_entry_id)
+    avg_next_entry_id is avg(next_entry_id)
+    max_next_entry_id is max(next_entry_id)
+    min_next_entry_id is min(next_entry_id)
+    total_price_in_dollars is sum(price_in_dollars)
+    avg_price_in_dollars is avg(price_in_dollars)
+    max_price_in_dollars is max(price_in_dollars)
+    min_price_in_dollars is min(price_in_dollars)
+    total_price_in_euros is sum(price_in_euros)
+    avg_price_in_euros is avg(price_in_euros)
+    max_price_in_euros is max(price_in_euros)
+    min_price_in_euros is min(price_in_euros)
+    total_price_in_pounds is sum(price_in_pounds)
+    avg_price_in_pounds is avg(price_in_pounds)
+    max_price_in_pounds is max(price_in_pounds)
+    min_price_in_pounds is min(price_in_pounds)
+}
+
+// Catalog_Contents_Additional_Attributes
+source: catalog_contents_additional_attributes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalog_Contents_Additional_Attributes')
+""") extend {
+  join_one: catalog_structure on catalog_level_number = catalog_structure.catalog_level_number
+  join_one: catalog_contents on catalog_entry_id = catalog_contents.catalog_entry_id
+
+  measure:
+    row_count is count()
+    total_catalog_entry_id is sum(catalog_entry_id)
+    avg_catalog_entry_id is avg(catalog_entry_id)
+    max_catalog_entry_id is max(catalog_entry_id)
+    min_catalog_entry_id is min(catalog_entry_id)
+    total_catalog_level_number is sum(catalog_level_number)
+    avg_catalog_level_number is avg(catalog_level_number)
+    max_catalog_level_number is max(catalog_level_number)
+    min_catalog_level_number is min(catalog_level_number)
+    total_attribute_id is sum(attribute_id)
+    avg_attribute_id is avg(attribute_id)
+    max_attribute_id is max(attribute_id)
+    min_attribute_id is min(attribute_id)
+}

@@ -1,0 +1,56 @@
+{
+  "db_id": "museum_visit",
+  "query_count": 18,
+  "tables_used": [
+    "museum",
+    "visit",
+    "visitor"
+  ],
+  "dimensions": {
+    "visitor": [
+      "age",
+      "id",
+      "level_of_membership",
+      "name"
+    ],
+    "museum": [
+      "museum_id",
+      "name",
+      "num_of_staff",
+      "open_year"
+    ],
+    "visit": [
+      "museum_id",
+      "num_of_ticket",
+      "total_spent",
+      "visitor_id"
+    ]
+  },
+  "measures": {
+    "visitor": {
+      "avg": [
+        "age"
+      ]
+    },
+    "museum": {
+      "avg": [
+        "num_of_staff"
+      ],
+      "min": [
+        "num_of_staff"
+      ]
+    },
+    "visit": {
+      "sum": [
+        "total_spent"
+      ],
+      "avg": [
+        "num_of_ticket"
+      ],
+      "max": [
+        "num_of_ticket"
+      ]
+    }
+  },
+  "joins": []
+}

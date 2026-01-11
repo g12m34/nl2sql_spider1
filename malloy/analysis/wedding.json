@@ -1,0 +1,49 @@
+{
+  "db_id": "wedding",
+  "query_count": 20,
+  "tables_used": [
+    "church",
+    "people",
+    "wedding"
+  ],
+  "dimensions": {
+    "church": [
+      "church_id",
+      "name",
+      "open_date",
+      "organized_by"
+    ],
+    "people": [
+      "age",
+      "country",
+      "is_male",
+      "name",
+      "people_id"
+    ],
+    "wedding": [
+      "church_id",
+      "female_id",
+      "male_id",
+      "year"
+    ]
+  },
+  "measures": {
+    "people": {
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ],
+      "max": [
+        "age"
+      ]
+    },
+    "wedding": {
+      "count": [
+        "church_id"
+      ]
+    }
+  },
+  "joins": []
+}

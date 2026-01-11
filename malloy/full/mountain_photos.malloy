@@ -1,0 +1,82 @@
+// Malloy semantic layer for: mountain_photos
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite
+
+// mountain
+source: mountain is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite', 'mountain')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+    range_val is `Range`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+    total_prominence is sum(Prominence)
+    avg_prominence is avg(Prominence)
+    max_prominence is max(Prominence)
+    min_prominence is min(Prominence)
+}
+
+// camera_lens
+source: camera_lens is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite', 'camera_lens')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_focal_length_mm is sum(focal_length_mm)
+    avg_focal_length_mm is avg(focal_length_mm)
+    max_focal_length_mm is max(focal_length_mm)
+    min_focal_length_mm is min(focal_length_mm)
+    total_max_aperture is sum(max_aperture)
+    avg_max_aperture is avg(max_aperture)
+    max_max_aperture is max(max_aperture)
+    min_max_aperture is min(max_aperture)
+}
+
+// photos
+source: photos is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite', 'photos')
+""") extend {
+  primary_key: id
+
+  join_one: mountain on mountain_id = mountain.id
+  join_one: camera_lens on camera_lens_id = camera_lens.id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_camera_lens_id is sum(camera_lens_id)
+    avg_camera_lens_id is avg(camera_lens_id)
+    max_camera_lens_id is max(camera_lens_id)
+    min_camera_lens_id is min(camera_lens_id)
+    total_mountain_id is sum(mountain_id)
+    avg_mountain_id is avg(mountain_id)
+    max_mountain_id is max(mountain_id)
+    min_mountain_id is min(mountain_id)
+}

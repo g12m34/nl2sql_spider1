@@ -1,0 +1,39 @@
+// Malloy semantic layer for: coffee_shop
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: happy_hour is duckdb.table('happy_hour') extend {
+  dimension:
+    month is Month
+    shop_id is Shop_ID
+  measure:
+    row_count is count()
+}
+
+source: member is duckdb.table('member') extend {
+  dimension:
+    address is Address
+    age is Age
+    member_id is Member_ID
+    membership_card is Membership_card
+    name is Name
+    time_of_purchase is Time_of_purchase
+  measure:
+    row_count is count()
+}
+
+source: shop is duckdb.table('shop') extend {
+  dimension:
+    address is Address
+    num_of_staff is Num_of_staff
+    open_year is Open_Year
+    score is Score
+    shop_id is Shop_ID
+  measure:
+    row_count is count()
+    avg_num_of_staff is avg(num_of_staff)
+    avg_score is avg(score)
+}

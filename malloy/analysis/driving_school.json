@@ -1,0 +1,90 @@
+{
+  "db_id": "driving_school",
+  "query_count": 93,
+  "tables_used": [
+    "addresses",
+    "customer_payments",
+    "customers",
+    "lessons",
+    "staff",
+    "vehicles"
+  ],
+  "dimensions": {
+    "vehicles": [
+      "vehicle_details",
+      "vehicle_id"
+    ],
+    "staff": [
+      "date_joined_staff",
+      "date_left_staff",
+      "date_of_birth",
+      "first_name",
+      "last_name",
+      "middle_name",
+      "nickname",
+      "staff_address_id",
+      "staff_id"
+    ],
+    "addresses": [
+      "address_id",
+      "city",
+      "country",
+      "state_province_county",
+      "zip_postcode"
+    ],
+    "customers": [
+      "amount_outstanding",
+      "cell_mobile_phone_number",
+      "customer_address_id",
+      "customer_id",
+      "customer_status_code",
+      "date_became_customer",
+      "date_of_birth",
+      "email_address",
+      "first_name",
+      "last_name",
+      "phone_number"
+    ],
+    "lessons": [
+      "customer_id",
+      "lesson_id",
+      "lesson_status_code",
+      "lesson_time",
+      "price",
+      "staff_id",
+      "vehicle_id"
+    ],
+    "customer_payments": [
+      "amount_payment",
+      "customer_id",
+      "payment_method_code"
+    ]
+  },
+  "measures": {
+    "lessons": {
+      "sum": [
+        "lesson_time"
+      ],
+      "avg": [
+        "price"
+      ]
+    },
+    "customers": {
+      "avg": [
+        "amount_outstanding"
+      ],
+      "min": [
+        "amount_outstanding"
+      ],
+      "max": [
+        "amount_outstanding"
+      ]
+    },
+    "customer_payments": {
+      "sum": [
+        "amount_payment"
+      ]
+    }
+  },
+  "joins": []
+}

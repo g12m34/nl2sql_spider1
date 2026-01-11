@@ -1,0 +1,37 @@
+{
+  "db_id": "party_host",
+  "query_count": 30,
+  "tables_used": [
+    "host",
+    "party",
+    "party_host"
+  ],
+  "dimensions": {
+    "party": [
+      "first_year",
+      "last_year",
+      "location",
+      "number_of_hosts",
+      "party_id",
+      "party_theme"
+    ],
+    "host": [
+      "age",
+      "host_id",
+      "name",
+      "nationality"
+    ],
+    "party_host": [
+      "host_id",
+      "party_id"
+    ]
+  },
+  "measures": {
+    "party": {
+      "avg": [
+        "number_of_hosts"
+      ]
+    }
+  },
+  "joins": []
+}

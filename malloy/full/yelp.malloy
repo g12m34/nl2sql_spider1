@@ -1,0 +1,164 @@
+// Malloy semantic layer for: yelp
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/yelp/yelp.sqlite
+
+// business
+source: business is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'business')
+""") extend {
+  primary_key: bid
+
+  dimension:
+    name_val is `name`
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_bid is sum(bid)
+    avg_bid is avg(bid)
+    max_bid is max(bid)
+    min_bid is min(bid)
+    total_review_count is sum(review_count)
+    avg_review_count is avg(review_count)
+    max_review_count is max(review_count)
+    min_review_count is min(review_count)
+    total_is_open is sum(is_open)
+    avg_is_open is avg(is_open)
+    max_is_open is max(is_open)
+    min_is_open is min(is_open)
+    total_rating is sum(rating)
+    avg_rating is avg(rating)
+    max_rating is max(rating)
+    min_rating is min(rating)
+}
+
+// user
+source: user is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'user')
+""") extend {
+  primary_key: uid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_uid is sum(uid)
+    avg_uid is avg(uid)
+    max_uid is max(uid)
+    min_uid is min(uid)
+}
+
+// category
+source: category is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'category')
+""") extend {
+  primary_key: id
+
+  join_one: business on business_id = business.business_id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// checkin
+source: checkin is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'checkin')
+""") extend {
+  primary_key: cid
+
+  join_one: business on business_id = business.business_id
+
+  dimension:
+    count_val is `count`
+    day_val is `day`
+
+  measure:
+    row_count is count()
+    total_cid is sum(cid)
+    avg_cid is avg(cid)
+    max_cid is max(cid)
+    min_cid is min(cid)
+    total_count_val is sum(`count`)
+    avg_count_val is avg(`count`)
+    max_count_val is max(`count`)
+    min_count_val is min(`count`)
+}
+
+// neighbourhood
+source: neighbourhood is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'neighbourhood')
+""") extend {
+  primary_key: id
+
+  join_one: business on business_id = business.business_id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// review
+source: review is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'review')
+""") extend {
+  primary_key: rid
+
+  join_one: user on user_id = user.user_id
+  join_one: business on business_id = business.business_id
+
+  dimension:
+    year_val is `year`
+    month_val is `month`
+
+  measure:
+    row_count is count()
+    total_rid is sum(rid)
+    avg_rid is avg(rid)
+    max_rid is max(rid)
+    min_rid is min(rid)
+    total_rating is sum(rating)
+    avg_rating is avg(rating)
+    max_rating is max(rating)
+    min_rating is min(rating)
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}
+
+// tip
+source: tip is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'tip')
+""") extend {
+  primary_key: tip_id
+
+  join_one: user on user_id = user.user_id
+  join_one: business on business_id = business.business_id
+
+  dimension:
+    year_val is `year`
+    month_val is `month`
+
+  measure:
+    row_count is count()
+    total_tip_id is sum(tip_id)
+    avg_tip_id is avg(tip_id)
+    max_tip_id is max(tip_id)
+    min_tip_id is min(tip_id)
+    total_likes is sum(likes)
+    avg_likes is avg(likes)
+    max_likes is max(likes)
+    min_likes is min(likes)
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}

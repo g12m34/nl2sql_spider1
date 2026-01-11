@@ -1,0 +1,57 @@
+{
+  "db_id": "battle_death",
+  "query_count": 16,
+  "tables_used": [
+    "battle",
+    "death",
+    "ship"
+  ],
+  "dimensions": {
+    "ship": [
+      "disposition_of_ship",
+      "id",
+      "location",
+      "lost_in_battle",
+      "name",
+      "ship_type",
+      "tonnage"
+    ],
+    "battle": [
+      "bulgarian_commander",
+      "date",
+      "id",
+      "latin_commander",
+      "name",
+      "result"
+    ],
+    "death": [
+      "caused_by_ship_id",
+      "id",
+      "injured",
+      "killed",
+      "note"
+    ]
+  },
+  "measures": {
+    "death": {
+      "min": [
+        "killed"
+      ],
+      "max": [
+        "killed"
+      ],
+      "avg": [
+        "injured"
+      ],
+      "sum": [
+        "killed"
+      ]
+    },
+    "battle": {
+      "count": [
+        "result"
+      ]
+    }
+  },
+  "joins": []
+}

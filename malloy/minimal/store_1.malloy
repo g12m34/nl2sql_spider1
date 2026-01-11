@@ -1,0 +1,130 @@
+// Malloy semantic layer for: store_1
+// Auto-generated from 112 ground-truth SQL queries
+// Tables used: 11
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: albums is duckdb.table('albums') extend {
+  dimension:
+    artist_id is artist_id
+    id is id
+    title is title
+  measure:
+    row_count is count()
+    count_id is count(id)
+}
+
+source: artists is duckdb.table('artists') extend {
+  dimension:
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('customers') extend {
+  dimension:
+    city is city
+    company is company
+    country is country
+    email is email
+    first_name is first_name
+    id is id
+    last_name is last_name
+    phone is phone
+    state is state
+    support_rep_id is support_rep_id
+  measure:
+    row_count is count()
+}
+
+source: employees is duckdb.table('employees') extend {
+  dimension:
+    address is address
+    birth_date is birth_date
+    city is city
+    country is country
+    first_name is first_name
+    hire_date is hire_date
+    id is id
+    last_name is last_name
+    phone is phone
+    reports_to is reports_to
+    title is title
+  measure:
+    row_count is count()
+    count_reports_to is count(reports_to)
+}
+
+source: genres is duckdb.table('genres') extend {
+  dimension:
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: invoice_lines is duckdb.table('invoice_lines') extend {
+  dimension:
+    id is id
+    invoice_id is invoice_id
+    track_id is track_id
+  measure:
+    row_count is count()
+}
+
+source: invoices is duckdb.table('invoices') extend {
+  dimension:
+    billing_city is billing_city
+    billing_country is billing_country
+    billing_state is billing_state
+    customer_id is customer_id
+    id is id
+    invoice_date is invoice_date
+    total is total
+  measure:
+    row_count is count()
+    sum_total is sum(total)
+    avg_total is avg(total)
+}
+
+source: media_types is duckdb.table('media_types') extend {
+  dimension:
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: playlist_tracks is duckdb.table('playlist_tracks') extend {
+  dimension:
+    playlist_id is playlist_id
+    track_id is track_id
+  measure:
+    row_count is count()
+    count_track_id is count(track_id)
+}
+
+source: playlists is duckdb.table('playlists') extend {
+  dimension:
+    id is id
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: tracks is duckdb.table('tracks') extend {
+  dimension:
+    album_id is album_id
+    composer is composer
+    genre_id is genre_id
+    id is id
+    media_type_id is media_type_id
+    milliseconds is milliseconds
+    name is name
+    unit_price is unit_price
+  measure:
+    row_count is count()
+    count_id is count(id)
+}

@@ -1,0 +1,74 @@
+// Malloy semantic layer for: wine_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/wine_1/wine_1.sqlite
+
+// grapes
+source: grapes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wine_1/wine_1.sqlite', 'grapes')
+""") extend {
+  primary_key: ID
+
+  dimension:
+    i_d is ID
+
+  measure:
+    row_count is count()
+    total_i_d is sum(ID)
+    avg_i_d is avg(ID)
+    max_i_d is max(ID)
+    min_i_d is min(ID)
+}
+
+// appellations
+source: appellations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wine_1/wine_1.sqlite', 'appellations')
+""") extend {
+  primary_key: No
+
+  dimension:
+    state_val is `State`
+    is_a_v_a is isAVA
+
+  measure:
+    row_count is count()
+    total_no is sum(No)
+    avg_no is avg(No)
+    max_no is max(No)
+    min_no is min(No)
+}
+
+// wine
+source: wine is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wine_1/wine_1.sqlite', 'wine')
+""") extend {
+  join_one: appellations on Appelation = appellations.Appelation
+  join_one: grapes on Grape = grapes.Grape
+
+  dimension:
+    state_val is `State`
+    name_val is `Name`
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_no is sum(No)
+    avg_no is avg(No)
+    max_no is max(No)
+    min_no is min(No)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+    total_price is sum(Price)
+    avg_price is avg(Price)
+    max_price is max(Price)
+    min_price is min(Price)
+    total_score is sum(Score)
+    avg_score is avg(Score)
+    max_score is max(Score)
+    min_score is min(Score)
+    total_cases is sum(Cases)
+    avg_cases is avg(Cases)
+    max_cases is max(Cases)
+    min_cases is min(Cases)
+}

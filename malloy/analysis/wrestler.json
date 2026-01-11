@@ -1,0 +1,32 @@
+{
+  "db_id": "wrestler",
+  "query_count": 40,
+  "tables_used": [
+    "elimination",
+    "wrestler"
+  ],
+  "dimensions": {
+    "wrestler": [
+      "days_held",
+      "location",
+      "name",
+      "reign",
+      "wrestler_id"
+    ],
+    "elimination": [
+      "eliminated_by",
+      "elimination_move",
+      "team",
+      "time",
+      "wrestler_id"
+    ]
+  },
+  "measures": {
+    "elimination": {
+      "count": [
+        "team"
+      ]
+    }
+  },
+  "joins": []
+}

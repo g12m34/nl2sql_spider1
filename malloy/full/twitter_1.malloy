@@ -1,0 +1,69 @@
+// Malloy semantic layer for: twitter_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/twitter_1/twitter_1.sqlite
+
+// user_profiles
+source: user_profiles is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/twitter_1/twitter_1.sqlite', 'user_profiles')
+""") extend {
+  primary_key: uid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_uid is sum(uid)
+    avg_uid is avg(uid)
+    max_uid is max(uid)
+    min_uid is min(uid)
+    total_partitionid is sum(partitionid)
+    avg_partitionid is avg(partitionid)
+    max_partitionid is max(partitionid)
+    min_partitionid is min(partitionid)
+    total_followers is sum(followers)
+    avg_followers is avg(followers)
+    max_followers is max(followers)
+    min_followers is min(followers)
+}
+
+// follows
+source: follows is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/twitter_1/twitter_1.sqlite', 'follows')
+""") extend {
+  primary_key: f1
+
+  join_one: f2_user_profiles is user_profiles on f2 = f2_user_profiles.uid
+  join_one: f1_user_profiles is user_profiles on f1 = f1_user_profiles.uid
+
+  measure:
+    row_count is count()
+    total_f1 is sum(f1)
+    avg_f1 is avg(f1)
+    max_f1 is max(f1)
+    min_f1 is min(f1)
+    total_f2 is sum(f2)
+    avg_f2 is avg(f2)
+    max_f2 is max(f2)
+    min_f2 is min(f2)
+}
+
+// tweets
+source: tweets is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/twitter_1/twitter_1.sqlite', 'tweets')
+""") extend {
+  primary_key: id
+
+  join_one: user_profiles on uid = user_profiles.uid
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_uid is sum(uid)
+    avg_uid is avg(uid)
+    max_uid is max(uid)
+    min_uid is min(uid)
+}

@@ -1,0 +1,92 @@
+// Malloy semantic layer for: dog_kennels
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: breeds is duckdb.table('Breeds') extend {
+  dimension:
+    breed_code is breed_code
+    breed_name is breed_name
+  measure:
+    row_count is count()
+}
+
+source: charges is duckdb.table('Charges') extend {
+  dimension:
+    charge_amount is charge_amount
+    charge_type is charge_type
+  measure:
+    row_count is count()
+    max_charge_amount is max(charge_amount)
+}
+
+source: dogs is duckdb.table('Dogs') extend {
+  dimension:
+    abandoned_yn is abandoned_yn
+    age is age
+    breed_code is breed_code
+    date_arrived is date_arrived
+    date_departed is date_departed
+    dog_id is dog_id
+    name is name
+    owner_id is owner_id
+    size_code is size_code
+    weight is weight
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    max_age is max(age)
+}
+
+source: owners is duckdb.table('Owners') extend {
+  dimension:
+    email_address is email_address
+    first_name is first_name
+    last_name is last_name
+    owner_id is owner_id
+    state is state
+    zip_code is zip_code
+  measure:
+    row_count is count()
+}
+
+source: professionals is duckdb.table('Professionals') extend {
+  dimension:
+    cell_number is cell_number
+    city is city
+    email_address is email_address
+    first_name is first_name
+    home_phone is home_phone
+    last_name is last_name
+    professional_id is professional_id
+    role_code is role_code
+    state is state
+    street is street
+  measure:
+    row_count is count()
+}
+
+source: treatment_types is duckdb.table('Treatment_Types') extend {
+  dimension:
+    treatment_type_code is treatment_type_code
+    treatment_type_description is treatment_type_description
+  measure:
+    row_count is count()
+}
+
+source: treatments is duckdb.table('Treatments') extend {
+  dimension:
+    cost_of_treatment is cost_of_treatment
+    date_of_treatment is date_of_treatment
+    dog_id is dog_id
+    professional_id is professional_id
+    treatment_type_code is treatment_type_code
+  measure:
+    row_count is count()
+    sum_cost_of_treatment is sum(cost_of_treatment)
+    avg_cost_of_treatment is avg(cost_of_treatment)
+    count_dog_id is count(dog_id)
+    count_professional_id is count(professional_id)
+}

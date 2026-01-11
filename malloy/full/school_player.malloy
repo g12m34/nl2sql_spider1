@@ -1,0 +1,99 @@
+// Malloy semantic layer for: school_player
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/school_player/school_player.sqlite
+
+// school
+source: school is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'school')
+""") extend {
+  primary_key: School_ID
+
+  dimension:
+    school_i_d is School_ID
+
+  measure:
+    row_count is count()
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+    total_enrollment is sum(Enrollment)
+    avg_enrollment is avg(Enrollment)
+    max_enrollment is max(Enrollment)
+    min_enrollment is min(Enrollment)
+    total_founded is sum(Founded)
+    avg_founded is avg(Founded)
+    max_founded is max(Founded)
+    min_founded is min(Founded)
+    total_year_entered_competition is sum(Year_Entered_Competition)
+    avg_year_entered_competition is avg(Year_Entered_Competition)
+    max_year_entered_competition is max(Year_Entered_Competition)
+    min_year_entered_competition is min(Year_Entered_Competition)
+}
+
+// school_details
+source: school_details is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'school_details')
+""") extend {
+  primary_key: School_ID
+
+  join_one: school on School_ID = school.School_ID
+
+  dimension:
+    school_i_d is School_ID
+
+  measure:
+    row_count is count()
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+}
+
+// school_performance
+source: school_performance is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'school_performance')
+""") extend {
+  primary_key: School_Id
+
+  join_one: school on School_Id = school.School_ID
+
+  dimension:
+    class_a_a is Class_AA
+
+  measure:
+    row_count is count()
+    total_school_id is sum(School_Id)
+    avg_school_id is avg(School_Id)
+    max_school_id is max(School_Id)
+    min_school_id is min(School_Id)
+}
+
+// player
+source: player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'player')
+""") extend {
+  primary_key: Player_ID
+
+  join_one: school on School_ID = school.School_ID
+
+  dimension:
+    player_i_d is Player_ID
+    position_val is `Position`
+    school_i_d is School_ID
+
+  measure:
+    row_count is count()
+    total_player_i_d is sum(Player_ID)
+    avg_player_i_d is avg(Player_ID)
+    max_player_i_d is max(Player_ID)
+    min_player_i_d is min(Player_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+}

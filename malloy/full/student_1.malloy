@@ -1,0 +1,43 @@
+// Malloy semantic layer for: student_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/student_1/student_1.sqlite
+
+// list
+source: list is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_1/student_1.sqlite', 'list')
+""") extend {
+  primary_key: LastName
+
+  dimension:
+    last_name is LastName
+    first_name is FirstName
+
+  measure:
+    row_count is count()
+    total_grade is sum(Grade)
+    avg_grade is avg(Grade)
+    max_grade is max(Grade)
+    min_grade is min(Grade)
+    total_classroom is sum(Classroom)
+    avg_classroom is avg(Classroom)
+    max_classroom is max(Classroom)
+    min_classroom is min(Classroom)
+}
+
+// teachers
+source: teachers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_1/student_1.sqlite', 'teachers')
+""") extend {
+  primary_key: LastName
+
+  dimension:
+    last_name is LastName
+    first_name is FirstName
+
+  measure:
+    row_count is count()
+    total_classroom is sum(Classroom)
+    avg_classroom is avg(Classroom)
+    max_classroom is max(Classroom)
+    min_classroom is min(Classroom)
+}

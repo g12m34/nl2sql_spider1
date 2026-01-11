@@ -1,0 +1,30 @@
+{
+  "db_id": "debate",
+  "query_count": 15,
+  "tables_used": [
+    "debate",
+    "debate_people",
+    "people"
+  ],
+  "dimensions": {
+    "debate": [
+      "date",
+      "debate_id",
+      "num_of_audience",
+      "venue"
+    ],
+    "people": [
+      "age",
+      "name",
+      "party",
+      "people_id"
+    ],
+    "debate_people": [
+      "affirmative",
+      "debate_id",
+      "negative"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

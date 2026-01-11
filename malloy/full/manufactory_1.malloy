@@ -1,0 +1,53 @@
+// Malloy semantic layer for: manufactory_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite
+
+// Manufacturers
+source: manufacturers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Manufacturers')
+""") extend {
+  primary_key: `Code`
+
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_code_val is sum(`Code`)
+    avg_code_val is avg(`Code`)
+    max_code_val is max(`Code`)
+    min_code_val is min(`Code`)
+    total_revenue is sum(Revenue)
+    avg_revenue is avg(Revenue)
+    max_revenue is max(Revenue)
+    min_revenue is min(Revenue)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Products')
+""") extend {
+  primary_key: `Code`
+
+  join_one: manufacturers on Manufacturer = manufacturers.`Code`
+
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_code_val is sum(`Code`)
+    avg_code_val is avg(`Code`)
+    max_code_val is max(`Code`)
+    min_code_val is min(`Code`)
+    total_price is sum(Price)
+    avg_price is avg(Price)
+    max_price is max(Price)
+    min_price is min(Price)
+    total_manufacturer is sum(Manufacturer)
+    avg_manufacturer is avg(Manufacturer)
+    max_manufacturer is max(Manufacturer)
+    min_manufacturer is min(Manufacturer)
+}

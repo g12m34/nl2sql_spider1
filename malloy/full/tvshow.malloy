@@ -1,0 +1,66 @@
+// Malloy semantic layer for: tvshow
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/tvshow/tvshow.sqlite
+
+// TV_Channel
+source: t_v_channel is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'TV_Channel')
+""") extend {
+  primary_key: id
+
+  dimension:
+    language_val is `Language`
+    pixel_aspect_ratio_p_a_r is Pixel_aspect_ratio_PAR
+    hight_definition_t_v is Hight_definition_TV
+    pay_per_view_p_p_v is Pay_per_view_PPV
+
+  measure:
+    row_count is count()
+}
+
+// TV_series
+source: t_v_series is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'TV_series')
+""") extend {
+  primary_key: id
+
+  join_one: t_v_channel on Channel = t_v_channel.id
+
+  dimension:
+    col_18_49_rating_share is `18_49_Rating_Share`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_share is sum(Share)
+    avg_share is avg(Share)
+    max_share is max(Share)
+    min_share is min(Share)
+    total_weekly_rank is sum(Weekly_Rank)
+    avg_weekly_rank is avg(Weekly_Rank)
+    max_weekly_rank is max(Weekly_Rank)
+    min_weekly_rank is min(Weekly_Rank)
+}
+
+// Cartoon
+source: cartoon is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'Cartoon')
+""") extend {
+  primary_key: id
+
+  join_one: t_v_channel on Channel = t_v_channel.id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_production_code is sum(Production_code)
+    avg_production_code is avg(Production_code)
+    max_production_code is max(Production_code)
+    min_production_code is min(Production_code)
+}

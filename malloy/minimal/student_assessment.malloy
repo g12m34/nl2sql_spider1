@@ -1,0 +1,83 @@
+// Malloy semantic layer for: student_assessment
+// Auto-generated from 53 ground-truth SQL queries
+// Tables used: 9
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is address_id
+    city is city
+  measure:
+    row_count is count()
+}
+
+source: candidate_assessments is duckdb.table('Candidate_Assessments') extend {
+  dimension:
+    asessment_outcome_code is asessment_outcome_code
+    assessment_date is assessment_date
+    candidate_id is candidate_id
+  measure:
+    row_count is count()
+}
+
+source: candidates is duckdb.table('Candidates') extend {
+  dimension:
+    candidate_id is candidate_id
+  measure:
+    row_count is count()
+}
+
+source: courses is duckdb.table('Courses') extend {
+  dimension:
+    course_id is course_id
+    course_name is course_name
+  measure:
+    row_count is count()
+}
+
+source: people is duckdb.table('People') extend {
+  dimension:
+    cell_mobile_number is cell_mobile_number
+    email_address is email_address
+    first_name is first_name
+    last_name is last_name
+    person_id is person_id
+  measure:
+    row_count is count()
+}
+
+source: people_addresses is duckdb.table('People_Addresses') extend {
+  dimension:
+    address_id is address_id
+    person_id is person_id
+  measure:
+    row_count is count()
+}
+
+source: student_course_attendance is duckdb.table('Student_Course_Attendance') extend {
+  dimension:
+    course_id is course_id
+    date_of_attendance is date_of_attendance
+    student_id is student_id
+  measure:
+    row_count is count()
+}
+
+source: student_course_registrations is duckdb.table('Student_Course_Registrations') extend {
+  dimension:
+    course_id is course_id
+    registration_date is registration_date
+    student_id is student_id
+  measure:
+    row_count is count()
+}
+
+source: students is duckdb.table('Students') extend {
+  dimension:
+    student_details is student_details
+    student_id is student_id
+  measure:
+    row_count is count()
+}

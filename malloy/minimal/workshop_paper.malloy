@@ -1,0 +1,35 @@
+// Malloy semantic layer for: workshop_paper
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: acceptance is duckdb.table('Acceptance') extend {
+  dimension:
+    result is Result
+    submission_id is Submission_ID
+    workshop_id is Workshop_ID
+  measure:
+    row_count is count()
+    count_workshop_id is count(workshop_id)
+}
+
+source: submission is duckdb.table('submission') extend {
+  dimension:
+    author is Author
+    college is College
+    scores is Scores
+    submission_id is Submission_ID
+  measure:
+    row_count is count()
+    avg_scores is avg(scores)
+}
+
+source: workshop is duckdb.table('workshop') extend {
+  dimension:
+    date is Date
+    venue is Venue
+  measure:
+    row_count is count()
+}

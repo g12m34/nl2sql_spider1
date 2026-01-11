@@ -1,0 +1,37 @@
+// Malloy semantic layer for: phone_market
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: market is duckdb.table('market') extend {
+  dimension:
+    district is District
+    market_id is Market_ID
+    num_of_shops is Num_of_shops
+    ranking is Ranking
+  measure:
+    row_count is count()
+}
+
+source: phone is duckdb.table('phone') extend {
+  dimension:
+    carrier is Carrier
+    memory_in_g is Memory_in_G
+    name is Name
+    phone_id is Phone_ID
+    price is Price
+  measure:
+    row_count is count()
+}
+
+source: phone_market is duckdb.table('phone_market') extend {
+  dimension:
+    market_id is Market_ID
+    num_of_stock is Num_of_stock
+    phone_id is Phone_ID
+  measure:
+    row_count is count()
+    sum_num_of_stock is sum(num_of_stock)
+}

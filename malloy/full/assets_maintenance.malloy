@@ -1,0 +1,275 @@
+// Malloy semantic layer for: assets_maintenance
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite
+
+// Third_Party_Companies
+source: third_party_companies is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Third_Party_Companies')
+""") extend {
+  primary_key: company_id
+
+  measure:
+    row_count is count()
+    total_company_id is sum(company_id)
+    avg_company_id is avg(company_id)
+    max_company_id is max(company_id)
+    min_company_id is min(company_id)
+}
+
+// Parts
+source: parts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Parts')
+""") extend {
+  primary_key: part_id
+
+  measure:
+    row_count is count()
+    total_part_id is sum(part_id)
+    avg_part_id is avg(part_id)
+    max_part_id is max(part_id)
+    min_part_id is min(part_id)
+}
+
+// Skills
+source: skills is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Skills')
+""") extend {
+  primary_key: skill_id
+
+  measure:
+    row_count is count()
+    total_skill_id is sum(skill_id)
+    avg_skill_id is avg(skill_id)
+    max_skill_id is max(skill_id)
+    min_skill_id is min(skill_id)
+}
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Staff')
+""") extend {
+  primary_key: staff_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+}
+
+// Maintenance_Contracts
+source: maintenance_contracts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Maintenance_Contracts')
+""") extend {
+  primary_key: maintenance_contract_id
+
+  join_one: third_party_companies on maintenance_contract_company_id = third_party_companies.company_id
+
+  measure:
+    row_count is count()
+    total_maintenance_contract_id is sum(maintenance_contract_id)
+    avg_maintenance_contract_id is avg(maintenance_contract_id)
+    max_maintenance_contract_id is max(maintenance_contract_id)
+    min_maintenance_contract_id is min(maintenance_contract_id)
+    total_maintenance_contract_company_id is sum(maintenance_contract_company_id)
+    avg_maintenance_contract_company_id is avg(maintenance_contract_company_id)
+    max_maintenance_contract_company_id is max(maintenance_contract_company_id)
+    min_maintenance_contract_company_id is min(maintenance_contract_company_id)
+}
+
+// Maintenance_Engineers
+source: maintenance_engineers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Maintenance_Engineers')
+""") extend {
+  primary_key: engineer_id
+
+  join_one: third_party_companies on company_id = third_party_companies.company_id
+
+  measure:
+    row_count is count()
+    total_engineer_id is sum(engineer_id)
+    avg_engineer_id is avg(engineer_id)
+    max_engineer_id is max(engineer_id)
+    min_engineer_id is min(engineer_id)
+    total_company_id is sum(company_id)
+    avg_company_id is avg(company_id)
+    max_company_id is max(company_id)
+    min_company_id is min(company_id)
+}
+
+// Part_Faults
+source: part_faults is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Part_Faults')
+""") extend {
+  primary_key: part_fault_id
+
+  join_one: parts on part_id = parts.part_id
+
+  measure:
+    row_count is count()
+    total_part_fault_id is sum(part_fault_id)
+    avg_part_fault_id is avg(part_fault_id)
+    max_part_fault_id is max(part_fault_id)
+    min_part_fault_id is min(part_fault_id)
+    total_part_id is sum(part_id)
+    avg_part_id is avg(part_id)
+    max_part_id is max(part_id)
+    min_part_id is min(part_id)
+}
+
+// Assets
+source: assets is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Assets')
+""") extend {
+  primary_key: asset_id
+
+  join_one: third_party_companies on supplier_company_id = third_party_companies.company_id
+  join_one: maintenance_contracts on maintenance_contract_id = maintenance_contracts.maintenance_contract_id
+
+  measure:
+    row_count is count()
+    total_asset_id is sum(asset_id)
+    avg_asset_id is avg(asset_id)
+    max_asset_id is max(asset_id)
+    min_asset_id is min(asset_id)
+    total_maintenance_contract_id is sum(maintenance_contract_id)
+    avg_maintenance_contract_id is avg(maintenance_contract_id)
+    max_maintenance_contract_id is max(maintenance_contract_id)
+    min_maintenance_contract_id is min(maintenance_contract_id)
+    total_supplier_company_id is sum(supplier_company_id)
+    avg_supplier_company_id is avg(supplier_company_id)
+    max_supplier_company_id is max(supplier_company_id)
+    min_supplier_company_id is min(supplier_company_id)
+}
+
+// Engineer_Skills
+source: engineer_skills is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Engineer_Skills')
+""") extend {
+  join_one: skills on skill_id = skills.skill_id
+  join_one: maintenance_engineers on engineer_id = maintenance_engineers.engineer_id
+
+  measure:
+    row_count is count()
+    total_engineer_id is sum(engineer_id)
+    avg_engineer_id is avg(engineer_id)
+    max_engineer_id is max(engineer_id)
+    min_engineer_id is min(engineer_id)
+    total_skill_id is sum(skill_id)
+    avg_skill_id is avg(skill_id)
+    max_skill_id is max(skill_id)
+    min_skill_id is min(skill_id)
+}
+
+// Skills_Required_To_Fix
+source: skills_required_to_fix is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Skills_Required_To_Fix')
+""") extend {
+  join_one: skills on skill_id = skills.skill_id
+  join_one: part_faults on part_fault_id = part_faults.part_fault_id
+
+  measure:
+    row_count is count()
+    total_part_fault_id is sum(part_fault_id)
+    avg_part_fault_id is avg(part_fault_id)
+    max_part_fault_id is max(part_fault_id)
+    min_part_fault_id is min(part_fault_id)
+    total_skill_id is sum(skill_id)
+    avg_skill_id is avg(skill_id)
+    max_skill_id is max(skill_id)
+    min_skill_id is min(skill_id)
+}
+
+// Asset_Parts
+source: asset_parts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Asset_Parts')
+""") extend {
+  join_one: assets on asset_id = assets.asset_id
+  join_one: parts on part_id = parts.part_id
+
+  measure:
+    row_count is count()
+    total_asset_id is sum(asset_id)
+    avg_asset_id is avg(asset_id)
+    max_asset_id is max(asset_id)
+    min_asset_id is min(asset_id)
+    total_part_id is sum(part_id)
+    avg_part_id is avg(part_id)
+    max_part_id is max(part_id)
+    min_part_id is min(part_id)
+}
+
+// Fault_Log
+source: fault_log is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Fault_Log')
+""") extend {
+  primary_key: fault_log_entry_id
+
+  join_one: staff_val on recorded_by_staff_id = staff_val.staff_id
+  join_one: assets on asset_id = assets.asset_id
+
+  measure:
+    row_count is count()
+    total_fault_log_entry_id is sum(fault_log_entry_id)
+    avg_fault_log_entry_id is avg(fault_log_entry_id)
+    max_fault_log_entry_id is max(fault_log_entry_id)
+    min_fault_log_entry_id is min(fault_log_entry_id)
+    total_asset_id is sum(asset_id)
+    avg_asset_id is avg(asset_id)
+    max_asset_id is max(asset_id)
+    min_asset_id is min(asset_id)
+    total_recorded_by_staff_id is sum(recorded_by_staff_id)
+    avg_recorded_by_staff_id is avg(recorded_by_staff_id)
+    max_recorded_by_staff_id is max(recorded_by_staff_id)
+    min_recorded_by_staff_id is min(recorded_by_staff_id)
+}
+
+// Engineer_Visits
+source: engineer_visits is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Engineer_Visits')
+""") extend {
+  primary_key: engineer_visit_id
+
+  join_one: staff_val on contact_staff_id = staff_val.staff_id
+  join_one: maintenance_engineers on engineer_id = maintenance_engineers.engineer_id
+  join_one: fault_log on fault_log_entry_id = fault_log.fault_log_entry_id
+
+  measure:
+    row_count is count()
+    total_engineer_visit_id is sum(engineer_visit_id)
+    avg_engineer_visit_id is avg(engineer_visit_id)
+    max_engineer_visit_id is max(engineer_visit_id)
+    min_engineer_visit_id is min(engineer_visit_id)
+    total_contact_staff_id is sum(contact_staff_id)
+    avg_contact_staff_id is avg(contact_staff_id)
+    max_contact_staff_id is max(contact_staff_id)
+    min_contact_staff_id is min(contact_staff_id)
+    total_engineer_id is sum(engineer_id)
+    avg_engineer_id is avg(engineer_id)
+    max_engineer_id is max(engineer_id)
+    min_engineer_id is min(engineer_id)
+    total_fault_log_entry_id is sum(fault_log_entry_id)
+    avg_fault_log_entry_id is avg(fault_log_entry_id)
+    max_fault_log_entry_id is max(fault_log_entry_id)
+    min_fault_log_entry_id is min(fault_log_entry_id)
+}
+
+// Fault_Log_Parts
+source: fault_log_parts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite', 'Fault_Log_Parts')
+""") extend {
+  join_one: fault_log on fault_log_entry_id = fault_log.fault_log_entry_id
+  join_one: part_faults on part_fault_id = part_faults.part_fault_id
+
+  measure:
+    row_count is count()
+    total_fault_log_entry_id is sum(fault_log_entry_id)
+    avg_fault_log_entry_id is avg(fault_log_entry_id)
+    max_fault_log_entry_id is max(fault_log_entry_id)
+    min_fault_log_entry_id is min(fault_log_entry_id)
+    total_part_fault_id is sum(part_fault_id)
+    avg_part_fault_id is avg(part_fault_id)
+    max_part_fault_id is max(part_fault_id)
+    min_part_fault_id is min(part_fault_id)
+}

@@ -1,0 +1,50 @@
+// Malloy semantic layer for: loan_1
+// Auto-generated from 80 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: bank is duckdb.table('bank') extend {
+  dimension:
+    bname is bname
+    branch_id is branch_ID
+    city is city
+    no_of_customers is no_of_customers
+    state is state
+  measure:
+    row_count is count()
+    sum_no_of_customers is sum(no_of_customers)
+    avg_no_of_customers is avg(no_of_customers)
+    count_city is count(city)
+    count_state is count(state)
+}
+
+source: customer is duckdb.table('customer') extend {
+  dimension:
+    acc_bal is acc_bal
+    acc_type is acc_type
+    branch_id is branch_ID
+    credit_score is credit_score
+    cust_id is cust_ID
+    cust_name is cust_name
+    no_of_loans is no_of_loans
+    state is state
+  measure:
+    row_count is count()
+    sum_acc_bal is sum(acc_bal)
+    avg_acc_bal is avg(acc_bal)
+    avg_credit_score is avg(credit_score)
+    count_acc_type is count(acc_type)
+}
+
+source: loan is duckdb.table('loan') extend {
+  dimension:
+    amount is amount
+    branch_id is branch_ID
+    cust_id is cust_ID
+    loan_type is loan_type
+  measure:
+    row_count is count()
+    sum_amount is sum(amount)
+}

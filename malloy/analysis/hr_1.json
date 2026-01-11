@@ -1,0 +1,81 @@
+{
+  "db_id": "hr_1",
+  "query_count": 124,
+  "tables_used": [
+    "countries",
+    "departments",
+    "employees",
+    "job_history",
+    "jobs",
+    "locations"
+  ],
+  "dimensions": {
+    "departments": [
+      "department_id",
+      "department_name",
+      "location_id",
+      "manager_id"
+    ],
+    "employees": [
+      "commission_pct",
+      "department_id",
+      "email",
+      "employee_id",
+      "first_name",
+      "hire_date",
+      "job_id",
+      "last_name",
+      "manager_id",
+      "phone_number",
+      "salary"
+    ],
+    "jobs": [
+      "job_id",
+      "job_title",
+      "max_salary",
+      "min_salary"
+    ],
+    "job_history": [
+      "employee_id",
+      "end_date",
+      "job_id",
+      "start_date"
+    ],
+    "locations": [
+      "city",
+      "country_id",
+      "location_id",
+      "state_province"
+    ],
+    "countries": [
+      "country_id",
+      "country_name"
+    ]
+  },
+  "measures": {
+    "job_history": {
+      "max": [
+        "end_date"
+      ]
+    },
+    "employees": {
+      "count": [
+        "commission_pct",
+        "employee_id"
+      ],
+      "avg": [
+        "salary"
+      ],
+      "min": [
+        "salary"
+      ],
+      "max": [
+        "salary"
+      ],
+      "sum": [
+        "salary"
+      ]
+    }
+  },
+  "joins": []
+}

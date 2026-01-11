@@ -1,0 +1,100 @@
+{
+  "db_id": "student_transcripts_tracking",
+  "query_count": 78,
+  "tables_used": [
+    "addresses",
+    "courses",
+    "degree_programs",
+    "departments",
+    "sections",
+    "semesters",
+    "student_enrolment",
+    "student_enrolment_courses",
+    "students",
+    "transcript_contents",
+    "transcripts"
+  ],
+  "dimensions": {
+    "addresses": [
+      "address_id",
+      "city",
+      "country",
+      "line_1",
+      "line_2",
+      "state_province_county",
+      "zip_postcode"
+    ],
+    "courses": [
+      "course_description",
+      "course_id",
+      "course_name"
+    ],
+    "departments": [
+      "department_description",
+      "department_id",
+      "department_name"
+    ],
+    "degree_programs": [
+      "degree_program_id",
+      "degree_summary_name",
+      "department_id"
+    ],
+    "sections": [
+      "course_id",
+      "section_description",
+      "section_name"
+    ],
+    "semesters": [
+      "semester_id",
+      "semester_name"
+    ],
+    "student_enrolment": [
+      "degree_program_id",
+      "semester_id",
+      "student_id"
+    ],
+    "students": [
+      "cell_mobile_number",
+      "current_address_id",
+      "date_first_registered",
+      "date_left",
+      "first_name",
+      "last_name",
+      "middle_name",
+      "other_student_details",
+      "permanent_address_id",
+      "student_id"
+    ],
+    "student_enrolment_courses": [
+      "course_id"
+    ],
+    "transcripts": [
+      "other_details",
+      "transcript_date",
+      "transcript_id"
+    ],
+    "transcript_contents": [
+      "student_course_id",
+      "transcript_id"
+    ]
+  },
+  "measures": {
+    "degree_programs": {
+      "count": [
+        "degree_summary_name",
+        "department_id"
+      ]
+    },
+    "transcripts": {
+      "avg": [
+        "transcript_date"
+      ]
+    },
+    "students": {
+      "count": [
+        "current_address_id"
+      ]
+    }
+  },
+  "joins": []
+}

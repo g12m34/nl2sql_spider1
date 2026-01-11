@@ -1,0 +1,38 @@
+// Malloy semantic layer for: candidate_poll
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: candidate is duckdb.table('candidate') extend {
+  dimension:
+    candidate_id is Candidate_ID
+    consider_rate is Consider_rate
+    oppose_rate is Oppose_rate
+    people_id is People_ID
+    poll_source is Poll_Source
+    support_rate is Support_rate
+    unsure_rate is Unsure_rate
+  measure:
+    row_count is count()
+    avg_unsure_rate is avg(unsure_rate)
+    min_consider_rate is min(consider_rate)
+    min_oppose_rate is min(oppose_rate)
+    max_support_rate is max(support_rate)
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    date_of_birth is Date_of_Birth
+    height is Height
+    name is Name
+    people_id is People_ID
+    sex is Sex
+    weight is Weight
+  measure:
+    row_count is count()
+    avg_height is avg(height)
+    avg_weight is avg(weight)
+    min_weight is min(weight)
+}

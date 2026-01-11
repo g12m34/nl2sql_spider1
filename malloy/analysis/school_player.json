@@ -1,0 +1,45 @@
+{
+  "db_id": "school_player",
+  "query_count": 40,
+  "tables_used": [
+    "player",
+    "school",
+    "school_details"
+  ],
+  "dimensions": {
+    "school": [
+      "denomination",
+      "enrollment",
+      "founded",
+      "location",
+      "school",
+      "school_colors",
+      "school_id"
+    ],
+    "player": [
+      "age",
+      "player",
+      "position",
+      "school_id",
+      "team"
+    ],
+    "school_details": [
+      "division",
+      "nickname",
+      "school_id"
+    ]
+  },
+  "measures": {
+    "school": {
+      "avg": [
+        "enrollment"
+      ]
+    },
+    "player": {
+      "count": [
+        "position"
+      ]
+    }
+  },
+  "joins": []
+}

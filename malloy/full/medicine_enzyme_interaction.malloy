@@ -1,0 +1,64 @@
+// Malloy semantic layer for: medicine_enzyme_interaction
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite
+
+// medicine
+source: medicine is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'medicine')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+    f_d_a_approved is FDA_approved
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// enzyme
+source: enzyme is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'enzyme')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+    o_m_i_m is OMIM
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_o_m_i_m is sum(OMIM)
+    avg_o_m_i_m is avg(OMIM)
+    max_o_m_i_m is max(OMIM)
+    min_o_m_i_m is min(OMIM)
+}
+
+// medicine_enzyme_interaction
+source: medicine_enzyme_interaction is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'medicine_enzyme_interaction')
+""") extend {
+  primary_key: enzyme_id
+
+  join_one: medicine on medicine_id = medicine.id
+  join_one: enzyme on enzyme_id = enzyme.id
+
+  measure:
+    row_count is count()
+    total_enzyme_id is sum(enzyme_id)
+    avg_enzyme_id is avg(enzyme_id)
+    max_enzyme_id is max(enzyme_id)
+    min_enzyme_id is min(enzyme_id)
+    total_medicine_id is sum(medicine_id)
+    avg_medicine_id is avg(medicine_id)
+    max_medicine_id is max(medicine_id)
+    min_medicine_id is min(medicine_id)
+}

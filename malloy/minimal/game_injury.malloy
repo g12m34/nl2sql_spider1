@@ -1,0 +1,48 @@
+// Malloy semantic layer for: game_injury
+// Auto-generated from 19 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: game is duckdb.table('game') extend {
+  dimension:
+    away_team is Away_team
+    date is Date
+    home_team is Home_team
+    id is id
+    score is Score
+    season is Season
+    stadium_id is stadium_id
+  measure:
+    row_count is count()
+}
+
+source: injury_accident is duckdb.table('injury_accident') extend {
+  dimension:
+    game_id is game_id
+    id is id
+    injury is Injury
+    number_of_matches is Number_of_matches
+    player is Player
+    source is Source
+  measure:
+    row_count is count()
+    count_injury is count(injury)
+    count_source is count(source)
+}
+
+source: stadium is duckdb.table('stadium') extend {
+  dimension:
+    average_attendance is Average_Attendance
+    capacity_percentage is Capacity_Percentage
+    home_games is Home_Games
+    id is id
+    name is name
+    total_attendance is Total_Attendance
+  measure:
+    row_count is count()
+    avg_home_games is avg(home_games)
+    min_home_games is min(home_games)
+    max_home_games is max(home_games)
+}

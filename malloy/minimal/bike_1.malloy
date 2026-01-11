@@ -1,0 +1,79 @@
+// Malloy semantic layer for: bike_1
+// Auto-generated from 104 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: station is duckdb.table('station') extend {
+  dimension:
+    city is city
+    dock_count is dock_count
+    id is id
+    installation_date is installation_date
+    lat is lat
+    long is long
+    name is name
+  measure:
+    row_count is count()
+    avg_lat is avg(lat)
+    avg_long is avg(long)
+    max_lat is max(lat)
+    count_city is count(city)
+}
+
+source: status is duckdb.table('status') extend {
+  dimension:
+    bikes_available is bikes_available
+    station_id is station_id
+  measure:
+    row_count is count()
+    avg_bikes_available is avg(bikes_available)
+    min_bikes_available is min(bikes_available)
+    max_bikes_available is max(bikes_available)
+}
+
+source: trip is duckdb.table('trip') extend {
+  dimension:
+    bike_id is bike_id
+    duration is duration
+    end_station_id is end_station_id
+    end_station_name is end_station_name
+    id is id
+    start_date is start_date
+    start_station_id is start_station_id
+    start_station_name is start_station_name
+    zip_code is zip_code
+  measure:
+    row_count is count()
+    sum_duration is sum(duration)
+    avg_duration is avg(duration)
+    min_duration is min(duration)
+    max_duration is max(duration)
+    count_bike_id is count(bike_id)
+}
+
+source: weather is duckdb.table('weather') extend {
+  dimension:
+    cloud_cover is cloud_cover
+    date is date
+    events is events
+    max_dew_point_f is max_dew_point_f
+    max_gust_speed_mph is max_gust_speed_mph
+    max_temperature_f is max_temperature_f
+    max_wind_speed_mph is max_wind_Speed_mph
+    mean_humidity is mean_humidity
+    mean_sea_level_pressure_inches is mean_sea_level_pressure_inches
+    mean_temperature_f is mean_temperature_f
+    mean_visibility_miles is mean_visibility_miles
+    min_dew_point_f is min_dew_point_f
+    min_temperature_f is min_temperature_f
+    zip_code is zip_code
+  measure:
+    row_count is count()
+    avg_mean_humidity is avg(mean_humidity)
+    avg_mean_sea_level_pressure_inches is avg(mean_sea_level_pressure_inches)
+    avg_mean_temperature_f is avg(mean_temperature_f)
+    avg_mean_visibility_miles is avg(mean_visibility_miles)
+    min_min_dew_point_f is min(min_dew_point_f)
+}

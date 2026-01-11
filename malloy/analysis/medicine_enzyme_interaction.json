@@ -1,0 +1,44 @@
+{
+  "db_id": "medicine_enzyme_interaction",
+  "query_count": 44,
+  "tables_used": [
+    "enzyme",
+    "medicine",
+    "medicine_enzyme_interaction"
+  ],
+  "dimensions": {
+    "enzyme": [
+      "chromosome",
+      "id",
+      "location",
+      "name",
+      "omim",
+      "porphyria",
+      "product"
+    ],
+    "medicine": [
+      "fda_approved",
+      "id",
+      "name",
+      "trade_name"
+    ],
+    "medicine_enzyme_interaction": [
+      "enzyme_id",
+      "interaction_type",
+      "medicine_id"
+    ]
+  },
+  "measures": {
+    "enzyme": {
+      "max": [
+        "omim"
+      ]
+    },
+    "medicine": {
+      "count": [
+        "fda_approved"
+      ]
+    }
+  },
+  "joins": []
+}

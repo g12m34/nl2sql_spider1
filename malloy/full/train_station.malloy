@@ -1,0 +1,81 @@
+// Malloy semantic layer for: train_station
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/train_station/train_station.sqlite
+
+// station
+source: station is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/train_station/train_station.sqlite', 'station')
+""") extend {
+  primary_key: Station_ID
+
+  dimension:
+    station_i_d is Station_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_station_i_d is sum(Station_ID)
+    avg_station_i_d is avg(Station_ID)
+    max_station_i_d is max(Station_ID)
+    min_station_i_d is min(Station_ID)
+    total_annual_entry_exit is sum(Annual_entry_exit)
+    avg_annual_entry_exit is avg(Annual_entry_exit)
+    max_annual_entry_exit is max(Annual_entry_exit)
+    min_annual_entry_exit is min(Annual_entry_exit)
+    total_annual_interchanges is sum(Annual_interchanges)
+    avg_annual_interchanges is avg(Annual_interchanges)
+    max_annual_interchanges is max(Annual_interchanges)
+    min_annual_interchanges is min(Annual_interchanges)
+    total_total_passengers is sum(Total_Passengers)
+    avg_total_passengers is avg(Total_Passengers)
+    max_total_passengers is max(Total_Passengers)
+    min_total_passengers is min(Total_Passengers)
+    total_number_of_platforms is sum(Number_of_Platforms)
+    avg_number_of_platforms is avg(Number_of_Platforms)
+    max_number_of_platforms is max(Number_of_Platforms)
+    min_number_of_platforms is min(Number_of_Platforms)
+}
+
+// train
+source: train is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/train_station/train_station.sqlite', 'train')
+""") extend {
+  primary_key: Train_ID
+
+  dimension:
+    train_i_d is Train_ID
+    name_val is `Name`
+    time_val is `Time`
+
+  measure:
+    row_count is count()
+    total_train_i_d is sum(Train_ID)
+    avg_train_i_d is avg(Train_ID)
+    max_train_i_d is max(Train_ID)
+    min_train_i_d is min(Train_ID)
+}
+
+// train_station
+source: train_station is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/train_station/train_station.sqlite', 'train_station')
+""") extend {
+  primary_key: Train_ID
+
+  join_one: station on Station_ID = station.Station_ID
+  join_one: train on Train_ID = train.Train_ID
+
+  dimension:
+    train_i_d is Train_ID
+    station_i_d is Station_ID
+
+  measure:
+    row_count is count()
+    total_train_i_d is sum(Train_ID)
+    avg_train_i_d is avg(Train_ID)
+    max_train_i_d is max(Train_ID)
+    min_train_i_d is min(Train_ID)
+    total_station_i_d is sum(Station_ID)
+    avg_station_i_d is avg(Station_ID)
+    max_station_i_d is max(Station_ID)
+    min_station_i_d is min(Station_ID)
+}

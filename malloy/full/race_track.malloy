@@ -1,0 +1,51 @@
+// Malloy semantic layer for: race_track
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/race_track/race_track.sqlite
+
+// track
+source: track is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'track')
+""") extend {
+  primary_key: Track_ID
+
+  dimension:
+    track_i_d is Track_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_track_i_d is sum(Track_ID)
+    avg_track_i_d is avg(Track_ID)
+    max_track_i_d is max(Track_ID)
+    min_track_i_d is min(Track_ID)
+    total_seating is sum(Seating)
+    avg_seating is avg(Seating)
+    max_seating is max(Seating)
+    min_seating is min(Seating)
+    total_year_opened is sum(Year_Opened)
+    avg_year_opened is avg(Year_Opened)
+    max_year_opened is max(Year_Opened)
+    min_year_opened is min(Year_Opened)
+}
+
+// race
+source: race is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'race')
+""") extend {
+  primary_key: Race_ID
+
+  join_one: track on Track_ID = track.Track_ID
+
+  dimension:
+    race_i_d is Race_ID
+    name_val is `Name`
+    date_val is `Date`
+    track_i_d is Track_ID
+
+  measure:
+    row_count is count()
+    total_race_i_d is sum(Race_ID)
+    avg_race_i_d is avg(Race_ID)
+    max_race_i_d is max(Race_ID)
+    min_race_i_d is min(Race_ID)
+}

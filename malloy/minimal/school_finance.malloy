@@ -1,0 +1,47 @@
+// Malloy semantic layer for: school_finance
+// Auto-generated from 26 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: budget is duckdb.table('budget') extend {
+  dimension:
+    budgeted is Budgeted
+    invested is Invested
+    school_id is School_id
+    total_budget_percent_budgeted is total_budget_percent_budgeted
+    total_budget_percent_invested is total_budget_percent_invested
+    year is Year
+  measure:
+    row_count is count()
+    sum_budgeted is sum(budgeted)
+}
+
+source: endowment is duckdb.table('endowment') extend {
+  dimension:
+    amount is amount
+    donator_name is donator_name
+    school_id is School_id
+  measure:
+    row_count is count()
+    sum_amount is sum(amount)
+    count_donator_name is count(donator_name)
+}
+
+source: school is duckdb.table('School') extend {
+  dimension:
+    county is County
+    enrollment is Enrollment
+    ihsaa_football_class is IHSAA_Football_Class
+    location is Location
+    mascot is Mascot
+    school_id is School_id
+    school_name is School_name
+  measure:
+    row_count is count()
+    sum_enrollment is sum(enrollment)
+    avg_enrollment is avg(enrollment)
+    min_enrollment is min(enrollment)
+    max_enrollment is max(enrollment)
+}

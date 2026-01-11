@@ -1,0 +1,63 @@
+// Malloy semantic layer for: election_representative
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/election_representative/election_representative.sqlite
+
+// representative
+source: representative is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election_representative/election_representative.sqlite', 'representative')
+""") extend {
+  primary_key: Representative_ID
+
+  dimension:
+    representative_i_d is Representative_ID
+    name_val is `Name`
+    state_val is `State`
+
+  measure:
+    row_count is count()
+    total_representative_i_d is sum(Representative_ID)
+    avg_representative_i_d is avg(Representative_ID)
+    max_representative_i_d is max(Representative_ID)
+    min_representative_i_d is min(Representative_ID)
+}
+
+// election
+source: election is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election_representative/election_representative.sqlite', 'election')
+""") extend {
+  primary_key: Election_ID
+
+  join_one: representative on Representative_ID = representative.Representative_ID
+
+  dimension:
+    election_i_d is Election_ID
+    representative_i_d is Representative_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_election_i_d is sum(Election_ID)
+    avg_election_i_d is avg(Election_ID)
+    max_election_i_d is max(Election_ID)
+    min_election_i_d is min(Election_ID)
+    total_representative_i_d is sum(Representative_ID)
+    avg_representative_i_d is avg(Representative_ID)
+    max_representative_i_d is max(Representative_ID)
+    min_representative_i_d is min(Representative_ID)
+    total_votes is sum(Votes)
+    avg_votes is avg(Votes)
+    max_votes is max(Votes)
+    min_votes is min(Votes)
+    total_vote_percent is sum(Vote_Percent)
+    avg_vote_percent is avg(Vote_Percent)
+    max_vote_percent is max(Vote_Percent)
+    min_vote_percent is min(Vote_Percent)
+    total_seats is sum(Seats)
+    avg_seats is avg(Seats)
+    max_seats is max(Seats)
+    min_seats is min(Seats)
+    total_place is sum(Place)
+    avg_place is avg(Place)
+    max_place is max(Place)
+    min_place is min(Place)
+}

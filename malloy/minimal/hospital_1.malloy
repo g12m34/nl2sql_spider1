@@ -1,0 +1,154 @@
+// Malloy semantic layer for: hospital_1
+// Auto-generated from 100 ground-truth SQL queries
+// Tables used: 15
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: affiliated_with is duckdb.table('Affiliated_With') extend {
+  dimension:
+    department is Department
+    physician is Physician
+    primaryaffiliation is PrimaryAffiliation
+  measure:
+    row_count is count()
+}
+
+source: appointment is duckdb.table('Appointment') extend {
+  dimension:
+    appointmentid is AppointmentID
+    patient is Patient
+    physician is Physician
+    prepnurse is PrepNurse
+    start is Start
+  measure:
+    row_count is count()
+}
+
+source: block is duckdb.table('Block') extend {
+  dimension:
+    blockcode is BlockCode
+    blockfloor is BlockFloor
+  measure:
+    row_count is count()
+}
+
+source: department is duckdb.table('Department') extend {
+  dimension:
+    departmentid is DepartmentID
+    head is Head
+    name is Name
+  measure:
+    row_count is count()
+    count_departmentid is count(departmentid)
+}
+
+source: medication is duckdb.table('Medication') extend {
+  dimension:
+    brand is Brand
+    code is Code
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: nurse is duckdb.table('Nurse') extend {
+  dimension:
+    employeeid is EmployeeID
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: on_call is duckdb.table('On_Call') extend {
+  dimension:
+    blockcode is BlockCode
+    blockfloor is BlockFloor
+    nurse is Nurse
+  measure:
+    row_count is count()
+}
+
+source: patient is duckdb.table('Patient') extend {
+  dimension:
+    name is Name
+    pcp is PCP
+    phone is Phone
+    ssn is SSN
+  measure:
+    row_count is count()
+    count_ssn is count(ssn)
+}
+
+source: physician is duckdb.table('Physician') extend {
+  dimension:
+    employeeid is EmployeeID
+    name is Name
+    position is Position
+    ssn is SSN
+  measure:
+    row_count is count()
+    count_ssn is count(ssn)
+}
+
+source: prescribes is duckdb.table('Prescribes') extend {
+  dimension:
+    dose is Dose
+    medication is Medication
+    patient is Patient
+    physician is Physician
+  measure:
+    row_count is count()
+}
+
+source: procedures is duckdb.table('Procedures') extend {
+  dimension:
+    code is Code
+    cost is Cost
+    name is Name
+  measure:
+    row_count is count()
+    avg_cost is avg(cost)
+    min_cost is min(cost)
+    max_cost is max(cost)
+}
+
+source: room is duckdb.table('Room') extend {
+  dimension:
+    blockcode is BlockCode
+    blockfloor is BlockFloor
+    roomtype is RoomType
+    unavailable is Unavailable
+  measure:
+    row_count is count()
+    count_roomtype is count(roomtype)
+}
+
+source: stay is duckdb.table('Stay') extend {
+  dimension:
+    patient is Patient
+    room is Room
+    stayid is StayID
+    staystart is StayStart
+  measure:
+    row_count is count()
+    count_patient is count(patient)
+}
+
+source: trained_in is duckdb.table('Trained_In') extend {
+  dimension:
+    physician is Physician
+    treatment is Treatment
+  measure:
+    row_count is count()
+}
+
+source: undergoes is duckdb.table('Undergoes') extend {
+  dimension:
+    assistingnurse is AssistingNurse
+    dateundergoes is DateUndergoes
+    patient is Patient
+    stay is Stay
+  measure:
+    row_count is count()
+}

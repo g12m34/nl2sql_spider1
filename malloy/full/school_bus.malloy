@@ -1,0 +1,72 @@
+// Malloy semantic layer for: school_bus
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/school_bus/school_bus.sqlite
+
+// driver
+source: driver is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'driver')
+""") extend {
+  primary_key: Driver_ID
+
+  dimension:
+    driver_i_d is Driver_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_driver_i_d is sum(Driver_ID)
+    avg_driver_i_d is avg(Driver_ID)
+    max_driver_i_d is max(Driver_ID)
+    min_driver_i_d is min(Driver_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// school
+source: school is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'school')
+""") extend {
+  primary_key: School_ID
+
+  dimension:
+    school_i_d is School_ID
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+}
+
+// school_bus
+source: school_bus is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'school_bus')
+""") extend {
+  primary_key: School_ID
+
+  join_one: driver on Driver_ID = driver.Driver_ID
+  join_one: school on School_ID = school.School_ID
+
+  dimension:
+    school_i_d is School_ID
+    driver_i_d is Driver_ID
+
+  measure:
+    row_count is count()
+    total_school_i_d is sum(School_ID)
+    avg_school_i_d is avg(School_ID)
+    max_school_i_d is max(School_ID)
+    min_school_i_d is min(School_ID)
+    total_driver_i_d is sum(Driver_ID)
+    avg_driver_i_d is avg(Driver_ID)
+    max_driver_i_d is max(Driver_ID)
+    min_driver_i_d is min(Driver_ID)
+    total_years_working is sum(Years_Working)
+    avg_years_working is avg(Years_Working)
+    max_years_working is max(Years_Working)
+    min_years_working is min(Years_Working)
+}

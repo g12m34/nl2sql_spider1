@@ -1,0 +1,156 @@
+// Malloy semantic layer for: student_assessment
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// People
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'People')
+""") extend {
+  primary_key: person_id
+
+  measure:
+    row_count is count()
+    total_person_id is sum(person_id)
+    avg_person_id is avg(person_id)
+    max_person_id is max(person_id)
+    min_person_id is min(person_id)
+}
+
+// Courses
+source: courses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Courses')
+""") extend {
+  primary_key: course_id
+
+  measure:
+    row_count is count()
+}
+
+// Students
+source: students is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Students')
+""") extend {
+  primary_key: student_id
+
+  join_one: people_val on student_id = people_val.person_id
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+}
+
+// People_Addresses
+source: people_addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'People_Addresses')
+""") extend {
+  primary_key: person_address_id
+
+  join_one: addresses on address_id = addresses.address_id
+  join_one: people_val on person_id = people_val.person_id
+
+  measure:
+    row_count is count()
+    total_person_address_id is sum(person_address_id)
+    avg_person_address_id is avg(person_address_id)
+    max_person_address_id is max(person_address_id)
+    min_person_address_id is min(person_address_id)
+    total_person_id is sum(person_id)
+    avg_person_id is avg(person_id)
+    max_person_id is max(person_id)
+    min_person_id is min(person_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Candidates
+source: candidates is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Candidates')
+""") extend {
+  primary_key: candidate_id
+
+  join_one: people_val on candidate_id = people_val.person_id
+
+  measure:
+    row_count is count()
+    total_candidate_id is sum(candidate_id)
+    avg_candidate_id is avg(candidate_id)
+    max_candidate_id is max(candidate_id)
+    min_candidate_id is min(candidate_id)
+}
+
+// Student_Course_Registrations
+source: student_course_registrations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Student_Course_Registrations')
+""") extend {
+  primary_key: student_id
+
+  join_one: courses on course_id = courses.course_id
+  join_one: students on student_id = students.student_id
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+}
+
+// Candidate_Assessments
+source: candidate_assessments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Candidate_Assessments')
+""") extend {
+  primary_key: candidate_id
+
+  join_one: candidates on candidate_id = candidates.candidate_id
+
+  measure:
+    row_count is count()
+    total_candidate_id is sum(candidate_id)
+    avg_candidate_id is avg(candidate_id)
+    max_candidate_id is max(candidate_id)
+    min_candidate_id is min(candidate_id)
+}
+
+// Student_Course_Attendance
+source: student_course_attendance is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite', 'Student_Course_Attendance')
+""") extend {
+  primary_key: student_id
+
+  join_one: student_student_course_registrations is student_course_registrations on student_id = student_student_course_registrations.student_id
+  join_one: course_student_course_registrations is student_course_registrations on course_id = course_student_course_registrations.course_id
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+}

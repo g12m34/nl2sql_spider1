@@ -1,0 +1,59 @@
+// Malloy semantic layer for: game_1
+// Auto-generated from 86 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: plays_games is duckdb.table('Plays_Games') extend {
+  dimension:
+    gameid is GameID
+    hours_played is Hours_Played
+    stuid is StuID
+  measure:
+    row_count is count()
+    sum_hours_played is sum(hours_played)
+    count_stuid is count(stuid)
+}
+
+source: sportsinfo is duckdb.table('SportsInfo') extend {
+  dimension:
+    gamesplayed is GamesPlayed
+    hoursperweek is HoursPerWeek
+    onscholarship is OnScholarship
+    sportname is SportName
+    stuid is StuID
+  measure:
+    row_count is count()
+    sum_gamesplayed is sum(gamesplayed)
+    sum_hoursperweek is sum(hoursperweek)
+    count_sportname is count(sportname)
+    count_stuid is count(stuid)
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    advisor is Advisor
+    age is Age
+    city_code is city_code
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    max_age is max(age)
+}
+
+source: video_games is duckdb.table('Video_Games') extend {
+  dimension:
+    gameid is GameID
+    gname is GName
+    gtype is GType
+  measure:
+    row_count is count()
+    count_gtype is count(gtype)
+}

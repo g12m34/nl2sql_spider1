@@ -1,0 +1,1243 @@
+// Malloy semantic layer for: baseball_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite
+
+// manager_award_vote
+source: manager_award_vote is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'manager_award_vote')
+""") extend {
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_points_won is sum(points_won)
+    avg_points_won is avg(points_won)
+    max_points_won is max(points_won)
+    min_points_won is min(points_won)
+    total_points_max is sum(points_max)
+    avg_points_max is avg(points_max)
+    max_points_max is max(points_max)
+    min_points_max is min(points_max)
+    total_votes_first is sum(votes_first)
+    avg_votes_first is avg(votes_first)
+    max_votes_first is max(votes_first)
+    min_votes_first is min(votes_first)
+}
+
+// player
+source: player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'player')
+""") extend {
+  measure:
+    row_count is count()
+    total_birth_year is sum(birth_year)
+    avg_birth_year is avg(birth_year)
+    max_birth_year is max(birth_year)
+    min_birth_year is min(birth_year)
+    total_birth_month is sum(birth_month)
+    avg_birth_month is avg(birth_month)
+    max_birth_month is max(birth_month)
+    min_birth_month is min(birth_month)
+    total_birth_day is sum(birth_day)
+    avg_birth_day is avg(birth_day)
+    max_birth_day is max(birth_day)
+    min_birth_day is min(birth_day)
+    total_death_year is sum(death_year)
+    avg_death_year is avg(death_year)
+    max_death_year is max(death_year)
+    min_death_year is min(death_year)
+    total_death_month is sum(death_month)
+    avg_death_month is avg(death_month)
+    max_death_month is max(death_month)
+    min_death_month is min(death_month)
+    total_death_day is sum(death_day)
+    avg_death_day is avg(death_day)
+    max_death_day is max(death_day)
+    min_death_day is min(death_day)
+    total_weight is sum(weight)
+    avg_weight is avg(weight)
+    max_weight is max(weight)
+    min_weight is min(weight)
+    total_height is sum(height)
+    avg_height is avg(height)
+    max_height is max(height)
+    min_height is min(height)
+}
+
+// park
+source: park is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'park')
+""") extend {
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+}
+
+// pitching
+source: pitching is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'pitching')
+""") extend {
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_stint is sum(stint)
+    avg_stint is avg(stint)
+    max_stint is max(stint)
+    min_stint is min(stint)
+    total_w is sum(w)
+    avg_w is avg(w)
+    max_w is max(w)
+    min_w is min(w)
+    total_l is sum(l)
+    avg_l is avg(l)
+    max_l is max(l)
+    min_l is min(l)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_gs is sum(gs)
+    avg_gs is avg(gs)
+    max_gs is max(gs)
+    min_gs is min(gs)
+    total_cg is sum(cg)
+    avg_cg is avg(cg)
+    max_cg is max(cg)
+    min_cg is min(cg)
+    total_sho is sum(sho)
+    avg_sho is avg(sho)
+    max_sho is max(sho)
+    min_sho is min(sho)
+    total_sv is sum(sv)
+    avg_sv is avg(sv)
+    max_sv is max(sv)
+    min_sv is min(sv)
+    total_ipouts is sum(ipouts)
+    avg_ipouts is avg(ipouts)
+    max_ipouts is max(ipouts)
+    min_ipouts is min(ipouts)
+    total_h is sum(h)
+    avg_h is avg(h)
+    max_h is max(h)
+    min_h is min(h)
+    total_er is sum(er)
+    avg_er is avg(er)
+    max_er is max(er)
+    min_er is min(er)
+    total_hr is sum(hr)
+    avg_hr is avg(hr)
+    max_hr is max(hr)
+    min_hr is min(hr)
+    total_bb is sum(bb)
+    avg_bb is avg(bb)
+    max_bb is max(bb)
+    min_bb is min(bb)
+    total_so is sum(so)
+    avg_so is avg(so)
+    max_so is max(so)
+    min_so is min(so)
+    total_baopp is sum(baopp)
+    avg_baopp is avg(baopp)
+    max_baopp is max(baopp)
+    min_baopp is min(baopp)
+    total_era is sum(era)
+    avg_era is avg(era)
+    max_era is max(era)
+    min_era is min(era)
+    total_ibb is sum(ibb)
+    avg_ibb is avg(ibb)
+    max_ibb is max(ibb)
+    min_ibb is min(ibb)
+    total_wp is sum(wp)
+    avg_wp is avg(wp)
+    max_wp is max(wp)
+    min_wp is min(wp)
+    total_hbp is sum(hbp)
+    avg_hbp is avg(hbp)
+    max_hbp is max(hbp)
+    min_hbp is min(hbp)
+    total_bk is sum(bk)
+    avg_bk is avg(bk)
+    max_bk is max(bk)
+    min_bk is min(bk)
+    total_bfp is sum(bfp)
+    avg_bfp is avg(bfp)
+    max_bfp is max(bfp)
+    min_bfp is min(bfp)
+    total_gf is sum(gf)
+    avg_gf is avg(gf)
+    max_gf is max(gf)
+    min_gf is min(gf)
+    total_r is sum(r)
+    avg_r is avg(r)
+    max_r is max(r)
+    min_r is min(r)
+    total_sh is sum(sh)
+    avg_sh is avg(sh)
+    max_sh is max(sh)
+    min_sh is min(sh)
+    total_sf is sum(sf)
+    avg_sf is avg(sf)
+    max_sf is max(sf)
+    min_sf is min(sf)
+    total_g_idp is sum(g_idp)
+    avg_g_idp is avg(g_idp)
+    max_g_idp is max(g_idp)
+    min_g_idp is min(g_idp)
+}
+
+// pitching_postseason
+source: pitching_postseason is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'pitching_postseason')
+""") extend {
+  dimension:
+    year_val is `year`
+    round_val is `round`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_w is sum(w)
+    avg_w is avg(w)
+    max_w is max(w)
+    min_w is min(w)
+    total_l is sum(l)
+    avg_l is avg(l)
+    max_l is max(l)
+    min_l is min(l)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_gs is sum(gs)
+    avg_gs is avg(gs)
+    max_gs is max(gs)
+    min_gs is min(gs)
+    total_cg is sum(cg)
+    avg_cg is avg(cg)
+    max_cg is max(cg)
+    min_cg is min(cg)
+    total_sho is sum(sho)
+    avg_sho is avg(sho)
+    max_sho is max(sho)
+    min_sho is min(sho)
+    total_sv is sum(sv)
+    avg_sv is avg(sv)
+    max_sv is max(sv)
+    min_sv is min(sv)
+    total_ipouts is sum(ipouts)
+    avg_ipouts is avg(ipouts)
+    max_ipouts is max(ipouts)
+    min_ipouts is min(ipouts)
+    total_h is sum(h)
+    avg_h is avg(h)
+    max_h is max(h)
+    min_h is min(h)
+    total_er is sum(er)
+    avg_er is avg(er)
+    max_er is max(er)
+    min_er is min(er)
+    total_hr is sum(hr)
+    avg_hr is avg(hr)
+    max_hr is max(hr)
+    min_hr is min(hr)
+    total_bb is sum(bb)
+    avg_bb is avg(bb)
+    max_bb is max(bb)
+    min_bb is min(bb)
+    total_so is sum(so)
+    avg_so is avg(so)
+    max_so is max(so)
+    min_so is min(so)
+    total_era is sum(era)
+    avg_era is avg(era)
+    max_era is max(era)
+    min_era is min(era)
+    total_ibb is sum(ibb)
+    avg_ibb is avg(ibb)
+    max_ibb is max(ibb)
+    min_ibb is min(ibb)
+    total_wp is sum(wp)
+    avg_wp is avg(wp)
+    max_wp is max(wp)
+    min_wp is min(wp)
+    total_hbp is sum(hbp)
+    avg_hbp is avg(hbp)
+    max_hbp is max(hbp)
+    min_hbp is min(hbp)
+    total_bk is sum(bk)
+    avg_bk is avg(bk)
+    max_bk is max(bk)
+    min_bk is min(bk)
+    total_bfp is sum(bfp)
+    avg_bfp is avg(bfp)
+    max_bfp is max(bfp)
+    min_bfp is min(bfp)
+    total_gf is sum(gf)
+    avg_gf is avg(gf)
+    max_gf is max(gf)
+    min_gf is min(gf)
+    total_r is sum(r)
+    avg_r is avg(r)
+    max_r is max(r)
+    min_r is min(r)
+    total_sh is sum(sh)
+    avg_sh is avg(sh)
+    max_sh is max(sh)
+    min_sh is min(sh)
+    total_sf is sum(sf)
+    avg_sf is avg(sf)
+    max_sf is max(sf)
+    min_sf is min(sf)
+    total_g_idp is sum(g_idp)
+    avg_g_idp is avg(g_idp)
+    max_g_idp is max(g_idp)
+    min_g_idp is min(g_idp)
+}
+
+// salary
+source: salary is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'salary')
+""") extend {
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_salary is sum(salary)
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+    min_salary is min(salary)
+}
+
+// college
+source: college is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'college')
+""") extend {
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+}
+
+// postseason
+source: postseason is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'postseason')
+""") extend {
+  dimension:
+    year_val is `year`
+    round_val is `round`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_wins is sum(wins)
+    avg_wins is avg(wins)
+    max_wins is max(wins)
+    min_wins is min(wins)
+    total_losses is sum(losses)
+    avg_losses is avg(losses)
+    max_losses is max(losses)
+    min_losses is min(losses)
+    total_ties is sum(ties)
+    avg_ties is avg(ties)
+    max_ties is max(ties)
+    min_ties is min(ties)
+}
+
+// team
+source: team is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'team')
+""") extend {
+  dimension:
+    year_val is `year`
+    rank_val is `rank`
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_rank_val is sum(`rank`)
+    avg_rank_val is avg(`rank`)
+    max_rank_val is max(`rank`)
+    min_rank_val is min(`rank`)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_ghome is sum(ghome)
+    avg_ghome is avg(ghome)
+    max_ghome is max(ghome)
+    min_ghome is min(ghome)
+    total_w is sum(w)
+    avg_w is avg(w)
+    max_w is max(w)
+    min_w is min(w)
+    total_l is sum(l)
+    avg_l is avg(l)
+    max_l is max(l)
+    min_l is min(l)
+    total_r is sum(r)
+    avg_r is avg(r)
+    max_r is max(r)
+    min_r is min(r)
+    total_ab is sum(ab)
+    avg_ab is avg(ab)
+    max_ab is max(ab)
+    min_ab is min(ab)
+    total_h is sum(h)
+    avg_h is avg(h)
+    max_h is max(h)
+    min_h is min(h)
+    total_double is sum(double)
+    avg_double is avg(double)
+    max_double is max(double)
+    min_double is min(double)
+    total_triple is sum(triple)
+    avg_triple is avg(triple)
+    max_triple is max(triple)
+    min_triple is min(triple)
+    total_hr is sum(hr)
+    avg_hr is avg(hr)
+    max_hr is max(hr)
+    min_hr is min(hr)
+    total_bb is sum(bb)
+    avg_bb is avg(bb)
+    max_bb is max(bb)
+    min_bb is min(bb)
+    total_so is sum(so)
+    avg_so is avg(so)
+    max_so is max(so)
+    min_so is min(so)
+    total_sb is sum(sb)
+    avg_sb is avg(sb)
+    max_sb is max(sb)
+    min_sb is min(sb)
+    total_cs is sum(cs)
+    avg_cs is avg(cs)
+    max_cs is max(cs)
+    min_cs is min(cs)
+    total_hbp is sum(hbp)
+    avg_hbp is avg(hbp)
+    max_hbp is max(hbp)
+    min_hbp is min(hbp)
+    total_sf is sum(sf)
+    avg_sf is avg(sf)
+    max_sf is max(sf)
+    min_sf is min(sf)
+    total_ra is sum(ra)
+    avg_ra is avg(ra)
+    max_ra is max(ra)
+    min_ra is min(ra)
+    total_er is sum(er)
+    avg_er is avg(er)
+    max_er is max(er)
+    min_er is min(er)
+    total_era is sum(era)
+    avg_era is avg(era)
+    max_era is max(era)
+    min_era is min(era)
+    total_cg is sum(cg)
+    avg_cg is avg(cg)
+    max_cg is max(cg)
+    min_cg is min(cg)
+    total_sho is sum(sho)
+    avg_sho is avg(sho)
+    max_sho is max(sho)
+    min_sho is min(sho)
+    total_sv is sum(sv)
+    avg_sv is avg(sv)
+    max_sv is max(sv)
+    min_sv is min(sv)
+    total_ipouts is sum(ipouts)
+    avg_ipouts is avg(ipouts)
+    max_ipouts is max(ipouts)
+    min_ipouts is min(ipouts)
+    total_ha is sum(ha)
+    avg_ha is avg(ha)
+    max_ha is max(ha)
+    min_ha is min(ha)
+    total_hra is sum(hra)
+    avg_hra is avg(hra)
+    max_hra is max(hra)
+    min_hra is min(hra)
+    total_bba is sum(bba)
+    avg_bba is avg(bba)
+    max_bba is max(bba)
+    min_bba is min(bba)
+    total_soa is sum(soa)
+    avg_soa is avg(soa)
+    max_soa is max(soa)
+    min_soa is min(soa)
+    total_e is sum(e)
+    avg_e is avg(e)
+    max_e is max(e)
+    min_e is min(e)
+    total_dp is sum(dp)
+    avg_dp is avg(dp)
+    max_dp is max(dp)
+    min_dp is min(dp)
+    total_fp is sum(fp)
+    avg_fp is avg(fp)
+    max_fp is max(fp)
+    min_fp is min(fp)
+    total_attendance is sum(attendance)
+    avg_attendance is avg(attendance)
+    max_attendance is max(attendance)
+    min_attendance is min(attendance)
+    total_bpf is sum(bpf)
+    avg_bpf is avg(bpf)
+    max_bpf is max(bpf)
+    min_bpf is min(bpf)
+    total_ppf is sum(ppf)
+    avg_ppf is avg(ppf)
+    max_ppf is max(ppf)
+    min_ppf is min(ppf)
+}
+
+// team_franchise
+source: team_franchise is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'team_franchise')
+""") extend {
+  measure:
+    row_count is count()
+}
+
+// team_half
+source: team_half is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'team_half')
+""") extend {
+  dimension:
+    year_val is `year`
+    rank_val is `rank`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_half is sum(half)
+    avg_half is avg(half)
+    max_half is max(half)
+    min_half is min(half)
+    total_rank_val is sum(`rank`)
+    avg_rank_val is avg(`rank`)
+    max_rank_val is max(`rank`)
+    min_rank_val is min(`rank`)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_w is sum(w)
+    avg_w is avg(w)
+    max_w is max(w)
+    min_w is min(w)
+    total_l is sum(l)
+    avg_l is avg(l)
+    max_l is max(l)
+    min_l is min(l)
+}
+
+// all_star
+source: all_star is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'all_star')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_game_num is sum(game_num)
+    avg_game_num is avg(game_num)
+    max_game_num is max(game_num)
+    min_game_num is min(game_num)
+    total_gp is sum(gp)
+    avg_gp is avg(gp)
+    max_gp is max(gp)
+    min_gp is min(gp)
+    total_starting_pos is sum(starting_pos)
+    avg_starting_pos is avg(starting_pos)
+    max_starting_pos is max(starting_pos)
+    min_starting_pos is min(starting_pos)
+}
+
+// manager_award
+source: manager_award is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'manager_award')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_notes is sum(notes)
+    avg_notes is avg(notes)
+    max_notes is max(notes)
+    min_notes is min(notes)
+}
+
+// player_award
+source: player_award is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'player_award')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}
+
+// player_award_vote
+source: player_award_vote is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'player_award_vote')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_points_won is sum(points_won)
+    avg_points_won is avg(points_won)
+    max_points_won is max(points_won)
+    min_points_won is min(points_won)
+    total_points_max is sum(points_max)
+    avg_points_max is avg(points_max)
+    max_points_max is max(points_max)
+    min_points_max is min(points_max)
+    total_votes_first is sum(votes_first)
+    avg_votes_first is avg(votes_first)
+    max_votes_first is max(votes_first)
+    min_votes_first is min(votes_first)
+}
+
+// batting
+source: batting is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'batting')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_stint is sum(stint)
+    avg_stint is avg(stint)
+    max_stint is max(stint)
+    min_stint is min(stint)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_ab is sum(ab)
+    avg_ab is avg(ab)
+    max_ab is max(ab)
+    min_ab is min(ab)
+    total_r is sum(r)
+    avg_r is avg(r)
+    max_r is max(r)
+    min_r is min(r)
+    total_h is sum(h)
+    avg_h is avg(h)
+    max_h is max(h)
+    min_h is min(h)
+    total_double is sum(double)
+    avg_double is avg(double)
+    max_double is max(double)
+    min_double is min(double)
+    total_triple is sum(triple)
+    avg_triple is avg(triple)
+    max_triple is max(triple)
+    min_triple is min(triple)
+    total_hr is sum(hr)
+    avg_hr is avg(hr)
+    max_hr is max(hr)
+    min_hr is min(hr)
+    total_rbi is sum(rbi)
+    avg_rbi is avg(rbi)
+    max_rbi is max(rbi)
+    min_rbi is min(rbi)
+    total_sb is sum(sb)
+    avg_sb is avg(sb)
+    max_sb is max(sb)
+    min_sb is min(sb)
+    total_cs is sum(cs)
+    avg_cs is avg(cs)
+    max_cs is max(cs)
+    min_cs is min(cs)
+    total_bb is sum(bb)
+    avg_bb is avg(bb)
+    max_bb is max(bb)
+    min_bb is min(bb)
+    total_so is sum(so)
+    avg_so is avg(so)
+    max_so is max(so)
+    min_so is min(so)
+    total_ibb is sum(ibb)
+    avg_ibb is avg(ibb)
+    max_ibb is max(ibb)
+    min_ibb is min(ibb)
+    total_hbp is sum(hbp)
+    avg_hbp is avg(hbp)
+    max_hbp is max(hbp)
+    min_hbp is min(hbp)
+    total_sh is sum(sh)
+    avg_sh is avg(sh)
+    max_sh is max(sh)
+    min_sh is min(sh)
+    total_sf is sum(sf)
+    avg_sf is avg(sf)
+    max_sf is max(sf)
+    min_sf is min(sf)
+    total_g_idp is sum(g_idp)
+    avg_g_idp is avg(g_idp)
+    max_g_idp is max(g_idp)
+    min_g_idp is min(g_idp)
+}
+
+// fielding
+source: fielding is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'fielding')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_stint is sum(stint)
+    avg_stint is avg(stint)
+    max_stint is max(stint)
+    min_stint is min(stint)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_gs is sum(gs)
+    avg_gs is avg(gs)
+    max_gs is max(gs)
+    min_gs is min(gs)
+    total_inn_outs is sum(inn_outs)
+    avg_inn_outs is avg(inn_outs)
+    max_inn_outs is max(inn_outs)
+    min_inn_outs is min(inn_outs)
+    total_po is sum(po)
+    avg_po is avg(po)
+    max_po is max(po)
+    min_po is min(po)
+    total_a is sum(a)
+    avg_a is avg(a)
+    max_a is max(a)
+    min_a is min(a)
+    total_e is sum(e)
+    avg_e is avg(e)
+    max_e is max(e)
+    min_e is min(e)
+    total_dp is sum(dp)
+    avg_dp is avg(dp)
+    max_dp is max(dp)
+    min_dp is min(dp)
+    total_pb is sum(pb)
+    avg_pb is avg(pb)
+    max_pb is max(pb)
+    min_pb is min(pb)
+    total_wp is sum(wp)
+    avg_wp is avg(wp)
+    max_wp is max(wp)
+    min_wp is min(wp)
+    total_sb is sum(sb)
+    avg_sb is avg(sb)
+    max_sb is max(sb)
+    min_sb is min(sb)
+    total_cs is sum(cs)
+    avg_cs is avg(cs)
+    max_cs is max(cs)
+    min_cs is min(cs)
+    total_zr is sum(zr)
+    avg_zr is avg(zr)
+    max_zr is max(zr)
+    min_zr is min(zr)
+}
+
+// fielding_outfield
+source: fielding_outfield is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'fielding_outfield')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_stint is sum(stint)
+    avg_stint is avg(stint)
+    max_stint is max(stint)
+    min_stint is min(stint)
+    total_glf is sum(glf)
+    avg_glf is avg(glf)
+    max_glf is max(glf)
+    min_glf is min(glf)
+    total_gcf is sum(gcf)
+    avg_gcf is avg(gcf)
+    max_gcf is max(gcf)
+    min_gcf is min(gcf)
+    total_grf is sum(grf)
+    avg_grf is avg(grf)
+    max_grf is max(grf)
+    min_grf is min(grf)
+}
+
+// fielding_postseason
+source: fielding_postseason is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'fielding_postseason')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+    round_val is `round`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_gs is sum(gs)
+    avg_gs is avg(gs)
+    max_gs is max(gs)
+    min_gs is min(gs)
+    total_inn_outs is sum(inn_outs)
+    avg_inn_outs is avg(inn_outs)
+    max_inn_outs is max(inn_outs)
+    min_inn_outs is min(inn_outs)
+    total_po is sum(po)
+    avg_po is avg(po)
+    max_po is max(po)
+    min_po is min(po)
+    total_a is sum(a)
+    avg_a is avg(a)
+    max_a is max(a)
+    min_a is min(a)
+    total_e is sum(e)
+    avg_e is avg(e)
+    max_e is max(e)
+    min_e is min(e)
+    total_dp is sum(dp)
+    avg_dp is avg(dp)
+    max_dp is max(dp)
+    min_dp is min(dp)
+    total_tp is sum(tp)
+    avg_tp is avg(tp)
+    max_tp is max(tp)
+    min_tp is min(tp)
+    total_pb is sum(pb)
+    avg_pb is avg(pb)
+    max_pb is max(pb)
+    min_pb is min(pb)
+    total_sb is sum(sb)
+    avg_sb is avg(sb)
+    max_sb is max(sb)
+    min_sb is min(sb)
+    total_cs is sum(cs)
+    avg_cs is avg(cs)
+    max_cs is max(cs)
+    min_cs is min(cs)
+}
+
+// hall_of_fame
+source: hall_of_fame is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'hall_of_fame')
+""") extend {
+  join_one: player on player_id = player.player_id
+
+  measure:
+    row_count is count()
+    total_yearid is sum(yearid)
+    avg_yearid is avg(yearid)
+    max_yearid is max(yearid)
+    min_yearid is min(yearid)
+    total_ballots is sum(ballots)
+    avg_ballots is avg(ballots)
+    max_ballots is max(ballots)
+    min_ballots is min(ballots)
+    total_needed is sum(needed)
+    avg_needed is avg(needed)
+    max_needed is max(needed)
+    min_needed is min(needed)
+    total_votes is sum(votes)
+    avg_votes is avg(votes)
+    max_votes is max(votes)
+    min_votes is min(votes)
+}
+
+// player_college
+source: player_college is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'player_college')
+""") extend {
+  join_one: college on college_id = college.college_id
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}
+
+// appearances
+source: appearances is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'appearances')
+""") extend {
+  join_one: player on player_id = player.player_id
+  join_one: team on team_id = team.team_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_g_all is sum(g_all)
+    avg_g_all is avg(g_all)
+    max_g_all is max(g_all)
+    min_g_all is min(g_all)
+    total_gs is sum(gs)
+    avg_gs is avg(gs)
+    max_gs is max(gs)
+    min_gs is min(gs)
+    total_g_batting is sum(g_batting)
+    avg_g_batting is avg(g_batting)
+    max_g_batting is max(g_batting)
+    min_g_batting is min(g_batting)
+    total_g_defense is sum(g_defense)
+    avg_g_defense is avg(g_defense)
+    max_g_defense is max(g_defense)
+    min_g_defense is min(g_defense)
+    total_g_p is sum(g_p)
+    avg_g_p is avg(g_p)
+    max_g_p is max(g_p)
+    min_g_p is min(g_p)
+    total_g_c is sum(g_c)
+    avg_g_c is avg(g_c)
+    max_g_c is max(g_c)
+    min_g_c is min(g_c)
+    total_g_1b is sum(g_1b)
+    avg_g_1b is avg(g_1b)
+    max_g_1b is max(g_1b)
+    min_g_1b is min(g_1b)
+    total_g_2b is sum(g_2b)
+    avg_g_2b is avg(g_2b)
+    max_g_2b is max(g_2b)
+    min_g_2b is min(g_2b)
+    total_g_3b is sum(g_3b)
+    avg_g_3b is avg(g_3b)
+    max_g_3b is max(g_3b)
+    min_g_3b is min(g_3b)
+    total_g_ss is sum(g_ss)
+    avg_g_ss is avg(g_ss)
+    max_g_ss is max(g_ss)
+    min_g_ss is min(g_ss)
+    total_g_lf is sum(g_lf)
+    avg_g_lf is avg(g_lf)
+    max_g_lf is max(g_lf)
+    min_g_lf is min(g_lf)
+    total_g_cf is sum(g_cf)
+    avg_g_cf is avg(g_cf)
+    max_g_cf is max(g_cf)
+    min_g_cf is min(g_cf)
+    total_g_rf is sum(g_rf)
+    avg_g_rf is avg(g_rf)
+    max_g_rf is max(g_rf)
+    min_g_rf is min(g_rf)
+    total_g_of is sum(g_of)
+    avg_g_of is avg(g_of)
+    max_g_of is max(g_of)
+    min_g_of is min(g_of)
+    total_g_dh is sum(g_dh)
+    avg_g_dh is avg(g_dh)
+    max_g_dh is max(g_dh)
+    min_g_dh is min(g_dh)
+    total_g_ph is sum(g_ph)
+    avg_g_ph is avg(g_ph)
+    max_g_ph is max(g_ph)
+    min_g_ph is min(g_ph)
+    total_g_pr is sum(g_pr)
+    avg_g_pr is avg(g_pr)
+    max_g_pr is max(g_pr)
+    min_g_pr is min(g_pr)
+}
+
+// batting_postseason
+source: batting_postseason is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'batting_postseason')
+""") extend {
+  join_one: team on team_id = team.team_id
+  join_one: player on player_id = player.player_id
+
+  dimension:
+    year_val is `year`
+    round_val is `round`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_ab is sum(ab)
+    avg_ab is avg(ab)
+    max_ab is max(ab)
+    min_ab is min(ab)
+    total_r is sum(r)
+    avg_r is avg(r)
+    max_r is max(r)
+    min_r is min(r)
+    total_h is sum(h)
+    avg_h is avg(h)
+    max_h is max(h)
+    min_h is min(h)
+    total_double is sum(double)
+    avg_double is avg(double)
+    max_double is max(double)
+    min_double is min(double)
+    total_triple is sum(triple)
+    avg_triple is avg(triple)
+    max_triple is max(triple)
+    min_triple is min(triple)
+    total_hr is sum(hr)
+    avg_hr is avg(hr)
+    max_hr is max(hr)
+    min_hr is min(hr)
+    total_rbi is sum(rbi)
+    avg_rbi is avg(rbi)
+    max_rbi is max(rbi)
+    min_rbi is min(rbi)
+    total_sb is sum(sb)
+    avg_sb is avg(sb)
+    max_sb is max(sb)
+    min_sb is min(sb)
+    total_cs is sum(cs)
+    avg_cs is avg(cs)
+    max_cs is max(cs)
+    min_cs is min(cs)
+    total_bb is sum(bb)
+    avg_bb is avg(bb)
+    max_bb is max(bb)
+    min_bb is min(bb)
+    total_so is sum(so)
+    avg_so is avg(so)
+    max_so is max(so)
+    min_so is min(so)
+    total_ibb is sum(ibb)
+    avg_ibb is avg(ibb)
+    max_ibb is max(ibb)
+    min_ibb is min(ibb)
+    total_hbp is sum(hbp)
+    avg_hbp is avg(hbp)
+    max_hbp is max(hbp)
+    min_hbp is min(hbp)
+    total_sh is sum(sh)
+    avg_sh is avg(sh)
+    max_sh is max(sh)
+    min_sh is min(sh)
+    total_sf is sum(sf)
+    avg_sf is avg(sf)
+    max_sf is max(sf)
+    min_sf is min(sf)
+    total_g_idp is sum(g_idp)
+    avg_g_idp is avg(g_idp)
+    max_g_idp is max(g_idp)
+    min_g_idp is min(g_idp)
+}
+
+// home_game
+source: home_game is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'home_game')
+""") extend {
+  join_one: park on park_id = park.park_id
+  join_one: team on team_id = team.team_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_games is sum(games)
+    avg_games is avg(games)
+    max_games is max(games)
+    min_games is min(games)
+    total_openings is sum(openings)
+    avg_openings is avg(openings)
+    max_openings is max(openings)
+    min_openings is min(openings)
+    total_attendance is sum(attendance)
+    avg_attendance is avg(attendance)
+    max_attendance is max(attendance)
+    min_attendance is min(attendance)
+}
+
+// manager
+source: manager is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'manager')
+""") extend {
+  join_one: team on team_id = team.team_id
+
+  dimension:
+    year_val is `year`
+    rank_val is `rank`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_inseason is sum(inseason)
+    avg_inseason is avg(inseason)
+    max_inseason is max(inseason)
+    min_inseason is min(inseason)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_w is sum(w)
+    avg_w is avg(w)
+    max_w is max(w)
+    min_w is min(w)
+    total_l is sum(l)
+    avg_l is avg(l)
+    max_l is max(l)
+    min_l is min(l)
+    total_rank_val is sum(`rank`)
+    avg_rank_val is avg(`rank`)
+    max_rank_val is max(`rank`)
+    min_rank_val is min(`rank`)
+}
+
+// manager_half
+source: manager_half is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite', 'manager_half')
+""") extend {
+  join_one: team on team_id = team.team_id
+
+  dimension:
+    year_val is `year`
+    rank_val is `rank`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+    total_inseason is sum(inseason)
+    avg_inseason is avg(inseason)
+    max_inseason is max(inseason)
+    min_inseason is min(inseason)
+    total_half is sum(half)
+    avg_half is avg(half)
+    max_half is max(half)
+    min_half is min(half)
+    total_g is sum(g)
+    avg_g is avg(g)
+    max_g is max(g)
+    min_g is min(g)
+    total_w is sum(w)
+    avg_w is avg(w)
+    max_w is max(w)
+    min_w is min(w)
+    total_l is sum(l)
+    avg_l is avg(l)
+    max_l is max(l)
+    min_l is min(l)
+    total_rank_val is sum(`rank`)
+    avg_rank_val is avg(`rank`)
+    max_rank_val is max(`rank`)
+    min_rank_val is min(`rank`)
+}

@@ -1,0 +1,44 @@
+// Malloy semantic layer for: culture_company
+// Auto-generated from 38 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: book_club is duckdb.table('book_club') extend {
+  dimension:
+    author_or_editor is Author_or_Editor
+    book_club_id is book_club_id
+    book_title is Book_Title
+    category is Category
+    publisher is Publisher
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: culture_company is duckdb.table('culture_company') extend {
+  dimension:
+    book_club_id is book_club_id
+    company_name is Company_name
+    incorporated_in is Incorporated_in
+    movie_id is movie_id
+  measure:
+    row_count is count()
+}
+
+source: movie is duckdb.table('movie') extend {
+  dimension:
+    budget_million is Budget_million
+    director is Director
+    gross_worldwide is Gross_worldwide
+    movie_id is movie_id
+    title is Title
+    year is Year
+  measure:
+    row_count is count()
+    avg_budget_million is avg(budget_million)
+    min_budget_million is min(budget_million)
+    max_budget_million is max(budget_million)
+    count_director is count(director)
+}

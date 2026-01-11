@@ -1,0 +1,43 @@
+// Malloy semantic layer for: storm_record
+// Auto-generated from 44 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: affected_region is duckdb.table('affected_region') extend {
+  dimension:
+    number_city_affected is Number_city_affected
+    region_id is Region_id
+    storm_id is Storm_ID
+  measure:
+    row_count is count()
+    sum_number_city_affected is sum(number_city_affected)
+    count_region_id is count(region_id)
+}
+
+source: region is duckdb.table('region') extend {
+  dimension:
+    region_code is Region_code
+    region_id is Region_id
+    region_name is Region_name
+  measure:
+    row_count is count()
+}
+
+source: storm is duckdb.table('storm') extend {
+  dimension:
+    damage_millions_usd is Damage_millions_USD
+    dates_active is Dates_active
+    max_speed is Max_speed
+    name is Name
+    number_deaths is Number_Deaths
+    storm_id is Storm_ID
+  measure:
+    row_count is count()
+    sum_damage_millions_usd is sum(damage_millions_usd)
+    sum_number_deaths is sum(number_deaths)
+    avg_damage_millions_usd is avg(damage_millions_usd)
+    avg_max_speed is avg(max_speed)
+    max_damage_millions_usd is max(damage_millions_usd)
+}

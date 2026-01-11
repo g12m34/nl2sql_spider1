@@ -1,0 +1,37 @@
+// Malloy semantic layer for: entertainment_awards
+// Auto-generated from 22 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: artwork is duckdb.table('artwork') extend {
+  dimension:
+    artwork_id is Artwork_ID
+    name is Name
+    type is Type
+  measure:
+    row_count is count()
+}
+
+source: festival_detail is duckdb.table('festival_detail') extend {
+  dimension:
+    chair_name is Chair_Name
+    festival_id is Festival_ID
+    festival_name is Festival_Name
+    location is Location
+    num_of_audience is Num_of_Audience
+    year is Year
+  measure:
+    row_count is count()
+    sum_num_of_audience is sum(num_of_audience)
+    avg_num_of_audience is avg(num_of_audience)
+}
+
+source: nomination is duckdb.table('nomination') extend {
+  dimension:
+    artwork_id is Artwork_ID
+    festival_id is Festival_ID
+  measure:
+    row_count is count()
+}

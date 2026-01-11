@@ -1,0 +1,35 @@
+// Malloy semantic layer for: performance_attendance
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: member is duckdb.table('member') extend {
+  dimension:
+    member_id is Member_ID
+    name is Name
+    role is Role
+  measure:
+    row_count is count()
+}
+
+source: member_attendance is duckdb.table('member_attendance') extend {
+  dimension:
+    member_id is Member_ID
+    performance_id is Performance_ID
+  measure:
+    row_count is count()
+}
+
+source: performance is duckdb.table('performance') extend {
+  dimension:
+    attendance is Attendance
+    date is Date
+    host is Host
+    location is Location
+    performance_id is Performance_ID
+  measure:
+    row_count is count()
+    avg_attendance is avg(attendance)
+}

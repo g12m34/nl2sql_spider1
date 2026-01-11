@@ -1,0 +1,36 @@
+{
+  "db_id": "climbing",
+  "query_count": 40,
+  "tables_used": [
+    "climber",
+    "mountain"
+  ],
+  "dimensions": {
+    "climber": [
+      "country",
+      "mountain_id",
+      "name",
+      "points",
+      "time"
+    ],
+    "mountain": [
+      "country",
+      "height",
+      "mountain_id",
+      "name",
+      "prominence",
+      "range"
+    ]
+  },
+  "measures": {
+    "climber": {
+      "max": [
+        "points"
+      ],
+      "count": [
+        "country"
+      ]
+    }
+  },
+  "joins": []
+}

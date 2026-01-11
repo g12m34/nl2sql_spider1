@@ -1,0 +1,30 @@
+// Malloy semantic layer for: gymnast
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: gymnast is duckdb.table('gymnast') extend {
+  dimension:
+    floor_exercise_points is Floor_Exercise_Points
+    gymnast_id is Gymnast_ID
+    horizontal_bar_points is Horizontal_Bar_Points
+    total_points is Total_Points
+  measure:
+    row_count is count()
+    avg_horizontal_bar_points is avg(horizontal_bar_points)
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    age is Age
+    height is Height
+    hometown is Hometown
+    name is Name
+    people_id is People_ID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    count_hometown is count(hometown)
+}

@@ -1,0 +1,44 @@
+// Malloy semantic layer for: company_1
+// Auto-generated from 7 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: department is duckdb.table('department') extend {
+  dimension:
+    dname is Dname
+    dnumber is Dnumber
+    mgr_start_date is Mgr_start_date
+  measure:
+    row_count is count()
+}
+
+source: dependent is duckdb.table('dependent') extend {
+  dimension:
+    dependent_name is Dependent_name
+    relationship is Relationship
+    sex is Sex
+  measure:
+    row_count is count()
+}
+
+source: dept_locations is duckdb.table('dept_locations') extend {
+  dimension:
+    dlocation is Dlocation
+    dnumber is Dnumber
+  measure:
+    row_count is count()
+}
+
+source: employee is duckdb.table('employee') extend {
+  dimension:
+    address is Address
+    bdate is Bdate
+    fname is Fname
+    lname is Lname
+    salary is Salary
+    sex is Sex
+  measure:
+    row_count is count()
+}

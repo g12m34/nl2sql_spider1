@@ -1,0 +1,70 @@
+// Malloy semantic layer for: e_learning
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: course_authors_and_tutors is duckdb.table('Course_Authors_and_Tutors') extend {
+  dimension:
+    address_line_1 is address_line_1
+    author_id is author_id
+    family_name is family_name
+    login_name is login_name
+    personal_name is personal_name
+  measure:
+    row_count is count()
+}
+
+source: courses is duckdb.table('Courses') extend {
+  dimension:
+    author_id is author_id
+    course_description is course_description
+    course_id is course_id
+    course_name is course_name
+    subject_id is subject_id
+  measure:
+    row_count is count()
+}
+
+source: student_course_enrolment is duckdb.table('Student_Course_Enrolment') extend {
+  dimension:
+    course_id is course_id
+    date_of_completion is date_of_completion
+    date_of_enrolment is date_of_enrolment
+    registration_id is registration_id
+    student_id is student_id
+  measure:
+    row_count is count()
+    count_course_id is count(course_id)
+    count_student_id is count(student_id)
+}
+
+source: student_tests_taken is duckdb.table('Student_Tests_Taken') extend {
+  dimension:
+    date_test_taken is date_test_taken
+    registration_id is registration_id
+    test_result is test_result
+  measure:
+    row_count is count()
+}
+
+source: students is duckdb.table('Students') extend {
+  dimension:
+    date_of_latest_logon is date_of_latest_logon
+    family_name is family_name
+    login_name is login_name
+    middle_name is middle_name
+    personal_name is personal_name
+    student_id is student_id
+  measure:
+    row_count is count()
+}
+
+source: subjects is duckdb.table('Subjects') extend {
+  dimension:
+    subject_id is subject_id
+    subject_name is subject_name
+  measure:
+    row_count is count()
+}

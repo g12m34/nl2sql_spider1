@@ -1,0 +1,39 @@
+// Malloy semantic layer for: device
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: device is duckdb.table('device') extend {
+  dimension:
+    carrier is Carrier
+    device is Device
+    device_id is Device_ID
+    software_platform is Software_Platform
+  measure:
+    row_count is count()
+    count_software_platform is count(software_platform)
+}
+
+source: shop is duckdb.table('shop') extend {
+  dimension:
+    location is Location
+    open_date is Open_Date
+    open_year is Open_Year
+    shop_id is Shop_ID
+    shop_name is Shop_Name
+  measure:
+    row_count is count()
+}
+
+source: stock is duckdb.table('stock') extend {
+  dimension:
+    device_id is Device_ID
+    quantity is Quantity
+    shop_id is Shop_ID
+  measure:
+    row_count is count()
+    sum_quantity is sum(quantity)
+    avg_quantity is avg(quantity)
+}

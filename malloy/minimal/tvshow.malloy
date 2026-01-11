@@ -1,0 +1,50 @@
+// Malloy semantic layer for: tvshow
+// Auto-generated from 62 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: cartoon is duckdb.table('Cartoon') extend {
+  dimension:
+    channel is Channel
+    directed_by is Directed_by
+    id is id
+    original_air_date is Original_air_date
+    production_code is Production_code
+    title is Title
+    written_by is Written_by
+  measure:
+    row_count is count()
+}
+
+source: tv_channel is duckdb.table('TV_Channel') extend {
+  dimension:
+    content is Content
+    country is Country
+    hight_definition_tv is Hight_definition_TV
+    id is id
+    language is Language
+    package_option is Package_Option
+    pixel_aspect_ratio_par is Pixel_aspect_ratio_PAR
+    series_name is series_name
+  measure:
+    row_count is count()
+    count_content is count(content)
+    count_series_name is count(series_name)
+}
+
+source: tv_series is duckdb.table('TV_series') extend {
+  dimension:
+    air_date is Air_Date
+    channel is Channel
+    episode is Episode
+    id is id
+    rating is Rating
+    share is Share
+    weekly_rank is Weekly_Rank
+  measure:
+    row_count is count()
+    min_share is min(share)
+    max_share is max(share)
+}

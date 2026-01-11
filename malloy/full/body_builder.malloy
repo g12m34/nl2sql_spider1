@@ -1,0 +1,65 @@
+// Malloy semantic layer for: body_builder
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/body_builder/body_builder.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/body_builder/body_builder.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+    total_weight is sum(Weight)
+    avg_weight is avg(Weight)
+    max_weight is max(Weight)
+    min_weight is min(Weight)
+}
+
+// body_builder
+source: body_builder is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/body_builder/body_builder.sqlite', 'body_builder')
+""") extend {
+  primary_key: Body_Builder_ID
+
+  join_one: people_val on People_ID = people_val.People_ID
+
+  dimension:
+    body_builder_i_d is Body_Builder_ID
+    people_i_d is People_ID
+
+  measure:
+    row_count is count()
+    total_body_builder_i_d is sum(Body_Builder_ID)
+    avg_body_builder_i_d is avg(Body_Builder_ID)
+    max_body_builder_i_d is max(Body_Builder_ID)
+    min_body_builder_i_d is min(Body_Builder_ID)
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_snatch is sum(Snatch)
+    avg_snatch is avg(Snatch)
+    max_snatch is max(Snatch)
+    min_snatch is min(Snatch)
+    total_clean_jerk is sum(Clean_Jerk)
+    avg_clean_jerk is avg(Clean_Jerk)
+    max_clean_jerk is max(Clean_Jerk)
+    min_clean_jerk is min(Clean_Jerk)
+    total_total is sum(Total)
+    avg_total is avg(Total)
+    max_total is max(Total)
+    min_total is min(Total)
+}

@@ -1,0 +1,146 @@
+// Malloy semantic layer for: cre_Drama_Workshop_Groups
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 14
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is Address_ID
+    city_town is City_Town
+    state_county is State_County
+  measure:
+    row_count is count()
+}
+
+source: bookings is duckdb.table('Bookings') extend {
+  dimension:
+    actual_delivery_date is Actual_Delivery_Date
+    customer_id is Customer_ID
+    order_date is Order_Date
+    planned_delivery_date is Planned_Delivery_Date
+    status_code is Status_Code
+    workshop_group_id is Workshop_Group_ID
+  measure:
+    row_count is count()
+}
+
+source: clients is duckdb.table('Clients') extend {
+  dimension:
+    client_id is Client_ID
+    customer_name is Customer_Name
+  measure:
+    row_count is count()
+}
+
+source: customer_orders is duckdb.table('Customer_Orders') extend {
+  dimension:
+    actual_delivery_date is Actual_Delivery_Date
+    order_date is Order_Date
+    order_id is Order_ID
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    address_id is Address_ID
+    customer_email_address is Customer_Email_Address
+    customer_name is Customer_Name
+    customer_phone is Customer_Phone
+  measure:
+    row_count is count()
+}
+
+source: drama_workshop_groups is duckdb.table('Drama_Workshop_Groups') extend {
+  dimension:
+    address_id is Address_ID
+    currency_code is Currency_Code
+    marketing_region_code is Marketing_Region_Code
+    store_email_address is Store_Email_Address
+    store_name is Store_Name
+    store_phone is Store_Phone
+    workshop_group_id is Workshop_Group_ID
+  measure:
+    row_count is count()
+    count_currency_code is count(currency_code)
+}
+
+source: invoices is duckdb.table('Invoices') extend {
+  dimension:
+    order_quantity is Order_Quantity
+    payment_method_code is payment_method_code
+    product_id is Product_ID
+  measure:
+    row_count is count()
+    avg_order_quantity is avg(order_quantity)
+    min_order_quantity is min(order_quantity)
+    max_order_quantity is max(order_quantity)
+}
+
+source: marketing_regions is duckdb.table('Marketing_Regions') extend {
+  dimension:
+    marketing_region_code is Marketing_Region_Code
+    marketing_region_descriptrion is Marketing_Region_Descriptrion
+    marketing_region_name is Marketing_Region_Name
+  measure:
+    row_count is count()
+}
+
+source: order_items is duckdb.table('Order_Items') extend {
+  dimension:
+    order_id is Order_ID
+    order_quantity is Order_Quantity
+    other_item_details is Other_Item_Details
+    product_id is Product_ID
+  measure:
+    row_count is count()
+    sum_order_quantity is sum(order_quantity)
+}
+
+source: performers is duckdb.table('Performers') extend {
+  dimension:
+    address_id is Address_ID
+    customer_name is Customer_Name
+    customer_phone is Customer_Phone
+  measure:
+    row_count is count()
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_id is Product_ID
+    product_name is Product_Name
+    product_price is Product_Price
+  measure:
+    row_count is count()
+    avg_product_price is avg(product_price)
+}
+
+source: ref_service_types is duckdb.table('Ref_Service_Types') extend {
+  dimension:
+    service_type_code is Service_Type_Code
+    service_type_description is Service_Type_Description
+  measure:
+    row_count is count()
+}
+
+source: services is duckdb.table('Services') extend {
+  dimension:
+    product_name is Product_Name
+    product_price is Product_Price
+    service_type_code is Service_Type_Code
+    workshop_group_id is Workshop_Group_ID
+  measure:
+    row_count is count()
+}
+
+source: stores is duckdb.table('Stores') extend {
+  dimension:
+    address_id is Address_ID
+    marketing_region_code is Marketing_Region_Code
+    store_name is Store_Name
+  measure:
+    row_count is count()
+}

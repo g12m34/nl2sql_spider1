@@ -1,0 +1,70 @@
+// Malloy semantic layer for: local_govt_mdm
+// Auto-generated from 14 ground-truth SQL queries
+// Tables used: 8
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: benefits_overpayments is duckdb.table('Benefits_Overpayments') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+    council_tax_id is council_tax_id
+  measure:
+    row_count is count()
+}
+
+source: business_rates is duckdb.table('Business_Rates') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+  measure:
+    row_count is count()
+}
+
+source: cmi_cross_references is duckdb.table('CMI_Cross_References') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+    master_customer_id is master_customer_id
+    source_system_code is source_system_code
+  measure:
+    row_count is count()
+    count_source_system_code is count(source_system_code)
+}
+
+source: council_tax is duckdb.table('Council_Tax') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+  measure:
+    row_count is count()
+}
+
+source: customer_master_index is duckdb.table('Customer_Master_Index') extend {
+  dimension:
+    cmi_details is cmi_details
+    master_customer_id is master_customer_id
+  measure:
+    row_count is count()
+}
+
+source: electoral_register is duckdb.table('Electoral_Register') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+    electoral_register_id is electoral_register_id
+  measure:
+    row_count is count()
+}
+
+source: parking_fines is duckdb.table('Parking_Fines') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+    council_tax_id is council_tax_id
+  measure:
+    row_count is count()
+}
+
+source: rent_arrears is duckdb.table('Rent_Arrears') extend {
+  dimension:
+    cmi_cross_ref_id is cmi_cross_ref_id
+    council_tax_id is council_tax_id
+  measure:
+    row_count is count()
+}

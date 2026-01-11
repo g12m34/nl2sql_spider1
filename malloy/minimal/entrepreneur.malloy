@@ -1,0 +1,30 @@
+// Malloy semantic layer for: entrepreneur
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: entrepreneur is duckdb.table('entrepreneur') extend {
+  dimension:
+    company is Company
+    investor is Investor
+    money_requested is Money_Requested
+    people_id is People_ID
+  measure:
+    row_count is count()
+    sum_money_requested is sum(money_requested)
+    avg_money_requested is avg(money_requested)
+    count_company is count(company)
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    date_of_birth is Date_of_Birth
+    height is Height
+    name is Name
+    people_id is People_ID
+    weight is Weight
+  measure:
+    row_count is count()
+}

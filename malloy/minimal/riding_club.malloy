@@ -1,0 +1,56 @@
+// Malloy semantic layer for: riding_club
+// Auto-generated from 17 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: club is duckdb.table('club') extend {
+  dimension:
+    club_id is Club_ID
+    club_name is Club_name
+  measure:
+    row_count is count()
+}
+
+source: coach is duckdb.table('coach') extend {
+  dimension:
+    club_id is Club_ID
+    coach_id is Coach_ID
+    coach_name is Coach_name
+    gender is Gender
+    rank is Rank
+  measure:
+    row_count is count()
+}
+
+source: match_result is duckdb.table('match_result') extend {
+  dimension:
+    club_id is Club_ID
+    gold is Gold
+  measure:
+    row_count is count()
+}
+
+source: player is duckdb.table('player') extend {
+  dimension:
+    gender is Gender
+    occupation is Occupation
+    player_id is Player_ID
+    player_name is Player_name
+    rank is Rank
+    residence is Residence
+    sponsor_name is Sponsor_name
+    votes is Votes
+  measure:
+    row_count is count()
+}
+
+source: player_coach is duckdb.table('player_coach') extend {
+  dimension:
+    coach_id is Coach_ID
+    player_id is Player_ID
+    starting_year is Starting_year
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,60 @@
+// Malloy semantic layer for: small_bank_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite
+
+// ACCOUNTS
+source: a_c_c_o_u_n_t_s is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'ACCOUNTS')
+""") extend {
+  primary_key: custid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_custid is sum(custid)
+    avg_custid is avg(custid)
+    max_custid is max(custid)
+    min_custid is min(custid)
+}
+
+// SAVINGS
+source: s_a_v_i_n_g_s is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'SAVINGS')
+""") extend {
+  primary_key: custid
+
+  join_one: a_c_c_o_u_n_t_s on custid = a_c_c_o_u_n_t_s.custid
+
+  measure:
+    row_count is count()
+    total_custid is sum(custid)
+    avg_custid is avg(custid)
+    max_custid is max(custid)
+    min_custid is min(custid)
+    total_balance is sum(balance)
+    avg_balance is avg(balance)
+    max_balance is max(balance)
+    min_balance is min(balance)
+}
+
+// CHECKING
+source: c_h_e_c_k_i_n_g is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'CHECKING')
+""") extend {
+  primary_key: custid
+
+  join_one: a_c_c_o_u_n_t_s on custid = a_c_c_o_u_n_t_s.custid
+
+  measure:
+    row_count is count()
+    total_custid is sum(custid)
+    avg_custid is avg(custid)
+    max_custid is max(custid)
+    min_custid is min(custid)
+    total_balance is sum(balance)
+    avg_balance is avg(balance)
+    max_balance is max(balance)
+    min_balance is min(balance)
+}

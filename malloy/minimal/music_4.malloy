@@ -1,0 +1,44 @@
+// Malloy semantic layer for: music_4
+// Auto-generated from 60 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: artist is duckdb.table('artist') extend {
+  dimension:
+    age is Age
+    artist is Artist
+    artist_id is Artist_ID
+    famous_release_date is Famous_Release_date
+    famous_title is Famous_Title
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+}
+
+source: music_festival is duckdb.table('music_festival') extend {
+  dimension:
+    category is Category
+    date_of_ceremony is Date_of_ceremony
+    music_festival is Music_Festival
+    result is Result
+    volume is Volume
+  measure:
+    row_count is count()
+}
+
+source: volume is duckdb.table('volume') extend {
+  dimension:
+    artist_id is Artist_ID
+    issue_date is Issue_Date
+    song is Song
+    volume_id is Volume_ID
+    weeks_on_top is Weeks_on_Top
+  measure:
+    row_count is count()
+    avg_weeks_on_top is avg(weeks_on_top)
+    min_weeks_on_top is min(weeks_on_top)
+    max_weeks_on_top is max(weeks_on_top)
+    count_artist_id is count(artist_id)
+}

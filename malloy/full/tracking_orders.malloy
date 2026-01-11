@@ -1,0 +1,134 @@
+// Malloy semantic layer for: tracking_orders
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Invoices
+source: invoices is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Invoices')
+""") extend {
+  primary_key: invoice_number
+
+  measure:
+    row_count is count()
+    total_invoice_number is sum(invoice_number)
+    avg_invoice_number is avg(invoice_number)
+    max_invoice_number is max(invoice_number)
+    min_invoice_number is min(invoice_number)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Orders
+source: orders is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Orders')
+""") extend {
+  primary_key: order_id
+
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Order_Items
+source: order_items is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Order_Items')
+""") extend {
+  primary_key: order_item_id
+
+  join_one: products on product_id = products.product_id
+  join_one: orders on order_id = orders.order_id
+
+  measure:
+    row_count is count()
+    total_order_item_id is sum(order_item_id)
+    avg_order_item_id is avg(order_item_id)
+    max_order_item_id is max(order_item_id)
+    min_order_item_id is min(order_item_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+}
+
+// Shipments
+source: shipments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Shipments')
+""") extend {
+  primary_key: shipment_id
+
+  join_one: invoices on invoice_number = invoices.invoice_number
+  join_one: orders on order_id = orders.order_id
+
+  measure:
+    row_count is count()
+    total_shipment_id is sum(shipment_id)
+    avg_shipment_id is avg(shipment_id)
+    max_shipment_id is max(shipment_id)
+    min_shipment_id is min(shipment_id)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_invoice_number is sum(invoice_number)
+    avg_invoice_number is avg(invoice_number)
+    max_invoice_number is max(invoice_number)
+    min_invoice_number is min(invoice_number)
+}
+
+// Shipment_Items
+source: shipment_items is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Shipment_Items')
+""") extend {
+  join_one: shipments on shipment_id = shipments.shipment_id
+  join_one: order_items on order_item_id = order_items.order_item_id
+
+  measure:
+    row_count is count()
+    total_shipment_id is sum(shipment_id)
+    avg_shipment_id is avg(shipment_id)
+    max_shipment_id is max(shipment_id)
+    min_shipment_id is min(shipment_id)
+    total_order_item_id is sum(order_item_id)
+    avg_order_item_id is avg(order_item_id)
+    max_order_item_id is max(order_item_id)
+    min_order_item_id is min(order_item_id)
+}

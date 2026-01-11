@@ -1,0 +1,41 @@
+// Malloy semantic layer for: railway
+// Auto-generated from 21 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: manager is duckdb.table('manager') extend {
+  dimension:
+    age is Age
+    country is Country
+    level is Level
+    name is Name
+    working_year_starts is Working_year_starts
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    max_level is max(level)
+}
+
+source: railway is duckdb.table('railway') extend {
+  dimension:
+    builder is Builder
+    location is Location
+    objectnumber is ObjectNumber
+    railway is Railway
+    railway_id is Railway_ID
+    wheels is Wheels
+  measure:
+    row_count is count()
+}
+
+source: train is duckdb.table('train') extend {
+  dimension:
+    arrival is Arrival
+    from is From
+    name is Name
+    railway_id is Railway_ID
+  measure:
+    row_count is count()
+}

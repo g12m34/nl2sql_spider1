@@ -1,0 +1,70 @@
+// Malloy semantic layer for: device
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/device/device.sqlite
+
+// device
+source: device is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/device/device.sqlite', 'device')
+""") extend {
+  primary_key: Device_ID
+
+  dimension:
+    device_i_d is Device_ID
+
+  measure:
+    row_count is count()
+    total_device_i_d is sum(Device_ID)
+    avg_device_i_d is avg(Device_ID)
+    max_device_i_d is max(Device_ID)
+    min_device_i_d is min(Device_ID)
+}
+
+// shop
+source: shop is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/device/device.sqlite', 'shop')
+""") extend {
+  primary_key: Shop_ID
+
+  dimension:
+    shop_i_d is Shop_ID
+
+  measure:
+    row_count is count()
+    total_shop_i_d is sum(Shop_ID)
+    avg_shop_i_d is avg(Shop_ID)
+    max_shop_i_d is max(Shop_ID)
+    min_shop_i_d is min(Shop_ID)
+    total_open_year is sum(Open_Year)
+    avg_open_year is avg(Open_Year)
+    max_open_year is max(Open_Year)
+    min_open_year is min(Open_Year)
+}
+
+// stock
+source: stock is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/device/device.sqlite', 'stock')
+""") extend {
+  primary_key: Shop_ID
+
+  join_one: device on Device_ID = device.Device_ID
+  join_one: shop on Shop_ID = shop.Shop_ID
+
+  dimension:
+    shop_i_d is Shop_ID
+    device_i_d is Device_ID
+
+  measure:
+    row_count is count()
+    total_shop_i_d is sum(Shop_ID)
+    avg_shop_i_d is avg(Shop_ID)
+    max_shop_i_d is max(Shop_ID)
+    min_shop_i_d is min(Shop_ID)
+    total_device_i_d is sum(Device_ID)
+    avg_device_i_d is avg(Device_ID)
+    max_device_i_d is max(Device_ID)
+    min_device_i_d is min(Device_ID)
+    total_quantity is sum(Quantity)
+    avg_quantity is avg(Quantity)
+    max_quantity is max(Quantity)
+    min_quantity is min(Quantity)
+}

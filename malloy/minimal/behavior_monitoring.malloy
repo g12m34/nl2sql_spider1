@@ -1,0 +1,109 @@
+// Malloy semantic layer for: behavior_monitoring
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 10
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_id is address_id
+    city is city
+    line_1 is line_1
+    state_province_county is state_province_county
+    zip_postcode is zip_postcode
+  measure:
+    row_count is count()
+}
+
+source: assessment_notes is duckdb.table('Assessment_Notes') extend {
+  dimension:
+    date_of_notes is date_of_notes
+    student_id is student_id
+    teacher_id is teacher_id
+    text_of_notes is text_of_notes
+  measure:
+    row_count is count()
+}
+
+source: behavior_incident is duckdb.table('Behavior_Incident') extend {
+  dimension:
+    date_incident_end is date_incident_end
+    date_incident_start is date_incident_start
+    incident_type_code is incident_type_code
+    student_id is student_id
+  measure:
+    row_count is count()
+    count_incident_type_code is count(incident_type_code)
+}
+
+source: detention is duckdb.table('Detention') extend {
+  dimension:
+    datetime_detention_end is datetime_detention_end
+    datetime_detention_start is datetime_detention_start
+    detention_summary is detention_summary
+    detention_type_code is detention_type_code
+    teacher_id is teacher_id
+  measure:
+    row_count is count()
+}
+
+source: ref_detention_type is duckdb.table('Ref_Detention_Type') extend {
+  dimension:
+    detention_type_code is detention_type_code
+    detention_type_description is detention_type_description
+  measure:
+    row_count is count()
+}
+
+source: ref_incident_type is duckdb.table('Ref_Incident_Type') extend {
+  dimension:
+    incident_type_code is incident_type_code
+    incident_type_description is incident_type_description
+  measure:
+    row_count is count()
+}
+
+source: student_addresses is duckdb.table('Student_Addresses') extend {
+  dimension:
+    address_id is address_id
+    monthly_rental is monthly_rental
+    student_id is student_id
+  measure:
+    row_count is count()
+    avg_monthly_rental is avg(monthly_rental)
+    min_monthly_rental is min(monthly_rental)
+    max_monthly_rental is max(monthly_rental)
+}
+
+source: students is duckdb.table('Students') extend {
+  dimension:
+    address_id is address_id
+    cell_mobile_number is cell_mobile_number
+    email_address is email_address
+    first_name is first_name
+    last_name is last_name
+    student_id is student_id
+  measure:
+    row_count is count()
+}
+
+source: students_in_detention is duckdb.table('Students_in_Detention') extend {
+  dimension:
+    student_id is student_id
+  measure:
+    row_count is count()
+    count_student_id is count(student_id)
+}
+
+source: teachers is duckdb.table('Teachers') extend {
+  dimension:
+    address_id is address_id
+    email_address is email_address
+    first_name is first_name
+    gender is gender
+    last_name is last_name
+    teacher_id is teacher_id
+  measure:
+    row_count is count()
+}

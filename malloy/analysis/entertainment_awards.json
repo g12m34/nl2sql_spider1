@@ -1,0 +1,39 @@
+{
+  "db_id": "entertainment_awards",
+  "query_count": 22,
+  "tables_used": [
+    "artwork",
+    "festival_detail",
+    "nomination"
+  ],
+  "dimensions": {
+    "artwork": [
+      "artwork_id",
+      "name",
+      "type"
+    ],
+    "festival_detail": [
+      "chair_name",
+      "festival_id",
+      "festival_name",
+      "location",
+      "num_of_audience",
+      "year"
+    ],
+    "nomination": [
+      "artwork_id",
+      "festival_id"
+    ]
+  },
+  "measures": {
+    "festival_detail": {
+      "avg": [
+        "num_of_audience"
+      ],
+      "sum": [
+        "num_of_audience"
+      ]
+    }
+  },
+  "joins": []
+}

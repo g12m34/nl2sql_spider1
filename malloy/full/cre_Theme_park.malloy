@@ -1,0 +1,320 @@
+// Malloy semantic layer for: cre_Theme_park
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite
+
+// Ref_Hotel_Star_Ratings
+source: ref_hotel_star_ratings is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Ref_Hotel_Star_Ratings')
+""") extend {
+  primary_key: star_rating_code
+
+  measure:
+    row_count is count()
+}
+
+// Locations
+source: locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Locations')
+""") extend {
+  primary_key: Location_ID
+
+  dimension:
+    location_i_d is Location_ID
+
+  measure:
+    row_count is count()
+    total_location_i_d is sum(Location_ID)
+    avg_location_i_d is avg(Location_ID)
+    max_location_i_d is max(Location_ID)
+    min_location_i_d is min(Location_ID)
+}
+
+// Ref_Attraction_Types
+source: ref_attraction_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Ref_Attraction_Types')
+""") extend {
+  primary_key: Attraction_Type_Code
+
+  measure:
+    row_count is count()
+}
+
+// Visitors
+source: visitors is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Visitors')
+""") extend {
+  primary_key: Tourist_ID
+
+  dimension:
+    tourist_i_d is Tourist_ID
+
+  measure:
+    row_count is count()
+    total_tourist_i_d is sum(Tourist_ID)
+    avg_tourist_i_d is avg(Tourist_ID)
+    max_tourist_i_d is max(Tourist_ID)
+    min_tourist_i_d is min(Tourist_ID)
+}
+
+// Features
+source: features is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Features')
+""") extend {
+  primary_key: Feature_ID
+
+  dimension:
+    feature_i_d is Feature_ID
+
+  measure:
+    row_count is count()
+    total_feature_i_d is sum(Feature_ID)
+    avg_feature_i_d is avg(Feature_ID)
+    max_feature_i_d is max(Feature_ID)
+    min_feature_i_d is min(Feature_ID)
+}
+
+// Hotels
+source: hotels is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Hotels')
+""") extend {
+  primary_key: hotel_id
+
+  join_one: ref_hotel_star_ratings on star_rating_code = ref_hotel_star_ratings.star_rating_code
+
+  measure:
+    row_count is count()
+    total_hotel_id is sum(hotel_id)
+    avg_hotel_id is avg(hotel_id)
+    max_hotel_id is max(hotel_id)
+    min_hotel_id is min(hotel_id)
+    total_price_range is sum(price_range)
+    avg_price_range is avg(price_range)
+    max_price_range is max(price_range)
+    min_price_range is min(price_range)
+}
+
+// Tourist_Attractions
+source: tourist_attractions is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Tourist_Attractions')
+""") extend {
+  primary_key: Tourist_Attraction_ID
+
+  join_one: ref_attraction_types on Attraction_Type_Code = ref_attraction_types.Attraction_Type_Code
+  join_one: locations on Location_ID = locations.Location_ID
+
+  dimension:
+    tourist_attraction_i_d is Tourist_Attraction_ID
+    location_i_d is Location_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_tourist_attraction_i_d is sum(Tourist_Attraction_ID)
+    avg_tourist_attraction_i_d is avg(Tourist_Attraction_ID)
+    max_tourist_attraction_i_d is max(Tourist_Attraction_ID)
+    min_tourist_attraction_i_d is min(Tourist_Attraction_ID)
+    total_location_i_d is sum(Location_ID)
+    avg_location_i_d is avg(Location_ID)
+    max_location_i_d is max(Location_ID)
+    min_location_i_d is min(Location_ID)
+}
+
+// Street_Markets
+source: street_markets is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Street_Markets')
+""") extend {
+  primary_key: Market_ID
+
+  join_one: tourist_attractions on Market_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    market_i_d is Market_ID
+
+  measure:
+    row_count is count()
+    total_market_i_d is sum(Market_ID)
+    avg_market_i_d is avg(Market_ID)
+    max_market_i_d is max(Market_ID)
+    min_market_i_d is min(Market_ID)
+}
+
+// Shops
+source: shops is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Shops')
+""") extend {
+  primary_key: Shop_ID
+
+  join_one: tourist_attractions on Shop_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    shop_i_d is Shop_ID
+
+  measure:
+    row_count is count()
+    total_shop_i_d is sum(Shop_ID)
+    avg_shop_i_d is avg(Shop_ID)
+    max_shop_i_d is max(Shop_ID)
+    min_shop_i_d is min(Shop_ID)
+}
+
+// Museums
+source: museums is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Museums')
+""") extend {
+  primary_key: Museum_ID
+
+  join_one: tourist_attractions on Museum_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    museum_i_d is Museum_ID
+
+  measure:
+    row_count is count()
+    total_museum_i_d is sum(Museum_ID)
+    avg_museum_i_d is avg(Museum_ID)
+    max_museum_i_d is max(Museum_ID)
+    min_museum_i_d is min(Museum_ID)
+}
+
+// Royal_Family
+source: royal_family is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Royal_Family')
+""") extend {
+  primary_key: Royal_Family_ID
+
+  join_one: tourist_attractions on Royal_Family_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    royal_family_i_d is Royal_Family_ID
+
+  measure:
+    row_count is count()
+    total_royal_family_i_d is sum(Royal_Family_ID)
+    avg_royal_family_i_d is avg(Royal_Family_ID)
+    max_royal_family_i_d is max(Royal_Family_ID)
+    min_royal_family_i_d is min(Royal_Family_ID)
+}
+
+// Theme_Parks
+source: theme_parks is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Theme_Parks')
+""") extend {
+  primary_key: Theme_Park_ID
+
+  join_one: tourist_attractions on Theme_Park_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    theme_park_i_d is Theme_Park_ID
+
+  measure:
+    row_count is count()
+    total_theme_park_i_d is sum(Theme_Park_ID)
+    avg_theme_park_i_d is avg(Theme_Park_ID)
+    max_theme_park_i_d is max(Theme_Park_ID)
+    min_theme_park_i_d is min(Theme_Park_ID)
+}
+
+// Visits
+source: visits is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Visits')
+""") extend {
+  primary_key: Visit_ID
+
+  join_one: visitors on Tourist_ID = visitors.Tourist_ID
+  join_one: tourist_attractions on Tourist_Attraction_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    visit_i_d is Visit_ID
+    tourist_attraction_i_d is Tourist_Attraction_ID
+    tourist_i_d is Tourist_ID
+
+  measure:
+    row_count is count()
+    total_visit_i_d is sum(Visit_ID)
+    avg_visit_i_d is avg(Visit_ID)
+    max_visit_i_d is max(Visit_ID)
+    min_visit_i_d is min(Visit_ID)
+    total_tourist_attraction_i_d is sum(Tourist_Attraction_ID)
+    avg_tourist_attraction_i_d is avg(Tourist_Attraction_ID)
+    max_tourist_attraction_i_d is max(Tourist_Attraction_ID)
+    min_tourist_attraction_i_d is min(Tourist_Attraction_ID)
+    total_tourist_i_d is sum(Tourist_ID)
+    avg_tourist_i_d is avg(Tourist_ID)
+    max_tourist_i_d is max(Tourist_ID)
+    min_tourist_i_d is min(Tourist_ID)
+}
+
+// Photos
+source: photos is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Photos')
+""") extend {
+  primary_key: Photo_ID
+
+  join_one: tourist_attractions on Tourist_Attraction_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    photo_i_d is Photo_ID
+    tourist_attraction_i_d is Tourist_Attraction_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_photo_i_d is sum(Photo_ID)
+    avg_photo_i_d is avg(Photo_ID)
+    max_photo_i_d is max(Photo_ID)
+    min_photo_i_d is min(Photo_ID)
+    total_tourist_attraction_i_d is sum(Tourist_Attraction_ID)
+    avg_tourist_attraction_i_d is avg(Tourist_Attraction_ID)
+    max_tourist_attraction_i_d is max(Tourist_Attraction_ID)
+    min_tourist_attraction_i_d is min(Tourist_Attraction_ID)
+}
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Staff')
+""") extend {
+  primary_key: Staff_ID
+
+  join_one: tourist_attractions on Tourist_Attraction_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    staff_i_d is Staff_ID
+    tourist_attraction_i_d is Tourist_Attraction_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_staff_i_d is sum(Staff_ID)
+    avg_staff_i_d is avg(Staff_ID)
+    max_staff_i_d is max(Staff_ID)
+    min_staff_i_d is min(Staff_ID)
+    total_tourist_attraction_i_d is sum(Tourist_Attraction_ID)
+    avg_tourist_attraction_i_d is avg(Tourist_Attraction_ID)
+    max_tourist_attraction_i_d is max(Tourist_Attraction_ID)
+    min_tourist_attraction_i_d is min(Tourist_Attraction_ID)
+}
+
+// Tourist_Attraction_Features
+source: tourist_attraction_features is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Tourist_Attraction_Features')
+""") extend {
+  primary_key: Tourist_Attraction_ID
+
+  join_one: features on Feature_ID = features.Feature_ID
+  join_one: tourist_attractions on Tourist_Attraction_ID = tourist_attractions.Tourist_Attraction_ID
+
+  dimension:
+    tourist_attraction_i_d is Tourist_Attraction_ID
+    feature_i_d is Feature_ID
+
+  measure:
+    row_count is count()
+    total_tourist_attraction_i_d is sum(Tourist_Attraction_ID)
+    avg_tourist_attraction_i_d is avg(Tourist_Attraction_ID)
+    max_tourist_attraction_i_d is max(Tourist_Attraction_ID)
+    min_tourist_attraction_i_d is min(Tourist_Attraction_ID)
+    total_feature_i_d is sum(Feature_ID)
+    avg_feature_i_d is avg(Feature_ID)
+    max_feature_i_d is max(Feature_ID)
+    min_feature_i_d is min(Feature_ID)
+}

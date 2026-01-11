@@ -1,0 +1,32 @@
+// Malloy semantic layer for: ship_1
+// Auto-generated from 48 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: captain is duckdb.table('captain') extend {
+  dimension:
+    age is age
+    class is Class
+    name is Name
+    rank is Rank
+    ship_id is Ship_ID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    count_rank is count(rank)
+}
+
+source: ship is duckdb.table('Ship') extend {
+  dimension:
+    built_year is Built_Year
+    class is Class
+    flag is Flag
+    name is Name
+    ship_id is Ship_ID
+    type is Type
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,127 @@
+// Malloy semantic layer for: wta_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/wta_1/wta_1.sqlite
+
+// players
+source: players is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'players')
+""") extend {
+  primary_key: player_id
+
+  measure:
+    row_count is count()
+    total_player_id is sum(player_id)
+    avg_player_id is avg(player_id)
+    max_player_id is max(player_id)
+    min_player_id is min(player_id)
+}
+
+// matches
+source: matches is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'matches')
+""") extend {
+  join_one: winner_players is players on winner_id = winner_players.player_id
+  join_one: loser_players is players on loser_id = loser_players.player_id
+
+  dimension:
+    minutes_val is `minutes`
+    round_val is `round`
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_best_of is sum(best_of)
+    avg_best_of is avg(best_of)
+    max_best_of is max(best_of)
+    min_best_of is min(best_of)
+    total_draw_size is sum(draw_size)
+    avg_draw_size is avg(draw_size)
+    max_draw_size is max(draw_size)
+    min_draw_size is min(draw_size)
+    total_loser_age is sum(loser_age)
+    avg_loser_age is avg(loser_age)
+    max_loser_age is max(loser_age)
+    min_loser_age is min(loser_age)
+    total_loser_ht is sum(loser_ht)
+    avg_loser_ht is avg(loser_ht)
+    max_loser_ht is max(loser_ht)
+    min_loser_ht is min(loser_ht)
+    total_loser_id is sum(loser_id)
+    avg_loser_id is avg(loser_id)
+    max_loser_id is max(loser_id)
+    min_loser_id is min(loser_id)
+    total_loser_rank is sum(loser_rank)
+    avg_loser_rank is avg(loser_rank)
+    max_loser_rank is max(loser_rank)
+    min_loser_rank is min(loser_rank)
+    total_loser_rank_points is sum(loser_rank_points)
+    avg_loser_rank_points is avg(loser_rank_points)
+    max_loser_rank_points is max(loser_rank_points)
+    min_loser_rank_points is min(loser_rank_points)
+    total_loser_seed is sum(loser_seed)
+    avg_loser_seed is avg(loser_seed)
+    max_loser_seed is max(loser_seed)
+    min_loser_seed is min(loser_seed)
+    total_match_num is sum(match_num)
+    avg_match_num is avg(match_num)
+    max_match_num is max(match_num)
+    min_match_num is min(match_num)
+    total_minutes_val is sum(`minutes`)
+    avg_minutes_val is avg(`minutes`)
+    max_minutes_val is max(`minutes`)
+    min_minutes_val is min(`minutes`)
+    total_winner_age is sum(winner_age)
+    avg_winner_age is avg(winner_age)
+    max_winner_age is max(winner_age)
+    min_winner_age is min(winner_age)
+    total_winner_ht is sum(winner_ht)
+    avg_winner_ht is avg(winner_ht)
+    max_winner_ht is max(winner_ht)
+    min_winner_ht is min(winner_ht)
+    total_winner_id is sum(winner_id)
+    avg_winner_id is avg(winner_id)
+    max_winner_id is max(winner_id)
+    min_winner_id is min(winner_id)
+    total_winner_rank is sum(winner_rank)
+    avg_winner_rank is avg(winner_rank)
+    max_winner_rank is max(winner_rank)
+    min_winner_rank is min(winner_rank)
+    total_winner_rank_points is sum(winner_rank_points)
+    avg_winner_rank_points is avg(winner_rank_points)
+    max_winner_rank_points is max(winner_rank_points)
+    min_winner_rank_points is min(winner_rank_points)
+    total_winner_seed is sum(winner_seed)
+    avg_winner_seed is avg(winner_seed)
+    max_winner_seed is max(winner_seed)
+    min_winner_seed is min(winner_seed)
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}
+
+// rankings
+source: rankings is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'rankings')
+""") extend {
+  join_one: players on player_id = players.player_id
+
+  measure:
+    row_count is count()
+    total_ranking is sum(ranking)
+    avg_ranking is avg(ranking)
+    max_ranking is max(ranking)
+    min_ranking is min(ranking)
+    total_player_id is sum(player_id)
+    avg_player_id is avg(player_id)
+    max_player_id is max(player_id)
+    min_player_id is min(player_id)
+    total_ranking_points is sum(ranking_points)
+    avg_ranking_points is avg(ranking_points)
+    max_ranking_points is max(ranking_points)
+    min_ranking_points is min(ranking_points)
+    total_tours is sum(tours)
+    avg_tours is avg(tours)
+    max_tours is max(tours)
+    min_tours is min(tours)
+}

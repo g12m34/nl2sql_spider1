@@ -1,0 +1,32 @@
+// Malloy semantic layer for: body_builder
+// Auto-generated from 24 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: body_builder is duckdb.table('body_builder') extend {
+  dimension:
+    clean_jerk is Clean_Jerk
+    people_id is People_ID
+    snatch is Snatch
+    total is Total
+  measure:
+    row_count is count()
+    avg_snatch is avg(snatch)
+    avg_total is avg(total)
+    min_snatch is min(snatch)
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    birth_date is Birth_Date
+    birth_place is Birth_Place
+    height is Height
+    name is Name
+    people_id is People_ID
+    weight is Weight
+  measure:
+    row_count is count()
+    count_birth_place is count(birth_place)
+}

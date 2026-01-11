@@ -1,0 +1,67 @@
+// Malloy semantic layer for: soccer_2
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite
+
+// College
+source: college is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'College')
+""") extend {
+  primary_key: cName
+
+  dimension:
+    c_name is cName
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_enr is sum(enr)
+    avg_enr is avg(enr)
+    max_enr is max(enr)
+    min_enr is min(enr)
+}
+
+// Player
+source: player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'Player')
+""") extend {
+  primary_key: pID
+
+  dimension:
+    p_i_d is pID
+    p_name is pName
+    y_card is yCard
+    h_s is HS
+
+  measure:
+    row_count is count()
+    total_p_i_d is sum(pID)
+    avg_p_i_d is avg(pID)
+    max_p_i_d is max(pID)
+    min_p_i_d is min(pID)
+    total_h_s is sum(HS)
+    avg_h_s is avg(HS)
+    max_h_s is max(HS)
+    min_h_s is min(HS)
+}
+
+// Tryout
+source: tryout is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'Tryout')
+""") extend {
+  primary_key: pID
+
+  join_one: college on cName = college.cName
+  join_one: player on pID = player.pID
+
+  dimension:
+    p_i_d is pID
+    c_name is cName
+    p_pos is pPos
+
+  measure:
+    row_count is count()
+    total_p_i_d is sum(pID)
+    avg_p_i_d is avg(pID)
+    max_p_i_d is max(pID)
+    min_p_i_d is min(pID)
+}

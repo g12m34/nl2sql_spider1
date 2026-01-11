@@ -1,0 +1,136 @@
+// Malloy semantic layer for: assets_maintenance
+// Auto-generated from 31 ground-truth SQL queries
+// Tables used: 14
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: asset_parts is duckdb.table('Asset_Parts') extend {
+  dimension:
+    asset_id is asset_id
+    part_id is part_id
+  measure:
+    row_count is count()
+}
+
+source: assets is duckdb.table('Assets') extend {
+  dimension:
+    asset_acquired_date is asset_acquired_date
+    asset_details is asset_details
+    asset_disposed_date is asset_disposed_date
+    asset_id is asset_id
+    asset_make is asset_make
+    asset_model is asset_model
+    maintenance_contract_id is maintenance_contract_id
+    supplier_company_id is supplier_company_id
+  measure:
+    row_count is count()
+}
+
+source: engineer_skills is duckdb.table('Engineer_Skills') extend {
+  dimension:
+    engineer_id is engineer_id
+    skill_id is skill_id
+  measure:
+    row_count is count()
+}
+
+source: engineer_visits is duckdb.table('Engineer_Visits') extend {
+  dimension:
+    contact_staff_id is contact_staff_id
+    engineer_id is engineer_id
+    fault_log_entry_id is fault_log_entry_id
+  measure:
+    row_count is count()
+}
+
+source: fault_log is duckdb.table('Fault_Log') extend {
+  dimension:
+    asset_id is asset_id
+    fault_description is fault_description
+    fault_log_entry_datetime is fault_log_entry_datetime
+    fault_log_entry_id is fault_log_entry_id
+    recorded_by_staff_id is recorded_by_staff_id
+  measure:
+    row_count is count()
+}
+
+source: fault_log_parts is duckdb.table('Fault_Log_Parts') extend {
+  dimension:
+    fault_log_entry_id is fault_log_entry_id
+    fault_status is fault_status
+  measure:
+    row_count is count()
+}
+
+source: maintenance_contracts is duckdb.table('Maintenance_Contracts') extend {
+  dimension:
+    contract_end_date is contract_end_date
+    contract_start_date is contract_start_date
+    maintenance_contract_company_id is maintenance_contract_company_id
+    maintenance_contract_id is maintenance_contract_id
+  measure:
+    row_count is count()
+}
+
+source: maintenance_engineers is duckdb.table('Maintenance_Engineers') extend {
+  dimension:
+    company_id is company_id
+    engineer_id is engineer_id
+    first_name is first_name
+    last_name is last_name
+    other_details is other_details
+  measure:
+    row_count is count()
+}
+
+source: part_faults is duckdb.table('Part_Faults') extend {
+  dimension:
+    fault_short_name is fault_short_name
+    part_fault_id is part_fault_id
+    part_id is part_id
+  measure:
+    row_count is count()
+}
+
+source: parts is duckdb.table('Parts') extend {
+  dimension:
+    chargeable_amount is chargeable_amount
+    part_id is part_id
+    part_name is part_name
+  measure:
+    row_count is count()
+}
+
+source: skills is duckdb.table('Skills') extend {
+  dimension:
+    skill_description is skill_description
+    skill_id is skill_id
+  measure:
+    row_count is count()
+}
+
+source: skills_required_to_fix is duckdb.table('Skills_Required_To_Fix') extend {
+  dimension:
+    part_fault_id is part_fault_id
+    skill_id is skill_id
+  measure:
+    row_count is count()
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    gender is gender
+    staff_id is staff_id
+    staff_name is staff_name
+  measure:
+    row_count is count()
+}
+
+source: third_party_companies is duckdb.table('Third_Party_Companies') extend {
+  dimension:
+    company_id is company_id
+    company_name is company_name
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,45 @@
+// Malloy semantic layer for: soccer_2
+// Auto-generated from 106 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: college is duckdb.table('College') extend {
+  dimension:
+    cname is cName
+    enr is enr
+    state is state
+  measure:
+    row_count is count()
+    sum_enr is sum(enr)
+    avg_enr is avg(enr)
+    min_enr is min(enr)
+    max_enr is max(enr)
+    count_state is count(state)
+}
+
+source: player is duckdb.table('Player') extend {
+  dimension:
+    hs is HS
+    pid is pID
+    pname is pName
+    ycard is yCard
+  measure:
+    row_count is count()
+    avg_hs is avg(hs)
+    min_hs is min(hs)
+    max_hs is max(hs)
+}
+
+source: tryout is duckdb.table('Tryout') extend {
+  dimension:
+    cname is cName
+    decision is decision
+    pid is pID
+    ppos is pPos
+  measure:
+    row_count is count()
+    count_cname is count(cname)
+    count_ppos is count(ppos)
+}

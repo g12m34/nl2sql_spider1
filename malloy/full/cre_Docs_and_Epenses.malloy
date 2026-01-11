@@ -1,0 +1,128 @@
+// Malloy semantic layer for: cre_Docs_and_Epenses
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite
+
+// Ref_Document_Types
+source: ref_document_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Ref_Document_Types')
+""") extend {
+  primary_key: Document_Type_Code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Budget_Codes
+source: ref_budget_codes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Ref_Budget_Codes')
+""") extend {
+  primary_key: Budget_Type_Code
+
+  measure:
+    row_count is count()
+}
+
+// Projects
+source: projects is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Projects')
+""") extend {
+  primary_key: Project_ID
+
+  dimension:
+    project_i_d is Project_ID
+
+  measure:
+    row_count is count()
+    total_project_i_d is sum(Project_ID)
+    avg_project_i_d is avg(Project_ID)
+    max_project_i_d is max(Project_ID)
+    min_project_i_d is min(Project_ID)
+}
+
+// Documents
+source: documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Documents')
+""") extend {
+  primary_key: Document_ID
+
+  join_one: projects on Project_ID = projects.Project_ID
+  join_one: ref_document_types on Document_Type_Code = ref_document_types.Document_Type_Code
+
+  dimension:
+    document_i_d is Document_ID
+    project_i_d is Project_ID
+
+  measure:
+    row_count is count()
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+    total_project_i_d is sum(Project_ID)
+    avg_project_i_d is avg(Project_ID)
+    max_project_i_d is max(Project_ID)
+    min_project_i_d is min(Project_ID)
+}
+
+// Statements
+source: statements is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Statements')
+""") extend {
+  primary_key: Statement_ID
+
+  join_one: documents on Statement_ID = documents.Document_ID
+
+  dimension:
+    statement_i_d is Statement_ID
+
+  measure:
+    row_count is count()
+    total_statement_i_d is sum(Statement_ID)
+    avg_statement_i_d is avg(Statement_ID)
+    max_statement_i_d is max(Statement_ID)
+    min_statement_i_d is min(Statement_ID)
+}
+
+// Documents_with_Expenses
+source: documents_with_expenses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Documents_with_Expenses')
+""") extend {
+  primary_key: Document_ID
+
+  join_one: documents on Document_ID = documents.Document_ID
+  join_one: ref_budget_codes on Budget_Type_Code = ref_budget_codes.Budget_Type_Code
+
+  dimension:
+    document_i_d is Document_ID
+
+  measure:
+    row_count is count()
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+}
+
+// Accounts
+source: accounts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Accounts')
+""") extend {
+  primary_key: Account_ID
+
+  join_one: statements on Statement_ID = statements.Statement_ID
+
+  dimension:
+    account_i_d is Account_ID
+    statement_i_d is Statement_ID
+
+  measure:
+    row_count is count()
+    total_account_i_d is sum(Account_ID)
+    avg_account_i_d is avg(Account_ID)
+    max_account_i_d is max(Account_ID)
+    min_account_i_d is min(Account_ID)
+    total_statement_i_d is sum(Statement_ID)
+    avg_statement_i_d is avg(Statement_ID)
+    max_statement_i_d is max(Statement_ID)
+    min_statement_i_d is min(Statement_ID)
+}

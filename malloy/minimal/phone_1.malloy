@@ -1,0 +1,48 @@
+// Malloy semantic layer for: phone_1
+// Auto-generated from 29 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: chip_model is duckdb.table('chip_model') extend {
+  dimension:
+    launch_year is Launch_year
+    model_name is Model_name
+    ram_mib is RAM_MiB
+    rom_mib is ROM_MiB
+    wifi is WiFi
+  measure:
+    row_count is count()
+    avg_ram_mib is avg(ram_mib)
+    avg_rom_mib is avg(rom_mib)
+    min_ram_mib is min(ram_mib)
+    max_ram_mib is max(ram_mib)
+}
+
+source: phone is duckdb.table('phone') extend {
+  dimension:
+    accreditation_level is Accreditation_level
+    accreditation_type is Accreditation_type
+    chip_model is chip_model
+    company_name is Company_name
+    hardware_model_name is Hardware_Model_name
+    screen_mode is screen_mode
+  measure:
+    row_count is count()
+}
+
+source: screen_mode is duckdb.table('screen_mode') extend {
+  dimension:
+    char_cells is Char_cells
+    graphics_mode is Graphics_mode
+    hardware_colours is Hardware_colours
+    pixels is Pixels
+    type is Type
+    used_kb is used_kb
+  measure:
+    row_count is count()
+    avg_used_kb is avg(used_kb)
+    min_used_kb is min(used_kb)
+    max_used_kb is max(used_kb)
+}

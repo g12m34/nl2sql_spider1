@@ -1,0 +1,59 @@
+{
+  "db_id": "cre_Doc_Tracking_DB",
+  "query_count": 90,
+  "tables_used": [
+    "all_documents",
+    "document_locations",
+    "documents_to_be_destroyed",
+    "employees",
+    "ref_calendar",
+    "ref_document_types",
+    "ref_locations",
+    "roles"
+  ],
+  "dimensions": {
+    "ref_calendar": [
+      "calendar_date",
+      "day_number"
+    ],
+    "ref_document_types": [
+      "document_type_code",
+      "document_type_description",
+      "document_type_name"
+    ],
+    "all_documents": [
+      "date_stored",
+      "document_id",
+      "document_name",
+      "document_type_code"
+    ],
+    "ref_locations": [
+      "location_code",
+      "location_description",
+      "location_name"
+    ],
+    "roles": [
+      "role_code",
+      "role_description",
+      "role_name"
+    ],
+    "employees": [
+      "date_of_birth",
+      "employee_id",
+      "employee_name",
+      "role_code"
+    ],
+    "document_locations": [
+      "date_in_location_from",
+      "date_in_locaton_to",
+      "document_id",
+      "location_code"
+    ],
+    "documents_to_be_destroyed": [
+      "destroyed_by_employee_id",
+      "destruction_authorised_by_employee_id"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

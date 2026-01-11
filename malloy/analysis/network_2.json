@@ -1,0 +1,53 @@
+{
+  "db_id": "network_2",
+  "query_count": 86,
+  "tables_used": [
+    "person",
+    "personfriend"
+  ],
+  "dimensions": {
+    "person": [
+      "age",
+      "city",
+      "gender",
+      "job",
+      "name"
+    ],
+    "personfriend": [
+      "friend",
+      "name",
+      "year"
+    ]
+  },
+  "measures": {
+    "personfriend": {
+      "count": [
+        "friend",
+        "name"
+      ],
+      "max": [
+        "year"
+      ],
+      "min": [
+        "year"
+      ]
+    },
+    "person": {
+      "avg": [
+        "age"
+      ],
+      "count": [
+        "city",
+        "job",
+        "name"
+      ],
+      "max": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

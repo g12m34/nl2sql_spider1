@@ -1,0 +1,27 @@
+{
+  "db_id": "musical",
+  "query_count": 40,
+  "tables_used": [
+    "actor",
+    "musical"
+  ],
+  "dimensions": {
+    "actor": [
+      "age",
+      "character",
+      "duration",
+      "musical_id",
+      "name"
+    ],
+    "musical": [
+      "award",
+      "musical_id",
+      "name",
+      "nominee",
+      "result",
+      "year"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

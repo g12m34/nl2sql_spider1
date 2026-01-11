@@ -1,0 +1,215 @@
+// Malloy semantic layer for: college_2
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/college_2/college_2.sqlite
+
+// classroom
+source: classroom is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'classroom')
+""") extend {
+  primary_key: building
+
+  measure:
+    row_count is count()
+    total_capacity is sum(capacity)
+    avg_capacity is avg(capacity)
+    max_capacity is max(capacity)
+    min_capacity is min(capacity)
+}
+
+// department
+source: department is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'department')
+""") extend {
+  primary_key: dept_name
+
+  measure:
+    row_count is count()
+    total_budget is sum(budget)
+    avg_budget is avg(budget)
+    max_budget is max(budget)
+    min_budget is min(budget)
+}
+
+// time_slot
+source: time_slot is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'time_slot')
+""") extend {
+  primary_key: time_slot_id
+
+  dimension:
+    day_val is `day`
+
+  measure:
+    row_count is count()
+    total_start_hr is sum(start_hr)
+    avg_start_hr is avg(start_hr)
+    max_start_hr is max(start_hr)
+    min_start_hr is min(start_hr)
+    total_start_min is sum(start_min)
+    avg_start_min is avg(start_min)
+    max_start_min is max(start_min)
+    min_start_min is min(start_min)
+    total_end_hr is sum(end_hr)
+    avg_end_hr is avg(end_hr)
+    max_end_hr is max(end_hr)
+    min_end_hr is min(end_hr)
+    total_end_min is sum(end_min)
+    avg_end_min is avg(end_min)
+    max_end_min is max(end_min)
+    min_end_min is min(end_min)
+}
+
+// course
+source: course is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'course')
+""") extend {
+  primary_key: course_id
+
+  join_one: department on dept_name = department.dept_name
+
+  measure:
+    row_count is count()
+    total_credits is sum(credits)
+    avg_credits is avg(credits)
+    max_credits is max(credits)
+    min_credits is min(credits)
+}
+
+// instructor
+source: instructor is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'instructor')
+""") extend {
+  primary_key: ID
+
+  join_one: department on dept_name = department.dept_name
+
+  dimension:
+    i_d is ID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_salary is sum(salary)
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+    min_salary is min(salary)
+}
+
+// student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'student')
+""") extend {
+  primary_key: ID
+
+  join_one: department on dept_name = department.dept_name
+
+  dimension:
+    i_d is ID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_tot_cred is sum(tot_cred)
+    avg_tot_cred is avg(tot_cred)
+    max_tot_cred is max(tot_cred)
+    min_tot_cred is min(tot_cred)
+}
+
+// section
+source: section is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'section')
+""") extend {
+  primary_key: course_id
+
+  join_one: building_classroom is classroom on building = building_classroom.building
+  join_one: room_number_classroom is classroom on room_number = room_number_classroom.room_number
+  join_one: course on course_id = course.course_id
+
+  dimension:
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}
+
+// prereq
+source: prereq is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'prereq')
+""") extend {
+  primary_key: course_id
+
+  join_one: prereq_course is course on prereq_id = prereq_course.course_id
+  join_one: ref_course is course on course_id = ref_course.course_id
+
+  measure:
+    row_count is count()
+}
+
+// advisor
+source: advisor is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'advisor')
+""") extend {
+  primary_key: s_ID
+
+  join_one: student_val on s_ID = student_val.ID
+  join_one: instructor on i_ID = instructor.ID
+
+  dimension:
+    s_i_d is s_ID
+    i_i_d is i_ID
+
+  measure:
+    row_count is count()
+}
+
+// teaches
+source: teaches is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'teaches')
+""") extend {
+  primary_key: ID
+
+  join_one: instructor on ID = instructor.ID
+  join_one: course_section is section on course_id = course_section.course_id
+  join_one: sec_section is section on sec_id = sec_section.sec_id
+  join_one: semester_section is section on semester = semester_section.semester
+  join_one: year_section is section on `year` = year_section.`year`
+
+  dimension:
+    i_d is ID
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}
+
+// takes
+source: takes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'takes')
+""") extend {
+  primary_key: ID
+
+  join_one: student_val on ID = student_val.ID
+  join_one: course_section is section on course_id = course_section.course_id
+  join_one: sec_section is section on sec_id = sec_section.sec_id
+  join_one: semester_section is section on semester = semester_section.semester
+  join_one: year_section is section on `year` = year_section.`year`
+
+  dimension:
+    i_d is ID
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}

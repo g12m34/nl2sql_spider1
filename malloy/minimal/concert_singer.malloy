@@ -1,0 +1,53 @@
+// Malloy semantic layer for: concert_singer
+// Auto-generated from 45 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: concert is duckdb.table('concert') extend {
+  dimension:
+    concert_id is concert_ID
+    concert_name is concert_Name
+    stadium_id is Stadium_ID
+    theme is Theme
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: singer is duckdb.table('singer') extend {
+  dimension:
+    age is Age
+    country is Country
+    name is Name
+    singer_id is Singer_ID
+    song_name is Song_Name
+    song_release_year is Song_release_year
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    max_age is max(age)
+}
+
+source: singer_in_concert is duckdb.table('singer_in_concert') extend {
+  dimension:
+    concert_id is concert_ID
+    singer_id is Singer_ID
+  measure:
+    row_count is count()
+}
+
+source: stadium is duckdb.table('stadium') extend {
+  dimension:
+    average is Average
+    capacity is Capacity
+    location is Location
+    name is Name
+    stadium_id is Stadium_ID
+  measure:
+    row_count is count()
+    avg_capacity is avg(capacity)
+    max_capacity is max(capacity)
+}

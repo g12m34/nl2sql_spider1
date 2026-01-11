@@ -1,0 +1,34 @@
+{
+  "db_id": "roller_coaster",
+  "query_count": 17,
+  "tables_used": [
+    "country",
+    "roller_coaster"
+  ],
+  "dimensions": {
+    "roller_coaster": [
+      "country_id",
+      "height",
+      "length",
+      "name",
+      "park",
+      "speed",
+      "status"
+    ],
+    "country": [
+      "area",
+      "country_id",
+      "languages",
+      "name",
+      "population"
+    ]
+  },
+  "measures": {
+    "roller_coaster": {
+      "avg": [
+        "speed"
+      ]
+    }
+  },
+  "joins": []
+}

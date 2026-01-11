@@ -1,0 +1,41 @@
+// Malloy semantic layer for: wedding
+// Auto-generated from 20 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: church is duckdb.table('church') extend {
+  dimension:
+    church_id is Church_ID
+    name is Name
+    open_date is Open_Date
+    organized_by is Organized_by
+  measure:
+    row_count is count()
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    age is Age
+    country is Country
+    is_male is Is_Male
+    name is Name
+    people_id is People_ID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    max_age is max(age)
+}
+
+source: wedding is duckdb.table('wedding') extend {
+  dimension:
+    church_id is Church_ID
+    female_id is Female_ID
+    male_id is Male_ID
+    year is Year
+  measure:
+    row_count is count()
+    count_church_id is count(church_id)
+}

@@ -1,0 +1,44 @@
+// Malloy semantic layer for: gas_company
+// Auto-generated from 46 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: company is duckdb.table('company') extend {
+  dimension:
+    assets_billion is Assets_billion
+    company is Company
+    company_id is Company_ID
+    headquarters is Headquarters
+    main_industry is Main_Industry
+    market_value is Market_Value
+    profits_billion is Profits_billion
+    rank is Rank
+    sales_billion is Sales_billion
+  measure:
+    row_count is count()
+    sum_market_value is sum(market_value)
+    avg_market_value is avg(market_value)
+    min_market_value is min(market_value)
+    max_market_value is max(market_value)
+}
+
+source: gas_station is duckdb.table('gas_station') extend {
+  dimension:
+    location is Location
+    manager_name is Manager_Name
+    open_year is Open_Year
+    representative_name is Representative_Name
+    station_id is Station_ID
+  measure:
+    row_count is count()
+}
+
+source: station_company is duckdb.table('station_company') extend {
+  dimension:
+    company_id is Company_ID
+    station_id is Station_ID
+  measure:
+    row_count is count()
+}

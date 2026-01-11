@@ -1,0 +1,94 @@
+{
+  "db_id": "dog_kennels",
+  "query_count": 82,
+  "tables_used": [
+    "breeds",
+    "charges",
+    "dogs",
+    "owners",
+    "professionals",
+    "treatment_types",
+    "treatments"
+  ],
+  "dimensions": {
+    "owners": [
+      "email_address",
+      "first_name",
+      "last_name",
+      "owner_id",
+      "state",
+      "zip_code"
+    ],
+    "professionals": [
+      "cell_number",
+      "city",
+      "email_address",
+      "first_name",
+      "home_phone",
+      "last_name",
+      "professional_id",
+      "role_code",
+      "state",
+      "street"
+    ],
+    "dogs": [
+      "abandoned_yn",
+      "age",
+      "breed_code",
+      "date_arrived",
+      "date_departed",
+      "dog_id",
+      "name",
+      "owner_id",
+      "size_code",
+      "weight"
+    ],
+    "treatments": [
+      "cost_of_treatment",
+      "date_of_treatment",
+      "dog_id",
+      "professional_id",
+      "treatment_type_code"
+    ],
+    "breeds": [
+      "breed_code",
+      "breed_name"
+    ],
+    "treatment_types": [
+      "treatment_type_code",
+      "treatment_type_description"
+    ],
+    "charges": [
+      "charge_amount",
+      "charge_type"
+    ]
+  },
+  "measures": {
+    "dogs": {
+      "avg": [
+        "age"
+      ],
+      "max": [
+        "age"
+      ]
+    },
+    "treatments": {
+      "sum": [
+        "cost_of_treatment"
+      ],
+      "avg": [
+        "cost_of_treatment"
+      ],
+      "count": [
+        "dog_id",
+        "professional_id"
+      ]
+    },
+    "charges": {
+      "max": [
+        "charge_amount"
+      ]
+    }
+  },
+  "joins": []
+}

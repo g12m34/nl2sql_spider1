@@ -1,0 +1,95 @@
+// Malloy semantic layer for: chinook_1
+// Auto-generated from 84 ground-truth SQL queries
+// Tables used: 8
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: album is duckdb.table('Album') extend {
+  dimension:
+    albumid is AlbumId
+    artistid is ArtistId
+    title is Title
+  measure:
+    row_count is count()
+}
+
+source: artist is duckdb.table('Artist') extend {
+  dimension:
+    artistid is ArtistId
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: customer is duckdb.table('Customer') extend {
+  dimension:
+    address is Address
+    city is City
+    country is Country
+    customerid is CustomerId
+    email is Email
+    firstname is FirstName
+    lastname is LastName
+    postalcode is PostalCode
+    state is State
+    supportrepid is SupportRepId
+  measure:
+    row_count is count()
+}
+
+source: employee is duckdb.table('Employee') extend {
+  dimension:
+    birthdate is BirthDate
+    city is City
+    employeeid is EmployeeId
+    firstname is FirstName
+    lastname is LastName
+    phone is Phone
+    postalcode is PostalCode
+  measure:
+    row_count is count()
+    count_city is count(city)
+}
+
+source: genre is duckdb.table('Genre') extend {
+  dimension:
+    genreid is GenreId
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: invoice is duckdb.table('Invoice') extend {
+  dimension:
+    billingcountry is BillingCountry
+    customerid is CustomerId
+    invoicedate is InvoiceDate
+    total is Total
+  measure:
+    row_count is count()
+}
+
+source: mediatype is duckdb.table('MediaType') extend {
+  dimension:
+    mediatypeid is MediaTypeId
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: track is duckdb.table('Track') extend {
+  dimension:
+    albumid is AlbumId
+    genreid is GenreId
+    mediatypeid is MediaTypeId
+    milliseconds is Milliseconds
+    name is Name
+    unitprice is UnitPrice
+  measure:
+    row_count is count()
+    avg_milliseconds is avg(milliseconds)
+    avg_unitprice is avg(unitprice)
+    min_milliseconds is min(milliseconds)
+    max_milliseconds is max(milliseconds)
+}

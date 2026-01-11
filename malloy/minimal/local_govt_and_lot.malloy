@@ -1,0 +1,107 @@
+// Malloy semantic layer for: local_govt_and_lot
+// Auto-generated from 17 ground-truth SQL queries
+// Tables used: 11
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: customer_event_notes is duckdb.table('Customer_Event_Notes') extend {
+  dimension:
+    customer_event_id is Customer_Event_ID
+    property_id is property_id
+  measure:
+    row_count is count()
+}
+
+source: customer_events is duckdb.table('Customer_Events') extend {
+  dimension:
+    customer_event_id is Customer_Event_ID
+    customer_id is customer_id
+    date_moved_in is date_moved_in
+    property_id is property_id
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_details is customer_details
+    customer_id is customer_id
+  measure:
+    row_count is count()
+}
+
+source: organizations is duckdb.table('Organizations') extend {
+  dimension:
+    organization_details is organization_details
+    organization_id is organization_id
+    parent_organization_id is parent_organization_id
+  measure:
+    row_count is count()
+}
+
+source: properties is duckdb.table('Properties') extend {
+  dimension:
+    property_id is property_id
+  measure:
+    row_count is count()
+}
+
+source: residents is duckdb.table('Residents') extend {
+  dimension:
+    date_moved_in is date_moved_in
+    other_details is other_details
+    property_id is property_id
+    resident_id is resident_id
+  measure:
+    row_count is count()
+    max_date_moved_in is max(date_moved_in)
+}
+
+source: residents_services is duckdb.table('Residents_Services') extend {
+  dimension:
+    other_details is other_details
+    resident_id is resident_id
+    service_id is service_id
+  measure:
+    row_count is count()
+}
+
+source: services is duckdb.table('Services') extend {
+  dimension:
+    organization_id is organization_id
+    service_details is service_details
+    service_id is service_id
+    service_type_code is service_type_code
+  measure:
+    row_count is count()
+}
+
+source: things is duckdb.table('Things') extend {
+  dimension:
+    organization_id is organization_id
+    service_details is service_details
+    thing_id is thing_id
+    type_of_thing_code is Type_of_Thing_Code
+  measure:
+    row_count is count()
+}
+
+source: timed_locations_of_things is duckdb.table('Timed_Locations_of_Things') extend {
+  dimension:
+    location_code is Location_Code
+    thing_id is thing_id
+  measure:
+    row_count is count()
+    count_location_code is count(location_code)
+}
+
+source: timed_status_of_things is duckdb.table('Timed_Status_of_Things') extend {
+  dimension:
+    date_and_date is Date_and_Date
+    status_of_thing_code is Status_of_Thing_Code
+    thing_id is thing_id
+  measure:
+    row_count is count()
+    count_status_of_thing_code is count(status_of_thing_code)
+}

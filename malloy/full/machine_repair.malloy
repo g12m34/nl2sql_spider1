@@ -1,0 +1,105 @@
+// Malloy semantic layer for: machine_repair
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite
+
+// repair
+source: repair is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'repair')
+""") extend {
+  primary_key: repair_ID
+
+  dimension:
+    repair_i_d is repair_ID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_repair_i_d is sum(repair_ID)
+    avg_repair_i_d is avg(repair_ID)
+    max_repair_i_d is max(repair_ID)
+    min_repair_i_d is min(repair_ID)
+}
+
+// machine
+source: machine is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'machine')
+""") extend {
+  primary_key: Machine_ID
+
+  dimension:
+    machine_i_d is Machine_ID
+
+  measure:
+    row_count is count()
+    total_machine_i_d is sum(Machine_ID)
+    avg_machine_i_d is avg(Machine_ID)
+    max_machine_i_d is max(Machine_ID)
+    min_machine_i_d is min(Machine_ID)
+    total_making_year is sum(Making_Year)
+    avg_making_year is avg(Making_Year)
+    max_making_year is max(Making_Year)
+    min_making_year is min(Making_Year)
+    total_value_points is sum(value_points)
+    avg_value_points is avg(value_points)
+    max_value_points is max(value_points)
+    min_value_points is min(value_points)
+    total_quality_rank is sum(quality_rank)
+    avg_quality_rank is avg(quality_rank)
+    max_quality_rank is max(quality_rank)
+    min_quality_rank is min(quality_rank)
+}
+
+// technician
+source: technician is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'technician')
+""") extend {
+  primary_key: technician_id
+
+  dimension:
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_technician_id is sum(technician_id)
+    avg_technician_id is avg(technician_id)
+    max_technician_id is max(technician_id)
+    min_technician_id is min(technician_id)
+    total_starting_year is sum(Starting_Year)
+    avg_starting_year is avg(Starting_Year)
+    max_starting_year is max(Starting_Year)
+    min_starting_year is min(Starting_Year)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// repair_assignment
+source: repair_assignment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'repair_assignment')
+""") extend {
+  primary_key: technician_id
+
+  join_one: machine on Machine_ID = machine.Machine_ID
+  join_one: repair on repair_ID = repair.repair_ID
+  join_one: technician on technician_id = technician.technician_id
+
+  dimension:
+    repair_i_d is repair_ID
+    machine_i_d is Machine_ID
+
+  measure:
+    row_count is count()
+    total_technician_id is sum(technician_id)
+    avg_technician_id is avg(technician_id)
+    max_technician_id is max(technician_id)
+    min_technician_id is min(technician_id)
+    total_repair_i_d is sum(repair_ID)
+    avg_repair_i_d is avg(repair_ID)
+    max_repair_i_d is max(repair_ID)
+    min_repair_i_d is min(repair_ID)
+    total_machine_i_d is sum(Machine_ID)
+    avg_machine_i_d is avg(Machine_ID)
+    max_machine_i_d is max(Machine_ID)
+    min_machine_i_d is min(Machine_ID)
+}

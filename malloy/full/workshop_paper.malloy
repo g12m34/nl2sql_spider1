@@ -1,0 +1,69 @@
+// Malloy semantic layer for: workshop_paper
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite
+
+// workshop
+source: workshop is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite', 'workshop')
+""") extend {
+  primary_key: Workshop_ID
+
+  dimension:
+    workshop_i_d is Workshop_ID
+    date_val is `Date`
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_workshop_i_d is sum(Workshop_ID)
+    avg_workshop_i_d is avg(Workshop_ID)
+    max_workshop_i_d is max(Workshop_ID)
+    min_workshop_i_d is min(Workshop_ID)
+}
+
+// submission
+source: submission is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite', 'submission')
+""") extend {
+  primary_key: Submission_ID
+
+  dimension:
+    submission_i_d is Submission_ID
+
+  measure:
+    row_count is count()
+    total_submission_i_d is sum(Submission_ID)
+    avg_submission_i_d is avg(Submission_ID)
+    max_submission_i_d is max(Submission_ID)
+    min_submission_i_d is min(Submission_ID)
+    total_scores is sum(Scores)
+    avg_scores is avg(Scores)
+    max_scores is max(Scores)
+    min_scores is min(Scores)
+}
+
+// Acceptance
+source: acceptance is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite', 'Acceptance')
+""") extend {
+  primary_key: Submission_ID
+
+  join_one: workshop on Workshop_ID = workshop.Workshop_ID
+  join_one: submission on Submission_ID = submission.Submission_ID
+
+  dimension:
+    submission_i_d is Submission_ID
+    workshop_i_d is Workshop_ID
+    result_val is `Result`
+
+  measure:
+    row_count is count()
+    total_submission_i_d is sum(Submission_ID)
+    avg_submission_i_d is avg(Submission_ID)
+    max_submission_i_d is max(Submission_ID)
+    min_submission_i_d is min(Submission_ID)
+    total_workshop_i_d is sum(Workshop_ID)
+    avg_workshop_i_d is avg(Workshop_ID)
+    max_workshop_i_d is max(Workshop_ID)
+    min_workshop_i_d is min(Workshop_ID)
+}

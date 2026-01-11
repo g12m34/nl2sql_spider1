@@ -1,0 +1,38 @@
+// Malloy semantic layer for: company_employee
+// Auto-generated from 16 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: company is duckdb.table('company') extend {
+  dimension:
+    company_id is Company_ID
+    headquarters is Headquarters
+    industry is Industry
+    market_value_in_billion is Market_Value_in_Billion
+    name is Name
+    profits_in_billion is Profits_in_Billion
+    sales_in_billion is Sales_in_Billion
+  measure:
+    row_count is count()
+    min_market_value_in_billion is min(market_value_in_billion)
+    max_market_value_in_billion is max(market_value_in_billion)
+}
+
+source: employment is duckdb.table('employment') extend {
+  dimension:
+    company_id is Company_ID
+    people_id is People_ID
+    year_working is Year_working
+  measure:
+    row_count is count()
+}
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    name is Name
+    people_id is People_ID
+  measure:
+    row_count is count()
+}

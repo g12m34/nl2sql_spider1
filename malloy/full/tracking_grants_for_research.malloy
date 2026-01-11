@@ -1,0 +1,203 @@
+// Malloy semantic layer for: tracking_grants_for_research
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite
+
+// Document_Types
+source: document_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Document_Types')
+""") extend {
+  primary_key: document_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Organisation_Types
+source: organisation_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Organisation_Types')
+""") extend {
+  primary_key: organisation_type
+
+  measure:
+    row_count is count()
+}
+
+// Research_Outcomes
+source: research_outcomes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Research_Outcomes')
+""") extend {
+  primary_key: outcome_code
+
+  measure:
+    row_count is count()
+}
+
+// Staff_Roles
+source: staff_roles is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Staff_Roles')
+""") extend {
+  primary_key: role_code
+
+  measure:
+    row_count is count()
+}
+
+// Organisations
+source: organisations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Organisations')
+""") extend {
+  primary_key: organisation_id
+
+  join_one: organisation_types on organisation_type = organisation_types.organisation_type
+
+  measure:
+    row_count is count()
+    total_organisation_id is sum(organisation_id)
+    avg_organisation_id is avg(organisation_id)
+    max_organisation_id is max(organisation_id)
+    min_organisation_id is min(organisation_id)
+}
+
+// Grants
+source: grants is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Grants')
+""") extend {
+  primary_key: grant_id
+
+  join_one: organisations on organisation_id = organisations.organisation_id
+
+  measure:
+    row_count is count()
+    total_grant_id is sum(grant_id)
+    avg_grant_id is avg(grant_id)
+    max_grant_id is max(grant_id)
+    min_grant_id is min(grant_id)
+    total_organisation_id is sum(organisation_id)
+    avg_organisation_id is avg(organisation_id)
+    max_organisation_id is max(organisation_id)
+    min_organisation_id is min(organisation_id)
+    total_grant_amount is sum(grant_amount)
+    avg_grant_amount is avg(grant_amount)
+    max_grant_amount is max(grant_amount)
+    min_grant_amount is min(grant_amount)
+}
+
+// Projects
+source: projects is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Projects')
+""") extend {
+  primary_key: project_id
+
+  join_one: organisations on organisation_id = organisations.organisation_id
+
+  measure:
+    row_count is count()
+    total_project_id is sum(project_id)
+    avg_project_id is avg(project_id)
+    max_project_id is max(project_id)
+    min_project_id is min(project_id)
+    total_organisation_id is sum(organisation_id)
+    avg_organisation_id is avg(organisation_id)
+    max_organisation_id is max(organisation_id)
+    min_organisation_id is min(organisation_id)
+}
+
+// Research_Staff
+source: research_staff is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Research_Staff')
+""") extend {
+  primary_key: staff_id
+
+  join_one: organisations on employer_organisation_id = organisations.organisation_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_employer_organisation_id is sum(employer_organisation_id)
+    avg_employer_organisation_id is avg(employer_organisation_id)
+    max_employer_organisation_id is max(employer_organisation_id)
+    min_employer_organisation_id is min(employer_organisation_id)
+}
+
+// Documents
+source: documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Documents')
+""") extend {
+  primary_key: document_id
+
+  join_one: grants on grant_id = grants.grant_id
+  join_one: document_types on document_type_code = document_types.document_type_code
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+    total_grant_id is sum(grant_id)
+    avg_grant_id is avg(grant_id)
+    max_grant_id is max(grant_id)
+    min_grant_id is min(grant_id)
+}
+
+// Project_Outcomes
+source: project_outcomes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Project_Outcomes')
+""") extend {
+  join_one: research_outcomes on outcome_code = research_outcomes.outcome_code
+  join_one: projects on project_id = projects.project_id
+
+  measure:
+    row_count is count()
+    total_project_id is sum(project_id)
+    avg_project_id is avg(project_id)
+    max_project_id is max(project_id)
+    min_project_id is min(project_id)
+}
+
+// Project_Staff
+source: project_staff is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Project_Staff')
+""") extend {
+  primary_key: staff_id
+
+  join_one: staff_roles on role_code = staff_roles.role_code
+  join_one: projects on project_id = projects.project_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_project_id is sum(project_id)
+    avg_project_id is avg(project_id)
+    max_project_id is max(project_id)
+    min_project_id is min(project_id)
+}
+
+// Tasks
+source: tasks is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Tasks')
+""") extend {
+  primary_key: task_id
+
+  join_one: projects on project_id = projects.project_id
+
+  dimension:
+    eg_agree_objectives is `eg Agree Objectives`
+
+  measure:
+    row_count is count()
+    total_task_id is sum(task_id)
+    avg_task_id is avg(task_id)
+    max_task_id is max(task_id)
+    min_task_id is min(task_id)
+    total_project_id is sum(project_id)
+    avg_project_id is avg(project_id)
+    max_project_id is max(project_id)
+    min_project_id is min(project_id)
+}

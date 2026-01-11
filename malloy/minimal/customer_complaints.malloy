@@ -1,0 +1,56 @@
+// Malloy semantic layer for: customer_complaints
+// Auto-generated from 46 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: complaints is duckdb.table('Complaints') extend {
+  dimension:
+    complaint_status_code is complaint_status_code
+    complaint_type_code is complaint_type_code
+    customer_id is customer_id
+    date_complaint_raised is date_complaint_raised
+    product_id is product_id
+    staff_id is staff_id
+  measure:
+    row_count is count()
+    count_complaint_type_code is count(complaint_type_code)
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    address_line_1 is address_line_1
+    address_line_2 is address_line_2
+    customer_id is customer_id
+    customer_type_code is customer_type_code
+    email_address is email_address
+    phone_number is phone_number
+    state is state
+    town_city is town_city
+  measure:
+    row_count is count()
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_category_code is product_category_code
+    product_description is product_description
+    product_id is product_id
+    product_name is product_name
+    product_price is product_price
+  measure:
+    row_count is count()
+    avg_product_price is avg(product_price)
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    email_address is email_address
+    first_name is first_name
+    last_name is last_name
+    phone_number is phone_number
+    staff_id is staff_id
+  measure:
+    row_count is count()
+}

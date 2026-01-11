@@ -1,0 +1,49 @@
+// Malloy semantic layer for: orchestra
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: conductor is duckdb.table('conductor') extend {
+  dimension:
+    age is Age
+    conductor_id is Conductor_ID
+    name is Name
+    nationality is Nationality
+    year_of_work is Year_of_Work
+  measure:
+    row_count is count()
+    count_nationality is count(nationality)
+}
+
+source: orchestra is duckdb.table('orchestra') extend {
+  dimension:
+    conductor_id is Conductor_ID
+    major_record_format is Major_Record_Format
+    orchestra is Orchestra
+    orchestra_id is Orchestra_ID
+    record_company is Record_Company
+    year_of_founded is Year_of_Founded
+  measure:
+    row_count is count()
+}
+
+source: performance is duckdb.table('performance') extend {
+  dimension:
+    orchestra_id is Orchestra_ID
+    share is Share
+    type is Type
+  measure:
+    row_count is count()
+    min_share is min(share)
+    max_share is max(share)
+}
+
+source: show is duckdb.table('show') extend {
+  dimension:
+    attendance is Attendance
+  measure:
+    row_count is count()
+    avg_attendance is avg(attendance)
+}

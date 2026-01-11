@@ -1,0 +1,75 @@
+{
+  "db_id": "csu_1",
+  "query_count": 70,
+  "tables_used": [
+    "campuses",
+    "csu_fees",
+    "degrees",
+    "discipline_enrollments",
+    "enrollments",
+    "faculty"
+  ],
+  "dimensions": {
+    "campuses": [
+      "campus",
+      "county",
+      "id",
+      "location",
+      "year"
+    ],
+    "csu_fees": [
+      "campus",
+      "campusfee",
+      "year"
+    ],
+    "degrees": [
+      "campus",
+      "degrees",
+      "year"
+    ],
+    "faculty": [
+      "campus",
+      "faculty",
+      "year"
+    ],
+    "enrollments": [
+      "campus",
+      "fte_ay",
+      "totalenrollment_ay",
+      "year"
+    ],
+    "discipline_enrollments": [
+      "campus",
+      "graduate",
+      "undergraduate",
+      "year"
+    ]
+  },
+  "measures": {
+    "csu_fees": {
+      "avg": [
+        "campusfee"
+      ]
+    },
+    "degrees": {
+      "sum": [
+        "degrees"
+      ]
+    },
+    "faculty": {
+      "max": [
+        "faculty"
+      ],
+      "sum": [
+        "faculty"
+      ]
+    },
+    "discipline_enrollments": {
+      "sum": [
+        "graduate",
+        "undergraduate"
+      ]
+    }
+  },
+  "joins": []
+}

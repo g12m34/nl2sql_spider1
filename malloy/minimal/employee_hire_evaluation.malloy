@@ -1,0 +1,48 @@
+// Malloy semantic layer for: employee_hire_evaluation
+// Auto-generated from 38 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: employee is duckdb.table('employee') extend {
+  dimension:
+    age is Age
+    city is City
+    employee_id is Employee_ID
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: evaluation is duckdb.table('evaluation') extend {
+  dimension:
+    bonus is Bonus
+    employee_id is Employee_ID
+  measure:
+    row_count is count()
+    sum_bonus is sum(bonus)
+}
+
+source: hiring is duckdb.table('hiring') extend {
+  dimension:
+    shop_id is Shop_ID
+  measure:
+    row_count is count()
+}
+
+source: shop is duckdb.table('shop') extend {
+  dimension:
+    district is District
+    location is Location
+    manager_name is Manager_name
+    name is Name
+    number_products is Number_products
+    shop_id is Shop_ID
+  measure:
+    row_count is count()
+    avg_number_products is avg(number_products)
+    min_number_products is min(number_products)
+    max_number_products is max(number_products)
+    count_location is count(location)
+}

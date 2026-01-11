@@ -1,0 +1,63 @@
+{
+  "db_id": "school_finance",
+  "query_count": 26,
+  "tables_used": [
+    "budget",
+    "endowment",
+    "school"
+  ],
+  "dimensions": {
+    "school": [
+      "county",
+      "enrollment",
+      "ihsaa_football_class",
+      "location",
+      "mascot",
+      "school_id",
+      "school_name"
+    ],
+    "endowment": [
+      "amount",
+      "donator_name",
+      "school_id"
+    ],
+    "budget": [
+      "budgeted",
+      "invested",
+      "school_id",
+      "total_budget_percent_budgeted",
+      "total_budget_percent_invested",
+      "year"
+    ]
+  },
+  "measures": {
+    "school": {
+      "sum": [
+        "enrollment"
+      ],
+      "avg": [
+        "enrollment"
+      ],
+      "min": [
+        "enrollment"
+      ],
+      "max": [
+        "enrollment"
+      ]
+    },
+    "endowment": {
+      "count": [
+        "donator_name"
+      ],
+      "sum": [
+        "amount"
+      ]
+    },
+    "budget": {
+      "sum": [
+        "budgeted"
+      ]
+    }
+  },
+  "joins": []
+}

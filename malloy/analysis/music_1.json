@@ -1,0 +1,67 @@
+{
+  "db_id": "music_1",
+  "query_count": 100,
+  "tables_used": [
+    "artist",
+    "files",
+    "genre",
+    "song"
+  ],
+  "dimensions": {
+    "song": [
+      "artist_name",
+      "country",
+      "f_id",
+      "genre_is",
+      "languages",
+      "rating",
+      "releasedate",
+      "resolution",
+      "song_name"
+    ],
+    "files": [
+      "artist_name",
+      "duration",
+      "f_id",
+      "file_size",
+      "formats"
+    ],
+    "artist": [
+      "artist_name",
+      "country",
+      "gender"
+    ],
+    "genre": [
+      "g_name",
+      "rating"
+    ]
+  },
+  "measures": {
+    "song": {
+      "avg": [
+        "rating",
+        "resolution"
+      ],
+      "min": [
+        "rating",
+        "resolution"
+      ],
+      "max": [
+        "rating",
+        "resolution"
+      ]
+    },
+    "files": {
+      "avg": [
+        "duration"
+      ],
+      "max": [
+        "duration"
+      ],
+      "min": [
+        "duration"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,129 @@
+// Malloy semantic layer for: store_product
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/store_product/store_product.sqlite
+
+// product
+source: product is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'product')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_dpi is sum(dpi)
+    avg_dpi is avg(dpi)
+    max_dpi is max(dpi)
+    min_dpi is min(dpi)
+    total_pages_per_minute_color is sum(pages_per_minute_color)
+    avg_pages_per_minute_color is avg(pages_per_minute_color)
+    max_pages_per_minute_color is max(pages_per_minute_color)
+    min_pages_per_minute_color is min(pages_per_minute_color)
+}
+
+// store
+source: store is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'store')
+""") extend {
+  primary_key: Store_ID
+
+  dimension:
+    store_i_d is Store_ID
+    type_val is `Type`
+
+  measure:
+    row_count is count()
+    total_store_i_d is sum(Store_ID)
+    avg_store_i_d is avg(Store_ID)
+    max_store_i_d is max(Store_ID)
+    min_store_i_d is min(Store_ID)
+    total_area_size is sum(Area_size)
+    avg_area_size is avg(Area_size)
+    max_area_size is max(Area_size)
+    min_area_size is min(Area_size)
+    total_number_of_product_category is sum(Number_of_product_category)
+    avg_number_of_product_category is avg(Number_of_product_category)
+    max_number_of_product_category is max(Number_of_product_category)
+    min_number_of_product_category is min(Number_of_product_category)
+    total_ranking is sum(Ranking)
+    avg_ranking is avg(Ranking)
+    max_ranking is max(Ranking)
+    min_ranking is min(Ranking)
+}
+
+// district
+source: district is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'district')
+""") extend {
+  primary_key: District_ID
+
+  dimension:
+    district_i_d is District_ID
+
+  measure:
+    row_count is count()
+    total_district_i_d is sum(District_ID)
+    avg_district_i_d is avg(District_ID)
+    max_district_i_d is max(District_ID)
+    min_district_i_d is min(District_ID)
+    total_city_population is sum(City_Population)
+    avg_city_population is avg(City_Population)
+    max_city_population is max(City_Population)
+    min_city_population is min(City_Population)
+    total_city_area is sum(City_Area)
+    avg_city_area is avg(City_Area)
+    max_city_area is max(City_Area)
+    min_city_area is min(City_Area)
+}
+
+// store_product
+source: store_product is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'store_product')
+""") extend {
+  primary_key: Store_ID
+
+  join_one: store on Store_ID = store.Store_ID
+
+  dimension:
+    store_i_d is Store_ID
+    product_i_d is Product_ID
+
+  measure:
+    row_count is count()
+    total_store_i_d is sum(Store_ID)
+    avg_store_i_d is avg(Store_ID)
+    max_store_i_d is max(Store_ID)
+    min_store_i_d is min(Store_ID)
+    total_product_i_d is sum(Product_ID)
+    avg_product_i_d is avg(Product_ID)
+    max_product_i_d is max(Product_ID)
+    min_product_i_d is min(Product_ID)
+}
+
+// store_district
+source: store_district is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'store_district')
+""") extend {
+  primary_key: Store_ID
+
+  join_one: district on District_ID = district.District_ID
+  join_one: store on Store_ID = store.Store_ID
+
+  dimension:
+    store_i_d is Store_ID
+    district_i_d is District_ID
+
+  measure:
+    row_count is count()
+    total_store_i_d is sum(Store_ID)
+    avg_store_i_d is avg(Store_ID)
+    max_store_i_d is max(Store_ID)
+    min_store_i_d is min(Store_ID)
+    total_district_i_d is sum(District_ID)
+    avg_district_i_d is avg(District_ID)
+    max_district_i_d is max(District_ID)
+    min_district_i_d is min(District_ID)
+}

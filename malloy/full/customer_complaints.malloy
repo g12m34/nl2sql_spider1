@@ -1,0 +1,84 @@
+// Malloy semantic layer for: customer_complaints
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Staff')
+""") extend {
+  primary_key: staff_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_parent_product_id is sum(parent_product_id)
+    avg_parent_product_id is avg(parent_product_id)
+    max_parent_product_id is max(parent_product_id)
+    min_parent_product_id is min(parent_product_id)
+    total_product_price is sum(product_price)
+    avg_product_price is avg(product_price)
+    max_product_price is max(product_price)
+    min_product_price is min(product_price)
+}
+
+// Complaints
+source: complaints is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Complaints')
+""") extend {
+  join_one: customers on customer_id = customers.customer_id
+  join_one: products on product_id = products.product_id
+  join_one: staff_val on staff_id = staff_val.staff_id
+
+  measure:
+    row_count is count()
+    total_complaint_id is sum(complaint_id)
+    avg_complaint_id is avg(complaint_id)
+    max_complaint_id is max(complaint_id)
+    min_complaint_id is min(complaint_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+}

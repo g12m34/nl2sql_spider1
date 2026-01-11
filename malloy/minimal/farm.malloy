@@ -1,0 +1,41 @@
+// Malloy semantic layer for: farm
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: city is duckdb.table('city') extend {
+  dimension:
+    census_ranking is Census_Ranking
+    city_id is City_ID
+    official_name is Official_Name
+    population is Population
+    status is Status
+  measure:
+    row_count is count()
+    avg_population is avg(population)
+    count_status is count(status)
+}
+
+source: farm is duckdb.table('farm') extend {
+  dimension:
+    cows is Cows
+    total_horses is Total_Horses
+    working_horses is Working_Horses
+  measure:
+    row_count is count()
+    avg_working_horses is avg(working_horses)
+    min_cows is min(cows)
+    max_cows is max(cows)
+}
+
+source: farm_competition is duckdb.table('farm_competition') extend {
+  dimension:
+    host_city_id is Host_city_ID
+    hosts is Hosts
+    theme is Theme
+    year is Year
+  measure:
+    row_count is count()
+}

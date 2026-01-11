@@ -1,0 +1,50 @@
+{
+  "db_id": "culture_company",
+  "query_count": 38,
+  "tables_used": [
+    "book_club",
+    "culture_company",
+    "movie"
+  ],
+  "dimensions": {
+    "book_club": [
+      "author_or_editor",
+      "book_club_id",
+      "book_title",
+      "category",
+      "publisher",
+      "year"
+    ],
+    "movie": [
+      "budget_million",
+      "director",
+      "gross_worldwide",
+      "movie_id",
+      "title",
+      "year"
+    ],
+    "culture_company": [
+      "book_club_id",
+      "company_name",
+      "incorporated_in",
+      "movie_id"
+    ]
+  },
+  "measures": {
+    "movie": {
+      "count": [
+        "director"
+      ],
+      "avg": [
+        "budget_million"
+      ],
+      "min": [
+        "budget_million"
+      ],
+      "max": [
+        "budget_million"
+      ]
+    }
+  },
+  "joins": []
+}

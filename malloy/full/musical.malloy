@@ -1,0 +1,55 @@
+// Malloy semantic layer for: musical
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/musical/musical.sqlite
+
+// musical
+source: musical is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/musical/musical.sqlite', 'musical')
+""") extend {
+  primary_key: Musical_ID
+
+  dimension:
+    musical_i_d is Musical_ID
+    name_val is `Name`
+    year_val is `Year`
+    result_val is `Result`
+
+  measure:
+    row_count is count()
+    total_musical_i_d is sum(Musical_ID)
+    avg_musical_i_d is avg(Musical_ID)
+    max_musical_i_d is max(Musical_ID)
+    min_musical_i_d is min(Musical_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+}
+
+// actor
+source: actor_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/musical/musical.sqlite', 'actor')
+""") extend {
+  primary_key: Actor_ID
+
+
+  dimension:
+    actor_i_d is Actor_ID
+    name_val is `Name`
+    musical_i_d is Musical_ID
+
+  measure:
+    row_count is count()
+    total_actor_i_d is sum(Actor_ID)
+    avg_actor_i_d is avg(Actor_ID)
+    max_actor_i_d is max(Actor_ID)
+    min_actor_i_d is min(Actor_ID)
+    total_musical_i_d is sum(Musical_ID)
+    avg_musical_i_d is avg(Musical_ID)
+    max_musical_i_d is max(Musical_ID)
+    min_musical_i_d is min(Musical_ID)
+    total_age is sum(age)
+    avg_age is avg(age)
+    max_age is max(age)
+    min_age is min(age)
+}

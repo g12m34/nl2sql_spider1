@@ -1,0 +1,75 @@
+// Malloy semantic layer for: tracking_share_transactions
+// Auto-generated from 41 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: investors is duckdb.table('Investors') extend {
+  dimension:
+    investor_details is Investor_details
+    investor_id is investor_id
+  measure:
+    row_count is count()
+}
+
+source: lots is duckdb.table('Lots') extend {
+  dimension:
+    investor_id is investor_id
+    lot_details is lot_details
+    lot_id is lot_id
+  measure:
+    row_count is count()
+}
+
+source: purchases is duckdb.table('Purchases') extend {
+  dimension:
+    purchase_details is purchase_details
+    purchase_transaction_id is purchase_transaction_id
+  measure:
+    row_count is count()
+}
+
+source: ref_transaction_types is duckdb.table('Ref_Transaction_Types') extend {
+  dimension:
+    transaction_type_code is transaction_type_code
+    transaction_type_description is transaction_type_description
+  measure:
+    row_count is count()
+}
+
+source: sales is duckdb.table('Sales') extend {
+  dimension:
+    sales_details is sales_details
+    sales_transaction_id is sales_transaction_id
+  measure:
+    row_count is count()
+}
+
+source: transactions is duckdb.table('Transactions') extend {
+  dimension:
+    amount_of_transaction is amount_of_transaction
+    date_of_transaction is date_of_transaction
+    investor_id is investor_id
+    share_count is share_count
+    transaction_id is transaction_id
+    transaction_type_code is transaction_type_code
+  measure:
+    row_count is count()
+    sum_share_count is sum(share_count)
+    avg_amount_of_transaction is avg(amount_of_transaction)
+    avg_share_count is avg(share_count)
+    min_amount_of_transaction is min(amount_of_transaction)
+    min_share_count is min(share_count)
+    max_amount_of_transaction is max(amount_of_transaction)
+    max_share_count is max(share_count)
+    count_transaction_type_code is count(transaction_type_code)
+}
+
+source: transactions_lots is duckdb.table('Transactions_Lots') extend {
+  dimension:
+    lot_id is lot_id
+    transaction_id is transaction_id
+  measure:
+    row_count is count()
+}

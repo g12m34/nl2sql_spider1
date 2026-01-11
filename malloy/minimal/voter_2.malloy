@@ -1,0 +1,39 @@
+// Malloy semantic layer for: voter_2
+// Auto-generated from 72 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    advisor is Advisor
+    age is Age
+    city_code is city_code
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+    max_age is max(age)
+}
+
+source: voting_record is duckdb.table('Voting_record') extend {
+  dimension:
+    class_president_vote is Class_President_Vote
+    class_senator_vote is Class_Senator_Vote
+    election_cycle is Election_Cycle
+    president_vote is President_Vote
+    registration_date is Registration_Date
+    secretary_vote is Secretary_Vote
+    stuid is StuID
+    treasurer_vote is Treasurer_Vote
+    vice_president_vote is Vice_President_Vote
+  measure:
+    row_count is count()
+    count_president_vote is count(president_vote)
+}

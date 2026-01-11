@@ -1,0 +1,86 @@
+{
+  "db_id": "products_for_hire",
+  "query_count": 18,
+  "tables_used": [
+    "bookings",
+    "customers",
+    "discount_coupons",
+    "payments",
+    "products_booked",
+    "products_for_hire",
+    "view_product_availability"
+  ],
+  "dimensions": {
+    "discount_coupons": [
+      "coupon_amount",
+      "coupon_id"
+    ],
+    "customers": [
+      "coupon_id",
+      "customer_id",
+      "first_name",
+      "gender_mf",
+      "good_or_bad_customer",
+      "last_name"
+    ],
+    "bookings": [
+      "amount_of_refund",
+      "booking_end_date",
+      "booking_id",
+      "booking_start_date",
+      "customer_id"
+    ],
+    "payments": [
+      "amount_due",
+      "amount_paid",
+      "booking_id",
+      "customer_id",
+      "payment_date",
+      "payment_type_code"
+    ],
+    "products_booked": [
+      "booked_amount",
+      "booked_count",
+      "booking_id",
+      "product_id"
+    ],
+    "products_for_hire": [
+      "daily_hire_cost",
+      "product_description",
+      "product_id",
+      "product_name",
+      "product_type_code"
+    ],
+    "view_product_availability": [
+      "available_yn",
+      "product_id"
+    ]
+  },
+  "measures": {
+    "payments": {
+      "sum": [
+        "amount_paid"
+      ],
+      "avg": [
+        "amount_due"
+      ]
+    },
+    "products_for_hire": {
+      "count": [
+        "product_type_code"
+      ]
+    },
+    "products_booked": {
+      "avg": [
+        "booked_count"
+      ],
+      "min": [
+        "booked_count"
+      ],
+      "max": [
+        "booked_count"
+      ]
+    }
+  },
+  "joins": []
+}

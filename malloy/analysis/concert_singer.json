@@ -1,0 +1,60 @@
+{
+  "db_id": "concert_singer",
+  "query_count": 45,
+  "tables_used": [
+    "concert",
+    "singer",
+    "singer_in_concert",
+    "stadium"
+  ],
+  "dimensions": {
+    "singer": [
+      "age",
+      "country",
+      "name",
+      "singer_id",
+      "song_name",
+      "song_release_year"
+    ],
+    "stadium": [
+      "average",
+      "capacity",
+      "location",
+      "name",
+      "stadium_id"
+    ],
+    "concert": [
+      "concert_id",
+      "concert_name",
+      "stadium_id",
+      "theme",
+      "year"
+    ],
+    "singer_in_concert": [
+      "concert_id",
+      "singer_id"
+    ]
+  },
+  "measures": {
+    "singer": {
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ],
+      "max": [
+        "age"
+      ]
+    },
+    "stadium": {
+      "max": [
+        "capacity"
+      ],
+      "avg": [
+        "capacity"
+      ]
+    }
+  },
+  "joins": []
+}

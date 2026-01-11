@@ -1,0 +1,39 @@
+// Malloy semantic layer for: movie_1
+// Auto-generated from 98 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: movie is duckdb.table('Movie') extend {
+  dimension:
+    director is director
+    mid is mID
+    title is title
+    year is year
+  measure:
+    row_count is count()
+    min_year is min(year)
+    max_year is max(year)
+}
+
+source: rating is duckdb.table('Rating') extend {
+  dimension:
+    mid is mID
+    ratingdate is ratingDate
+    rid is rID
+    stars is stars
+  measure:
+    row_count is count()
+    avg_stars is avg(stars)
+    min_stars is min(stars)
+    max_stars is max(stars)
+}
+
+source: reviewer is duckdb.table('Reviewer') extend {
+  dimension:
+    name is name
+    rid is rID
+  measure:
+    row_count is count()
+}

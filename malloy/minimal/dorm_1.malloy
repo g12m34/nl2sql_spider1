@@ -1,0 +1,62 @@
+// Malloy semantic layer for: dorm_1
+// Auto-generated from 100 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: dorm is duckdb.table('Dorm') extend {
+  dimension:
+    dorm_name is dorm_name
+    dormid is dormid
+    gender is gender
+    student_capacity is student_capacity
+  measure:
+    row_count is count()
+    sum_student_capacity is sum(student_capacity)
+    avg_student_capacity is avg(student_capacity)
+    max_student_capacity is max(student_capacity)
+    count_gender is count(gender)
+}
+
+source: dorm_amenity is duckdb.table('Dorm_amenity') extend {
+  dimension:
+    amenid is amenid
+    amenity_name is amenity_name
+  measure:
+    row_count is count()
+}
+
+source: has_amenity is duckdb.table('Has_amenity') extend {
+  dimension:
+    amenid is amenid
+    dormid is dormid
+  measure:
+    row_count is count()
+    count_dormid is count(dormid)
+}
+
+source: lives_in is duckdb.table('Lives_in') extend {
+  dimension:
+    dormid is dormid
+    stuid is stuid
+  measure:
+    row_count is count()
+}
+
+source: student is duckdb.table('Student') extend {
+  dimension:
+    age is Age
+    city_code is city_code
+    fname is Fname
+    lname is LName
+    major is Major
+    sex is Sex
+    stuid is StuID
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    max_age is max(age)
+    count_city_code is count(city_code)
+    count_major is count(major)
+}

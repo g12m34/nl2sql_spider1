@@ -1,0 +1,41 @@
+{
+  "db_id": "body_builder",
+  "query_count": 24,
+  "tables_used": [
+    "body_builder",
+    "people"
+  ],
+  "dimensions": {
+    "body_builder": [
+      "clean_jerk",
+      "people_id",
+      "snatch",
+      "total"
+    ],
+    "people": [
+      "birth_date",
+      "birth_place",
+      "height",
+      "name",
+      "people_id",
+      "weight"
+    ]
+  },
+  "measures": {
+    "body_builder": {
+      "avg": [
+        "snatch",
+        "total"
+      ],
+      "min": [
+        "snatch"
+      ]
+    },
+    "people": {
+      "count": [
+        "birth_place"
+      ]
+    }
+  },
+  "joins": []
+}

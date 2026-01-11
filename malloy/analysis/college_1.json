@@ -1,0 +1,101 @@
+{
+  "db_id": "college_1",
+  "query_count": 164,
+  "tables_used": [
+    "class",
+    "course",
+    "department",
+    "employee",
+    "enroll",
+    "professor",
+    "student"
+  ],
+  "dimensions": {
+    "department": [
+      "dept_address",
+      "dept_code",
+      "dept_name",
+      "emp_num",
+      "school_code"
+    ],
+    "professor": [
+      "dept_code",
+      "emp_num",
+      "prof_high_degree",
+      "prof_office"
+    ],
+    "class": [
+      "class_code",
+      "class_room",
+      "class_section",
+      "crs_code",
+      "prof_num"
+    ],
+    "employee": [
+      "emp_dob",
+      "emp_fname",
+      "emp_hiredate",
+      "emp_jobcode",
+      "emp_lname",
+      "emp_num"
+    ],
+    "course": [
+      "crs_code",
+      "crs_credit",
+      "crs_description",
+      "dept_code"
+    ],
+    "student": [
+      "dept_code",
+      "stu_dob",
+      "stu_fname",
+      "stu_gpa",
+      "stu_hrs",
+      "stu_lname",
+      "stu_num",
+      "stu_phone"
+    ],
+    "enroll": [
+      "class_code",
+      "enroll_grade",
+      "stu_num"
+    ]
+  },
+  "measures": {
+    "class": {
+      "count": [
+        "class_code",
+        "class_section",
+        "crs_code",
+        "prof_num"
+      ]
+    },
+    "department": {
+      "count": [
+        "dept_address",
+        "dept_name",
+        "school_code"
+      ]
+    },
+    "course": {
+      "sum": [
+        "crs_credit"
+      ]
+    },
+    "student": {
+      "sum": [
+        "stu_hrs"
+      ],
+      "avg": [
+        "stu_gpa"
+      ],
+      "min": [
+        "stu_gpa"
+      ],
+      "max": [
+        "stu_gpa"
+      ]
+    }
+  },
+  "joins": []
+}

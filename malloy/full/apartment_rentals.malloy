@@ -1,0 +1,121 @@
+// Malloy semantic layer for: apartment_rentals
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite
+
+// Apartment_Buildings
+source: apartment_buildings is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartment_Buildings')
+""") extend {
+  primary_key: building_id
+
+  measure:
+    row_count is count()
+    total_building_id is sum(building_id)
+    avg_building_id is avg(building_id)
+    max_building_id is max(building_id)
+    min_building_id is min(building_id)
+}
+
+// Guests
+source: guests is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Guests')
+""") extend {
+  primary_key: guest_id
+
+  measure:
+    row_count is count()
+    total_guest_id is sum(guest_id)
+    avg_guest_id is avg(guest_id)
+    max_guest_id is max(guest_id)
+    min_guest_id is min(guest_id)
+}
+
+// Apartments
+source: apartments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartments')
+""") extend {
+  primary_key: apt_id
+
+  join_one: apartment_buildings on building_id = apartment_buildings.building_id
+
+  measure:
+    row_count is count()
+    total_apt_id is sum(apt_id)
+    avg_apt_id is avg(apt_id)
+    max_apt_id is max(apt_id)
+    min_apt_id is min(apt_id)
+    total_building_id is sum(building_id)
+    avg_building_id is avg(building_id)
+    max_building_id is max(building_id)
+    min_building_id is min(building_id)
+    total_bathroom_count is sum(bathroom_count)
+    avg_bathroom_count is avg(bathroom_count)
+    max_bathroom_count is max(bathroom_count)
+    min_bathroom_count is min(bathroom_count)
+    total_bedroom_count is sum(bedroom_count)
+    avg_bedroom_count is avg(bedroom_count)
+    max_bedroom_count is max(bedroom_count)
+    min_bedroom_count is min(bedroom_count)
+}
+
+// Apartment_Facilities
+source: apartment_facilities is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartment_Facilities')
+""") extend {
+  primary_key: apt_id
+
+  join_one: apartments on apt_id = apartments.apt_id
+
+  measure:
+    row_count is count()
+    total_apt_id is sum(apt_id)
+    avg_apt_id is avg(apt_id)
+    max_apt_id is max(apt_id)
+    min_apt_id is min(apt_id)
+}
+
+// Apartment_Bookings
+source: apartment_bookings is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartment_Bookings')
+""") extend {
+  primary_key: apt_booking_id
+
+  join_one: guests on guest_id = guests.guest_id
+  join_one: apartments on apt_id = apartments.apt_id
+
+  measure:
+    row_count is count()
+    total_apt_booking_id is sum(apt_booking_id)
+    avg_apt_booking_id is avg(apt_booking_id)
+    max_apt_booking_id is max(apt_booking_id)
+    min_apt_booking_id is min(apt_booking_id)
+    total_apt_id is sum(apt_id)
+    avg_apt_id is avg(apt_id)
+    max_apt_id is max(apt_id)
+    min_apt_id is min(apt_id)
+    total_guest_id is sum(guest_id)
+    avg_guest_id is avg(guest_id)
+    max_guest_id is max(guest_id)
+    min_guest_id is min(guest_id)
+}
+
+// View_Unit_Status
+source: view_unit_status is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'View_Unit_Status')
+""") extend {
+  primary_key: status_date
+
+  join_one: apartment_bookings on apt_booking_id = apartment_bookings.apt_booking_id
+  join_one: apartments on apt_id = apartments.apt_id
+
+  measure:
+    row_count is count()
+    total_apt_id is sum(apt_id)
+    avg_apt_id is avg(apt_id)
+    max_apt_id is max(apt_id)
+    min_apt_id is min(apt_id)
+    total_apt_booking_id is sum(apt_booking_id)
+    avg_apt_booking_id is avg(apt_booking_id)
+    max_apt_booking_id is max(apt_booking_id)
+    min_apt_booking_id is min(apt_booking_id)
+}

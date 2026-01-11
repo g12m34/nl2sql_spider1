@@ -1,0 +1,419 @@
+// Malloy semantic layer for: hospital_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite
+
+// Physician
+source: physician is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Physician')
+""") extend {
+  primary_key: EmployeeID
+
+  dimension:
+    employee_i_d is EmployeeID
+    name_val is `Name`
+    position_val is `Position`
+    s_s_n is SSN
+
+  measure:
+    row_count is count()
+    total_employee_i_d is sum(EmployeeID)
+    avg_employee_i_d is avg(EmployeeID)
+    max_employee_i_d is max(EmployeeID)
+    min_employee_i_d is min(EmployeeID)
+    total_s_s_n is sum(SSN)
+    avg_s_s_n is avg(SSN)
+    max_s_s_n is max(SSN)
+    min_s_s_n is min(SSN)
+}
+
+// Procedures
+source: procedures is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Procedures')
+""") extend {
+  primary_key: `Code`
+
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_code_val is sum(`Code`)
+    avg_code_val is avg(`Code`)
+    max_code_val is max(`Code`)
+    min_code_val is min(`Code`)
+    total_cost is sum(Cost)
+    avg_cost is avg(Cost)
+    max_cost is max(Cost)
+    min_cost is min(Cost)
+}
+
+// Nurse
+source: nurse is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Nurse')
+""") extend {
+  primary_key: EmployeeID
+
+  dimension:
+    employee_i_d is EmployeeID
+    name_val is `Name`
+    position_val is `Position`
+    s_s_n is SSN
+
+  measure:
+    row_count is count()
+    total_employee_i_d is sum(EmployeeID)
+    avg_employee_i_d is avg(EmployeeID)
+    max_employee_i_d is max(EmployeeID)
+    min_employee_i_d is min(EmployeeID)
+    total_s_s_n is sum(SSN)
+    avg_s_s_n is avg(SSN)
+    max_s_s_n is max(SSN)
+    min_s_s_n is min(SSN)
+}
+
+// Medication
+source: medication is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Medication')
+""") extend {
+  primary_key: `Code`
+
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_code_val is sum(`Code`)
+    avg_code_val is avg(`Code`)
+    max_code_val is max(`Code`)
+    min_code_val is min(`Code`)
+}
+
+// Block
+source: block_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Block')
+""") extend {
+  primary_key: BlockFloor
+
+  dimension:
+    block_floor is BlockFloor
+    block_code is BlockCode
+
+  measure:
+    row_count is count()
+    total_block_floor is sum(BlockFloor)
+    avg_block_floor is avg(BlockFloor)
+    max_block_floor is max(BlockFloor)
+    min_block_floor is min(BlockFloor)
+    total_block_code is sum(BlockCode)
+    avg_block_code is avg(BlockCode)
+    max_block_code is max(BlockCode)
+    min_block_code is min(BlockCode)
+}
+
+// Department
+source: department is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Department')
+""") extend {
+  primary_key: DepartmentID
+
+  join_one: physician on Head = physician.EmployeeID
+
+  dimension:
+    department_i_d is DepartmentID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_department_i_d is sum(DepartmentID)
+    avg_department_i_d is avg(DepartmentID)
+    max_department_i_d is max(DepartmentID)
+    min_department_i_d is min(DepartmentID)
+    total_head is sum(Head)
+    avg_head is avg(Head)
+    max_head is max(Head)
+    min_head is min(Head)
+}
+
+// Patient
+source: patient is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Patient')
+""") extend {
+  primary_key: SSN
+
+  join_one: physician on PCP = physician.EmployeeID
+
+  dimension:
+    s_s_n is SSN
+    name_val is `Name`
+    insurance_i_d is InsuranceID
+    p_c_p is PCP
+
+  measure:
+    row_count is count()
+    total_s_s_n is sum(SSN)
+    avg_s_s_n is avg(SSN)
+    max_s_s_n is max(SSN)
+    min_s_s_n is min(SSN)
+    total_insurance_i_d is sum(InsuranceID)
+    avg_insurance_i_d is avg(InsuranceID)
+    max_insurance_i_d is max(InsuranceID)
+    min_insurance_i_d is min(InsuranceID)
+    total_p_c_p is sum(PCP)
+    avg_p_c_p is avg(PCP)
+    max_p_c_p is max(PCP)
+    min_p_c_p is min(PCP)
+}
+
+// Trained_In
+source: trained_in is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Trained_In')
+""") extend {
+  primary_key: Physician
+
+  join_one: procedures on Treatment = procedures.`Code`
+  join_one: ref_physician is physician on Physician = ref_physician.EmployeeID
+
+  dimension:
+    certification_date is CertificationDate
+    certification_expires is CertificationExpires
+
+  measure:
+    row_count is count()
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+    total_treatment is sum(Treatment)
+    avg_treatment is avg(Treatment)
+    max_treatment is max(Treatment)
+    min_treatment is min(Treatment)
+}
+
+// Room
+source: room is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Room')
+""") extend {
+  primary_key: RoomNumber
+
+  join_one: block_floor_block_val is block_val on BlockFloor = block_floor_block_val.BlockFloor
+  join_one: block_code_block_val is block_val on BlockCode = block_code_block_val.BlockCode
+
+  dimension:
+    room_number is RoomNumber
+    room_type is RoomType
+    block_floor is BlockFloor
+    block_code is BlockCode
+
+  measure:
+    row_count is count()
+    total_room_number is sum(RoomNumber)
+    avg_room_number is avg(RoomNumber)
+    max_room_number is max(RoomNumber)
+    min_room_number is min(RoomNumber)
+    total_block_floor is sum(BlockFloor)
+    avg_block_floor is avg(BlockFloor)
+    max_block_floor is max(BlockFloor)
+    min_block_floor is min(BlockFloor)
+    total_block_code is sum(BlockCode)
+    avg_block_code is avg(BlockCode)
+    max_block_code is max(BlockCode)
+    min_block_code is min(BlockCode)
+}
+
+// On_Call
+source: on_call is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'On_Call')
+""") extend {
+  primary_key: Nurse
+
+  join_one: block_floor_block_val is block_val on BlockFloor = block_floor_block_val.BlockFloor
+  join_one: block_code_block_val is block_val on BlockCode = block_code_block_val.BlockCode
+  join_one: ref_nurse is nurse on Nurse = ref_nurse.EmployeeID
+
+  dimension:
+    block_floor is BlockFloor
+    block_code is BlockCode
+    on_call_start is OnCallStart
+    on_call_end is OnCallEnd
+
+  measure:
+    row_count is count()
+    total_nurse is sum(Nurse)
+    avg_nurse is avg(Nurse)
+    max_nurse is max(Nurse)
+    min_nurse is min(Nurse)
+    total_block_floor is sum(BlockFloor)
+    avg_block_floor is avg(BlockFloor)
+    max_block_floor is max(BlockFloor)
+    min_block_floor is min(BlockFloor)
+    total_block_code is sum(BlockCode)
+    avg_block_code is avg(BlockCode)
+    max_block_code is max(BlockCode)
+    min_block_code is min(BlockCode)
+}
+
+// Affiliated_With
+source: affiliated_with is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Affiliated_With')
+""") extend {
+  primary_key: Physician
+
+  join_one: ref_department is department on Department = ref_department.DepartmentID
+  join_one: ref_physician is physician on Physician = ref_physician.EmployeeID
+
+  dimension:
+    primary_affiliation is PrimaryAffiliation
+
+  measure:
+    row_count is count()
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+    total_department is sum(Department)
+    avg_department is avg(Department)
+    max_department is max(Department)
+    min_department is min(Department)
+}
+
+// Appointment
+source: appointment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Appointment')
+""") extend {
+  primary_key: AppointmentID
+
+  join_one: ref_physician is physician on Physician = ref_physician.EmployeeID
+  join_one: nurse on PrepNurse = nurse.EmployeeID
+  join_one: ref_patient is patient on Patient = ref_patient.SSN
+
+  dimension:
+    appointment_i_d is AppointmentID
+    prep_nurse is PrepNurse
+    end_val is `End`
+    examination_room is ExaminationRoom
+
+  measure:
+    row_count is count()
+    total_appointment_i_d is sum(AppointmentID)
+    avg_appointment_i_d is avg(AppointmentID)
+    max_appointment_i_d is max(AppointmentID)
+    min_appointment_i_d is min(AppointmentID)
+    total_patient is sum(Patient)
+    avg_patient is avg(Patient)
+    max_patient is max(Patient)
+    min_patient is min(Patient)
+    total_prep_nurse is sum(PrepNurse)
+    avg_prep_nurse is avg(PrepNurse)
+    max_prep_nurse is max(PrepNurse)
+    min_prep_nurse is min(PrepNurse)
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+}
+
+// Stay
+source: stay is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Stay')
+""") extend {
+  primary_key: StayID
+
+  join_one: ref_room is room on Room = ref_room.RoomNumber
+  join_one: ref_patient is patient on Patient = ref_patient.SSN
+
+  dimension:
+    stay_i_d is StayID
+    stay_start is StayStart
+    stay_end is StayEnd
+
+  measure:
+    row_count is count()
+    total_stay_i_d is sum(StayID)
+    avg_stay_i_d is avg(StayID)
+    max_stay_i_d is max(StayID)
+    min_stay_i_d is min(StayID)
+    total_patient is sum(Patient)
+    avg_patient is avg(Patient)
+    max_patient is max(Patient)
+    min_patient is min(Patient)
+    total_room is sum(Room)
+    avg_room is avg(Room)
+    max_room is max(Room)
+    min_room is min(Room)
+}
+
+// Prescribes
+source: prescribes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Prescribes')
+""") extend {
+  primary_key: Physician
+
+  join_one: ref_appointment is appointment on Appointment = ref_appointment.AppointmentID
+  join_one: ref_medication is medication on Medication = ref_medication.`Code`
+  join_one: ref_patient is patient on Patient = ref_patient.SSN
+  join_one: ref_physician is physician on Physician = ref_physician.EmployeeID
+
+  dimension:
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+    total_patient is sum(Patient)
+    avg_patient is avg(Patient)
+    max_patient is max(Patient)
+    min_patient is min(Patient)
+    total_medication is sum(Medication)
+    avg_medication is avg(Medication)
+    max_medication is max(Medication)
+    min_medication is min(Medication)
+    total_appointment is sum(Appointment)
+    avg_appointment is avg(Appointment)
+    max_appointment is max(Appointment)
+    min_appointment is min(Appointment)
+}
+
+// Undergoes
+source: undergoes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Undergoes')
+""") extend {
+  primary_key: Patient
+
+  join_one: nurse on AssistingNurse = nurse.EmployeeID
+  join_one: ref_physician is physician on Physician = ref_physician.EmployeeID
+  join_one: ref_stay is stay on Stay = ref_stay.StayID
+  join_one: ref_procedures is procedures on Procedures = ref_procedures.`Code`
+  join_one: ref_patient is patient on Patient = ref_patient.SSN
+
+  dimension:
+    date_undergoes is DateUndergoes
+    assisting_nurse is AssistingNurse
+
+  measure:
+    row_count is count()
+    total_patient is sum(Patient)
+    avg_patient is avg(Patient)
+    max_patient is max(Patient)
+    min_patient is min(Patient)
+    total_procedures is sum(Procedures)
+    avg_procedures is avg(Procedures)
+    max_procedures is max(Procedures)
+    min_procedures is min(Procedures)
+    total_stay is sum(Stay)
+    avg_stay is avg(Stay)
+    max_stay is max(Stay)
+    min_stay is min(Stay)
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+    total_assisting_nurse is sum(AssistingNurse)
+    avg_assisting_nurse is avg(AssistingNurse)
+    max_assisting_nurse is max(AssistingNurse)
+    min_assisting_nurse is min(AssistingNurse)
+}

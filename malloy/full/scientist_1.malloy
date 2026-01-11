@@ -1,0 +1,57 @@
+// Malloy semantic layer for: scientist_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite
+
+// Scientists
+source: scientists is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'Scientists')
+""") extend {
+  primary_key: SSN
+
+  dimension:
+    s_s_n is SSN
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_s_s_n is sum(SSN)
+    avg_s_s_n is avg(SSN)
+    max_s_s_n is max(SSN)
+    min_s_s_n is min(SSN)
+}
+
+// Projects
+source: projects is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'Projects')
+""") extend {
+  primary_key: `Code`
+
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+    hours_val is `Hours`
+
+  measure:
+    row_count is count()
+    total_hours_val is sum(`Hours`)
+    avg_hours_val is avg(`Hours`)
+    max_hours_val is max(`Hours`)
+    min_hours_val is min(`Hours`)
+}
+
+// AssignedTo
+source: assigned_to is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'AssignedTo')
+""") extend {
+  primary_key: Scientist
+
+  join_one: projects on Project = projects.`Code`
+  join_one: scientists on Scientist = scientists.SSN
+
+  measure:
+    row_count is count()
+    total_scientist is sum(Scientist)
+    avg_scientist is avg(Scientist)
+    max_scientist is max(Scientist)
+    min_scientist is min(Scientist)
+}

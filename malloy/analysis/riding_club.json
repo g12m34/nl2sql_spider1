@@ -1,0 +1,45 @@
+{
+  "db_id": "riding_club",
+  "query_count": 17,
+  "tables_used": [
+    "club",
+    "coach",
+    "match_result",
+    "player",
+    "player_coach"
+  ],
+  "dimensions": {
+    "player": [
+      "gender",
+      "occupation",
+      "player_id",
+      "player_name",
+      "rank",
+      "residence",
+      "sponsor_name",
+      "votes"
+    ],
+    "coach": [
+      "club_id",
+      "coach_id",
+      "coach_name",
+      "gender",
+      "rank"
+    ],
+    "player_coach": [
+      "coach_id",
+      "player_id",
+      "starting_year"
+    ],
+    "club": [
+      "club_id",
+      "club_name"
+    ],
+    "match_result": [
+      "club_id",
+      "gold"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

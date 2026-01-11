@@ -1,0 +1,73 @@
+// Malloy semantic layer for: news_report
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/news_report/news_report.sqlite
+
+// event
+source: event is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/news_report/news_report.sqlite', 'event')
+""") extend {
+  primary_key: Event_ID
+
+  dimension:
+    event_i_d is Event_ID
+    date_val is `Date`
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_event_i_d is sum(Event_ID)
+    avg_event_i_d is avg(Event_ID)
+    max_event_i_d is max(Event_ID)
+    min_event_i_d is min(Event_ID)
+    total_event_attendance is sum(Event_Attendance)
+    avg_event_attendance is avg(Event_Attendance)
+    max_event_attendance is max(Event_Attendance)
+    min_event_attendance is min(Event_Attendance)
+}
+
+// journalist
+source: journalist is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/news_report/news_report.sqlite', 'journalist')
+""") extend {
+  primary_key: journalist_ID
+
+  dimension:
+    journalist_i_d is journalist_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_journalist_i_d is sum(journalist_ID)
+    avg_journalist_i_d is avg(journalist_ID)
+    max_journalist_i_d is max(journalist_ID)
+    min_journalist_i_d is min(journalist_ID)
+    total_years_working is sum(Years_working)
+    avg_years_working is avg(Years_working)
+    max_years_working is max(Years_working)
+    min_years_working is min(Years_working)
+}
+
+// news_report
+source: news_report is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/news_report/news_report.sqlite', 'news_report')
+""") extend {
+  primary_key: journalist_ID
+
+  join_one: event on Event_ID = event.Event_ID
+  join_one: journalist on journalist_ID = journalist.journalist_ID
+
+  dimension:
+    journalist_i_d is journalist_ID
+    event_i_d is Event_ID
+
+  measure:
+    row_count is count()
+    total_journalist_i_d is sum(journalist_ID)
+    avg_journalist_i_d is avg(journalist_ID)
+    max_journalist_i_d is max(journalist_ID)
+    min_journalist_i_d is min(journalist_ID)
+    total_event_i_d is sum(Event_ID)
+    avg_event_i_d is avg(Event_ID)
+    max_event_i_d is max(Event_ID)
+    min_event_i_d is min(Event_ID)
+}

@@ -1,0 +1,37 @@
+{
+  "db_id": "phone_market",
+  "query_count": 15,
+  "tables_used": [
+    "market",
+    "phone",
+    "phone_market"
+  ],
+  "dimensions": {
+    "phone": [
+      "carrier",
+      "memory_in_g",
+      "name",
+      "phone_id",
+      "price"
+    ],
+    "market": [
+      "district",
+      "market_id",
+      "num_of_shops",
+      "ranking"
+    ],
+    "phone_market": [
+      "market_id",
+      "num_of_stock",
+      "phone_id"
+    ]
+  },
+  "measures": {
+    "phone_market": {
+      "sum": [
+        "num_of_stock"
+      ]
+    }
+  },
+  "joins": []
+}

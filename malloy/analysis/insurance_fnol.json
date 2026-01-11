@@ -1,0 +1,64 @@
+{
+  "db_id": "insurance_fnol",
+  "query_count": 42,
+  "tables_used": [
+    "available_policies",
+    "claims",
+    "customers",
+    "customers_policies",
+    "first_notification_of_loss",
+    "services",
+    "settlements"
+  ],
+  "dimensions": {
+    "available_policies": [
+      "customer_phone",
+      "policy_id",
+      "policy_type_code"
+    ],
+    "settlements": [
+      "claim_id",
+      "effective_date",
+      "settlement_amount"
+    ],
+    "services": [
+      "service_id",
+      "service_name"
+    ],
+    "first_notification_of_loss": [
+      "customer_id",
+      "service_id"
+    ],
+    "claims": [
+      "claim_id",
+      "effective_date"
+    ],
+    "customers": [
+      "customer_id",
+      "customer_name"
+    ],
+    "customers_policies": [
+      "customer_id",
+      "date_closed",
+      "date_opened",
+      "policy_id"
+    ]
+  },
+  "measures": {
+    "settlements": {
+      "sum": [
+        "settlement_amount"
+      ],
+      "avg": [
+        "settlement_amount"
+      ],
+      "min": [
+        "settlement_amount"
+      ],
+      "max": [
+        "settlement_amount"
+      ]
+    }
+  },
+  "joins": []
+}

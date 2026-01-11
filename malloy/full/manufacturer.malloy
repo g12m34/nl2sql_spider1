@@ -1,0 +1,88 @@
+// Malloy semantic layer for: manufacturer
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite
+
+// manufacturer
+source: manufacturer is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite', 'manufacturer')
+""") extend {
+  primary_key: Manufacturer_ID
+
+  dimension:
+    manufacturer_i_d is Manufacturer_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_manufacturer_i_d is sum(Manufacturer_ID)
+    avg_manufacturer_i_d is avg(Manufacturer_ID)
+    max_manufacturer_i_d is max(Manufacturer_ID)
+    min_manufacturer_i_d is min(Manufacturer_ID)
+    total_open_year is sum(Open_Year)
+    avg_open_year is avg(Open_Year)
+    max_open_year is max(Open_Year)
+    min_open_year is min(Open_Year)
+    total_num_of_factories is sum(Num_of_Factories)
+    avg_num_of_factories is avg(Num_of_Factories)
+    max_num_of_factories is max(Num_of_Factories)
+    min_num_of_factories is min(Num_of_Factories)
+    total_num_of_shops is sum(Num_of_Shops)
+    avg_num_of_shops is avg(Num_of_Shops)
+    max_num_of_shops is max(Num_of_Shops)
+    min_num_of_shops is min(Num_of_Shops)
+}
+
+// furniture
+source: furniture is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite', 'furniture')
+""") extend {
+  primary_key: Furniture_ID
+
+  dimension:
+    furniture_i_d is Furniture_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_furniture_i_d is sum(Furniture_ID)
+    avg_furniture_i_d is avg(Furniture_ID)
+    max_furniture_i_d is max(Furniture_ID)
+    min_furniture_i_d is min(Furniture_ID)
+    total_num_of_component is sum(Num_of_Component)
+    avg_num_of_component is avg(Num_of_Component)
+    max_num_of_component is max(Num_of_Component)
+    min_num_of_component is min(Num_of_Component)
+    total_market_rate is sum(Market_Rate)
+    avg_market_rate is avg(Market_Rate)
+    max_market_rate is max(Market_Rate)
+    min_market_rate is min(Market_Rate)
+}
+
+// furniture_manufacte
+source: furniture_manufacte is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite', 'furniture_manufacte')
+""") extend {
+  primary_key: Manufacturer_ID
+
+  join_one: furniture on Furniture_ID = furniture.Furniture_ID
+  join_one: manufacturer on Manufacturer_ID = manufacturer.Manufacturer_ID
+
+  dimension:
+    manufacturer_i_d is Manufacturer_ID
+    furniture_i_d is Furniture_ID
+
+  measure:
+    row_count is count()
+    total_manufacturer_i_d is sum(Manufacturer_ID)
+    avg_manufacturer_i_d is avg(Manufacturer_ID)
+    max_manufacturer_i_d is max(Manufacturer_ID)
+    min_manufacturer_i_d is min(Manufacturer_ID)
+    total_furniture_i_d is sum(Furniture_ID)
+    avg_furniture_i_d is avg(Furniture_ID)
+    max_furniture_i_d is max(Furniture_ID)
+    min_furniture_i_d is min(Furniture_ID)
+    total_price_in_dollar is sum(Price_in_Dollar)
+    avg_price_in_dollar is avg(Price_in_Dollar)
+    max_price_in_dollar is max(Price_in_Dollar)
+    min_price_in_dollar is min(Price_in_Dollar)
+}

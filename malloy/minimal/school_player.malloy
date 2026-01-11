@@ -1,0 +1,41 @@
+// Malloy semantic layer for: school_player
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: player is duckdb.table('player') extend {
+  dimension:
+    age is Age
+    player is Player
+    position is Position
+    school_id is School_ID
+    team is Team
+  measure:
+    row_count is count()
+    count_position is count(position)
+}
+
+source: school is duckdb.table('school') extend {
+  dimension:
+    denomination is Denomination
+    enrollment is Enrollment
+    founded is Founded
+    location is Location
+    school is School
+    school_colors is School_Colors
+    school_id is School_ID
+  measure:
+    row_count is count()
+    avg_enrollment is avg(enrollment)
+}
+
+source: school_details is duckdb.table('school_details') extend {
+  dimension:
+    division is Division
+    nickname is Nickname
+    school_id is School_ID
+  measure:
+    row_count is count()
+}

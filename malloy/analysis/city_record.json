@@ -1,0 +1,41 @@
+{
+  "db_id": "city_record",
+  "query_count": 40,
+  "tables_used": [
+    "city",
+    "hosting_city",
+    "match",
+    "temperature"
+  ],
+  "dimensions": {
+    "hosting_city": [
+      "host_city",
+      "match_id",
+      "year"
+    ],
+    "match": [
+      "competition",
+      "date",
+      "match_id",
+      "venue"
+    ],
+    "city": [
+      "city",
+      "city_id",
+      "gdp",
+      "regional_population"
+    ],
+    "temperature": [
+      "city_id",
+      "dec",
+      "feb",
+      "jan",
+      "jul",
+      "jun",
+      "mar",
+      "oct"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

@@ -1,0 +1,51 @@
+// Malloy semantic layer for: sports_competition
+// Auto-generated from 52 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: club is duckdb.table('club') extend {
+  dimension:
+    club_id is Club_ID
+    name is name
+    region is Region
+    start_year is Start_year
+  measure:
+    row_count is count()
+}
+
+source: club_rank is duckdb.table('club_rank') extend {
+  dimension:
+    gold is Gold
+    silver is Silver
+    total is Total
+  measure:
+    row_count is count()
+    avg_gold is avg(gold)
+    min_silver is min(silver)
+    max_silver is max(silver)
+}
+
+source: competition is duckdb.table('competition') extend {
+  dimension:
+    competition_type is Competition_type
+    country is Country
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: player is duckdb.table('player') extend {
+  dimension:
+    club_id is Club_ID
+    name is name
+    player_id is Player_ID
+    points is Points
+    position is Position
+  measure:
+    row_count is count()
+    sum_points is sum(points)
+    avg_points is avg(points)
+    count_position is count(position)
+}

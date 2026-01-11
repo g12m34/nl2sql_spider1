@@ -1,0 +1,85 @@
+// Malloy semantic layer for: document_management
+// Auto-generated from 44 ground-truth SQL queries
+// Tables used: 9
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: document_functional_areas is duckdb.table('Document_Functional_Areas') extend {
+  dimension:
+    document_code is document_code
+    functional_area_code is functional_area_code
+  measure:
+    row_count is count()
+}
+
+source: document_sections is duckdb.table('Document_Sections') extend {
+  dimension:
+    document_code is document_code
+    section_id is section_id
+    section_title is section_title
+  measure:
+    row_count is count()
+}
+
+source: document_sections_images is duckdb.table('Document_Sections_Images') extend {
+  dimension:
+    section_id is section_id
+  measure:
+    row_count is count()
+}
+
+source: document_structures is duckdb.table('Document_Structures') extend {
+  dimension:
+    document_structure_code is document_structure_code
+    document_structure_description is document_structure_description
+  measure:
+    row_count is count()
+}
+
+source: documents is duckdb.table('Documents') extend {
+  dimension:
+    access_count is access_count
+    document_code is document_code
+    document_name is document_name
+    document_structure_code is document_structure_code
+    document_type_code is document_type_code
+  measure:
+    row_count is count()
+    sum_access_count is sum(access_count)
+    avg_access_count is avg(access_count)
+}
+
+source: functional_areas is duckdb.table('Functional_Areas') extend {
+  dimension:
+    functional_area_code is functional_area_code
+    functional_area_description is functional_area_description
+  measure:
+    row_count is count()
+}
+
+source: images is duckdb.table('Images') extend {
+  dimension:
+    image_name is image_name
+    image_url is image_url
+  measure:
+    row_count is count()
+}
+
+source: roles is duckdb.table('Roles') extend {
+  dimension:
+    role_code is role_code
+    role_description is role_description
+  measure:
+    row_count is count()
+}
+
+source: users is duckdb.table('Users') extend {
+  dimension:
+    password is password
+    role_code is role_code
+    user_login is user_login
+    user_name is user_name
+  measure:
+    row_count is count()
+}

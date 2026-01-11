@@ -1,0 +1,58 @@
+// Malloy semantic layer for: music_1
+// Auto-generated from 100 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: artist is duckdb.table('artist') extend {
+  dimension:
+    artist_name is artist_name
+    country is country
+    gender is gender
+  measure:
+    row_count is count()
+}
+
+source: files is duckdb.table('files') extend {
+  dimension:
+    artist_name is artist_name
+    duration is duration
+    f_id is f_id
+    file_size is file_size
+    formats is formats
+  measure:
+    row_count is count()
+    avg_duration is avg(duration)
+    min_duration is min(duration)
+    max_duration is max(duration)
+}
+
+source: genre is duckdb.table('genre') extend {
+  dimension:
+    g_name is g_name
+    rating is rating
+  measure:
+    row_count is count()
+}
+
+source: song is duckdb.table('song') extend {
+  dimension:
+    artist_name is artist_name
+    country is country
+    f_id is f_id
+    genre_is is genre_is
+    languages is languages
+    rating is rating
+    releasedate is releasedate
+    resolution is resolution
+    song_name is song_name
+  measure:
+    row_count is count()
+    avg_rating is avg(rating)
+    avg_resolution is avg(resolution)
+    min_rating is min(rating)
+    min_resolution is min(resolution)
+    max_rating is max(rating)
+    max_resolution is max(resolution)
+}

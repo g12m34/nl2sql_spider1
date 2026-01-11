@@ -1,0 +1,264 @@
+// Malloy semantic layer for: department_store
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/department_store/department_store.sqlite
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Staff')
+""") extend {
+  primary_key: staff_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+}
+
+// Suppliers
+source: suppliers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Suppliers')
+""") extend {
+  primary_key: supplier_id
+
+  measure:
+    row_count is count()
+    total_supplier_id is sum(supplier_id)
+    avg_supplier_id is avg(supplier_id)
+    max_supplier_id is max(supplier_id)
+    min_supplier_id is min(supplier_id)
+}
+
+// Department_Store_Chain
+source: department_store_chain is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Department_Store_Chain')
+""") extend {
+  primary_key: dept_store_chain_id
+
+  measure:
+    row_count is count()
+    total_dept_store_chain_id is sum(dept_store_chain_id)
+    avg_dept_store_chain_id is avg(dept_store_chain_id)
+    max_dept_store_chain_id is max(dept_store_chain_id)
+    min_dept_store_chain_id is min(dept_store_chain_id)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_product_price is sum(product_price)
+    avg_product_price is avg(product_price)
+    max_product_price is max(product_price)
+    min_product_price is min(product_price)
+}
+
+// Supplier_Addresses
+source: supplier_addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Supplier_Addresses')
+""") extend {
+  primary_key: supplier_id
+
+  join_one: suppliers on supplier_id = suppliers.supplier_id
+  join_one: addresses on address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_supplier_id is sum(supplier_id)
+    avg_supplier_id is avg(supplier_id)
+    max_supplier_id is max(supplier_id)
+    min_supplier_id is min(supplier_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Department_Stores
+source: department_stores is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Department_Stores')
+""") extend {
+  primary_key: dept_store_id
+
+  join_one: department_store_chain on dept_store_chain_id = department_store_chain.dept_store_chain_id
+
+  measure:
+    row_count is count()
+    total_dept_store_id is sum(dept_store_id)
+    avg_dept_store_id is avg(dept_store_id)
+    max_dept_store_id is max(dept_store_id)
+    min_dept_store_id is min(dept_store_id)
+    total_dept_store_chain_id is sum(dept_store_chain_id)
+    avg_dept_store_chain_id is avg(dept_store_chain_id)
+    max_dept_store_chain_id is max(dept_store_chain_id)
+    min_dept_store_chain_id is min(dept_store_chain_id)
+}
+
+// Customer_Addresses
+source: customer_addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Customer_Addresses')
+""") extend {
+  primary_key: customer_id
+
+  join_one: customers on customer_id = customers.customer_id
+  join_one: addresses on address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Customer_Orders
+source: customer_orders is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Customer_Orders')
+""") extend {
+  primary_key: order_id
+
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Product_Suppliers
+source: product_suppliers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Product_Suppliers')
+""") extend {
+  primary_key: product_id
+
+  join_one: products on product_id = products.product_id
+  join_one: suppliers on supplier_id = suppliers.supplier_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_supplier_id is sum(supplier_id)
+    avg_supplier_id is avg(supplier_id)
+    max_supplier_id is max(supplier_id)
+    min_supplier_id is min(supplier_id)
+    total_total_value_purchased is sum(total_value_purchased)
+    avg_total_value_purchased is avg(total_value_purchased)
+    max_total_value_purchased is max(total_value_purchased)
+    min_total_value_purchased is min(total_value_purchased)
+}
+
+// Departments
+source: departments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Departments')
+""") extend {
+  primary_key: department_id
+
+  join_one: department_stores on dept_store_id = department_stores.dept_store_id
+
+  measure:
+    row_count is count()
+    total_department_id is sum(department_id)
+    avg_department_id is avg(department_id)
+    max_department_id is max(department_id)
+    min_department_id is min(department_id)
+    total_dept_store_id is sum(dept_store_id)
+    avg_dept_store_id is avg(dept_store_id)
+    max_dept_store_id is max(dept_store_id)
+    min_dept_store_id is min(dept_store_id)
+}
+
+// Order_Items
+source: order_items is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Order_Items')
+""") extend {
+  primary_key: order_item_id
+
+  join_one: products on product_id = products.product_id
+  join_one: customer_orders on order_id = customer_orders.order_id
+
+  measure:
+    row_count is count()
+    total_order_item_id is sum(order_item_id)
+    avg_order_item_id is avg(order_item_id)
+    max_order_item_id is max(order_item_id)
+    min_order_item_id is min(order_item_id)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Staff_Department_Assignments
+source: staff_department_assignments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Staff_Department_Assignments')
+""") extend {
+  primary_key: staff_id
+
+  join_one: staff_val on staff_id = staff_val.staff_id
+  join_one: departments on department_id = departments.department_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_department_id is sum(department_id)
+    avg_department_id is avg(department_id)
+    max_department_id is max(department_id)
+    min_department_id is min(department_id)
+}

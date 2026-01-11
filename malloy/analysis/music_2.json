@@ -1,0 +1,69 @@
+{
+  "db_id": "music_2",
+  "query_count": 100,
+  "tables_used": [
+    "albums",
+    "band",
+    "instruments",
+    "performance",
+    "songs",
+    "tracklists",
+    "vocals"
+  ],
+  "dimensions": {
+    "albums": [
+      "aid",
+      "label",
+      "title",
+      "type",
+      "year"
+    ],
+    "band": [
+      "firstname",
+      "id",
+      "lastname"
+    ],
+    "performance": [
+      "bandmate",
+      "songid",
+      "stageposition"
+    ],
+    "songs": [
+      "songid",
+      "title"
+    ],
+    "instruments": [
+      "bandmateid",
+      "instrument",
+      "songid"
+    ],
+    "vocals": [
+      "bandmate",
+      "songid",
+      "type"
+    ],
+    "tracklists": [
+      "albumid",
+      "songid"
+    ]
+  },
+  "measures": {
+    "albums": {
+      "count": [
+        "label",
+        "title"
+      ]
+    },
+    "instruments": {
+      "count": [
+        "instrument"
+      ]
+    },
+    "songs": {
+      "count": [
+        "title"
+      ]
+    }
+  },
+  "joins": []
+}

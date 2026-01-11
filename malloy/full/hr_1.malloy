@@ -1,0 +1,193 @@
+// Malloy semantic layer for: hr_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/hr_1/hr_1.sqlite
+
+// regions
+source: regions is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'regions')
+""") extend {
+  primary_key: REGION_ID
+
+  dimension:
+    r_e_g_i_o_n_i_d is REGION_ID
+    r_e_g_i_o_n_n_a_m_e is REGION_NAME
+
+  measure:
+    row_count is count()
+    total_r_e_g_i_o_n_i_d is sum(REGION_ID)
+    avg_r_e_g_i_o_n_i_d is avg(REGION_ID)
+    max_r_e_g_i_o_n_i_d is max(REGION_ID)
+    min_r_e_g_i_o_n_i_d is min(REGION_ID)
+}
+
+// departments
+source: departments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'departments')
+""") extend {
+  primary_key: DEPARTMENT_ID
+
+  dimension:
+    d_e_p_a_r_t_m_e_n_t_i_d is DEPARTMENT_ID
+    d_e_p_a_r_t_m_e_n_t_n_a_m_e is DEPARTMENT_NAME
+    m_a_n_a_g_e_r_i_d is MANAGER_ID
+    l_o_c_a_t_i_o_n_i_d is LOCATION_ID
+
+  measure:
+    row_count is count()
+    total_d_e_p_a_r_t_m_e_n_t_i_d is sum(DEPARTMENT_ID)
+    avg_d_e_p_a_r_t_m_e_n_t_i_d is avg(DEPARTMENT_ID)
+    max_d_e_p_a_r_t_m_e_n_t_i_d is max(DEPARTMENT_ID)
+    min_d_e_p_a_r_t_m_e_n_t_i_d is min(DEPARTMENT_ID)
+    total_m_a_n_a_g_e_r_i_d is sum(MANAGER_ID)
+    avg_m_a_n_a_g_e_r_i_d is avg(MANAGER_ID)
+    max_m_a_n_a_g_e_r_i_d is max(MANAGER_ID)
+    min_m_a_n_a_g_e_r_i_d is min(MANAGER_ID)
+    total_l_o_c_a_t_i_o_n_i_d is sum(LOCATION_ID)
+    avg_l_o_c_a_t_i_o_n_i_d is avg(LOCATION_ID)
+    max_l_o_c_a_t_i_o_n_i_d is max(LOCATION_ID)
+    min_l_o_c_a_t_i_o_n_i_d is min(LOCATION_ID)
+}
+
+// jobs
+source: jobs is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'jobs')
+""") extend {
+  primary_key: JOB_ID
+
+  dimension:
+    j_o_b_i_d is JOB_ID
+    j_o_b_t_i_t_l_e is JOB_TITLE
+    m_i_n_s_a_l_a_r_y is MIN_SALARY
+    m_a_x_s_a_l_a_r_y is MAX_SALARY
+
+  measure:
+    row_count is count()
+    total_m_i_n_s_a_l_a_r_y is sum(MIN_SALARY)
+    avg_m_i_n_s_a_l_a_r_y is avg(MIN_SALARY)
+    max_m_i_n_s_a_l_a_r_y is max(MIN_SALARY)
+    min_m_i_n_s_a_l_a_r_y is min(MIN_SALARY)
+    total_m_a_x_s_a_l_a_r_y is sum(MAX_SALARY)
+    avg_m_a_x_s_a_l_a_r_y is avg(MAX_SALARY)
+    max_m_a_x_s_a_l_a_r_y is max(MAX_SALARY)
+    min_m_a_x_s_a_l_a_r_y is min(MAX_SALARY)
+}
+
+// countries
+source: countries is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'countries')
+""") extend {
+  primary_key: COUNTRY_ID
+
+  join_one: regions on REGION_ID = regions.REGION_ID
+
+  dimension:
+    c_o_u_n_t_r_y_i_d is COUNTRY_ID
+    c_o_u_n_t_r_y_n_a_m_e is COUNTRY_NAME
+    r_e_g_i_o_n_i_d is REGION_ID
+
+  measure:
+    row_count is count()
+    total_r_e_g_i_o_n_i_d is sum(REGION_ID)
+    avg_r_e_g_i_o_n_i_d is avg(REGION_ID)
+    max_r_e_g_i_o_n_i_d is max(REGION_ID)
+    min_r_e_g_i_o_n_i_d is min(REGION_ID)
+}
+
+// employees
+source: employees is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'employees')
+""") extend {
+  primary_key: EMPLOYEE_ID
+
+  join_one: jobs on JOB_ID = jobs.JOB_ID
+  join_one: departments on DEPARTMENT_ID = departments.DEPARTMENT_ID
+
+  dimension:
+    e_m_p_l_o_y_e_e_i_d is EMPLOYEE_ID
+    f_i_r_s_t_n_a_m_e is FIRST_NAME
+    l_a_s_t_n_a_m_e is LAST_NAME
+    e_m_a_i_l is EMAIL
+    p_h_o_n_e_n_u_m_b_e_r is PHONE_NUMBER
+    h_i_r_e_d_a_t_e is HIRE_DATE
+    j_o_b_i_d is JOB_ID
+    s_a_l_a_r_y is SALARY
+    c_o_m_m_i_s_s_i_o_n_p_c_t is COMMISSION_PCT
+    m_a_n_a_g_e_r_i_d is MANAGER_ID
+    d_e_p_a_r_t_m_e_n_t_i_d is DEPARTMENT_ID
+
+  measure:
+    row_count is count()
+    total_e_m_p_l_o_y_e_e_i_d is sum(EMPLOYEE_ID)
+    avg_e_m_p_l_o_y_e_e_i_d is avg(EMPLOYEE_ID)
+    max_e_m_p_l_o_y_e_e_i_d is max(EMPLOYEE_ID)
+    min_e_m_p_l_o_y_e_e_i_d is min(EMPLOYEE_ID)
+    total_s_a_l_a_r_y is sum(SALARY)
+    avg_s_a_l_a_r_y is avg(SALARY)
+    max_s_a_l_a_r_y is max(SALARY)
+    min_s_a_l_a_r_y is min(SALARY)
+    total_c_o_m_m_i_s_s_i_o_n_p_c_t is sum(COMMISSION_PCT)
+    avg_c_o_m_m_i_s_s_i_o_n_p_c_t is avg(COMMISSION_PCT)
+    max_c_o_m_m_i_s_s_i_o_n_p_c_t is max(COMMISSION_PCT)
+    min_c_o_m_m_i_s_s_i_o_n_p_c_t is min(COMMISSION_PCT)
+    total_m_a_n_a_g_e_r_i_d is sum(MANAGER_ID)
+    avg_m_a_n_a_g_e_r_i_d is avg(MANAGER_ID)
+    max_m_a_n_a_g_e_r_i_d is max(MANAGER_ID)
+    min_m_a_n_a_g_e_r_i_d is min(MANAGER_ID)
+    total_d_e_p_a_r_t_m_e_n_t_i_d is sum(DEPARTMENT_ID)
+    avg_d_e_p_a_r_t_m_e_n_t_i_d is avg(DEPARTMENT_ID)
+    max_d_e_p_a_r_t_m_e_n_t_i_d is max(DEPARTMENT_ID)
+    min_d_e_p_a_r_t_m_e_n_t_i_d is min(DEPARTMENT_ID)
+}
+
+// locations
+source: locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'locations')
+""") extend {
+  primary_key: LOCATION_ID
+
+  join_one: countries on COUNTRY_ID = countries.COUNTRY_ID
+
+  dimension:
+    l_o_c_a_t_i_o_n_i_d is LOCATION_ID
+    s_t_r_e_e_t_a_d_d_r_e_s_s is STREET_ADDRESS
+    p_o_s_t_a_l_c_o_d_e is POSTAL_CODE
+    c_i_t_y is CITY
+    s_t_a_t_e_p_r_o_v_i_n_c_e is STATE_PROVINCE
+    c_o_u_n_t_r_y_i_d is COUNTRY_ID
+
+  measure:
+    row_count is count()
+    total_l_o_c_a_t_i_o_n_i_d is sum(LOCATION_ID)
+    avg_l_o_c_a_t_i_o_n_i_d is avg(LOCATION_ID)
+    max_l_o_c_a_t_i_o_n_i_d is max(LOCATION_ID)
+    min_l_o_c_a_t_i_o_n_i_d is min(LOCATION_ID)
+}
+
+// job_history
+source: job_history is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'job_history')
+""") extend {
+  primary_key: EMPLOYEE_ID
+
+  join_one: jobs on JOB_ID = jobs.JOB_ID
+  join_one: departments on DEPARTMENT_ID = departments.DEPARTMENT_ID
+  join_one: employees on EMPLOYEE_ID = employees.EMPLOYEE_ID
+
+  dimension:
+    e_m_p_l_o_y_e_e_i_d is EMPLOYEE_ID
+    s_t_a_r_t_d_a_t_e is START_DATE
+    e_n_d_d_a_t_e is END_DATE
+    j_o_b_i_d is JOB_ID
+    d_e_p_a_r_t_m_e_n_t_i_d is DEPARTMENT_ID
+
+  measure:
+    row_count is count()
+    total_e_m_p_l_o_y_e_e_i_d is sum(EMPLOYEE_ID)
+    avg_e_m_p_l_o_y_e_e_i_d is avg(EMPLOYEE_ID)
+    max_e_m_p_l_o_y_e_e_i_d is max(EMPLOYEE_ID)
+    min_e_m_p_l_o_y_e_e_i_d is min(EMPLOYEE_ID)
+    total_d_e_p_a_r_t_m_e_n_t_i_d is sum(DEPARTMENT_ID)
+    avg_d_e_p_a_r_t_m_e_n_t_i_d is avg(DEPARTMENT_ID)
+    max_d_e_p_a_r_t_m_e_n_t_i_d is max(DEPARTMENT_ID)
+    min_d_e_p_a_r_t_m_e_n_t_i_d is min(DEPARTMENT_ID)
+}

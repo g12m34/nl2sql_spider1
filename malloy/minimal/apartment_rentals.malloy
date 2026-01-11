@@ -1,0 +1,77 @@
+// Malloy semantic layer for: apartment_rentals
+// Auto-generated from 80 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: apartment_bookings is duckdb.table('Apartment_Bookings') extend {
+  dimension:
+    apt_id is apt_id
+    booking_end_date is booking_end_date
+    booking_start_date is booking_start_date
+    booking_status_code is booking_status_code
+    guest_id is guest_id
+  measure:
+    row_count is count()
+}
+
+source: apartment_buildings is duckdb.table('Apartment_Buildings') extend {
+  dimension:
+    building_address is building_address
+    building_description is building_description
+    building_full_name is building_full_name
+    building_id is building_id
+    building_manager is building_manager
+    building_phone is building_phone
+    building_short_name is building_short_name
+  measure:
+    row_count is count()
+}
+
+source: apartment_facilities is duckdb.table('Apartment_Facilities') extend {
+  dimension:
+    apt_id is apt_id
+    facility_code is facility_code
+  measure:
+    row_count is count()
+}
+
+source: apartments is duckdb.table('Apartments') extend {
+  dimension:
+    apt_id is apt_id
+    apt_number is apt_number
+    apt_type_code is apt_type_code
+    bathroom_count is bathroom_count
+    bedroom_count is bedroom_count
+    building_id is building_id
+    room_count is room_count
+  measure:
+    row_count is count()
+    sum_room_count is sum(room_count)
+    avg_bedroom_count is avg(bedroom_count)
+    avg_room_count is avg(room_count)
+    min_bathroom_count is min(bathroom_count)
+    min_room_count is min(room_count)
+    max_bathroom_count is max(bathroom_count)
+    max_room_count is max(room_count)
+}
+
+source: guests is duckdb.table('Guests') extend {
+  dimension:
+    date_of_birth is date_of_birth
+    gender_code is gender_code
+    guest_first_name is guest_first_name
+    guest_id is guest_id
+    guest_last_name is guest_last_name
+  measure:
+    row_count is count()
+}
+
+source: view_unit_status is duckdb.table('View_Unit_Status') extend {
+  dimension:
+    apt_id is apt_id
+    available_yn is available_yn
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,49 @@
+{
+  "db_id": "flight_4",
+  "query_count": 82,
+  "tables_used": [
+    "airlines",
+    "airports",
+    "routes"
+  ],
+  "dimensions": {
+    "airports": [
+      "apid",
+      "city",
+      "country",
+      "elevation",
+      "name"
+    ],
+    "airlines": [
+      "active",
+      "alid",
+      "country",
+      "name"
+    ],
+    "routes": [
+      "alid",
+      "dst_apid",
+      "rid",
+      "src_apid"
+    ]
+  },
+  "measures": {
+    "airports": {
+      "max": [
+        "elevation"
+      ],
+      "count": [
+        "city"
+      ],
+      "avg": [
+        "elevation"
+      ]
+    },
+    "routes": {
+      "count": [
+        "dst_apid"
+      ]
+    }
+  },
+  "joins": []
+}

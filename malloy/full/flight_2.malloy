@@ -1,0 +1,58 @@
+// Malloy semantic layer for: flight_2
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/flight_2/flight_2.sqlite
+
+// airlines
+source: airlines is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'airlines')
+""") extend {
+  primary_key: uid
+
+  measure:
+    row_count is count()
+    total_uid is sum(uid)
+    avg_uid is avg(uid)
+    max_uid is max(uid)
+    min_uid is min(uid)
+}
+
+// airports
+source: airports is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'airports')
+""") extend {
+  primary_key: AirportCode
+
+  dimension:
+    airport_code is AirportCode
+    airport_name is AirportName
+    country_abbrev is CountryAbbrev
+
+  measure:
+    row_count is count()
+}
+
+// flights
+source: flights is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'flights')
+""") extend {
+  primary_key: Airline
+
+  join_one: dest_airport_airports is airports on DestAirport = dest_airport_airports.AirportCode
+  join_one: source_airport_airports is airports on SourceAirport = source_airport_airports.AirportCode
+
+  dimension:
+    flight_no is FlightNo
+    source_airport is SourceAirport
+    dest_airport is DestAirport
+
+  measure:
+    row_count is count()
+    total_airline is sum(Airline)
+    avg_airline is avg(Airline)
+    max_airline is max(Airline)
+    min_airline is min(Airline)
+    total_flight_no is sum(FlightNo)
+    avg_flight_no is avg(FlightNo)
+    max_flight_no is max(FlightNo)
+    min_flight_no is min(FlightNo)
+}

@@ -1,0 +1,67 @@
+// Malloy semantic layer for: party_host
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/party_host/party_host.sqlite
+
+// party
+source: party is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'party')
+""") extend {
+  primary_key: Party_ID
+
+  dimension:
+    party_i_d is Party_ID
+
+  measure:
+    row_count is count()
+    total_party_i_d is sum(Party_ID)
+    avg_party_i_d is avg(Party_ID)
+    max_party_i_d is max(Party_ID)
+    min_party_i_d is min(Party_ID)
+    total_number_of_hosts is sum(Number_of_hosts)
+    avg_number_of_hosts is avg(Number_of_hosts)
+    max_number_of_hosts is max(Number_of_hosts)
+    min_number_of_hosts is min(Number_of_hosts)
+}
+
+// host
+source: host is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'host')
+""") extend {
+  primary_key: Host_ID
+
+  dimension:
+    host_i_d is Host_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_host_i_d is sum(Host_ID)
+    avg_host_i_d is avg(Host_ID)
+    max_host_i_d is max(Host_ID)
+    min_host_i_d is min(Host_ID)
+}
+
+// party_host
+source: party_host is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'party_host')
+""") extend {
+  primary_key: Party_ID
+
+  join_one: party on Party_ID = party.Party_ID
+  join_one: host on Host_ID = host.Host_ID
+
+  dimension:
+    party_i_d is Party_ID
+    host_i_d is Host_ID
+
+  measure:
+    row_count is count()
+    total_party_i_d is sum(Party_ID)
+    avg_party_i_d is avg(Party_ID)
+    max_party_i_d is max(Party_ID)
+    min_party_i_d is min(Party_ID)
+    total_host_i_d is sum(Host_ID)
+    avg_host_i_d is avg(Host_ID)
+    max_host_i_d is max(Host_ID)
+    min_host_i_d is min(Host_ID)
+}

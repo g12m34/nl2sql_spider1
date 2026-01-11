@@ -1,0 +1,110 @@
+{
+  "db_id": "cre_Theme_park",
+  "query_count": 84,
+  "tables_used": [
+    "features",
+    "hotels",
+    "locations",
+    "museums",
+    "photos",
+    "ref_attraction_types",
+    "ref_hotel_star_ratings",
+    "royal_family",
+    "shops",
+    "staff",
+    "street_markets",
+    "tourist_attraction_features",
+    "tourist_attractions",
+    "visitors",
+    "visits"
+  ],
+  "dimensions": {
+    "hotels": [
+      "hotel_id",
+      "other_hotel_details",
+      "pets_allowed_yn",
+      "price_range",
+      "star_rating_code"
+    ],
+    "locations": [
+      "address",
+      "location_id",
+      "location_name",
+      "other_details"
+    ],
+    "staff": [
+      "name",
+      "other_details",
+      "tourist_attraction_id"
+    ],
+    "visitors": [
+      "tourist_details",
+      "tourist_id"
+    ],
+    "photos": [
+      "description",
+      "name",
+      "tourist_attraction_id"
+    ],
+    "visits": [
+      "tourist_attraction_id",
+      "tourist_id",
+      "visit_date",
+      "visit_details"
+    ],
+    "tourist_attractions": [
+      "attraction_type_code",
+      "description",
+      "how_to_get_there",
+      "location_id",
+      "name",
+      "opening_hours",
+      "tourist_attraction_id"
+    ],
+    "ref_hotel_star_ratings": [
+      "star_rating_code",
+      "star_rating_description"
+    ],
+    "museums": [
+      "museum_details",
+      "museum_id"
+    ],
+    "royal_family": [
+      "royal_family_details",
+      "royal_family_id"
+    ],
+    "shops": [
+      "shop_details",
+      "shop_id"
+    ],
+    "street_markets": [
+      "market_details",
+      "market_id"
+    ],
+    "ref_attraction_types": [
+      "attraction_type_code",
+      "attraction_type_description"
+    ],
+    "features": [
+      "feature_details",
+      "feature_id"
+    ],
+    "tourist_attraction_features": [
+      "feature_id",
+      "tourist_attraction_id"
+    ]
+  },
+  "measures": {
+    "hotels": {
+      "avg": [
+        "price_range"
+      ]
+    },
+    "photos": {
+      "count": [
+        "name"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,46 @@
+// Malloy semantic layer for: party_people
+// Auto-generated from 44 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: member is duckdb.table('member') extend {
+  dimension:
+    member_id is Member_ID
+    member_name is Member_Name
+    party_id is Party_ID
+  measure:
+    row_count is count()
+}
+
+source: party is duckdb.table('party') extend {
+  dimension:
+    left_office is Left_office
+    minister is Minister
+    party_id is Party_ID
+    party_name is Party_name
+    region_id is Region_ID
+    took_office is Took_office
+  measure:
+    row_count is count()
+    count_party_name is count(party_name)
+}
+
+source: party_events is duckdb.table('party_events') extend {
+  dimension:
+    event_name is Event_Name
+    member_in_charge_id is Member_in_charge_ID
+    party_id is Party_ID
+  measure:
+    row_count is count()
+}
+
+source: region is duckdb.table('region') extend {
+  dimension:
+    label is Label
+    region_id is Region_ID
+    region_name is Region_name
+  measure:
+    row_count is count()
+}

@@ -1,0 +1,95 @@
+// Malloy semantic layer for: party_people
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/party_people/party_people.sqlite
+
+// region
+source: region is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'region')
+""") extend {
+  primary_key: Region_ID
+
+  dimension:
+    region_i_d is Region_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_region_i_d is sum(Region_ID)
+    avg_region_i_d is avg(Region_ID)
+    max_region_i_d is max(Region_ID)
+    min_region_i_d is min(Region_ID)
+}
+
+// party
+source: party is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'party')
+""") extend {
+  primary_key: Party_ID
+
+  join_one: region on Region_ID = region.Region_ID
+
+  dimension:
+    party_i_d is Party_ID
+    region_i_d is Region_ID
+
+  measure:
+    row_count is count()
+    total_party_i_d is sum(Party_ID)
+    avg_party_i_d is avg(Party_ID)
+    max_party_i_d is max(Party_ID)
+    min_party_i_d is min(Party_ID)
+    total_region_i_d is sum(Region_ID)
+    avg_region_i_d is avg(Region_ID)
+    max_region_i_d is max(Region_ID)
+    min_region_i_d is min(Region_ID)
+}
+
+// member
+source: member is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'member')
+""") extend {
+  primary_key: Member_ID
+
+  join_one: party on Party_ID = party.Party_ID
+
+  dimension:
+    member_i_d is Member_ID
+    party_i_d is Party_ID
+
+  measure:
+    row_count is count()
+    total_member_i_d is sum(Member_ID)
+    avg_member_i_d is avg(Member_ID)
+    max_member_i_d is max(Member_ID)
+    min_member_i_d is min(Member_ID)
+}
+
+// party_events
+source: party_events is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'party_events')
+""") extend {
+  primary_key: Event_ID
+
+  join_one: member on Member_in_charge_ID = member.Member_ID
+  join_one: party on Party_ID = party.Party_ID
+
+  dimension:
+    event_i_d is Event_ID
+    party_i_d is Party_ID
+    member_in_charge_i_d is Member_in_charge_ID
+
+  measure:
+    row_count is count()
+    total_event_i_d is sum(Event_ID)
+    avg_event_i_d is avg(Event_ID)
+    max_event_i_d is max(Event_ID)
+    min_event_i_d is min(Event_ID)
+    total_party_i_d is sum(Party_ID)
+    avg_party_i_d is avg(Party_ID)
+    max_party_i_d is max(Party_ID)
+    min_party_i_d is min(Party_ID)
+    total_member_in_charge_i_d is sum(Member_in_charge_ID)
+    avg_member_in_charge_i_d is avg(Member_in_charge_ID)
+    max_member_in_charge_i_d is max(Member_in_charge_ID)
+    min_member_in_charge_i_d is min(Member_in_charge_ID)
+}

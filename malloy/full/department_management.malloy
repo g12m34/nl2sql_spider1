@@ -1,0 +1,80 @@
+// Malloy semantic layer for: department_management
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/department_management/department_management.sqlite
+
+// department
+source: department is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'department')
+""") extend {
+  primary_key: Department_ID
+
+  dimension:
+    department_i_d is Department_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_department_i_d is sum(Department_ID)
+    avg_department_i_d is avg(Department_ID)
+    max_department_i_d is max(Department_ID)
+    min_department_i_d is min(Department_ID)
+    total_ranking is sum(Ranking)
+    avg_ranking is avg(Ranking)
+    max_ranking is max(Ranking)
+    min_ranking is min(Ranking)
+    total_budget_in_billions is sum(Budget_in_Billions)
+    avg_budget_in_billions is avg(Budget_in_Billions)
+    max_budget_in_billions is max(Budget_in_Billions)
+    min_budget_in_billions is min(Budget_in_Billions)
+    total_num_employees is sum(Num_Employees)
+    avg_num_employees is avg(Num_Employees)
+    max_num_employees is max(Num_Employees)
+    min_num_employees is min(Num_Employees)
+}
+
+// head
+source: head is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'head')
+""") extend {
+  primary_key: head_ID
+
+  dimension:
+    head_i_d is head_ID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_head_i_d is sum(head_ID)
+    avg_head_i_d is avg(head_ID)
+    max_head_i_d is max(head_ID)
+    min_head_i_d is min(head_ID)
+    total_age is sum(age)
+    avg_age is avg(age)
+    max_age is max(age)
+    min_age is min(age)
+}
+
+// management
+source: management is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'management')
+""") extend {
+  primary_key: department_ID
+
+  join_one: head on head_ID = head.head_ID
+  join_one: department on department_ID = department.Department_ID
+
+  dimension:
+    department_i_d is department_ID
+    head_i_d is head_ID
+
+  measure:
+    row_count is count()
+    total_department_i_d is sum(department_ID)
+    avg_department_i_d is avg(department_ID)
+    max_department_i_d is max(department_ID)
+    min_department_i_d is min(department_ID)
+    total_head_i_d is sum(head_ID)
+    avg_head_i_d is avg(head_ID)
+    max_head_i_d is max(head_ID)
+    min_head_i_d is min(head_ID)
+}

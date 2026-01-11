@@ -1,0 +1,78 @@
+{
+  "db_id": "world_1",
+  "query_count": 120,
+  "tables_used": [
+    "city",
+    "country",
+    "countrylanguage"
+  ],
+  "dimensions": {
+    "country": [
+      "code",
+      "continent",
+      "gnp",
+      "governmentform",
+      "headofstate",
+      "indepyear",
+      "lifeexpectancy",
+      "name",
+      "population",
+      "region",
+      "surfacearea"
+    ],
+    "city": [
+      "countrycode",
+      "district",
+      "name",
+      "population"
+    ],
+    "countrylanguage": [
+      "countrycode",
+      "isofficial",
+      "language",
+      "percentage"
+    ]
+  },
+  "measures": {
+    "country": {
+      "sum": [
+        "population",
+        "surfacearea"
+      ],
+      "avg": [
+        "gnp",
+        "lifeexpectancy",
+        "surfacearea"
+      ],
+      "max": [
+        "gnp",
+        "population"
+      ],
+      "count": [
+        "continent",
+        "governmentform"
+      ],
+      "min": [
+        "population",
+        "surfacearea"
+      ]
+    },
+    "city": {
+      "sum": [
+        "population"
+      ],
+      "avg": [
+        "population"
+      ]
+    },
+    "countrylanguage": {
+      "count": [
+        "language"
+      ],
+      "max": [
+        "percentage"
+      ]
+    }
+  },
+  "joins": []
+}

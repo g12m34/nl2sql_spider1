@@ -1,0 +1,148 @@
+// Malloy semantic layer for: riding_club
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/riding_club/riding_club.sqlite
+
+// player
+source: player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player')
+""") extend {
+  primary_key: Player_ID
+
+  dimension:
+    player_i_d is Player_ID
+    rank_val is `Rank`
+
+  measure:
+    row_count is count()
+    total_player_i_d is sum(Player_ID)
+    avg_player_i_d is avg(Player_ID)
+    max_player_i_d is max(Player_ID)
+    min_player_i_d is min(Player_ID)
+    total_votes is sum(Votes)
+    avg_votes is avg(Votes)
+    max_votes is max(Votes)
+    min_votes is min(Votes)
+}
+
+// club
+source: club_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'club')
+""") extend {
+  primary_key: Club_ID
+
+  dimension:
+    club_i_d is Club_ID
+
+  measure:
+    row_count is count()
+    total_club_i_d is sum(Club_ID)
+    avg_club_i_d is avg(Club_ID)
+    max_club_i_d is max(Club_ID)
+    min_club_i_d is min(Club_ID)
+    total_start_year is sum(Start_year)
+    avg_start_year is avg(Start_year)
+    max_start_year is max(Start_year)
+    min_start_year is min(Start_year)
+}
+
+// coach
+source: coach is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'coach')
+""") extend {
+  primary_key: Coach_ID
+
+  join_one: club_val on Club_ID = club_val.Club_ID
+
+  dimension:
+    coach_i_d is Coach_ID
+    club_i_d is Club_ID
+    rank_val is `Rank`
+
+  measure:
+    row_count is count()
+    total_coach_i_d is sum(Coach_ID)
+    avg_coach_i_d is avg(Coach_ID)
+    max_coach_i_d is max(Coach_ID)
+    min_coach_i_d is min(Coach_ID)
+    total_club_i_d is sum(Club_ID)
+    avg_club_i_d is avg(Club_ID)
+    max_club_i_d is max(Club_ID)
+    min_club_i_d is min(Club_ID)
+    total_rank_val is sum(`Rank`)
+    avg_rank_val is avg(`Rank`)
+    max_rank_val is max(`Rank`)
+    min_rank_val is min(`Rank`)
+}
+
+// match_result
+source: match_result is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'match_result')
+""") extend {
+  primary_key: `Rank`
+
+  join_one: club_val on Club_ID = club_val.Club_ID
+
+  dimension:
+    rank_val is `Rank`
+    club_i_d is Club_ID
+
+  measure:
+    row_count is count()
+    total_rank_val is sum(`Rank`)
+    avg_rank_val is avg(`Rank`)
+    max_rank_val is max(`Rank`)
+    min_rank_val is min(`Rank`)
+    total_club_i_d is sum(Club_ID)
+    avg_club_i_d is avg(Club_ID)
+    max_club_i_d is max(Club_ID)
+    min_club_i_d is min(Club_ID)
+    total_gold is sum(Gold)
+    avg_gold is avg(Gold)
+    max_gold is max(Gold)
+    min_gold is min(Gold)
+    total_big_silver is sum(Big_Silver)
+    avg_big_silver is avg(Big_Silver)
+    max_big_silver is max(Big_Silver)
+    min_big_silver is min(Big_Silver)
+    total_small_silver is sum(Small_Silver)
+    avg_small_silver is avg(Small_Silver)
+    max_small_silver is max(Small_Silver)
+    min_small_silver is min(Small_Silver)
+    total_bronze is sum(Bronze)
+    avg_bronze is avg(Bronze)
+    max_bronze is max(Bronze)
+    min_bronze is min(Bronze)
+    total_points is sum(Points)
+    avg_points is avg(Points)
+    max_points is max(Points)
+    min_points is min(Points)
+}
+
+// player_coach
+source: player_coach is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player_coach')
+""") extend {
+  primary_key: Player_ID
+
+  join_one: coach on Coach_ID = coach.Coach_ID
+  join_one: player on Player_ID = player.Player_ID
+
+  dimension:
+    player_i_d is Player_ID
+    coach_i_d is Coach_ID
+
+  measure:
+    row_count is count()
+    total_player_i_d is sum(Player_ID)
+    avg_player_i_d is avg(Player_ID)
+    max_player_i_d is max(Player_ID)
+    min_player_i_d is min(Player_ID)
+    total_coach_i_d is sum(Coach_ID)
+    avg_coach_i_d is avg(Coach_ID)
+    max_coach_i_d is max(Coach_ID)
+    min_coach_i_d is min(Coach_ID)
+    total_starting_year is sum(Starting_year)
+    avg_starting_year is avg(Starting_year)
+    max_starting_year is max(Starting_year)
+    min_starting_year is min(Starting_year)
+}

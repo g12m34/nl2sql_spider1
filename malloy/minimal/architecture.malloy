@@ -1,0 +1,42 @@
+// Malloy semantic layer for: architecture
+// Auto-generated from 17 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: architect is duckdb.table('architect') extend {
+  dimension:
+    gender is gender
+    id is id
+    name is name
+    nationality is nationality
+  measure:
+    row_count is count()
+}
+
+source: bridge is duckdb.table('bridge') extend {
+  dimension:
+    architect_id is architect_id
+    id is id
+    length_feet is length_feet
+    length_meters is length_meters
+    location is location
+    name is name
+  measure:
+    row_count is count()
+    avg_length_feet is avg(length_feet)
+    max_length_meters is max(length_meters)
+}
+
+source: mill is duckdb.table('mill') extend {
+  dimension:
+    architect_id is architect_id
+    built_year is built_year
+    id is id
+    location is location
+    name is name
+    type is type
+  measure:
+    row_count is count()
+}

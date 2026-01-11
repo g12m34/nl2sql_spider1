@@ -1,0 +1,56 @@
+{
+  "db_id": "orchestra",
+  "query_count": 40,
+  "tables_used": [
+    "conductor",
+    "orchestra",
+    "performance",
+    "show"
+  ],
+  "dimensions": {
+    "conductor": [
+      "age",
+      "conductor_id",
+      "name",
+      "nationality",
+      "year_of_work"
+    ],
+    "orchestra": [
+      "conductor_id",
+      "major_record_format",
+      "orchestra",
+      "orchestra_id",
+      "record_company",
+      "year_of_founded"
+    ],
+    "show": [
+      "attendance"
+    ],
+    "performance": [
+      "orchestra_id",
+      "share",
+      "type"
+    ]
+  },
+  "measures": {
+    "show": {
+      "avg": [
+        "attendance"
+      ]
+    },
+    "performance": {
+      "min": [
+        "share"
+      ],
+      "max": [
+        "share"
+      ]
+    },
+    "conductor": {
+      "count": [
+        "nationality"
+      ]
+    }
+  },
+  "joins": []
+}

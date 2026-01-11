@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd MiniMax M2 as key model to evaluate\n\n- Highlight M2 as potential dark horse \\(not overfit to benchmarks\\)\n- Add M2 to all baseline and 3-agent experiment plans\n- Include M2+Sonnet+M2 hybrid configuration\n- Update budget estimates \\(~$37 total for experiments\\)\n- Note M2''s strong tool use and fast inference characteristics\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(chmod:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose run --rm nl2sql bash -c \"echo ''User:'' && whoami && echo && claude --dangerously-skip-permissions -p ''echo hello'' 2>&1 | head -20\")",
+      "Bash(docker volume rm:*)",
+      "Bash(docker compose run --rm nl2sql bash -c \"whoami && ls -la /home/dev/ && echo && claude --dangerously-skip-permissions -p ''say hello'' 2>&1 | head -30\")"
+    ]
+  }
+}

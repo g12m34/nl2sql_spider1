@@ -1,0 +1,60 @@
+{
+  "db_id": "station_weather",
+  "query_count": 16,
+  "tables_used": [
+    "route",
+    "station",
+    "train",
+    "weekly_weather"
+  ],
+  "dimensions": {
+    "station": [
+      "id",
+      "local_authority",
+      "network_name",
+      "services"
+    ],
+    "train": [
+      "destination",
+      "id",
+      "name",
+      "origin",
+      "time",
+      "train_number"
+    ],
+    "route": [
+      "station_id",
+      "train_id"
+    ],
+    "weekly_weather": [
+      "day_of_week",
+      "high_temperature",
+      "low_temperature",
+      "precipitation",
+      "station_id",
+      "wind_speed_mph"
+    ]
+  },
+  "measures": {
+    "weekly_weather": {
+      "avg": [
+        "high_temperature",
+        "precipitation"
+      ],
+      "max": [
+        "low_temperature",
+        "precipitation",
+        "wind_speed_mph"
+      ],
+      "min": [
+        "low_temperature"
+      ]
+    },
+    "station": {
+      "count": [
+        "services"
+      ]
+    }
+  },
+  "joins": []
+}

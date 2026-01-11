@@ -1,0 +1,55 @@
+{
+  "db_id": "employee_hire_evaluation",
+  "query_count": 38,
+  "tables_used": [
+    "employee",
+    "evaluation",
+    "hiring",
+    "shop"
+  ],
+  "dimensions": {
+    "employee": [
+      "age",
+      "city",
+      "employee_id",
+      "name"
+    ],
+    "shop": [
+      "district",
+      "location",
+      "manager_name",
+      "name",
+      "number_products",
+      "shop_id"
+    ],
+    "evaluation": [
+      "bonus",
+      "employee_id"
+    ],
+    "hiring": [
+      "shop_id"
+    ]
+  },
+  "measures": {
+    "shop": {
+      "min": [
+        "number_products"
+      ],
+      "max": [
+        "number_products"
+      ],
+      "avg": [
+        "number_products"
+      ],
+      "count": [
+        "location"
+      ]
+    },
+    "evaluation": {
+      "sum": [
+        "bonus"
+      ]
+    }
+  },
+  "joins": []
+}

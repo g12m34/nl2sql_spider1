@@ -1,0 +1,38 @@
+// Malloy semantic layer for: twitter_1
+// Auto-generated from 27 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: follows is duckdb.table('follows') extend {
+  dimension:
+    f1 is f1
+    f2 is f2
+  measure:
+    row_count is count()
+}
+
+source: tweets is duckdb.table('tweets') extend {
+  dimension:
+    createdate is createdate
+    text is text
+    uid is uid
+  measure:
+    row_count is count()
+    count_uid is count(uid)
+}
+
+source: user_profiles is duckdb.table('user_profiles') extend {
+  dimension:
+    email is email
+    followers is followers
+    name is name
+    partitionid is partitionid
+    uid is uid
+  measure:
+    row_count is count()
+    sum_followers is sum(followers)
+    avg_followers is avg(followers)
+    max_followers is max(followers)
+}

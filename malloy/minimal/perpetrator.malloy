@@ -1,0 +1,33 @@
+// Malloy semantic layer for: perpetrator
+// Auto-generated from 21 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: people is duckdb.table('people') extend {
+  dimension:
+    height is Height
+    name is Name
+    people_id is People_ID
+    weight is Weight
+  measure:
+    row_count is count()
+}
+
+source: perpetrator is duckdb.table('perpetrator') extend {
+  dimension:
+    country is Country
+    date is Date
+    injured is Injured
+    killed is Killed
+    location is Location
+    people_id is People_ID
+    year is Year
+  measure:
+    row_count is count()
+    sum_killed is sum(killed)
+    avg_injured is avg(injured)
+    max_year is max(year)
+    count_location is count(location)
+}

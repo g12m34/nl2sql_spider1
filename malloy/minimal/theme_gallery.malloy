@@ -1,0 +1,43 @@
+// Malloy semantic layer for: theme_gallery
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: artist is duckdb.table('artist') extend {
+  dimension:
+    age is Age
+    artist_id is Artist_ID
+    country is Country
+    name is Name
+    year_join is Year_Join
+  measure:
+    row_count is count()
+    avg_age is avg(age)
+    min_age is min(age)
+}
+
+source: exhibition is duckdb.table('exhibition') extend {
+  dimension:
+    artist_id is Artist_ID
+    exhibition_id is Exhibition_ID
+    theme is Theme
+    ticket_price is Ticket_Price
+    year is Year
+  measure:
+    row_count is count()
+    avg_ticket_price is avg(ticket_price)
+    min_ticket_price is min(ticket_price)
+    max_ticket_price is max(ticket_price)
+}
+
+source: exhibition_record is duckdb.table('exhibition_record') extend {
+  dimension:
+    attendance is Attendance
+    date is Date
+    exhibition_id is Exhibition_ID
+  measure:
+    row_count is count()
+    avg_attendance is avg(attendance)
+}

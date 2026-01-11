@@ -1,0 +1,106 @@
+{
+  "db_id": "bike_1",
+  "query_count": 104,
+  "tables_used": [
+    "station",
+    "status",
+    "trip",
+    "weather"
+  ],
+  "dimensions": {
+    "weather": [
+      "cloud_cover",
+      "date",
+      "events",
+      "max_dew_point_f",
+      "max_gust_speed_mph",
+      "max_temperature_f",
+      "max_wind_speed_mph",
+      "mean_humidity",
+      "mean_sea_level_pressure_inches",
+      "mean_temperature_f",
+      "mean_visibility_miles",
+      "min_dew_point_f",
+      "min_temperature_f",
+      "zip_code"
+    ],
+    "station": [
+      "city",
+      "dock_count",
+      "id",
+      "installation_date",
+      "lat",
+      "long",
+      "name"
+    ],
+    "trip": [
+      "bike_id",
+      "duration",
+      "end_station_id",
+      "end_station_name",
+      "id",
+      "start_date",
+      "start_station_id",
+      "start_station_name",
+      "zip_code"
+    ],
+    "status": [
+      "bikes_available",
+      "station_id"
+    ]
+  },
+  "measures": {
+    "station": {
+      "max": [
+        "lat"
+      ],
+      "avg": [
+        "lat",
+        "long"
+      ],
+      "count": [
+        "city"
+      ]
+    },
+    "trip": {
+      "sum": [
+        "duration"
+      ],
+      "max": [
+        "duration"
+      ],
+      "count": [
+        "bike_id"
+      ],
+      "avg": [
+        "duration"
+      ],
+      "min": [
+        "duration"
+      ]
+    },
+    "weather": {
+      "avg": [
+        "mean_humidity",
+        "mean_sea_level_pressure_inches",
+        "mean_temperature_f",
+        "mean_visibility_miles"
+      ],
+      "min": [
+        "min_dew_point_f"
+      ]
+    },
+    "status": {
+      "avg": [
+        "bikes_available"
+      ],
+      "max": [
+        "bikes_available"
+      ],
+      "min": [
+        "bikes_available"
+      ]
+    }
+  },
+  "joins": []
+}

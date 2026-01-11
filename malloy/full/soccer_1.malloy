@@ -1,0 +1,348 @@
+// Malloy semantic layer for: soccer_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite
+
+// Player
+source: player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Player')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_player_api_id is sum(player_api_id)
+    avg_player_api_id is avg(player_api_id)
+    max_player_api_id is max(player_api_id)
+    min_player_api_id is min(player_api_id)
+    total_player_fifa_api_id is sum(player_fifa_api_id)
+    avg_player_fifa_api_id is avg(player_fifa_api_id)
+    max_player_fifa_api_id is max(player_fifa_api_id)
+    min_player_fifa_api_id is min(player_fifa_api_id)
+    total_height is sum(height)
+    avg_height is avg(height)
+    max_height is max(height)
+    min_height is min(height)
+    total_weight is sum(weight)
+    avg_weight is avg(weight)
+    max_weight is max(weight)
+    min_weight is min(weight)
+}
+
+// Country
+source: country is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Country')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// Team
+source: team is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Team')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_team_api_id is sum(team_api_id)
+    avg_team_api_id is avg(team_api_id)
+    max_team_api_id is max(team_api_id)
+    min_team_api_id is min(team_api_id)
+    total_team_fifa_api_id is sum(team_fifa_api_id)
+    avg_team_fifa_api_id is avg(team_fifa_api_id)
+    max_team_fifa_api_id is max(team_fifa_api_id)
+    min_team_fifa_api_id is min(team_fifa_api_id)
+}
+
+// Player_Attributes
+source: player_attributes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Player_Attributes')
+""") extend {
+  primary_key: id
+
+  join_one: player_api_player is player on player_api_id = player_api_player.player_api_id
+  join_one: player_fifa_api_player is player on player_fifa_api_id = player_fifa_api_player.player_fifa_api_id
+
+  dimension:
+    date_val is `date`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_player_fifa_api_id is sum(player_fifa_api_id)
+    avg_player_fifa_api_id is avg(player_fifa_api_id)
+    max_player_fifa_api_id is max(player_fifa_api_id)
+    min_player_fifa_api_id is min(player_fifa_api_id)
+    total_player_api_id is sum(player_api_id)
+    avg_player_api_id is avg(player_api_id)
+    max_player_api_id is max(player_api_id)
+    min_player_api_id is min(player_api_id)
+    total_overall_rating is sum(overall_rating)
+    avg_overall_rating is avg(overall_rating)
+    max_overall_rating is max(overall_rating)
+    min_overall_rating is min(overall_rating)
+    total_potential is sum(potential)
+    avg_potential is avg(potential)
+    max_potential is max(potential)
+    min_potential is min(potential)
+    total_crossing is sum(crossing)
+    avg_crossing is avg(crossing)
+    max_crossing is max(crossing)
+    min_crossing is min(crossing)
+    total_finishing is sum(finishing)
+    avg_finishing is avg(finishing)
+    max_finishing is max(finishing)
+    min_finishing is min(finishing)
+    total_heading_accuracy is sum(heading_accuracy)
+    avg_heading_accuracy is avg(heading_accuracy)
+    max_heading_accuracy is max(heading_accuracy)
+    min_heading_accuracy is min(heading_accuracy)
+    total_short_passing is sum(short_passing)
+    avg_short_passing is avg(short_passing)
+    max_short_passing is max(short_passing)
+    min_short_passing is min(short_passing)
+    total_volleys is sum(volleys)
+    avg_volleys is avg(volleys)
+    max_volleys is max(volleys)
+    min_volleys is min(volleys)
+    total_dribbling is sum(dribbling)
+    avg_dribbling is avg(dribbling)
+    max_dribbling is max(dribbling)
+    min_dribbling is min(dribbling)
+    total_curve is sum(curve)
+    avg_curve is avg(curve)
+    max_curve is max(curve)
+    min_curve is min(curve)
+    total_free_kick_accuracy is sum(free_kick_accuracy)
+    avg_free_kick_accuracy is avg(free_kick_accuracy)
+    max_free_kick_accuracy is max(free_kick_accuracy)
+    min_free_kick_accuracy is min(free_kick_accuracy)
+    total_long_passing is sum(long_passing)
+    avg_long_passing is avg(long_passing)
+    max_long_passing is max(long_passing)
+    min_long_passing is min(long_passing)
+    total_ball_control is sum(ball_control)
+    avg_ball_control is avg(ball_control)
+    max_ball_control is max(ball_control)
+    min_ball_control is min(ball_control)
+    total_acceleration is sum(acceleration)
+    avg_acceleration is avg(acceleration)
+    max_acceleration is max(acceleration)
+    min_acceleration is min(acceleration)
+    total_sprint_speed is sum(sprint_speed)
+    avg_sprint_speed is avg(sprint_speed)
+    max_sprint_speed is max(sprint_speed)
+    min_sprint_speed is min(sprint_speed)
+    total_agility is sum(agility)
+    avg_agility is avg(agility)
+    max_agility is max(agility)
+    min_agility is min(agility)
+    total_reactions is sum(reactions)
+    avg_reactions is avg(reactions)
+    max_reactions is max(reactions)
+    min_reactions is min(reactions)
+    total_balance is sum(balance)
+    avg_balance is avg(balance)
+    max_balance is max(balance)
+    min_balance is min(balance)
+    total_shot_power is sum(shot_power)
+    avg_shot_power is avg(shot_power)
+    max_shot_power is max(shot_power)
+    min_shot_power is min(shot_power)
+    total_jumping is sum(jumping)
+    avg_jumping is avg(jumping)
+    max_jumping is max(jumping)
+    min_jumping is min(jumping)
+    total_stamina is sum(stamina)
+    avg_stamina is avg(stamina)
+    max_stamina is max(stamina)
+    min_stamina is min(stamina)
+    total_strength is sum(strength)
+    avg_strength is avg(strength)
+    max_strength is max(strength)
+    min_strength is min(strength)
+    total_long_shots is sum(long_shots)
+    avg_long_shots is avg(long_shots)
+    max_long_shots is max(long_shots)
+    min_long_shots is min(long_shots)
+    total_aggression is sum(aggression)
+    avg_aggression is avg(aggression)
+    max_aggression is max(aggression)
+    min_aggression is min(aggression)
+    total_interceptions is sum(interceptions)
+    avg_interceptions is avg(interceptions)
+    max_interceptions is max(interceptions)
+    min_interceptions is min(interceptions)
+    total_positioning is sum(positioning)
+    avg_positioning is avg(positioning)
+    max_positioning is max(positioning)
+    min_positioning is min(positioning)
+    total_vision is sum(vision)
+    avg_vision is avg(vision)
+    max_vision is max(vision)
+    min_vision is min(vision)
+    total_penalties is sum(penalties)
+    avg_penalties is avg(penalties)
+    max_penalties is max(penalties)
+    min_penalties is min(penalties)
+    total_marking is sum(marking)
+    avg_marking is avg(marking)
+    max_marking is max(marking)
+    min_marking is min(marking)
+    total_standing_tackle is sum(standing_tackle)
+    avg_standing_tackle is avg(standing_tackle)
+    max_standing_tackle is max(standing_tackle)
+    min_standing_tackle is min(standing_tackle)
+    total_sliding_tackle is sum(sliding_tackle)
+    avg_sliding_tackle is avg(sliding_tackle)
+    max_sliding_tackle is max(sliding_tackle)
+    min_sliding_tackle is min(sliding_tackle)
+    total_gk_diving is sum(gk_diving)
+    avg_gk_diving is avg(gk_diving)
+    max_gk_diving is max(gk_diving)
+    min_gk_diving is min(gk_diving)
+    total_gk_handling is sum(gk_handling)
+    avg_gk_handling is avg(gk_handling)
+    max_gk_handling is max(gk_handling)
+    min_gk_handling is min(gk_handling)
+    total_gk_kicking is sum(gk_kicking)
+    avg_gk_kicking is avg(gk_kicking)
+    max_gk_kicking is max(gk_kicking)
+    min_gk_kicking is min(gk_kicking)
+    total_gk_positioning is sum(gk_positioning)
+    avg_gk_positioning is avg(gk_positioning)
+    max_gk_positioning is max(gk_positioning)
+    min_gk_positioning is min(gk_positioning)
+    total_gk_reflexes is sum(gk_reflexes)
+    avg_gk_reflexes is avg(gk_reflexes)
+    max_gk_reflexes is max(gk_reflexes)
+    min_gk_reflexes is min(gk_reflexes)
+}
+
+// League
+source: league is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'League')
+""") extend {
+  primary_key: id
+
+  join_one: country on country_id = country.id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_country_id is sum(country_id)
+    avg_country_id is avg(country_id)
+    max_country_id is max(country_id)
+    min_country_id is min(country_id)
+}
+
+// Team_Attributes
+source: team_attributes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Team_Attributes')
+""") extend {
+  primary_key: id
+
+  join_one: team_api_team is team on team_api_id = team_api_team.team_api_id
+  join_one: team_fifa_api_team is team on team_fifa_api_id = team_fifa_api_team.team_fifa_api_id
+
+  dimension:
+    date_val is `date`
+    build_up_play_speed is buildUpPlaySpeed
+    build_up_play_speed_class is buildUpPlaySpeedClass
+    build_up_play_dribbling is buildUpPlayDribbling
+    build_up_play_dribbling_class is buildUpPlayDribblingClass
+    build_up_play_passing is buildUpPlayPassing
+    build_up_play_passing_class is buildUpPlayPassingClass
+    build_up_play_positioning_class is buildUpPlayPositioningClass
+    chance_creation_passing is chanceCreationPassing
+    chance_creation_passing_class is chanceCreationPassingClass
+    chance_creation_crossing is chanceCreationCrossing
+    chance_creation_crossing_class is chanceCreationCrossingClass
+    chance_creation_shooting is chanceCreationShooting
+    chance_creation_shooting_class is chanceCreationShootingClass
+    chance_creation_positioning_class is chanceCreationPositioningClass
+    defence_pressure is defencePressure
+    defence_pressure_class is defencePressureClass
+    defence_aggression is defenceAggression
+    defence_aggression_class is defenceAggressionClass
+    defence_team_width is defenceTeamWidth
+    defence_team_width_class is defenceTeamWidthClass
+    defence_defender_line_class is defenceDefenderLineClass
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_team_fifa_api_id is sum(team_fifa_api_id)
+    avg_team_fifa_api_id is avg(team_fifa_api_id)
+    max_team_fifa_api_id is max(team_fifa_api_id)
+    min_team_fifa_api_id is min(team_fifa_api_id)
+    total_team_api_id is sum(team_api_id)
+    avg_team_api_id is avg(team_api_id)
+    max_team_api_id is max(team_api_id)
+    min_team_api_id is min(team_api_id)
+    total_build_up_play_speed is sum(buildUpPlaySpeed)
+    avg_build_up_play_speed is avg(buildUpPlaySpeed)
+    max_build_up_play_speed is max(buildUpPlaySpeed)
+    min_build_up_play_speed is min(buildUpPlaySpeed)
+    total_build_up_play_dribbling is sum(buildUpPlayDribbling)
+    avg_build_up_play_dribbling is avg(buildUpPlayDribbling)
+    max_build_up_play_dribbling is max(buildUpPlayDribbling)
+    min_build_up_play_dribbling is min(buildUpPlayDribbling)
+    total_build_up_play_passing is sum(buildUpPlayPassing)
+    avg_build_up_play_passing is avg(buildUpPlayPassing)
+    max_build_up_play_passing is max(buildUpPlayPassing)
+    min_build_up_play_passing is min(buildUpPlayPassing)
+    total_chance_creation_passing is sum(chanceCreationPassing)
+    avg_chance_creation_passing is avg(chanceCreationPassing)
+    max_chance_creation_passing is max(chanceCreationPassing)
+    min_chance_creation_passing is min(chanceCreationPassing)
+    total_chance_creation_crossing is sum(chanceCreationCrossing)
+    avg_chance_creation_crossing is avg(chanceCreationCrossing)
+    max_chance_creation_crossing is max(chanceCreationCrossing)
+    min_chance_creation_crossing is min(chanceCreationCrossing)
+    total_chance_creation_shooting is sum(chanceCreationShooting)
+    avg_chance_creation_shooting is avg(chanceCreationShooting)
+    max_chance_creation_shooting is max(chanceCreationShooting)
+    min_chance_creation_shooting is min(chanceCreationShooting)
+    total_defence_pressure is sum(defencePressure)
+    avg_defence_pressure is avg(defencePressure)
+    max_defence_pressure is max(defencePressure)
+    min_defence_pressure is min(defencePressure)
+    total_defence_aggression is sum(defenceAggression)
+    avg_defence_aggression is avg(defenceAggression)
+    max_defence_aggression is max(defenceAggression)
+    min_defence_aggression is min(defenceAggression)
+    total_defence_team_width is sum(defenceTeamWidth)
+    avg_defence_team_width is avg(defenceTeamWidth)
+    max_defence_team_width is max(defenceTeamWidth)
+    min_defence_team_width is min(defenceTeamWidth)
+}

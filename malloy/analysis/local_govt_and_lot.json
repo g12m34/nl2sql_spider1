@@ -1,0 +1,91 @@
+{
+  "db_id": "local_govt_and_lot",
+  "query_count": 17,
+  "tables_used": [
+    "customer_event_notes",
+    "customer_events",
+    "customers",
+    "organizations",
+    "properties",
+    "residents",
+    "residents_services",
+    "services",
+    "things",
+    "timed_locations_of_things",
+    "timed_status_of_things"
+  ],
+  "dimensions": {
+    "properties": [
+      "property_id"
+    ],
+    "residents": [
+      "date_moved_in",
+      "other_details",
+      "property_id",
+      "resident_id"
+    ],
+    "organizations": [
+      "organization_details",
+      "organization_id",
+      "parent_organization_id"
+    ],
+    "services": [
+      "organization_id",
+      "service_details",
+      "service_id",
+      "service_type_code"
+    ],
+    "residents_services": [
+      "other_details",
+      "resident_id",
+      "service_id"
+    ],
+    "things": [
+      "organization_id",
+      "service_details",
+      "thing_id",
+      "type_of_thing_code"
+    ],
+    "customers": [
+      "customer_details",
+      "customer_id"
+    ],
+    "customer_events": [
+      "customer_event_id",
+      "customer_id",
+      "date_moved_in",
+      "property_id"
+    ],
+    "customer_event_notes": [
+      "customer_event_id",
+      "property_id"
+    ],
+    "timed_status_of_things": [
+      "date_and_date",
+      "status_of_thing_code",
+      "thing_id"
+    ],
+    "timed_locations_of_things": [
+      "location_code",
+      "thing_id"
+    ]
+  },
+  "measures": {
+    "timed_locations_of_things": {
+      "count": [
+        "location_code"
+      ]
+    },
+    "timed_status_of_things": {
+      "count": [
+        "status_of_thing_code"
+      ]
+    },
+    "residents": {
+      "max": [
+        "date_moved_in"
+      ]
+    }
+  },
+  "joins": []
+}

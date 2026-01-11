@@ -1,0 +1,56 @@
+// Malloy semantic layer for: products_gen_characteristics
+// Auto-generated from 86 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: characteristics is duckdb.table('Characteristics') extend {
+  dimension:
+    characteristic_data_type is characteristic_data_type
+    characteristic_id is characteristic_id
+    characteristic_name is characteristic_name
+    characteristic_type_code is characteristic_type_code
+    other_characteristic_details is other_characteristic_details
+  measure:
+    row_count is count()
+    count_characteristic_name is count(characteristic_name)
+}
+
+source: product_characteristics is duckdb.table('Product_Characteristics') extend {
+  dimension:
+    characteristic_id is characteristic_id
+    product_id is product_id
+  measure:
+    row_count is count()
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    color_code is color_code
+    product_category_code is product_category_code
+    product_description is product_description
+    product_id is product_id
+    product_name is product_name
+    typical_buying_price is typical_buying_price
+    typical_selling_price is typical_selling_price
+  measure:
+    row_count is count()
+}
+
+source: ref_colors is duckdb.table('Ref_Colors') extend {
+  dimension:
+    color_code is color_code
+    color_description is color_description
+  measure:
+    row_count is count()
+}
+
+source: ref_product_categories is duckdb.table('Ref_Product_Categories') extend {
+  dimension:
+    product_category_code is product_category_code
+    product_category_description is product_category_description
+    unit_of_measure is unit_of_measure
+  measure:
+    row_count is count()
+}

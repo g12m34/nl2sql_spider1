@@ -1,0 +1,44 @@
+// Malloy semantic layer for: wine_1
+// Auto-generated from 82 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: appellations is duckdb.table('appellations') extend {
+  dimension:
+    appelation is Appelation
+    area is Area
+    county is County
+  measure:
+    row_count is count()
+}
+
+source: grapes is duckdb.table('grapes') extend {
+  dimension:
+    color is Color
+    grape is Grape
+  measure:
+    row_count is count()
+}
+
+source: wine is duckdb.table('wine') extend {
+  dimension:
+    appelation is Appelation
+    cases is Cases
+    grape is Grape
+    name is Name
+    price is Price
+    score is Score
+    winery is Winery
+    year is Year
+  measure:
+    row_count is count()
+    avg_cases is avg(cases)
+    avg_price is avg(price)
+    avg_score is avg(score)
+    min_price is min(price)
+    min_year is min(year)
+    max_price is max(price)
+    max_score is max(score)
+}

@@ -1,0 +1,365 @@
+// Malloy semantic layer for: sakila_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite
+
+// actor
+source: actor_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'actor')
+""") extend {
+  primary_key: actor_id
+
+  measure:
+    row_count is count()
+    total_actor_id is sum(actor_id)
+    avg_actor_id is avg(actor_id)
+    max_actor_id is max(actor_id)
+    min_actor_id is min(actor_id)
+}
+
+// category
+source: category is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'category')
+""") extend {
+  primary_key: category_id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_category_id is sum(category_id)
+    avg_category_id is avg(category_id)
+    max_category_id is max(category_id)
+    min_category_id is min(category_id)
+}
+
+// country
+source: country is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'country')
+""") extend {
+  primary_key: country_id
+
+  measure:
+    row_count is count()
+    total_country_id is sum(country_id)
+    avg_country_id is avg(country_id)
+    max_country_id is max(country_id)
+    min_country_id is min(country_id)
+}
+
+// film_text
+source: film_text is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'film_text')
+""") extend {
+  primary_key: film_id
+
+  measure:
+    row_count is count()
+    total_film_id is sum(film_id)
+    avg_film_id is avg(film_id)
+    max_film_id is max(film_id)
+    min_film_id is min(film_id)
+}
+
+// language
+source: language_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'language')
+""") extend {
+  primary_key: language_id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_language_id is sum(language_id)
+    avg_language_id is avg(language_id)
+    max_language_id is max(language_id)
+    min_language_id is min(language_id)
+}
+
+// city
+source: city is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'city')
+""") extend {
+  primary_key: city_id
+
+  join_one: country on country_id = country.country_id
+
+  measure:
+    row_count is count()
+    total_city_id is sum(city_id)
+    avg_city_id is avg(city_id)
+    max_city_id is max(city_id)
+    min_city_id is min(city_id)
+    total_country_id is sum(country_id)
+    avg_country_id is avg(country_id)
+    max_country_id is max(country_id)
+    min_country_id is min(country_id)
+}
+
+// film
+source: film is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'film')
+""") extend {
+  primary_key: film_id
+
+  join_one: original_language_language_val is language_val on original_language_id = original_language_language_val.language_id
+  join_one: language_language_val is language_val on language_id = language_language_val.language_id
+
+  measure:
+    row_count is count()
+    total_film_id is sum(film_id)
+    avg_film_id is avg(film_id)
+    max_film_id is max(film_id)
+    min_film_id is min(film_id)
+    total_language_id is sum(language_id)
+    avg_language_id is avg(language_id)
+    max_language_id is max(language_id)
+    min_language_id is min(language_id)
+    total_original_language_id is sum(original_language_id)
+    avg_original_language_id is avg(original_language_id)
+    max_original_language_id is max(original_language_id)
+    min_original_language_id is min(original_language_id)
+    total_rental_duration is sum(rental_duration)
+    avg_rental_duration is avg(rental_duration)
+    max_rental_duration is max(rental_duration)
+    min_rental_duration is min(rental_duration)
+    total_rental_rate is sum(rental_rate)
+    avg_rental_rate is avg(rental_rate)
+    max_rental_rate is max(rental_rate)
+    min_rental_rate is min(rental_rate)
+    total_length is sum(length)
+    avg_length is avg(length)
+    max_length is max(length)
+    min_length is min(length)
+    total_replacement_cost is sum(replacement_cost)
+    avg_replacement_cost is avg(replacement_cost)
+    max_replacement_cost is max(replacement_cost)
+    min_replacement_cost is min(replacement_cost)
+}
+
+// address
+source: address is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'address')
+""") extend {
+  primary_key: address_id
+
+  join_one: city on city_id = city.city_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+    total_city_id is sum(city_id)
+    avg_city_id is avg(city_id)
+    max_city_id is max(city_id)
+    min_city_id is min(city_id)
+}
+
+// film_actor
+source: film_actor is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'film_actor')
+""") extend {
+  primary_key: actor_id
+
+  join_one: film on film_id = film.film_id
+  join_one: actor_val on actor_id = actor_val.actor_id
+
+  measure:
+    row_count is count()
+    total_actor_id is sum(actor_id)
+    avg_actor_id is avg(actor_id)
+    max_actor_id is max(actor_id)
+    min_actor_id is min(actor_id)
+    total_film_id is sum(film_id)
+    avg_film_id is avg(film_id)
+    max_film_id is max(film_id)
+    min_film_id is min(film_id)
+}
+
+// film_category
+source: film_category is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'film_category')
+""") extend {
+  primary_key: film_id
+
+  join_one: category on category_id = category.category_id
+  join_one: film on film_id = film.film_id
+
+  measure:
+    row_count is count()
+    total_film_id is sum(film_id)
+    avg_film_id is avg(film_id)
+    max_film_id is max(film_id)
+    min_film_id is min(film_id)
+    total_category_id is sum(category_id)
+    avg_category_id is avg(category_id)
+    max_category_id is max(category_id)
+    min_category_id is min(category_id)
+}
+
+// staff
+source: staff_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'staff')
+""") extend {
+  primary_key: staff_id
+
+  join_one: address on address_id = address.address_id
+
+  measure:
+    row_count is count()
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+    total_store_id is sum(store_id)
+    avg_store_id is avg(store_id)
+    max_store_id is max(store_id)
+    min_store_id is min(store_id)
+}
+
+// store
+source: store is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'store')
+""") extend {
+  primary_key: store_id
+
+  join_one: address on address_id = address.address_id
+  join_one: staff_val on manager_staff_id = staff_val.staff_id
+
+  measure:
+    row_count is count()
+    total_store_id is sum(store_id)
+    avg_store_id is avg(store_id)
+    max_store_id is max(store_id)
+    min_store_id is min(store_id)
+    total_manager_staff_id is sum(manager_staff_id)
+    avg_manager_staff_id is avg(manager_staff_id)
+    max_manager_staff_id is max(manager_staff_id)
+    min_manager_staff_id is min(manager_staff_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// customer
+source: customer is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'customer')
+""") extend {
+  primary_key: customer_id
+
+  join_one: store on store_id = store.store_id
+  join_one: address on address_id = address.address_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_store_id is sum(store_id)
+    avg_store_id is avg(store_id)
+    max_store_id is max(store_id)
+    min_store_id is min(store_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// inventory
+source: inventory is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'inventory')
+""") extend {
+  primary_key: inventory_id
+
+  join_one: film on film_id = film.film_id
+  join_one: store on store_id = store.store_id
+
+  measure:
+    row_count is count()
+    total_inventory_id is sum(inventory_id)
+    avg_inventory_id is avg(inventory_id)
+    max_inventory_id is max(inventory_id)
+    min_inventory_id is min(inventory_id)
+    total_film_id is sum(film_id)
+    avg_film_id is avg(film_id)
+    max_film_id is max(film_id)
+    min_film_id is min(film_id)
+    total_store_id is sum(store_id)
+    avg_store_id is avg(store_id)
+    max_store_id is max(store_id)
+    min_store_id is min(store_id)
+}
+
+// rental
+source: rental is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'rental')
+""") extend {
+  primary_key: rental_id
+
+  join_one: customer on customer_id = customer.customer_id
+  join_one: inventory on inventory_id = inventory.inventory_id
+  join_one: staff_val on staff_id = staff_val.staff_id
+
+  measure:
+    row_count is count()
+    total_rental_id is sum(rental_id)
+    avg_rental_id is avg(rental_id)
+    max_rental_id is max(rental_id)
+    min_rental_id is min(rental_id)
+    total_inventory_id is sum(inventory_id)
+    avg_inventory_id is avg(inventory_id)
+    max_inventory_id is max(inventory_id)
+    min_inventory_id is min(inventory_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+}
+
+// payment
+source: payment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'payment')
+""") extend {
+  primary_key: payment_id
+
+  join_one: staff_val on staff_id = staff_val.staff_id
+  join_one: customer on customer_id = customer.customer_id
+  join_one: rental on rental_id = rental.rental_id
+
+  measure:
+    row_count is count()
+    total_payment_id is sum(payment_id)
+    avg_payment_id is avg(payment_id)
+    max_payment_id is max(payment_id)
+    min_payment_id is min(payment_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_staff_id is sum(staff_id)
+    avg_staff_id is avg(staff_id)
+    max_staff_id is max(staff_id)
+    min_staff_id is min(staff_id)
+    total_rental_id is sum(rental_id)
+    avg_rental_id is avg(rental_id)
+    max_rental_id is max(rental_id)
+    min_rental_id is min(rental_id)
+    total_amount is sum(amount)
+    avg_amount is avg(amount)
+    max_amount is max(amount)
+    min_amount is min(amount)
+}

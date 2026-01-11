@@ -1,0 +1,49 @@
+// Malloy semantic layer for: city_record
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: city is duckdb.table('city') extend {
+  dimension:
+    city is City
+    city_id is City_ID
+    gdp is GDP
+    regional_population is Regional_Population
+  measure:
+    row_count is count()
+}
+
+source: hosting_city is duckdb.table('hosting_city') extend {
+  dimension:
+    host_city is Host_City
+    match_id is Match_ID
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: match is duckdb.table('match') extend {
+  dimension:
+    competition is Competition
+    date is Date
+    match_id is Match_ID
+    venue is Venue
+  measure:
+    row_count is count()
+}
+
+source: temperature is duckdb.table('temperature') extend {
+  dimension:
+    city_id is City_ID
+    dec is Dec
+    feb is Feb
+    jan is Jan
+    jul is Jul
+    jun is Jun
+    mar is Mar
+    oct is Oct
+  measure:
+    row_count is count()
+}

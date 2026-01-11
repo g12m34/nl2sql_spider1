@@ -1,0 +1,45 @@
+{
+  "db_id": "small_bank_1",
+  "query_count": 50,
+  "tables_used": [
+    "accounts",
+    "checking",
+    "savings"
+  ],
+  "dimensions": {
+    "accounts": [
+      "custid",
+      "name"
+    ],
+    "savings": [
+      "balance",
+      "custid"
+    ],
+    "checking": [
+      "balance",
+      "custid"
+    ]
+  },
+  "measures": {
+    "savings": {
+      "sum": [
+        "balance"
+      ],
+      "avg": [
+        "balance"
+      ]
+    },
+    "checking": {
+      "sum": [
+        "balance"
+      ],
+      "avg": [
+        "balance"
+      ],
+      "max": [
+        "balance"
+      ]
+    }
+  },
+  "joins": []
+}

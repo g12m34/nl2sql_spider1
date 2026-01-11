@@ -1,0 +1,55 @@
+{
+  "db_id": "epinions_1",
+  "query_count": 30,
+  "tables_used": [
+    "item",
+    "review",
+    "trust",
+    "useracct"
+  ],
+  "dimensions": {
+    "item": [
+      "i_id",
+      "title"
+    ],
+    "review": [
+      "i_id",
+      "rank",
+      "rating",
+      "u_id"
+    ],
+    "useracct": [
+      "name",
+      "u_id"
+    ],
+    "trust": [
+      "source_u_id",
+      "target_u_id",
+      "trust"
+    ]
+  },
+  "measures": {
+    "review": {
+      "avg": [
+        "rank",
+        "rating"
+      ],
+      "max": [
+        "rating"
+      ],
+      "min": [
+        "rank"
+      ],
+      "count": [
+        "i_id",
+        "u_id"
+      ]
+    },
+    "trust": {
+      "avg": [
+        "trust"
+      ]
+    }
+  },
+  "joins": []
+}

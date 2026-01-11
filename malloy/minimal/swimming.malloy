@@ -1,0 +1,53 @@
+// Malloy semantic layer for: swimming
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: event is duckdb.table('event') extend {
+  dimension:
+    id is ID
+    name is Name
+    stadium_id is Stadium_ID
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: record is duckdb.table('record') extend {
+  dimension:
+    event_id is Event_ID
+    id is ID
+    result is Result
+    swimmer_id is Swimmer_ID
+  measure:
+    row_count is count()
+}
+
+source: stadium is duckdb.table('stadium') extend {
+  dimension:
+    capacity is Capacity
+    city is City
+    country is Country
+    id is ID
+    name is name
+    opening_year is Opening_year
+  measure:
+    row_count is count()
+    avg_capacity is avg(capacity)
+    count_city is count(city)
+}
+
+source: swimmer is duckdb.table('swimmer') extend {
+  dimension:
+    id is ID
+    meter_100 is meter_100
+    meter_200 is meter_200
+    meter_300 is meter_300
+    name is name
+    nationality is Nationality
+  measure:
+    row_count is count()
+    count_nationality is count(nationality)
+}

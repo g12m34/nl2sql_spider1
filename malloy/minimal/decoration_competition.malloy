@@ -1,0 +1,35 @@
+// Malloy semantic layer for: decoration_competition
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: college is duckdb.table('college') extend {
+  dimension:
+    college_id is College_ID
+    college_location is College_Location
+    leader_name is Leader_Name
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: member is duckdb.table('member') extend {
+  dimension:
+    college_id is College_ID
+    country is Country
+    member_id is Member_ID
+    name is Name
+  measure:
+    row_count is count()
+}
+
+source: round is duckdb.table('round') extend {
+  dimension:
+    decoration_theme is Decoration_Theme
+    member_id is Member_ID
+    rank_in_round is Rank_in_Round
+  measure:
+    row_count is count()
+}

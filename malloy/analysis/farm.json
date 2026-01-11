@@ -1,0 +1,51 @@
+{
+  "db_id": "farm",
+  "query_count": 40,
+  "tables_used": [
+    "city",
+    "farm",
+    "farm_competition"
+  ],
+  "dimensions": {
+    "farm": [
+      "cows",
+      "total_horses",
+      "working_horses"
+    ],
+    "farm_competition": [
+      "host_city_id",
+      "hosts",
+      "theme",
+      "year"
+    ],
+    "city": [
+      "census_ranking",
+      "city_id",
+      "official_name",
+      "population",
+      "status"
+    ]
+  },
+  "measures": {
+    "farm": {
+      "avg": [
+        "working_horses"
+      ],
+      "min": [
+        "cows"
+      ],
+      "max": [
+        "cows"
+      ]
+    },
+    "city": {
+      "count": [
+        "status"
+      ],
+      "avg": [
+        "population"
+      ]
+    }
+  },
+  "joins": []
+}

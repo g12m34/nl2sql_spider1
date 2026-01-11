@@ -1,0 +1,76 @@
+// Malloy semantic layer for: storm_record
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/storm_record/storm_record.sqlite
+
+// storm
+source: storm is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/storm_record/storm_record.sqlite', 'storm')
+""") extend {
+  primary_key: Storm_ID
+
+  dimension:
+    storm_i_d is Storm_ID
+    name_val is `Name`
+    damage_millions_u_s_d is Damage_millions_USD
+
+  measure:
+    row_count is count()
+    total_storm_i_d is sum(Storm_ID)
+    avg_storm_i_d is avg(Storm_ID)
+    max_storm_i_d is max(Storm_ID)
+    min_storm_i_d is min(Storm_ID)
+    total_max_speed is sum(Max_speed)
+    avg_max_speed is avg(Max_speed)
+    max_max_speed is max(Max_speed)
+    min_max_speed is min(Max_speed)
+    total_damage_millions_u_s_d is sum(Damage_millions_USD)
+    avg_damage_millions_u_s_d is avg(Damage_millions_USD)
+    max_damage_millions_u_s_d is max(Damage_millions_USD)
+    min_damage_millions_u_s_d is min(Damage_millions_USD)
+    total_number_deaths is sum(Number_Deaths)
+    avg_number_deaths is avg(Number_Deaths)
+    max_number_deaths is max(Number_Deaths)
+    min_number_deaths is min(Number_Deaths)
+}
+
+// region
+source: region is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/storm_record/storm_record.sqlite', 'region')
+""") extend {
+  primary_key: Region_id
+
+  measure:
+    row_count is count()
+    total_region_id is sum(Region_id)
+    avg_region_id is avg(Region_id)
+    max_region_id is max(Region_id)
+    min_region_id is min(Region_id)
+}
+
+// affected_region
+source: affected_region is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/storm_record/storm_record.sqlite', 'affected_region')
+""") extend {
+  primary_key: Region_id
+
+  join_one: storm on Storm_ID = storm.Storm_ID
+  join_one: region on Region_id = region.Region_id
+
+  dimension:
+    storm_i_d is Storm_ID
+
+  measure:
+    row_count is count()
+    total_region_id is sum(Region_id)
+    avg_region_id is avg(Region_id)
+    max_region_id is max(Region_id)
+    min_region_id is min(Region_id)
+    total_storm_i_d is sum(Storm_ID)
+    avg_storm_i_d is avg(Storm_ID)
+    max_storm_i_d is max(Storm_ID)
+    min_storm_i_d is min(Storm_ID)
+    total_number_city_affected is sum(Number_city_affected)
+    avg_number_city_affected is avg(Number_city_affected)
+    max_number_city_affected is max(Number_city_affected)
+    min_number_city_affected is min(Number_city_affected)
+}

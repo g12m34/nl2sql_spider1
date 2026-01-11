@@ -1,0 +1,76 @@
+// Malloy semantic layer for: debate
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/debate/debate.sqlite
+
+// people
+source: people_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/debate/debate.sqlite', 'people')
+""") extend {
+  primary_key: People_ID
+
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(People_ID)
+    avg_people_i_d is avg(People_ID)
+    max_people_i_d is max(People_ID)
+    min_people_i_d is min(People_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+}
+
+// debate
+source: debate is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/debate/debate.sqlite', 'debate')
+""") extend {
+  primary_key: Debate_ID
+
+  dimension:
+    debate_i_d is Debate_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_debate_i_d is sum(Debate_ID)
+    avg_debate_i_d is avg(Debate_ID)
+    max_debate_i_d is max(Debate_ID)
+    min_debate_i_d is min(Debate_ID)
+    total_num_of_audience is sum(Num_of_Audience)
+    avg_num_of_audience is avg(Num_of_Audience)
+    max_num_of_audience is max(Num_of_Audience)
+    min_num_of_audience is min(Num_of_Audience)
+}
+
+// debate_people
+source: debate_people is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/debate/debate.sqlite', 'debate_people')
+""") extend {
+  primary_key: Debate_ID
+
+  join_one: negative_people_val is people_val on Negative = negative_people_val.People_ID
+  join_one: affirmative_people_val is people_val on Affirmative = affirmative_people_val.People_ID
+  join_one: debate on Debate_ID = debate.Debate_ID
+
+  dimension:
+    debate_i_d is Debate_ID
+
+  measure:
+    row_count is count()
+    total_debate_i_d is sum(Debate_ID)
+    avg_debate_i_d is avg(Debate_ID)
+    max_debate_i_d is max(Debate_ID)
+    min_debate_i_d is min(Debate_ID)
+    total_affirmative is sum(Affirmative)
+    avg_affirmative is avg(Affirmative)
+    max_affirmative is max(Affirmative)
+    min_affirmative is min(Affirmative)
+    total_negative is sum(Negative)
+    avg_negative is avg(Negative)
+    max_negative is max(Negative)
+    min_negative is min(Negative)
+}

@@ -1,0 +1,124 @@
+{
+  "db_id": "cre_Doc_Control_Systems",
+  "query_count": 33,
+  "tables_used": [
+    "addresses",
+    "circulation_history",
+    "document_drafts",
+    "documents",
+    "documents_mailed",
+    "draft_copies",
+    "employees",
+    "ref_document_status",
+    "ref_document_types",
+    "ref_shipping_agents",
+    "roles"
+  ],
+  "dimensions": {
+    "ref_document_status": [
+      "document_status_code",
+      "document_status_description"
+    ],
+    "ref_document_types": [
+      "document_type_code",
+      "document_type_description"
+    ],
+    "ref_shipping_agents": [
+      "shipping_agent_code",
+      "shipping_agent_name"
+    ],
+    "roles": [
+      "role_code",
+      "role_description"
+    ],
+    "employees": [
+      "employee_id",
+      "employee_name",
+      "role_code"
+    ],
+    "documents": [
+      "document_id",
+      "document_status_code",
+      "document_type_code",
+      "receipt_date",
+      "shipping_agent_code"
+    ],
+    "addresses": [
+      "address_details",
+      "address_id"
+    ],
+    "documents_mailed": [
+      "document_id",
+      "mailed_to_address_id",
+      "mailing_date"
+    ],
+    "document_drafts": [
+      "document_id",
+      "draft_details"
+    ],
+    "draft_copies": [
+      "copy_number",
+      "document_id"
+    ],
+    "circulation_history": [
+      "copy_number",
+      "document_id",
+      "draft_number",
+      "employee_id"
+    ]
+  },
+  "measures": {
+    "employees": {
+      "count": [
+        "employee_id"
+      ]
+    },
+    "documents": {
+      "count": [
+        "document_id"
+      ]
+    },
+    "draft_copies": {
+      "count": [
+        "copy_number"
+      ]
+    },
+    "circulation_history": {
+      "count": [
+        "employee_id"
+      ]
+    }
+  },
+  "joins": [
+    {
+      "left_table": "addresses",
+      "left_col": "address_id",
+      "right_table": "documents_mailed",
+      "right_col": "mailed_to_address_id"
+    },
+    {
+      "left_table": "circulation_history",
+      "left_col": "employee_id",
+      "right_table": "employees",
+      "right_col": "employee_id"
+    },
+    {
+      "left_table": "documents",
+      "left_col": "document_status_code",
+      "right_table": "ref_document_status",
+      "right_col": "document_status_code"
+    },
+    {
+      "left_table": "documents",
+      "left_col": "shipping_agent_code",
+      "right_table": "ref_shipping_agents",
+      "right_col": "shipping_agent_code"
+    },
+    {
+      "left_table": "employees",
+      "left_col": "role_code",
+      "right_table": "roles",
+      "right_col": "role_code"
+    }
+  ]
+}

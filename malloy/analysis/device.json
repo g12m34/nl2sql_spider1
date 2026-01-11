@@ -1,0 +1,45 @@
+{
+  "db_id": "device",
+  "query_count": 40,
+  "tables_used": [
+    "device",
+    "shop",
+    "stock"
+  ],
+  "dimensions": {
+    "device": [
+      "carrier",
+      "device",
+      "device_id",
+      "software_platform"
+    ],
+    "shop": [
+      "location",
+      "open_date",
+      "open_year",
+      "shop_id",
+      "shop_name"
+    ],
+    "stock": [
+      "device_id",
+      "quantity",
+      "shop_id"
+    ]
+  },
+  "measures": {
+    "stock": {
+      "avg": [
+        "quantity"
+      ],
+      "sum": [
+        "quantity"
+      ]
+    },
+    "device": {
+      "count": [
+        "software_platform"
+      ]
+    }
+  },
+  "joins": []
+}

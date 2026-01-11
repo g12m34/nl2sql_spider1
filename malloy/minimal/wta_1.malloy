@@ -1,0 +1,57 @@
+// Malloy semantic layer for: wta_1
+// Auto-generated from 62 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: matches is duckdb.table('matches') extend {
+  dimension:
+    loser_age is loser_age
+    loser_name is loser_name
+    loser_rank is loser_rank
+    minutes is minutes
+    tourney_name is tourney_name
+    winner_age is winner_age
+    winner_hand is winner_hand
+    winner_id is winner_id
+    winner_name is winner_name
+    winner_rank is winner_rank
+    winner_rank_points is winner_rank_points
+    year is year
+  measure:
+    row_count is count()
+    avg_loser_age is avg(loser_age)
+    avg_winner_age is avg(winner_age)
+    avg_winner_rank is avg(winner_rank)
+    min_loser_rank is min(loser_rank)
+    count_loser_name is count(loser_name)
+    count_winner_name is count(winner_name)
+}
+
+source: players is duckdb.table('players') extend {
+  dimension:
+    birth_date is birth_date
+    country_code is country_code
+    first_name is first_name
+    hand is hand
+    last_name is last_name
+    player_id is player_id
+  measure:
+    row_count is count()
+    count_country_code is count(country_code)
+}
+
+source: rankings is duckdb.table('rankings') extend {
+  dimension:
+    player_id is player_id
+    ranking is ranking
+    ranking_date is ranking_date
+    ranking_points is ranking_points
+    tours is tours
+  measure:
+    row_count is count()
+    sum_ranking_points is sum(ranking_points)
+    sum_tours is sum(tours)
+    avg_ranking is avg(ranking)
+}

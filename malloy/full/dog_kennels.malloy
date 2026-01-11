@@ -1,0 +1,141 @@
+// Malloy semantic layer for: dog_kennels
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite
+
+// Breeds
+source: breeds is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Breeds')
+""") extend {
+  primary_key: breed_code
+
+  measure:
+    row_count is count()
+}
+
+// Charges
+source: charges is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Charges')
+""") extend {
+  primary_key: charge_id
+
+  measure:
+    row_count is count()
+    total_charge_id is sum(charge_id)
+    avg_charge_id is avg(charge_id)
+    max_charge_id is max(charge_id)
+    min_charge_id is min(charge_id)
+    total_charge_amount is sum(charge_amount)
+    avg_charge_amount is avg(charge_amount)
+    max_charge_amount is max(charge_amount)
+    min_charge_amount is min(charge_amount)
+}
+
+// Sizes
+source: sizes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Sizes')
+""") extend {
+  primary_key: size_code
+
+  measure:
+    row_count is count()
+}
+
+// Treatment_Types
+source: treatment_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Treatment_Types')
+""") extend {
+  primary_key: treatment_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Owners
+source: owners is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Owners')
+""") extend {
+  primary_key: owner_id
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_owner_id is sum(owner_id)
+    avg_owner_id is avg(owner_id)
+    max_owner_id is max(owner_id)
+    min_owner_id is min(owner_id)
+}
+
+// Professionals
+source: professionals is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Professionals')
+""") extend {
+  primary_key: professional_id
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_professional_id is sum(professional_id)
+    avg_professional_id is avg(professional_id)
+    max_professional_id is max(professional_id)
+    min_professional_id is min(professional_id)
+}
+
+// Dogs
+source: dogs is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Dogs')
+""") extend {
+  primary_key: dog_id
+
+  join_one: owner_owners is owners on owner_id = owner_owners.owner_id
+  join_one: owner_owners_2 is owners on owner_id = owner_owners_2.owner_id
+  join_one: sizes on size_code = sizes.size_code
+  join_one: breeds on breed_code = breeds.breed_code
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_dog_id is sum(dog_id)
+    avg_dog_id is avg(dog_id)
+    max_dog_id is max(dog_id)
+    min_dog_id is min(dog_id)
+    total_owner_id is sum(owner_id)
+    avg_owner_id is avg(owner_id)
+    max_owner_id is max(owner_id)
+    min_owner_id is min(owner_id)
+}
+
+// Treatments
+source: treatments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Treatments')
+""") extend {
+  primary_key: treatment_id
+
+  join_one: dogs on dog_id = dogs.dog_id
+  join_one: professionals on professional_id = professionals.professional_id
+  join_one: treatment_types on treatment_type_code = treatment_types.treatment_type_code
+
+  measure:
+    row_count is count()
+    total_treatment_id is sum(treatment_id)
+    avg_treatment_id is avg(treatment_id)
+    max_treatment_id is max(treatment_id)
+    min_treatment_id is min(treatment_id)
+    total_dog_id is sum(dog_id)
+    avg_dog_id is avg(dog_id)
+    max_dog_id is max(dog_id)
+    min_dog_id is min(dog_id)
+    total_professional_id is sum(professional_id)
+    avg_professional_id is avg(professional_id)
+    max_professional_id is max(professional_id)
+    min_professional_id is min(professional_id)
+    total_cost_of_treatment is sum(cost_of_treatment)
+    avg_cost_of_treatment is avg(cost_of_treatment)
+    max_cost_of_treatment is max(cost_of_treatment)
+    min_cost_of_treatment is min(cost_of_treatment)
+}

@@ -1,0 +1,66 @@
+{
+  "db_id": "loan_1",
+  "query_count": 80,
+  "tables_used": [
+    "bank",
+    "customer",
+    "loan"
+  ],
+  "dimensions": {
+    "bank": [
+      "bname",
+      "branch_id",
+      "city",
+      "no_of_customers",
+      "state"
+    ],
+    "customer": [
+      "acc_bal",
+      "acc_type",
+      "branch_id",
+      "credit_score",
+      "cust_id",
+      "cust_name",
+      "no_of_loans",
+      "state"
+    ],
+    "loan": [
+      "amount",
+      "branch_id",
+      "cust_id",
+      "loan_type"
+    ]
+  },
+  "measures": {
+    "bank": {
+      "sum": [
+        "no_of_customers"
+      ],
+      "avg": [
+        "no_of_customers"
+      ],
+      "count": [
+        "city",
+        "state"
+      ]
+    },
+    "loan": {
+      "sum": [
+        "amount"
+      ]
+    },
+    "customer": {
+      "count": [
+        "acc_type"
+      ],
+      "sum": [
+        "acc_bal"
+      ],
+      "avg": [
+        "acc_bal",
+        "credit_score"
+      ]
+    }
+  },
+  "joins": []
+}

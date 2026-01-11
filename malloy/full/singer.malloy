@@ -1,0 +1,61 @@
+// Malloy semantic layer for: singer
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/singer/singer.sqlite
+
+// singer
+source: singer is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/singer/singer.sqlite', 'singer')
+""") extend {
+  primary_key: Singer_ID
+
+  dimension:
+    singer_i_d is Singer_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_singer_i_d is sum(Singer_ID)
+    avg_singer_i_d is avg(Singer_ID)
+    max_singer_i_d is max(Singer_ID)
+    min_singer_i_d is min(Singer_ID)
+    total_birth_year is sum(Birth_Year)
+    avg_birth_year is avg(Birth_Year)
+    max_birth_year is max(Birth_Year)
+    min_birth_year is min(Birth_Year)
+    total_net_worth_millions is sum(Net_Worth_Millions)
+    avg_net_worth_millions is avg(Net_Worth_Millions)
+    max_net_worth_millions is max(Net_Worth_Millions)
+    min_net_worth_millions is min(Net_Worth_Millions)
+}
+
+// song
+source: song is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/singer/singer.sqlite', 'song')
+""") extend {
+  primary_key: Song_ID
+
+  join_one: singer on Singer_ID = singer.Singer_ID
+
+  dimension:
+    song_i_d is Song_ID
+    singer_i_d is Singer_ID
+
+  measure:
+    row_count is count()
+    total_song_i_d is sum(Song_ID)
+    avg_song_i_d is avg(Song_ID)
+    max_song_i_d is max(Song_ID)
+    min_song_i_d is min(Song_ID)
+    total_singer_i_d is sum(Singer_ID)
+    avg_singer_i_d is avg(Singer_ID)
+    max_singer_i_d is max(Singer_ID)
+    min_singer_i_d is min(Singer_ID)
+    total_sales is sum(Sales)
+    avg_sales is avg(Sales)
+    max_sales is max(Sales)
+    min_sales is min(Sales)
+    total_highest_position is sum(Highest_Position)
+    avg_highest_position is avg(Highest_Position)
+    max_highest_position is max(Highest_Position)
+    min_highest_position is min(Highest_Position)
+}

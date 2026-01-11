@@ -1,0 +1,53 @@
+// Malloy semantic layer for: shop_membership
+// Auto-generated from 44 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: branch is duckdb.table('branch') extend {
+  dimension:
+    address_road is Address_road
+    branch_id is Branch_ID
+    city is City
+    membership_amount is membership_amount
+    name is Name
+    open_year is Open_year
+  measure:
+    row_count is count()
+    avg_membership_amount is avg(membership_amount)
+    min_membership_amount is min(membership_amount)
+    max_membership_amount is max(membership_amount)
+}
+
+source: member is duckdb.table('member') extend {
+  dimension:
+    card_number is Card_Number
+    hometown is Hometown
+    level is Level
+    member_id is Member_ID
+    name is Name
+  measure:
+    row_count is count()
+    count_level is count(level)
+}
+
+source: membership_register_branch is duckdb.table('membership_register_branch') extend {
+  dimension:
+    branch_id is Branch_ID
+    member_id is Member_ID
+    register_year is Register_Year
+  measure:
+    row_count is count()
+}
+
+source: purchase is duckdb.table('purchase') extend {
+  dimension:
+    branch_id is Branch_ID
+    member_id is Member_ID
+    total_pounds is Total_pounds
+    year is Year
+  measure:
+    row_count is count()
+    sum_total_pounds is sum(total_pounds)
+}

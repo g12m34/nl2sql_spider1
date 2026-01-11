@@ -1,0 +1,140 @@
+// Malloy semantic layer for: customers_campaigns_ecommerce
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite
+
+// Premises
+source: premises is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Premises')
+""") extend {
+  primary_key: premise_id
+
+  measure:
+    row_count is count()
+    total_premise_id is sum(premise_id)
+    avg_premise_id is avg(premise_id)
+    max_premise_id is max(premise_id)
+    min_premise_id is min(premise_id)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Mailshot_Campaigns
+source: mailshot_campaigns is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Mailshot_Campaigns')
+""") extend {
+  primary_key: mailshot_id
+
+  measure:
+    row_count is count()
+    total_mailshot_id is sum(mailshot_id)
+    avg_mailshot_id is avg(mailshot_id)
+    max_mailshot_id is max(mailshot_id)
+    min_mailshot_id is min(mailshot_id)
+}
+
+// Customer_Addresses
+source: customer_addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Customer_Addresses')
+""") extend {
+  join_one: customers on customer_id = customers.customer_id
+  join_one: premises on premise_id = premises.premise_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_premise_id is sum(premise_id)
+    avg_premise_id is avg(premise_id)
+    max_premise_id is max(premise_id)
+    min_premise_id is min(premise_id)
+}
+
+// Customer_Orders
+source: customer_orders is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Customer_Orders')
+""") extend {
+  primary_key: order_id
+
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Mailshot_Customers
+source: mailshot_customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Mailshot_Customers')
+""") extend {
+  join_one: mailshot_campaigns on mailshot_id = mailshot_campaigns.mailshot_id
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_mailshot_id is sum(mailshot_id)
+    avg_mailshot_id is avg(mailshot_id)
+    max_mailshot_id is max(mailshot_id)
+    min_mailshot_id is min(mailshot_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Order_Items
+source: order_items is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Order_Items')
+""") extend {
+  join_one: customer_orders on order_id = customer_orders.order_id
+  join_one: products on product_id = products.product_id
+
+  measure:
+    row_count is count()
+    total_item_id is sum(item_id)
+    avg_item_id is avg(item_id)
+    max_item_id is max(item_id)
+    min_item_id is min(item_id)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}

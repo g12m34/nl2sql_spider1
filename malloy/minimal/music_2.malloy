@@ -1,0 +1,73 @@
+// Malloy semantic layer for: music_2
+// Auto-generated from 100 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: albums is duckdb.table('Albums') extend {
+  dimension:
+    aid is AId
+    label is Label
+    title is Title
+    type is Type
+    year is Year
+  measure:
+    row_count is count()
+    count_label is count(label)
+    count_title is count(title)
+}
+
+source: band is duckdb.table('Band') extend {
+  dimension:
+    firstname is Firstname
+    id is Id
+    lastname is Lastname
+  measure:
+    row_count is count()
+}
+
+source: instruments is duckdb.table('Instruments') extend {
+  dimension:
+    bandmateid is BandmateId
+    instrument is Instrument
+    songid is SongId
+  measure:
+    row_count is count()
+    count_instrument is count(instrument)
+}
+
+source: performance is duckdb.table('Performance') extend {
+  dimension:
+    bandmate is Bandmate
+    songid is SongId
+    stageposition is StagePosition
+  measure:
+    row_count is count()
+}
+
+source: songs is duckdb.table('Songs') extend {
+  dimension:
+    songid is SongId
+    title is Title
+  measure:
+    row_count is count()
+    count_title is count(title)
+}
+
+source: tracklists is duckdb.table('Tracklists') extend {
+  dimension:
+    albumid is AlbumId
+    songid is SongId
+  measure:
+    row_count is count()
+}
+
+source: vocals is duckdb.table('Vocals') extend {
+  dimension:
+    bandmate is Bandmate
+    songid is SongId
+    type is Type
+  measure:
+    row_count is count()
+}

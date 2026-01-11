@@ -1,0 +1,88 @@
+// Malloy semantic layer for: cinema
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/cinema/cinema.sqlite
+
+// film
+source: film is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'film')
+""") extend {
+  primary_key: Film_ID
+
+  dimension:
+    film_i_d is Film_ID
+
+  measure:
+    row_count is count()
+    total_film_i_d is sum(Film_ID)
+    avg_film_i_d is avg(Film_ID)
+    max_film_i_d is max(Film_ID)
+    min_film_i_d is min(Film_ID)
+    total_rank_in_series is sum(Rank_in_series)
+    avg_rank_in_series is avg(Rank_in_series)
+    max_rank_in_series is max(Rank_in_series)
+    min_rank_in_series is min(Rank_in_series)
+    total_number_in_season is sum(Number_in_season)
+    avg_number_in_season is avg(Number_in_season)
+    max_number_in_season is max(Number_in_season)
+    min_number_in_season is min(Number_in_season)
+}
+
+// cinema
+source: cinema is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'cinema')
+""") extend {
+  primary_key: Cinema_ID
+
+  dimension:
+    cinema_i_d is Cinema_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_cinema_i_d is sum(Cinema_ID)
+    avg_cinema_i_d is avg(Cinema_ID)
+    max_cinema_i_d is max(Cinema_ID)
+    min_cinema_i_d is min(Cinema_ID)
+    total_openning_year is sum(Openning_year)
+    avg_openning_year is avg(Openning_year)
+    max_openning_year is max(Openning_year)
+    min_openning_year is min(Openning_year)
+    total_capacity is sum(Capacity)
+    avg_capacity is avg(Capacity)
+    max_capacity is max(Capacity)
+    min_capacity is min(Capacity)
+}
+
+// schedule
+source: schedule is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'schedule')
+""") extend {
+  primary_key: Cinema_ID
+
+  join_one: cinema on Cinema_ID = cinema.Cinema_ID
+  join_one: film on Film_ID = film.Film_ID
+
+  dimension:
+    cinema_i_d is Cinema_ID
+    film_i_d is Film_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_cinema_i_d is sum(Cinema_ID)
+    avg_cinema_i_d is avg(Cinema_ID)
+    max_cinema_i_d is max(Cinema_ID)
+    min_cinema_i_d is min(Cinema_ID)
+    total_film_i_d is sum(Film_ID)
+    avg_film_i_d is avg(Film_ID)
+    max_film_i_d is max(Film_ID)
+    min_film_i_d is min(Film_ID)
+    total_show_times_per_day is sum(Show_times_per_day)
+    avg_show_times_per_day is avg(Show_times_per_day)
+    max_show_times_per_day is max(Show_times_per_day)
+    min_show_times_per_day is min(Show_times_per_day)
+    total_price is sum(Price)
+    avg_price is avg(Price)
+    max_price is max(Price)
+    min_price is min(Price)
+}

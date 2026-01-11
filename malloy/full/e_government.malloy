@@ -1,0 +1,179 @@
+// Malloy semantic layer for: e_government
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/e_government/e_government.sqlite
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Services
+source: services is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Services')
+""") extend {
+  primary_key: service_id
+
+  measure:
+    row_count is count()
+    total_service_id is sum(service_id)
+    avg_service_id is avg(service_id)
+    max_service_id is max(service_id)
+    min_service_id is min(service_id)
+}
+
+// Individuals
+source: individuals is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Individuals')
+""") extend {
+  primary_key: individual_id
+
+  measure:
+    row_count is count()
+    total_individual_id is sum(individual_id)
+    avg_individual_id is avg(individual_id)
+    max_individual_id is max(individual_id)
+    min_individual_id is min(individual_id)
+}
+
+// Organizations
+source: organizations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Organizations')
+""") extend {
+  primary_key: organization_id
+
+  measure:
+    row_count is count()
+    total_organization_id is sum(organization_id)
+    avg_organization_id is avg(organization_id)
+    max_organization_id is max(organization_id)
+    min_organization_id is min(organization_id)
+}
+
+// Parties
+source: parties is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Parties')
+""") extend {
+  primary_key: party_id
+
+  measure:
+    row_count is count()
+    total_party_id is sum(party_id)
+    avg_party_id is avg(party_id)
+    max_party_id is max(party_id)
+    min_party_id is min(party_id)
+}
+
+// Forms
+source: forms is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Forms')
+""") extend {
+  primary_key: form_id
+
+  join_one: services on service_id = services.service_id
+
+  measure:
+    row_count is count()
+    total_form_id is sum(form_id)
+    avg_form_id is avg(form_id)
+    max_form_id is max(form_id)
+    min_form_id is min(form_id)
+    total_service_id is sum(service_id)
+    avg_service_id is avg(service_id)
+    max_service_id is max(service_id)
+    min_service_id is min(service_id)
+}
+
+// Organization_Contact_Individuals
+source: organization_contact_individuals is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Organization_Contact_Individuals')
+""") extend {
+  primary_key: individual_id
+
+  join_one: individuals on individual_id = individuals.individual_id
+  join_one: organizations on organization_id = organizations.organization_id
+
+  measure:
+    row_count is count()
+    total_individual_id is sum(individual_id)
+    avg_individual_id is avg(individual_id)
+    max_individual_id is max(individual_id)
+    min_individual_id is min(individual_id)
+    total_organization_id is sum(organization_id)
+    avg_organization_id is avg(organization_id)
+    max_organization_id is max(organization_id)
+    min_organization_id is min(organization_id)
+}
+
+// Party_Addresses
+source: party_addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Party_Addresses')
+""") extend {
+  primary_key: party_id
+
+  join_one: parties on party_id = parties.party_id
+  join_one: addresses on address_id = addresses.address_id
+
+  measure:
+    row_count is count()
+    total_party_id is sum(party_id)
+    avg_party_id is avg(party_id)
+    max_party_id is max(party_id)
+    min_party_id is min(party_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Party_Services
+source: party_services is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Party_Services')
+""") extend {
+  join_one: parties on customer_id = parties.party_id
+  join_one: services on service_id = services.service_id
+
+  measure:
+    row_count is count()
+    total_booking_id is sum(booking_id)
+    avg_booking_id is avg(booking_id)
+    max_booking_id is max(booking_id)
+    min_booking_id is min(booking_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_service_id is sum(service_id)
+    avg_service_id is avg(service_id)
+    max_service_id is max(service_id)
+    min_service_id is min(service_id)
+}
+
+// Party_Forms
+source: party_forms is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_government/e_government.sqlite', 'Party_Forms')
+""") extend {
+  primary_key: party_id
+
+  join_one: forms on form_id = forms.form_id
+  join_one: parties on party_id = parties.party_id
+
+  measure:
+    row_count is count()
+    total_party_id is sum(party_id)
+    avg_party_id is avg(party_id)
+    max_party_id is max(party_id)
+    min_party_id is min(party_id)
+    total_form_id is sum(form_id)
+    avg_form_id is avg(form_id)
+    max_form_id is max(form_id)
+    min_form_id is min(form_id)
+}

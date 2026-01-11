@@ -1,0 +1,39 @@
+// Malloy semantic layer for: inn_1
+// Auto-generated from 74 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: reservations is duckdb.table('Reservations') extend {
+  dimension:
+    adults is Adults
+    checkin is CheckIn
+    checkout is CheckOut
+    firstname is FirstName
+    kids is Kids
+    lastname is LastName
+    rate is Rate
+    room is Room
+  measure:
+    row_count is count()
+}
+
+source: rooms is duckdb.table('Rooms') extend {
+  dimension:
+    baseprice is basePrice
+    beds is beds
+    bedtype is bedType
+    decor is decor
+    maxoccupancy is maxOccupancy
+    roomid is RoomId
+    roomname is roomName
+  measure:
+    row_count is count()
+    sum_beds is sum(beds)
+    sum_maxoccupancy is sum(maxoccupancy)
+    avg_baseprice is avg(baseprice)
+    min_baseprice is min(baseprice)
+    count_bedtype is count(bedtype)
+    count_decor is count(decor)
+}

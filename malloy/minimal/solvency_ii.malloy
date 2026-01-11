@@ -1,0 +1,24 @@
+// Malloy semantic layer for: solvency_ii
+// Auto-generated from 15 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_id is Product_ID
+    product_name is Product_Name
+    product_price is Product_Price
+    product_type_code is Product_Type_Code
+  measure:
+    row_count is count()
+    avg_product_price is avg(product_price)
+}
+
+source: products_in_events is duckdb.table('Products_in_Events') extend {
+  dimension:
+    product_id is Product_ID
+  measure:
+    row_count is count()
+}

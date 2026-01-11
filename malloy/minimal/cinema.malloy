@@ -1,0 +1,42 @@
+// Malloy semantic layer for: cinema
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: cinema is duckdb.table('cinema') extend {
+  dimension:
+    capacity is Capacity
+    cinema_id is Cinema_ID
+    location is Location
+    name is Name
+    openning_year is Openning_year
+  measure:
+    row_count is count()
+    avg_capacity is avg(capacity)
+    min_capacity is min(capacity)
+    max_capacity is max(capacity)
+}
+
+source: film is duckdb.table('film') extend {
+  dimension:
+    directed_by is Directed_by
+    film_id is Film_ID
+    title is Title
+  measure:
+    row_count is count()
+}
+
+source: schedule is duckdb.table('schedule') extend {
+  dimension:
+    cinema_id is Cinema_ID
+    date is Date
+    film_id is Film_ID
+    price is Price
+    show_times_per_day is Show_times_per_day
+  measure:
+    row_count is count()
+    sum_show_times_per_day is sum(show_times_per_day)
+    max_price is max(price)
+}

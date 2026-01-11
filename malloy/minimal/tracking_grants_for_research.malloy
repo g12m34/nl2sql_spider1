@@ -1,0 +1,115 @@
+// Malloy semantic layer for: tracking_grants_for_research
+// Auto-generated from 78 ground-truth SQL queries
+// Tables used: 12
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: document_types is duckdb.table('Document_Types') extend {
+  dimension:
+    document_description is document_description
+    document_type_code is document_type_code
+  measure:
+    row_count is count()
+}
+
+source: documents is duckdb.table('Documents') extend {
+  dimension:
+    document_type_code is document_type_code
+    grant_id is grant_id
+    response_received_date is response_received_date
+    sent_date is sent_date
+  measure:
+    row_count is count()
+}
+
+source: grants is duckdb.table('Grants') extend {
+  dimension:
+    grant_amount is grant_amount
+    grant_end_date is grant_end_date
+    grant_id is grant_id
+    grant_start_date is grant_start_date
+    organisation_id is organisation_id
+  measure:
+    row_count is count()
+    sum_grant_amount is sum(grant_amount)
+}
+
+source: organisation_types is duckdb.table('Organisation_Types') extend {
+  dimension:
+    organisation_type is organisation_type
+    organisation_type_description is organisation_type_description
+  measure:
+    row_count is count()
+}
+
+source: organisations is duckdb.table('Organisations') extend {
+  dimension:
+    organisation_details is organisation_details
+    organisation_id is organisation_id
+    organisation_type is organisation_type
+  measure:
+    row_count is count()
+}
+
+source: project_outcomes is duckdb.table('Project_Outcomes') extend {
+  dimension:
+    outcome_code is outcome_code
+    project_id is project_id
+  measure:
+    row_count is count()
+}
+
+source: project_staff is duckdb.table('Project_Staff') extend {
+  dimension:
+    date_from is date_from
+    date_to is date_to
+    project_id is project_id
+    role_code is role_code
+    staff_id is staff_id
+  measure:
+    row_count is count()
+    count_role_code is count(role_code)
+}
+
+source: projects is duckdb.table('Projects') extend {
+  dimension:
+    organisation_id is organisation_id
+    project_details is project_details
+    project_id is project_id
+  measure:
+    row_count is count()
+}
+
+source: research_outcomes is duckdb.table('Research_Outcomes') extend {
+  dimension:
+    outcome_code is outcome_code
+    outcome_description is outcome_description
+  measure:
+    row_count is count()
+}
+
+source: research_staff is duckdb.table('Research_Staff') extend {
+  dimension:
+    employer_organisation_id is employer_organisation_id
+    staff_details is staff_details
+  measure:
+    row_count is count()
+}
+
+source: staff_roles is duckdb.table('Staff_Roles') extend {
+  dimension:
+    role_code is role_code
+    role_description is role_description
+  measure:
+    row_count is count()
+}
+
+source: tasks is duckdb.table('Tasks') extend {
+  dimension:
+    project_id is project_id
+    task_details is task_details
+    task_id is task_id
+  measure:
+    row_count is count()
+}

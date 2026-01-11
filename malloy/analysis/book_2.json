@@ -1,0 +1,30 @@
+{
+  "db_id": "book_2",
+  "query_count": 21,
+  "tables_used": [
+    "book",
+    "publication"
+  ],
+  "dimensions": {
+    "book": [
+      "book_id",
+      "issues",
+      "title",
+      "writer"
+    ],
+    "publication": [
+      "book_id",
+      "price",
+      "publication_date",
+      "publisher"
+    ]
+  },
+  "measures": {
+    "publication": {
+      "count": [
+        "publication_date"
+      ]
+    }
+  },
+  "joins": []
+}

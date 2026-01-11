@@ -1,0 +1,43 @@
+{
+  "db_id": "party_people",
+  "query_count": 44,
+  "tables_used": [
+    "member",
+    "party",
+    "party_events",
+    "region"
+  ],
+  "dimensions": {
+    "region": [
+      "label",
+      "region_id",
+      "region_name"
+    ],
+    "party": [
+      "left_office",
+      "minister",
+      "party_id",
+      "party_name",
+      "region_id",
+      "took_office"
+    ],
+    "member": [
+      "member_id",
+      "member_name",
+      "party_id"
+    ],
+    "party_events": [
+      "event_name",
+      "member_in_charge_id",
+      "party_id"
+    ]
+  },
+  "measures": {
+    "party": {
+      "count": [
+        "party_name"
+      ]
+    }
+  },
+  "joins": []
+}

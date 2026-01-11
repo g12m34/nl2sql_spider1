@@ -1,0 +1,50 @@
+{
+  "db_id": "products_gen_characteristics",
+  "query_count": 86,
+  "tables_used": [
+    "characteristics",
+    "product_characteristics",
+    "products",
+    "ref_colors",
+    "ref_product_categories"
+  ],
+  "dimensions": {
+    "products": [
+      "color_code",
+      "product_category_code",
+      "product_description",
+      "product_id",
+      "product_name",
+      "typical_buying_price",
+      "typical_selling_price"
+    ],
+    "ref_colors": [
+      "color_code",
+      "color_description"
+    ],
+    "characteristics": [
+      "characteristic_data_type",
+      "characteristic_id",
+      "characteristic_name",
+      "characteristic_type_code",
+      "other_characteristic_details"
+    ],
+    "ref_product_categories": [
+      "product_category_code",
+      "product_category_description",
+      "unit_of_measure"
+    ],
+    "product_characteristics": [
+      "characteristic_id",
+      "product_id"
+    ]
+  },
+  "measures": {
+    "characteristics": {
+      "count": [
+        "characteristic_name"
+      ]
+    }
+  },
+  "joins": []
+}

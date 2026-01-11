@@ -1,0 +1,112 @@
+// Malloy semantic layer for: cre_Doc_Control_Systems
+// Auto-generated from 33 ground-truth SQL queries
+// Tables used: 11
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_details is address_details
+    address_id is address_id
+  measure:
+    row_count is count()
+}
+
+source: circulation_history is duckdb.table('Circulation_History') extend {
+  dimension:
+    copy_number is copy_number
+    document_id is document_id
+    draft_number is draft_number
+    employee_id is employee_id
+  measure:
+    row_count is count()
+    count_employee_id is count(employee_id)
+}
+
+source: document_drafts is duckdb.table('Document_Drafts') extend {
+  dimension:
+    document_id is document_id
+    draft_details is draft_details
+  measure:
+    row_count is count()
+}
+
+source: documents is duckdb.table('Documents') extend {
+  dimension:
+    document_id is document_id
+    document_status_code is document_status_code
+    document_type_code is document_type_code
+    receipt_date is receipt_date
+    shipping_agent_code is shipping_agent_code
+  measure:
+    row_count is count()
+    count_document_id is count(document_id)
+}
+
+source: documents_mailed is duckdb.table('Documents_Mailed') extend {
+  dimension:
+    document_id is document_id
+    mailed_to_address_id is mailed_to_address_id
+    mailing_date is mailing_date
+  measure:
+    row_count is count()
+}
+
+source: draft_copies is duckdb.table('Draft_Copies') extend {
+  dimension:
+    copy_number is copy_number
+    document_id is document_id
+  measure:
+    row_count is count()
+    count_copy_number is count(copy_number)
+}
+
+source: employees is duckdb.table('Employees') extend {
+  dimension:
+    employee_id is employee_id
+    employee_name is employee_name
+    role_code is role_code
+  measure:
+    row_count is count()
+    count_employee_id is count(employee_id)
+}
+
+source: ref_document_status is duckdb.table('Ref_Document_Status') extend {
+  dimension:
+    document_status_code is document_status_code
+    document_status_description is document_status_description
+  measure:
+    row_count is count()
+}
+
+source: ref_document_types is duckdb.table('Ref_Document_Types') extend {
+  dimension:
+    document_type_code is document_type_code
+    document_type_description is document_type_description
+  measure:
+    row_count is count()
+}
+
+source: ref_shipping_agents is duckdb.table('Ref_Shipping_Agents') extend {
+  dimension:
+    shipping_agent_code is shipping_agent_code
+    shipping_agent_name is shipping_agent_name
+  measure:
+    row_count is count()
+}
+
+source: roles is duckdb.table('Roles') extend {
+  dimension:
+    role_code is role_code
+    role_description is role_description
+  measure:
+    row_count is count()
+}
+
+// Join patterns detected in queries:
+// JOIN: addresses.address_id = documents_mailed.mailed_to_address_id
+// JOIN: circulation_history.employee_id = employees.employee_id
+// JOIN: documents.document_status_code = ref_document_status.document_status_code
+// JOIN: documents.shipping_agent_code = ref_shipping_agents.shipping_agent_code
+// JOIN: employees.role_code = roles.role_code

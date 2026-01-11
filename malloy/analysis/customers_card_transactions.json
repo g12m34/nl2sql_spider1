@@ -1,0 +1,64 @@
+{
+  "db_id": "customers_card_transactions",
+  "query_count": 80,
+  "tables_used": [
+    "accounts",
+    "customers",
+    "customers_cards",
+    "financial_transactions"
+  ],
+  "dimensions": {
+    "accounts": [
+      "account_id",
+      "account_name",
+      "customer_id",
+      "other_account_details"
+    ],
+    "customers": [
+      "customer_email",
+      "customer_first_name",
+      "customer_id",
+      "customer_last_name",
+      "customer_phone"
+    ],
+    "customers_cards": [
+      "card_id",
+      "card_number",
+      "card_type_code",
+      "customer_id",
+      "date_valid_from",
+      "date_valid_to"
+    ],
+    "financial_transactions": [
+      "account_id",
+      "card_id",
+      "transaction_amount",
+      "transaction_type"
+    ]
+  },
+  "measures": {
+    "accounts": {
+      "count": [
+        "customer_id"
+      ]
+    },
+    "customers_cards": {
+      "count": [
+        "card_type_code",
+        "customer_id"
+      ]
+    },
+    "financial_transactions": {
+      "count": [
+        "transaction_type"
+      ],
+      "sum": [
+        "transaction_amount"
+      ],
+      "avg": [
+        "transaction_amount"
+      ]
+    }
+  },
+  "joins": []
+}

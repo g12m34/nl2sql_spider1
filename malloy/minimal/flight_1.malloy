@@ -1,0 +1,54 @@
+// Malloy semantic layer for: flight_1
+// Auto-generated from 96 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: aircraft is duckdb.table('aircraft') extend {
+  dimension:
+    aid is aid
+    distance is distance
+    name is name
+  measure:
+    row_count is count()
+    avg_distance is avg(distance)
+    min_distance is min(distance)
+    max_distance is max(distance)
+}
+
+source: certificate is duckdb.table('certificate') extend {
+  dimension:
+    aid is aid
+    eid is eid
+  measure:
+    row_count is count()
+    count_eid is count(eid)
+}
+
+source: employee is duckdb.table('employee') extend {
+  dimension:
+    eid is eid
+    name is name
+    salary is salary
+  measure:
+    row_count is count()
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+}
+
+source: flight is duckdb.table('flight') extend {
+  dimension:
+    aid is aid
+    arrival_date is arrival_date
+    departure_date is departure_date
+    destination is destination
+    distance is distance
+    flno is flno
+    origin is origin
+    price is price
+  measure:
+    row_count is count()
+    avg_distance is avg(distance)
+    avg_price is avg(price)
+}

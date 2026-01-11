@@ -1,0 +1,54 @@
+{
+  "db_id": "tracking_orders",
+  "query_count": 60,
+  "tables_used": [
+    "customers",
+    "invoices",
+    "order_items",
+    "orders",
+    "products",
+    "shipments"
+  ],
+  "dimensions": {
+    "orders": [
+      "customer_id",
+      "date_order_placed",
+      "order_id",
+      "order_status"
+    ],
+    "shipments": [
+      "invoice_number",
+      "order_id",
+      "shipment_date",
+      "shipment_tracking_number"
+    ],
+    "order_items": [
+      "order_id",
+      "order_item_id",
+      "order_item_status",
+      "product_id"
+    ],
+    "customers": [
+      "customer_details",
+      "customer_id",
+      "customer_name"
+    ],
+    "products": [
+      "product_id",
+      "product_name"
+    ],
+    "invoices": [
+      "invoice_date",
+      "invoice_details",
+      "invoice_number"
+    ]
+  },
+  "measures": {
+    "shipments": {
+      "max": [
+        "shipment_date"
+      ]
+    }
+  },
+  "joins": []
+}

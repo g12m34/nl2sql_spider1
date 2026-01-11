@@ -1,0 +1,39 @@
+{
+  "db_id": "ship_1",
+  "query_count": 48,
+  "tables_used": [
+    "captain",
+    "ship"
+  ],
+  "dimensions": {
+    "captain": [
+      "age",
+      "class",
+      "name",
+      "rank",
+      "ship_id"
+    ],
+    "ship": [
+      "built_year",
+      "class",
+      "flag",
+      "name",
+      "ship_id",
+      "type"
+    ]
+  },
+  "measures": {
+    "captain": {
+      "count": [
+        "rank"
+      ],
+      "avg": [
+        "age"
+      ],
+      "min": [
+        "age"
+      ]
+    }
+  },
+  "joins": []
+}

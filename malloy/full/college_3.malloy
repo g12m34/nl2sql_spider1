@@ -1,0 +1,189 @@
+// Malloy semantic layer for: college_3
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/college_3/college_3.sqlite
+
+// Student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Student')
+""") extend {
+  primary_key: StuID
+
+  dimension:
+    stu_i_d is StuID
+    l_name is LName
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Faculty
+source: faculty is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Faculty')
+""") extend {
+  primary_key: FacID
+
+  dimension:
+    fac_i_d is FacID
+    rank_val is `Rank`
+
+  measure:
+    row_count is count()
+    total_fac_i_d is sum(FacID)
+    avg_fac_i_d is avg(FacID)
+    max_fac_i_d is max(FacID)
+    min_fac_i_d is min(FacID)
+    total_phone is sum(Phone)
+    avg_phone is avg(Phone)
+    max_phone is max(Phone)
+    min_phone is min(Phone)
+}
+
+// Department
+source: department is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Department')
+""") extend {
+  primary_key: DNO
+
+  dimension:
+    d_n_o is DNO
+    d_name is DName
+    d_phone is DPhone
+
+  measure:
+    row_count is count()
+    total_d_n_o is sum(DNO)
+    avg_d_n_o is avg(DNO)
+    max_d_n_o is max(DNO)
+    min_d_n_o is min(DNO)
+    total_d_phone is sum(DPhone)
+    avg_d_phone is avg(DPhone)
+    max_d_phone is max(DPhone)
+    min_d_phone is min(DPhone)
+}
+
+// Gradeconversion
+source: gradeconversion is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Gradeconversion')
+""") extend {
+  primary_key: lettergrade
+
+  measure:
+    row_count is count()
+    total_gradepoint is sum(gradepoint)
+    avg_gradepoint is avg(gradepoint)
+    max_gradepoint is max(gradepoint)
+    min_gradepoint is min(gradepoint)
+}
+
+// Member_of
+source: member_of is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Member_of')
+""") extend {
+  join_one: department on DNO = department.DNO
+  join_one: faculty on FacID = faculty.FacID
+
+  dimension:
+    fac_i_d is FacID
+    d_n_o is DNO
+
+  measure:
+    row_count is count()
+    total_fac_i_d is sum(FacID)
+    avg_fac_i_d is avg(FacID)
+    max_fac_i_d is max(FacID)
+    min_fac_i_d is min(FacID)
+    total_d_n_o is sum(DNO)
+    avg_d_n_o is avg(DNO)
+    max_d_n_o is max(DNO)
+    min_d_n_o is min(DNO)
+}
+
+// Course
+source: course is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Course')
+""") extend {
+  primary_key: CID
+
+  join_one: department on DNO = department.DNO
+  join_one: faculty on Instructor = faculty.FacID
+
+  dimension:
+    c_i_d is CID
+    c_name is CName
+    hours_val is `Hours`
+    d_n_o is DNO
+
+  measure:
+    row_count is count()
+    total_credits is sum(Credits)
+    avg_credits is avg(Credits)
+    max_credits is max(Credits)
+    min_credits is min(Credits)
+    total_instructor is sum(Instructor)
+    avg_instructor is avg(Instructor)
+    max_instructor is max(Instructor)
+    min_instructor is min(Instructor)
+    total_d_n_o is sum(DNO)
+    avg_d_n_o is avg(DNO)
+    max_d_n_o is max(DNO)
+    min_d_n_o is min(DNO)
+}
+
+// Minor_in
+source: minor_in is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Minor_in')
+""") extend {
+  join_one: department on DNO = department.DNO
+  join_one: student_val on StuID = student_val.StuID
+
+  dimension:
+    stu_i_d is StuID
+    d_n_o is DNO
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_d_n_o is sum(DNO)
+    avg_d_n_o is avg(DNO)
+    max_d_n_o is max(DNO)
+    min_d_n_o is min(DNO)
+}
+
+// Enrolled_in
+source: enrolled_in is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Enrolled_in')
+""") extend {
+  join_one: gradeconversion on Grade = gradeconversion.lettergrade
+  join_one: course on CID = course.CID
+  join_one: student_val on StuID = student_val.StuID
+
+  dimension:
+    stu_i_d is StuID
+    c_i_d is CID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+}

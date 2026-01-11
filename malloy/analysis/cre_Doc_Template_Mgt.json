@@ -1,0 +1,46 @@
+{
+  "db_id": "cre_Doc_Template_Mgt",
+  "query_count": 84,
+  "tables_used": [
+    "documents",
+    "paragraphs",
+    "ref_template_types",
+    "templates"
+  ],
+  "dimensions": {
+    "documents": [
+      "document_description",
+      "document_id",
+      "document_name",
+      "template_id"
+    ],
+    "templates": [
+      "template_id",
+      "template_type_code",
+      "version_number"
+    ],
+    "ref_template_types": [
+      "template_type_code",
+      "template_type_description"
+    ],
+    "paragraphs": [
+      "document_id",
+      "other_details",
+      "paragraph_id",
+      "paragraph_text"
+    ]
+  },
+  "measures": {
+    "documents": {
+      "count": [
+        "template_id"
+      ]
+    },
+    "templates": {
+      "min": [
+        "version_number"
+      ]
+    }
+  },
+  "joins": []
+}

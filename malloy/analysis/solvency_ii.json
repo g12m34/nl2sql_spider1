@@ -1,0 +1,27 @@
+{
+  "db_id": "solvency_ii",
+  "query_count": 15,
+  "tables_used": [
+    "products",
+    "products_in_events"
+  ],
+  "dimensions": {
+    "products": [
+      "product_id",
+      "product_name",
+      "product_price",
+      "product_type_code"
+    ],
+    "products_in_events": [
+      "product_id"
+    ]
+  },
+  "measures": {
+    "products": {
+      "avg": [
+        "product_price"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,46 @@
+{
+  "db_id": "twitter_1",
+  "query_count": 27,
+  "tables_used": [
+    "follows",
+    "tweets",
+    "user_profiles"
+  ],
+  "dimensions": {
+    "user_profiles": [
+      "email",
+      "followers",
+      "name",
+      "partitionid",
+      "uid"
+    ],
+    "follows": [
+      "f1",
+      "f2"
+    ],
+    "tweets": [
+      "createdate",
+      "text",
+      "uid"
+    ]
+  },
+  "measures": {
+    "tweets": {
+      "count": [
+        "uid"
+      ]
+    },
+    "user_profiles": {
+      "avg": [
+        "followers"
+      ],
+      "sum": [
+        "followers"
+      ],
+      "max": [
+        "followers"
+      ]
+    }
+  },
+  "joins": []
+}

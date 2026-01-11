@@ -1,0 +1,31 @@
+// Malloy semantic layer for: election_representative
+// Auto-generated from 20 ground-truth SQL queries
+// Tables used: 2
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: election is duckdb.table('election') extend {
+  dimension:
+    date is Date
+    representative_id is Representative_ID
+    vote_percent is Vote_Percent
+    votes is Votes
+  measure:
+    row_count is count()
+    avg_votes is avg(votes)
+    min_vote_percent is min(vote_percent)
+    max_vote_percent is max(vote_percent)
+}
+
+source: representative is duckdb.table('representative') extend {
+  dimension:
+    lifespan is Lifespan
+    name is Name
+    party is Party
+    representative_id is Representative_ID
+    state is State
+  measure:
+    row_count is count()
+    count_party is count(party)
+}

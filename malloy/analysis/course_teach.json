@@ -1,0 +1,27 @@
+{
+  "db_id": "course_teach",
+  "query_count": 30,
+  "tables_used": [
+    "course",
+    "course_arrange",
+    "teacher"
+  ],
+  "dimensions": {
+    "teacher": [
+      "age",
+      "hometown",
+      "name",
+      "teacher_id"
+    ],
+    "course": [
+      "course",
+      "course_id"
+    ],
+    "course_arrange": [
+      "course_id",
+      "teacher_id"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

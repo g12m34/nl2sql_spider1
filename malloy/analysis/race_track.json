@@ -1,0 +1,37 @@
+{
+  "db_id": "race_track",
+  "query_count": 42,
+  "tables_used": [
+    "race",
+    "track"
+  ],
+  "dimensions": {
+    "track": [
+      "location",
+      "name",
+      "seating",
+      "track_id",
+      "year_opened"
+    ],
+    "race": [
+      "class",
+      "date",
+      "name",
+      "track_id"
+    ]
+  },
+  "measures": {
+    "track": {
+      "avg": [
+        "seating"
+      ],
+      "min": [
+        "seating"
+      ],
+      "max": [
+        "seating"
+      ]
+    }
+  },
+  "joins": []
+}

@@ -1,0 +1,31 @@
+{
+  "db_id": "real_estate_properties",
+  "query_count": 4,
+  "tables_used": [
+    "other_available_features",
+    "properties",
+    "ref_feature_types",
+    "ref_property_types"
+  ],
+  "dimensions": {
+    "ref_feature_types": [
+      "feature_type_code",
+      "feature_type_name"
+    ],
+    "other_available_features": [
+      "feature_name",
+      "feature_type_code"
+    ],
+    "ref_property_types": [
+      "property_type_code",
+      "property_type_description"
+    ],
+    "properties": [
+      "property_name",
+      "property_type_code",
+      "room_count"
+    ]
+  },
+  "measures": {},
+  "joins": []
+}

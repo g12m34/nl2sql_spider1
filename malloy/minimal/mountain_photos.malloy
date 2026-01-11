@@ -1,0 +1,45 @@
+// Malloy semantic layer for: mountain_photos
+// Auto-generated from 17 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: camera_lens is duckdb.table('camera_lens') extend {
+  dimension:
+    brand is brand
+    focal_length_mm is focal_length_mm
+    id is id
+    max_aperture is max_aperture
+    name is name
+  measure:
+    row_count is count()
+    count_brand is count(brand)
+}
+
+source: mountain is duckdb.table('mountain') extend {
+  dimension:
+    country is Country
+    height is Height
+    id is id
+    name is name
+    prominence is Prominence
+    range is Range
+  measure:
+    row_count is count()
+    avg_height is avg(height)
+    avg_prominence is avg(prominence)
+    max_height is max(height)
+}
+
+source: photos is duckdb.table('photos') extend {
+  dimension:
+    camera_lens_id is camera_lens_id
+    color is color
+    id is id
+    mountain_id is mountain_id
+    name is name
+  measure:
+    row_count is count()
+    count_camera_lens_id is count(camera_lens_id)
+}

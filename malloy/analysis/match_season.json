@@ -1,0 +1,51 @@
+{
+  "db_id": "match_season",
+  "query_count": 58,
+  "tables_used": [
+    "country",
+    "match_season",
+    "player",
+    "team"
+  ],
+  "dimensions": {
+    "country": [
+      "capital",
+      "country_id",
+      "country_name",
+      "official_native_language"
+    ],
+    "match_season": [
+      "college",
+      "country",
+      "draft_class",
+      "draft_pick_number",
+      "player",
+      "position",
+      "season",
+      "team"
+    ],
+    "player": [
+      "player",
+      "team",
+      "years_played"
+    ],
+    "team": [
+      "name",
+      "team_id"
+    ]
+  },
+  "measures": {
+    "match_season": {
+      "count": [
+        "college",
+        "team"
+      ]
+    },
+    "country": {
+      "count": [
+        "official_native_language"
+      ]
+    }
+  },
+  "joins": []
+}

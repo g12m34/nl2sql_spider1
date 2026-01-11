@@ -1,0 +1,55 @@
+{
+  "db_id": "store_product",
+  "query_count": 44,
+  "tables_used": [
+    "district",
+    "product",
+    "store",
+    "store_district",
+    "store_product"
+  ],
+  "dimensions": {
+    "district": [
+      "city_area",
+      "city_population",
+      "district_id",
+      "district_name",
+      "headquartered_city"
+    ],
+    "product": [
+      "max_page_size",
+      "pages_per_minute_color",
+      "product",
+      "product_id"
+    ],
+    "store": [
+      "store_id",
+      "store_name",
+      "type"
+    ],
+    "store_district": [
+      "district_id",
+      "store_id"
+    ],
+    "store_product": [
+      "product_id",
+      "store_id"
+    ]
+  },
+  "measures": {
+    "district": {
+      "sum": [
+        "city_population"
+      ],
+      "avg": [
+        "city_area"
+      ]
+    },
+    "product": {
+      "avg": [
+        "pages_per_minute_color"
+      ]
+    }
+  },
+  "joins": []
+}

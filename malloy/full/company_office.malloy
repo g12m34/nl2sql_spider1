@@ -1,0 +1,82 @@
+// Malloy semantic layer for: company_office
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/company_office/company_office.sqlite
+
+// buildings
+source: buildings is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'buildings')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+    total_stories is sum(Stories)
+    avg_stories is avg(Stories)
+    max_stories is max(Stories)
+    min_stories is min(Stories)
+}
+
+// Companies
+source: companies is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'Companies')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_sales_billion is sum(Sales_billion)
+    avg_sales_billion is avg(Sales_billion)
+    max_sales_billion is max(Sales_billion)
+    min_sales_billion is min(Sales_billion)
+    total_profits_billion is sum(Profits_billion)
+    avg_profits_billion is avg(Profits_billion)
+    max_profits_billion is max(Profits_billion)
+    min_profits_billion is min(Profits_billion)
+    total_assets_billion is sum(Assets_billion)
+    avg_assets_billion is avg(Assets_billion)
+    max_assets_billion is max(Assets_billion)
+    min_assets_billion is min(Assets_billion)
+}
+
+// Office_locations
+source: office_locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'Office_locations')
+""") extend {
+  primary_key: building_id
+
+  join_one: companies on company_id = companies.id
+  join_one: buildings on building_id = buildings.id
+
+  measure:
+    row_count is count()
+    total_building_id is sum(building_id)
+    avg_building_id is avg(building_id)
+    max_building_id is max(building_id)
+    min_building_id is min(building_id)
+    total_company_id is sum(company_id)
+    avg_company_id is avg(company_id)
+    max_company_id is max(company_id)
+    min_company_id is min(company_id)
+    total_move_in_year is sum(move_in_year)
+    avg_move_in_year is avg(move_in_year)
+    max_move_in_year is max(move_in_year)
+    min_move_in_year is min(move_in_year)
+}

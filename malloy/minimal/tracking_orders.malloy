@@ -1,0 +1,63 @@
+// Malloy semantic layer for: tracking_orders
+// Auto-generated from 60 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_details is customer_details
+    customer_id is customer_id
+    customer_name is customer_name
+  measure:
+    row_count is count()
+}
+
+source: invoices is duckdb.table('Invoices') extend {
+  dimension:
+    invoice_date is invoice_date
+    invoice_details is invoice_details
+    invoice_number is invoice_number
+  measure:
+    row_count is count()
+}
+
+source: order_items is duckdb.table('Order_Items') extend {
+  dimension:
+    order_id is order_id
+    order_item_id is order_item_id
+    order_item_status is order_item_status
+    product_id is product_id
+  measure:
+    row_count is count()
+}
+
+source: orders is duckdb.table('Orders') extend {
+  dimension:
+    customer_id is customer_id
+    date_order_placed is date_order_placed
+    order_id is order_id
+    order_status is order_status
+  measure:
+    row_count is count()
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_id is product_id
+    product_name is product_name
+  measure:
+    row_count is count()
+}
+
+source: shipments is duckdb.table('Shipments') extend {
+  dimension:
+    invoice_number is invoice_number
+    order_id is order_id
+    shipment_date is shipment_date
+    shipment_tracking_number is shipment_tracking_number
+  measure:
+    row_count is count()
+    max_shipment_date is max(shipment_date)
+}

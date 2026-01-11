@@ -1,0 +1,62 @@
+// Malloy semantic layer for: voter_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/voter_1/voter_1.sqlite
+
+// AREA_CODE_STATE
+source: a_r_e_a_c_o_d_e_s_t_a_t_e is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'AREA_CODE_STATE')
+""") extend {
+  primary_key: area_code
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_area_code is sum(area_code)
+    avg_area_code is avg(area_code)
+    max_area_code is max(area_code)
+    min_area_code is min(area_code)
+}
+
+// CONTESTANTS
+source: c_o_n_t_e_s_t_a_n_t_s is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'CONTESTANTS')
+""") extend {
+  primary_key: contestant_number
+
+  measure:
+    row_count is count()
+    total_contestant_number is sum(contestant_number)
+    avg_contestant_number is avg(contestant_number)
+    max_contestant_number is max(contestant_number)
+    min_contestant_number is min(contestant_number)
+}
+
+// VOTES
+source: v_o_t_e_s is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'VOTES')
+""") extend {
+  primary_key: vote_id
+
+  join_one: c_o_n_t_e_s_t_a_n_t_s on contestant_number = c_o_n_t_e_s_t_a_n_t_s.contestant_number
+  join_one: a_r_e_a_c_o_d_e_s_t_a_t_e on `state` = a_r_e_a_c_o_d_e_s_t_a_t_e.`state`
+
+  dimension:
+    state_val is `state`
+
+  measure:
+    row_count is count()
+    total_vote_id is sum(vote_id)
+    avg_vote_id is avg(vote_id)
+    max_vote_id is max(vote_id)
+    min_vote_id is min(vote_id)
+    total_phone_number is sum(phone_number)
+    avg_phone_number is avg(phone_number)
+    max_phone_number is max(phone_number)
+    min_phone_number is min(phone_number)
+    total_contestant_number is sum(contestant_number)
+    avg_contestant_number is avg(contestant_number)
+    max_contestant_number is max(contestant_number)
+    min_contestant_number is min(contestant_number)
+}

@@ -1,0 +1,73 @@
+// Malloy semantic layer for: insurance_and_eClaims
+// Auto-generated from 40 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: claim_headers is duckdb.table('Claim_Headers') extend {
+  dimension:
+    amount_claimed is Amount_Claimed
+    amount_piad is Amount_Piad
+    claim_header_id is Claim_Header_ID
+    policy_id is Policy_ID
+  measure:
+    row_count is count()
+    sum_amount_claimed is sum(amount_claimed)
+    sum_amount_piad is sum(amount_piad)
+    avg_amount_piad is avg(amount_piad)
+    min_amount_piad is min(amount_piad)
+    max_amount_claimed is max(amount_claimed)
+}
+
+source: claims_documents is duckdb.table('Claims_Documents') extend {
+  dimension:
+    claim_id is Claim_ID
+    created_date is Created_Date
+  measure:
+    row_count is count()
+}
+
+source: claims_processing is duckdb.table('Claims_Processing') extend {
+  dimension:
+    claim_outcome_code is Claim_Outcome_Code
+    claim_stage_id is Claim_Stage_ID
+  measure:
+    row_count is count()
+    count_claim_outcome_code is count(claim_outcome_code)
+}
+
+source: claims_processing_stages is duckdb.table('Claims_Processing_Stages') extend {
+  dimension:
+    claim_stage_id is Claim_Stage_ID
+    claim_status_description is Claim_Status_Description
+    claim_status_name is Claim_Status_Name
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_details is Customer_Details
+    customer_id is Customer_ID
+  measure:
+    row_count is count()
+}
+
+source: policies is duckdb.table('Policies') extend {
+  dimension:
+    customer_id is Customer_ID
+    policy_id is Policy_ID
+    policy_type_code is Policy_Type_Code
+    start_date is Start_Date
+  measure:
+    row_count is count()
+    max_start_date is max(start_date)
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    staff_details is Staff_Details
+  measure:
+    row_count is count()
+}

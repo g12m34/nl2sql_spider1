@@ -1,0 +1,39 @@
+// Malloy semantic layer for: network_2
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/network_2/network_2.sqlite
+
+// Person
+source: person_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_2/network_2.sqlite', 'Person')
+""") extend {
+  primary_key: `name`
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_age is sum(age)
+    avg_age is avg(age)
+    max_age is max(age)
+    min_age is min(age)
+}
+
+// PersonFriend
+source: person_friend is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_2/network_2.sqlite', 'PersonFriend')
+""") extend {
+  join_one: friend_person_val is person_val on friend = friend_person_val.`name`
+  join_one: name_person_val is person_val on `name` = name_person_val.`name`
+
+  dimension:
+    name_val is `name`
+    year_val is `year`
+
+  measure:
+    row_count is count()
+    total_year_val is sum(`year`)
+    avg_year_val is avg(`year`)
+    max_year_val is max(`year`)
+    min_year_val is min(`year`)
+}

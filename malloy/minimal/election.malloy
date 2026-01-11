@@ -1,0 +1,43 @@
+// Malloy semantic layer for: election
+// Auto-generated from 68 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: county is duckdb.table('county') extend {
+  dimension:
+    county_id is County_Id
+    county_name is County_name
+    population is Population
+    zip_code is Zip_code
+  measure:
+    row_count is count()
+    avg_population is avg(population)
+    min_population is min(population)
+    max_population is max(population)
+}
+
+source: election is duckdb.table('election') extend {
+  dimension:
+    committee is Committee
+    delegate is Delegate
+    district is District
+    party is Party
+  measure:
+    row_count is count()
+    count_delegate is count(delegate)
+}
+
+source: party is duckdb.table('party') extend {
+  dimension:
+    comptroller is Comptroller
+    governor is Governor
+    lieutenant_governor is Lieutenant_Governor
+    party is Party
+    party_id is Party_ID
+    year is Year
+  measure:
+    row_count is count()
+    count_governor is count(governor)
+}

@@ -1,0 +1,142 @@
+// Malloy semantic layer for: cre_Theme_park
+// Auto-generated from 84 ground-truth SQL queries
+// Tables used: 15
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: features is duckdb.table('Features') extend {
+  dimension:
+    feature_details is Feature_Details
+    feature_id is Feature_ID
+  measure:
+    row_count is count()
+}
+
+source: hotels is duckdb.table('Hotels') extend {
+  dimension:
+    hotel_id is hotel_id
+    other_hotel_details is other_hotel_details
+    pets_allowed_yn is pets_allowed_yn
+    price_range is price_range
+    star_rating_code is star_rating_code
+  measure:
+    row_count is count()
+    avg_price_range is avg(price_range)
+}
+
+source: locations is duckdb.table('Locations') extend {
+  dimension:
+    address is Address
+    location_id is Location_ID
+    location_name is Location_Name
+    other_details is Other_Details
+  measure:
+    row_count is count()
+}
+
+source: museums is duckdb.table('Museums') extend {
+  dimension:
+    museum_details is Museum_Details
+    museum_id is Museum_ID
+  measure:
+    row_count is count()
+}
+
+source: photos is duckdb.table('Photos') extend {
+  dimension:
+    description is Description
+    name is Name
+    tourist_attraction_id is Tourist_Attraction_ID
+  measure:
+    row_count is count()
+    count_name is count(name)
+}
+
+source: ref_attraction_types is duckdb.table('Ref_Attraction_Types') extend {
+  dimension:
+    attraction_type_code is Attraction_Type_Code
+    attraction_type_description is Attraction_Type_Description
+  measure:
+    row_count is count()
+}
+
+source: ref_hotel_star_ratings is duckdb.table('Ref_Hotel_Star_Ratings') extend {
+  dimension:
+    star_rating_code is star_rating_code
+    star_rating_description is star_rating_description
+  measure:
+    row_count is count()
+}
+
+source: royal_family is duckdb.table('Royal_Family') extend {
+  dimension:
+    royal_family_details is Royal_Family_Details
+    royal_family_id is Royal_Family_ID
+  measure:
+    row_count is count()
+}
+
+source: shops is duckdb.table('Shops') extend {
+  dimension:
+    shop_details is Shop_Details
+    shop_id is Shop_ID
+  measure:
+    row_count is count()
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    name is Name
+    other_details is Other_Details
+    tourist_attraction_id is Tourist_Attraction_ID
+  measure:
+    row_count is count()
+}
+
+source: street_markets is duckdb.table('Street_Markets') extend {
+  dimension:
+    market_details is Market_Details
+    market_id is Market_ID
+  measure:
+    row_count is count()
+}
+
+source: tourist_attraction_features is duckdb.table('Tourist_Attraction_Features') extend {
+  dimension:
+    feature_id is Feature_ID
+    tourist_attraction_id is Tourist_Attraction_ID
+  measure:
+    row_count is count()
+}
+
+source: tourist_attractions is duckdb.table('Tourist_Attractions') extend {
+  dimension:
+    attraction_type_code is Attraction_Type_Code
+    description is Description
+    how_to_get_there is How_to_Get_There
+    location_id is Location_ID
+    name is Name
+    opening_hours is Opening_Hours
+    tourist_attraction_id is Tourist_Attraction_ID
+  measure:
+    row_count is count()
+}
+
+source: visitors is duckdb.table('Visitors') extend {
+  dimension:
+    tourist_details is Tourist_Details
+    tourist_id is Tourist_ID
+  measure:
+    row_count is count()
+}
+
+source: visits is duckdb.table('Visits') extend {
+  dimension:
+    tourist_attraction_id is Tourist_Attraction_ID
+    tourist_id is Tourist_ID
+    visit_date is Visit_Date
+    visit_details is Visit_Details
+  measure:
+    row_count is count()
+}

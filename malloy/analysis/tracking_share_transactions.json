@@ -1,0 +1,71 @@
+{
+  "db_id": "tracking_share_transactions",
+  "query_count": 41,
+  "tables_used": [
+    "investors",
+    "lots",
+    "purchases",
+    "ref_transaction_types",
+    "sales",
+    "transactions",
+    "transactions_lots"
+  ],
+  "dimensions": {
+    "investors": [
+      "investor_details",
+      "investor_id"
+    ],
+    "lots": [
+      "investor_id",
+      "lot_details",
+      "lot_id"
+    ],
+    "transactions": [
+      "amount_of_transaction",
+      "date_of_transaction",
+      "investor_id",
+      "share_count",
+      "transaction_id",
+      "transaction_type_code"
+    ],
+    "ref_transaction_types": [
+      "transaction_type_code",
+      "transaction_type_description"
+    ],
+    "purchases": [
+      "purchase_details",
+      "purchase_transaction_id"
+    ],
+    "sales": [
+      "sales_details",
+      "sales_transaction_id"
+    ],
+    "transactions_lots": [
+      "lot_id",
+      "transaction_id"
+    ]
+  },
+  "measures": {
+    "transactions": {
+      "max": [
+        "amount_of_transaction",
+        "share_count"
+      ],
+      "sum": [
+        "share_count"
+      ],
+      "avg": [
+        "amount_of_transaction",
+        "share_count"
+      ],
+      "min": [
+        "amount_of_transaction",
+        "share_count"
+      ],
+      "count": [
+        "transaction_type_code"
+      ]
+    }
+  },
+  "joins": []
+}

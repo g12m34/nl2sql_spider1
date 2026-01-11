@@ -1,0 +1,129 @@
+// Malloy semantic layer for: customers_and_products_contacts
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite
+
+// Addresses
+source: addresses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Products
+source: products is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_product_price is sum(product_price)
+    avg_product_price is avg(product_price)
+    max_product_price is max(product_price)
+    min_product_price is min(product_price)
+}
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Customers')
+""") extend {
+  primary_key: customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Contacts
+source: contacts is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Contacts')
+""") extend {
+  primary_key: contact_id
+
+  measure:
+    row_count is count()
+    total_contact_id is sum(contact_id)
+    avg_contact_id is avg(contact_id)
+    max_contact_id is max(contact_id)
+    min_contact_id is min(contact_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Customer_Address_History
+source: customer_address_history is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Customer_Address_History')
+""") extend {
+  join_one: addresses on address_id = addresses.address_id
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Customer_Orders
+source: customer_orders is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Customer_Orders')
+""") extend {
+  primary_key: order_id
+
+  join_one: customers on customer_id = customers.customer_id
+
+  measure:
+    row_count is count()
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_customer_id is sum(customer_id)
+    avg_customer_id is avg(customer_id)
+    max_customer_id is max(customer_id)
+    min_customer_id is min(customer_id)
+}
+
+// Order_Items
+source: order_items is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Order_Items')
+""") extend {
+  join_one: customer_orders on order_id = customer_orders.order_id
+  join_one: products on product_id = products.product_id
+
+  measure:
+    row_count is count()
+    total_order_item_id is sum(order_item_id)
+    avg_order_item_id is avg(order_item_id)
+    max_order_item_id is max(order_item_id)
+    min_order_item_id is min(order_item_id)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}

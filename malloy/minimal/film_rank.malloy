@@ -1,0 +1,42 @@
+// Malloy semantic layer for: film_rank
+// Auto-generated from 48 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: film is duckdb.table('film') extend {
+  dimension:
+    director is Director
+    film_id is Film_ID
+    gross_in_dollar is Gross_in_dollar
+    studio is Studio
+    title is Title
+  measure:
+    row_count is count()
+    avg_gross_in_dollar is avg(gross_in_dollar)
+}
+
+source: film_market_estimation is duckdb.table('film_market_estimation') extend {
+  dimension:
+    film_id is Film_ID
+    high_estimate is High_Estimate
+    low_estimate is Low_Estimate
+    market_id is Market_ID
+    type is Type
+    year is Year
+  measure:
+    row_count is count()
+}
+
+source: market is duckdb.table('market') extend {
+  dimension:
+    country is Country
+    market_id is Market_ID
+    number_cities is Number_cities
+  measure:
+    row_count is count()
+    avg_number_cities is avg(number_cities)
+    min_number_cities is min(number_cities)
+    max_number_cities is max(number_cities)
+}

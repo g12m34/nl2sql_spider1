@@ -1,0 +1,50 @@
+{
+  "db_id": "gas_company",
+  "query_count": 46,
+  "tables_used": [
+    "company",
+    "gas_station",
+    "station_company"
+  ],
+  "dimensions": {
+    "company": [
+      "assets_billion",
+      "company",
+      "company_id",
+      "headquarters",
+      "main_industry",
+      "market_value",
+      "profits_billion",
+      "rank",
+      "sales_billion"
+    ],
+    "gas_station": [
+      "location",
+      "manager_name",
+      "open_year",
+      "representative_name",
+      "station_id"
+    ],
+    "station_company": [
+      "company_id",
+      "station_id"
+    ]
+  },
+  "measures": {
+    "company": {
+      "avg": [
+        "market_value"
+      ],
+      "min": [
+        "market_value"
+      ],
+      "max": [
+        "market_value"
+      ],
+      "sum": [
+        "market_value"
+      ]
+    }
+  },
+  "joins": []
+}

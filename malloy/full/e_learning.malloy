@@ -1,0 +1,112 @@
+// Malloy semantic layer for: e_learning
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/e_learning/e_learning.sqlite
+
+// Course_Authors_and_Tutors
+source: course_authors_and_tutors is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Course_Authors_and_Tutors')
+""") extend {
+  primary_key: author_id
+
+  dimension:
+    author_tutor_a_t_b is author_tutor_ATB
+
+  measure:
+    row_count is count()
+    total_author_id is sum(author_id)
+    avg_author_id is avg(author_id)
+    max_author_id is max(author_id)
+    min_author_id is min(author_id)
+}
+
+// Students
+source: students is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Students')
+""") extend {
+  primary_key: student_id
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+}
+
+// Subjects
+source: subjects is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Subjects')
+""") extend {
+  primary_key: subject_id
+
+  measure:
+    row_count is count()
+    total_subject_id is sum(subject_id)
+    avg_subject_id is avg(subject_id)
+    max_subject_id is max(subject_id)
+    min_subject_id is min(subject_id)
+}
+
+// Courses
+source: courses is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Courses')
+""") extend {
+  primary_key: course_id
+
+  join_one: subjects on subject_id = subjects.subject_id
+  join_one: course_authors_and_tutors on author_id = course_authors_and_tutors.author_id
+
+  measure:
+    row_count is count()
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+    total_author_id is sum(author_id)
+    avg_author_id is avg(author_id)
+    max_author_id is max(author_id)
+    min_author_id is min(author_id)
+    total_subject_id is sum(subject_id)
+    avg_subject_id is avg(subject_id)
+    max_subject_id is max(subject_id)
+    min_subject_id is min(subject_id)
+}
+
+// Student_Course_Enrolment
+source: student_course_enrolment is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Student_Course_Enrolment')
+""") extend {
+  primary_key: registration_id
+
+  join_one: students on student_id = students.student_id
+  join_one: courses on course_id = courses.course_id
+
+  measure:
+    row_count is count()
+    total_registration_id is sum(registration_id)
+    avg_registration_id is avg(registration_id)
+    max_registration_id is max(registration_id)
+    min_registration_id is min(registration_id)
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+}
+
+// Student_Tests_Taken
+source: student_tests_taken is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Student_Tests_Taken')
+""") extend {
+  join_one: student_course_enrolment on registration_id = student_course_enrolment.registration_id
+
+  measure:
+    row_count is count()
+    total_registration_id is sum(registration_id)
+    avg_registration_id is avg(registration_id)
+    max_registration_id is max(registration_id)
+    min_registration_id is min(registration_id)
+}

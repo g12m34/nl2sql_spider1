@@ -1,0 +1,73 @@
+// Malloy semantic layer for: battle_death
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/battle_death/battle_death.sqlite
+
+// battle
+source: battle is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'battle')
+""") extend {
+  primary_key: id
+
+  dimension:
+    name_val is `name`
+    date_val is `date`
+    result_val is `result`
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// ship
+source: ship is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'ship')
+""") extend {
+  primary_key: id
+
+  join_one: battle on lost_in_battle = battle.id
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_lost_in_battle is sum(lost_in_battle)
+    avg_lost_in_battle is avg(lost_in_battle)
+    max_lost_in_battle is max(lost_in_battle)
+    min_lost_in_battle is min(lost_in_battle)
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+}
+
+// death
+source: death is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'death')
+""") extend {
+  primary_key: id
+
+  join_one: ship on caused_by_ship_id = ship.id
+
+  measure:
+    row_count is count()
+    total_caused_by_ship_id is sum(caused_by_ship_id)
+    avg_caused_by_ship_id is avg(caused_by_ship_id)
+    max_caused_by_ship_id is max(caused_by_ship_id)
+    min_caused_by_ship_id is min(caused_by_ship_id)
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_killed is sum(killed)
+    avg_killed is avg(killed)
+    max_killed is max(killed)
+    min_killed is min(killed)
+    total_injured is sum(injured)
+    avg_injured is avg(injured)
+    max_injured is max(injured)
+    min_injured is min(injured)
+}

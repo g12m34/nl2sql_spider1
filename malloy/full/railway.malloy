@@ -1,0 +1,99 @@
+// Malloy semantic layer for: railway
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/railway/railway.sqlite
+
+// railway
+source: railway is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/railway/railway.sqlite', 'railway')
+""") extend {
+  primary_key: Railway_ID
+
+  dimension:
+    railway_i_d is Railway_ID
+    object_number is ObjectNumber
+
+  measure:
+    row_count is count()
+    total_railway_i_d is sum(Railway_ID)
+    avg_railway_i_d is avg(Railway_ID)
+    max_railway_i_d is max(Railway_ID)
+    min_railway_i_d is min(Railway_ID)
+}
+
+// manager
+source: manager is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/railway/railway.sqlite', 'manager')
+""") extend {
+  primary_key: Manager_ID
+
+  dimension:
+    manager_i_d is Manager_ID
+    name_val is `Name`
+    level_val is `Level`
+
+  measure:
+    row_count is count()
+    total_manager_i_d is sum(Manager_ID)
+    avg_manager_i_d is avg(Manager_ID)
+    max_manager_i_d is max(Manager_ID)
+    min_manager_i_d is min(Manager_ID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_level_val is sum(`Level`)
+    avg_level_val is avg(`Level`)
+    max_level_val is max(`Level`)
+    min_level_val is min(`Level`)
+}
+
+// train
+source: train is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/railway/railway.sqlite', 'train')
+""") extend {
+  primary_key: Train_ID
+
+  join_one: railway on Railway_ID = railway.Railway_ID
+
+  dimension:
+    train_i_d is Train_ID
+    name_val is `Name`
+    from_val is `From`
+    railway_i_d is Railway_ID
+
+  measure:
+    row_count is count()
+    total_train_i_d is sum(Train_ID)
+    avg_train_i_d is avg(Train_ID)
+    max_train_i_d is max(Train_ID)
+    min_train_i_d is min(Train_ID)
+    total_railway_i_d is sum(Railway_ID)
+    avg_railway_i_d is avg(Railway_ID)
+    max_railway_i_d is max(Railway_ID)
+    min_railway_i_d is min(Railway_ID)
+}
+
+// railway_manage
+source: railway_manage is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/railway/railway.sqlite', 'railway_manage')
+""") extend {
+  primary_key: Railway_ID
+
+  join_one: railway on Railway_ID = railway.Railway_ID
+  join_one: manager on Manager_ID = manager.Manager_ID
+
+  dimension:
+    railway_i_d is Railway_ID
+    manager_i_d is Manager_ID
+
+  measure:
+    row_count is count()
+    total_railway_i_d is sum(Railway_ID)
+    avg_railway_i_d is avg(Railway_ID)
+    max_railway_i_d is max(Railway_ID)
+    min_railway_i_d is min(Railway_ID)
+    total_manager_i_d is sum(Manager_ID)
+    avg_manager_i_d is avg(Manager_ID)
+    max_manager_i_d is max(Manager_ID)
+    min_manager_i_d is min(Manager_ID)
+}

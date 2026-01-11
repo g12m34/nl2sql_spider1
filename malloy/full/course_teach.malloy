@@ -1,0 +1,67 @@
+// Malloy semantic layer for: course_teach
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/course_teach/course_teach.sqlite
+
+// course
+source: course is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'course')
+""") extend {
+  primary_key: Course_ID
+
+  dimension:
+    course_i_d is Course_ID
+
+  measure:
+    row_count is count()
+    total_course_i_d is sum(Course_ID)
+    avg_course_i_d is avg(Course_ID)
+    max_course_i_d is max(Course_ID)
+    min_course_i_d is min(Course_ID)
+}
+
+// teacher
+source: teacher is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'teacher')
+""") extend {
+  primary_key: Teacher_ID
+
+  dimension:
+    teacher_i_d is Teacher_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_teacher_i_d is sum(Teacher_ID)
+    avg_teacher_i_d is avg(Teacher_ID)
+    max_teacher_i_d is max(Teacher_ID)
+    min_teacher_i_d is min(Teacher_ID)
+}
+
+// course_arrange
+source: course_arrange is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'course_arrange')
+""") extend {
+  primary_key: Course_ID
+
+  join_one: teacher on Teacher_ID = teacher.Teacher_ID
+  join_one: course on Course_ID = course.Course_ID
+
+  dimension:
+    course_i_d is Course_ID
+    teacher_i_d is Teacher_ID
+
+  measure:
+    row_count is count()
+    total_course_i_d is sum(Course_ID)
+    avg_course_i_d is avg(Course_ID)
+    max_course_i_d is max(Course_ID)
+    min_course_i_d is min(Course_ID)
+    total_teacher_i_d is sum(Teacher_ID)
+    avg_teacher_i_d is avg(Teacher_ID)
+    max_teacher_i_d is max(Teacher_ID)
+    min_teacher_i_d is min(Teacher_ID)
+    total_grade is sum(Grade)
+    avg_grade is avg(Grade)
+    max_grade is max(Grade)
+    min_grade is min(Grade)
+}

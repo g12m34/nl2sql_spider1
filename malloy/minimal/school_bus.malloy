@@ -1,0 +1,38 @@
+// Malloy semantic layer for: school_bus
+// Auto-generated from 18 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: driver is duckdb.table('driver') extend {
+  dimension:
+    age is Age
+    driver_id is Driver_ID
+    home_city is Home_city
+    name is Name
+    party is Party
+  measure:
+    row_count is count()
+}
+
+source: school is duckdb.table('school') extend {
+  dimension:
+    school is School
+    school_id is School_ID
+    type is Type
+  measure:
+    row_count is count()
+}
+
+source: school_bus is duckdb.table('school_bus') extend {
+  dimension:
+    driver_id is Driver_ID
+    school_id is School_ID
+    years_working is Years_Working
+  measure:
+    row_count is count()
+    avg_years_working is avg(years_working)
+    min_years_working is min(years_working)
+    max_years_working is max(years_working)
+}

@@ -1,0 +1,63 @@
+// Malloy semantic layer for: insurance_policies
+// Auto-generated from 48 ground-truth SQL queries
+// Tables used: 5
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: claims is duckdb.table('Claims') extend {
+  dimension:
+    amount_claimed is Amount_Claimed
+    amount_settled is Amount_Settled
+    claim_id is Claim_ID
+    date_claim_made is Date_Claim_Made
+    date_claim_settled is Date_Claim_Settled
+    policy_id is Policy_ID
+  measure:
+    row_count is count()
+    sum_amount_claimed is sum(amount_claimed)
+    avg_amount_claimed is avg(amount_claimed)
+    avg_amount_settled is avg(amount_settled)
+    max_amount_claimed is max(amount_claimed)
+}
+
+source: customer_policies is duckdb.table('Customer_Policies') extend {
+  dimension:
+    customer_id is Customer_ID
+    policy_id is Policy_ID
+    policy_type_code is Policy_Type_Code
+  measure:
+    row_count is count()
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_details is Customer_Details
+    customer_id is Customer_ID
+  measure:
+    row_count is count()
+}
+
+source: payments is duckdb.table('Payments') extend {
+  dimension:
+    amount_payment is Amount_Payment
+    date_payment_made is Date_Payment_Made
+    payment_id is Payment_ID
+    payment_method_code is Payment_Method_Code
+  measure:
+    row_count is count()
+    sum_amount_payment is sum(amount_payment)
+}
+
+source: settlements is duckdb.table('Settlements') extend {
+  dimension:
+    amount_claimed is Amount_Claimed
+    amount_settled is Amount_Settled
+    claim_id is Claim_ID
+    date_claim_made is Date_Claim_Made
+    date_claim_settled is Date_Claim_Settled
+  measure:
+    row_count is count()
+    sum_amount_settled is sum(amount_settled)
+    max_amount_claimed is max(amount_claimed)
+}

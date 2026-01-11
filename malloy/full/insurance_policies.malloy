@@ -1,0 +1,141 @@
+// Malloy semantic layer for: insurance_policies
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite
+
+// Customers
+source: customers is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Customers')
+""") extend {
+  primary_key: Customer_ID
+
+  dimension:
+    customer_i_d is Customer_ID
+
+  measure:
+    row_count is count()
+    total_customer_i_d is sum(Customer_ID)
+    avg_customer_i_d is avg(Customer_ID)
+    max_customer_i_d is max(Customer_ID)
+    min_customer_i_d is min(Customer_ID)
+}
+
+// Customer_Policies
+source: customer_policies is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Customer_Policies')
+""") extend {
+  primary_key: Policy_ID
+
+  join_one: customers on Customer_ID = customers.Customer_ID
+
+  dimension:
+    policy_i_d is Policy_ID
+    customer_i_d is Customer_ID
+
+  measure:
+    row_count is count()
+    total_policy_i_d is sum(Policy_ID)
+    avg_policy_i_d is avg(Policy_ID)
+    max_policy_i_d is max(Policy_ID)
+    min_policy_i_d is min(Policy_ID)
+    total_customer_i_d is sum(Customer_ID)
+    avg_customer_i_d is avg(Customer_ID)
+    max_customer_i_d is max(Customer_ID)
+    min_customer_i_d is min(Customer_ID)
+}
+
+// Claims
+source: claims is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Claims')
+""") extend {
+  primary_key: Claim_ID
+
+  join_one: customer_policies on Policy_ID = customer_policies.Policy_ID
+
+  dimension:
+    claim_i_d is Claim_ID
+    policy_i_d is Policy_ID
+
+  measure:
+    row_count is count()
+    total_claim_i_d is sum(Claim_ID)
+    avg_claim_i_d is avg(Claim_ID)
+    max_claim_i_d is max(Claim_ID)
+    min_claim_i_d is min(Claim_ID)
+    total_policy_i_d is sum(Policy_ID)
+    avg_policy_i_d is avg(Policy_ID)
+    max_policy_i_d is max(Policy_ID)
+    min_policy_i_d is min(Policy_ID)
+    total_amount_claimed is sum(Amount_Claimed)
+    avg_amount_claimed is avg(Amount_Claimed)
+    max_amount_claimed is max(Amount_Claimed)
+    min_amount_claimed is min(Amount_Claimed)
+    total_amount_settled is sum(Amount_Settled)
+    avg_amount_settled is avg(Amount_Settled)
+    max_amount_settled is max(Amount_Settled)
+    min_amount_settled is min(Amount_Settled)
+}
+
+// Settlements
+source: settlements is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Settlements')
+""") extend {
+  primary_key: Settlement_ID
+
+  join_one: claims on Claim_ID = claims.Claim_ID
+
+  dimension:
+    settlement_i_d is Settlement_ID
+    claim_i_d is Claim_ID
+    customer_policy_i_d is Customer_Policy_ID
+
+  measure:
+    row_count is count()
+    total_settlement_i_d is sum(Settlement_ID)
+    avg_settlement_i_d is avg(Settlement_ID)
+    max_settlement_i_d is max(Settlement_ID)
+    min_settlement_i_d is min(Settlement_ID)
+    total_claim_i_d is sum(Claim_ID)
+    avg_claim_i_d is avg(Claim_ID)
+    max_claim_i_d is max(Claim_ID)
+    min_claim_i_d is min(Claim_ID)
+    total_amount_claimed is sum(Amount_Claimed)
+    avg_amount_claimed is avg(Amount_Claimed)
+    max_amount_claimed is max(Amount_Claimed)
+    min_amount_claimed is min(Amount_Claimed)
+    total_amount_settled is sum(Amount_Settled)
+    avg_amount_settled is avg(Amount_Settled)
+    max_amount_settled is max(Amount_Settled)
+    min_amount_settled is min(Amount_Settled)
+    total_customer_policy_i_d is sum(Customer_Policy_ID)
+    avg_customer_policy_i_d is avg(Customer_Policy_ID)
+    max_customer_policy_i_d is max(Customer_Policy_ID)
+    min_customer_policy_i_d is min(Customer_Policy_ID)
+}
+
+// Payments
+source: payments is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Payments')
+""") extend {
+  primary_key: Payment_ID
+
+  join_one: settlements on Settlement_ID = settlements.Settlement_ID
+
+  dimension:
+    payment_i_d is Payment_ID
+    settlement_i_d is Settlement_ID
+
+  measure:
+    row_count is count()
+    total_payment_i_d is sum(Payment_ID)
+    avg_payment_i_d is avg(Payment_ID)
+    max_payment_i_d is max(Payment_ID)
+    min_payment_i_d is min(Payment_ID)
+    total_settlement_i_d is sum(Settlement_ID)
+    avg_settlement_i_d is avg(Settlement_ID)
+    max_settlement_i_d is max(Settlement_ID)
+    min_settlement_i_d is min(Settlement_ID)
+    total_amount_payment is sum(Amount_Payment)
+    avg_amount_payment is avg(Amount_Payment)
+    max_amount_payment is max(Amount_Payment)
+    min_amount_payment is min(Amount_Payment)
+}

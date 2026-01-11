@@ -1,0 +1,68 @@
+{
+  "db_id": "customers_and_products_contacts",
+  "query_count": 15,
+  "tables_used": [
+    "addresses",
+    "customer_address_history",
+    "customer_orders",
+    "customers",
+    "order_items",
+    "products"
+  ],
+  "dimensions": {
+    "addresses": [
+      "address_id",
+      "city",
+      "country",
+      "state_province_county"
+    ],
+    "customers": [
+      "customer_id",
+      "customer_name",
+      "customer_number",
+      "customer_phone",
+      "payment_method_code"
+    ],
+    "customer_address_history": [
+      "address_id",
+      "customer_id",
+      "date_from",
+      "date_to"
+    ],
+    "customer_orders": [
+      "customer_id",
+      "order_id",
+      "order_status_code"
+    ],
+    "products": [
+      "product_id",
+      "product_name",
+      "product_price",
+      "product_type_code"
+    ],
+    "order_items": [
+      "order_id",
+      "order_quantity",
+      "product_id"
+    ]
+  },
+  "measures": {
+    "order_items": {
+      "sum": [
+        "order_quantity"
+      ]
+    },
+    "products": {
+      "avg": [
+        "product_price"
+      ],
+      "min": [
+        "product_price"
+      ],
+      "max": [
+        "product_price"
+      ]
+    }
+  },
+  "joins": []
+}

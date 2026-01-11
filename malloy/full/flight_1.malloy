@@ -1,0 +1,94 @@
+// Malloy semantic layer for: flight_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/flight_1/flight_1.sqlite
+
+// aircraft
+source: aircraft is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'aircraft')
+""") extend {
+  primary_key: aid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_aid is sum(aid)
+    avg_aid is avg(aid)
+    max_aid is max(aid)
+    min_aid is min(aid)
+    total_distance is sum(distance)
+    avg_distance is avg(distance)
+    max_distance is max(distance)
+    min_distance is min(distance)
+}
+
+// employee
+source: employee is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'employee')
+""") extend {
+  primary_key: eid
+
+  dimension:
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_eid is sum(eid)
+    avg_eid is avg(eid)
+    max_eid is max(eid)
+    min_eid is min(eid)
+    total_salary is sum(salary)
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+    min_salary is min(salary)
+}
+
+// flight
+source: flight is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'flight')
+""") extend {
+  primary_key: flno
+
+  join_one: aircraft on aid = aircraft.aid
+
+  measure:
+    row_count is count()
+    total_flno is sum(flno)
+    avg_flno is avg(flno)
+    max_flno is max(flno)
+    min_flno is min(flno)
+    total_distance is sum(distance)
+    avg_distance is avg(distance)
+    max_distance is max(distance)
+    min_distance is min(distance)
+    total_price is sum(price)
+    avg_price is avg(price)
+    max_price is max(price)
+    min_price is min(price)
+    total_aid is sum(aid)
+    avg_aid is avg(aid)
+    max_aid is max(aid)
+    min_aid is min(aid)
+}
+
+// certificate
+source: certificate is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'certificate')
+""") extend {
+  primary_key: eid
+
+  join_one: aircraft on aid = aircraft.aid
+  join_one: employee on eid = employee.eid
+
+  measure:
+    row_count is count()
+    total_eid is sum(eid)
+    avg_eid is avg(eid)
+    max_eid is max(eid)
+    min_eid is min(eid)
+    total_aid is sum(aid)
+    avg_aid is avg(aid)
+    max_aid is max(aid)
+    min_aid is min(aid)
+}

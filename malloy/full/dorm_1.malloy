@@ -1,0 +1,103 @@
+// Malloy semantic layer for: dorm_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite
+
+// Student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Student')
+""") extend {
+  primary_key: StuID
+
+  dimension:
+    stu_i_d is StuID
+    l_name is LName
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Dorm
+source: dorm is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Dorm')
+""") extend {
+  measure:
+    row_count is count()
+    total_dormid is sum(dormid)
+    avg_dormid is avg(dormid)
+    max_dormid is max(dormid)
+    min_dormid is min(dormid)
+    total_student_capacity is sum(student_capacity)
+    avg_student_capacity is avg(student_capacity)
+    max_student_capacity is max(student_capacity)
+    min_student_capacity is min(student_capacity)
+}
+
+// Dorm_amenity
+source: dorm_amenity is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Dorm_amenity')
+""") extend {
+  measure:
+    row_count is count()
+    total_amenid is sum(amenid)
+    avg_amenid is avg(amenid)
+    max_amenid is max(amenid)
+    min_amenid is min(amenid)
+}
+
+// Lives_in
+source: lives_in is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Lives_in')
+""") extend {
+  join_one: dorm on dormid = dorm.dormid
+  join_one: student_val on stuid = student_val.StuID
+
+  measure:
+    row_count is count()
+    total_stuid is sum(stuid)
+    avg_stuid is avg(stuid)
+    max_stuid is max(stuid)
+    min_stuid is min(stuid)
+    total_dormid is sum(dormid)
+    avg_dormid is avg(dormid)
+    max_dormid is max(dormid)
+    min_dormid is min(dormid)
+    total_room_number is sum(room_number)
+    avg_room_number is avg(room_number)
+    max_room_number is max(room_number)
+    min_room_number is min(room_number)
+}
+
+// Has_amenity
+source: has_amenity is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Has_amenity')
+""") extend {
+  join_one: dorm_amenity on amenid = dorm_amenity.amenid
+  join_one: dorm on dormid = dorm.dormid
+
+  measure:
+    row_count is count()
+    total_dormid is sum(dormid)
+    avg_dormid is avg(dormid)
+    max_dormid is max(dormid)
+    min_dormid is min(dormid)
+    total_amenid is sum(amenid)
+    avg_amenid is avg(amenid)
+    max_amenid is max(amenid)
+    min_amenid is min(amenid)
+}

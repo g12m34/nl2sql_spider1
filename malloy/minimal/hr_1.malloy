@@ -1,0 +1,78 @@
+// Malloy semantic layer for: hr_1
+// Auto-generated from 124 ground-truth SQL queries
+// Tables used: 6
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: countries is duckdb.table('countries') extend {
+  dimension:
+    country_id is COUNTRY_ID
+    country_name is COUNTRY_NAME
+  measure:
+    row_count is count()
+}
+
+source: departments is duckdb.table('departments') extend {
+  dimension:
+    department_id is DEPARTMENT_ID
+    department_name is DEPARTMENT_NAME
+    location_id is LOCATION_ID
+    manager_id is MANAGER_ID
+  measure:
+    row_count is count()
+}
+
+source: employees is duckdb.table('employees') extend {
+  dimension:
+    commission_pct is COMMISSION_PCT
+    department_id is DEPARTMENT_ID
+    email is EMAIL
+    employee_id is EMPLOYEE_ID
+    first_name is FIRST_NAME
+    hire_date is HIRE_DATE
+    job_id is JOB_ID
+    last_name is LAST_NAME
+    manager_id is MANAGER_ID
+    phone_number is PHONE_NUMBER
+    salary is SALARY
+  measure:
+    row_count is count()
+    sum_salary is sum(salary)
+    avg_salary is avg(salary)
+    min_salary is min(salary)
+    max_salary is max(salary)
+    count_commission_pct is count(commission_pct)
+    count_employee_id is count(employee_id)
+}
+
+source: job_history is duckdb.table('job_history') extend {
+  dimension:
+    employee_id is EMPLOYEE_ID
+    end_date is END_DATE
+    job_id is JOB_ID
+    start_date is START_DATE
+  measure:
+    row_count is count()
+    max_end_date is max(end_date)
+}
+
+source: jobs is duckdb.table('jobs') extend {
+  dimension:
+    job_id is JOB_ID
+    job_title is JOB_TITLE
+    max_salary is MAX_SALARY
+    min_salary is MIN_SALARY
+  measure:
+    row_count is count()
+}
+
+source: locations is duckdb.table('locations') extend {
+  dimension:
+    city is CITY
+    country_id is COUNTRY_ID
+    location_id is LOCATION_ID
+    state_province is STATE_PROVINCE
+  measure:
+    row_count is count()
+}

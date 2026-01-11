@@ -1,0 +1,69 @@
+// Malloy semantic layer for: cre_Docs_and_Epenses
+// Auto-generated from 84 ground-truth SQL queries
+// Tables used: 7
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: accounts is duckdb.table('Accounts') extend {
+  dimension:
+    account_details is Account_Details
+    account_id is Account_ID
+    statement_id is Statement_ID
+  measure:
+    row_count is count()
+    max_account_details is max(account_details)
+}
+
+source: documents is duckdb.table('Documents') extend {
+  dimension:
+    document_date is Document_Date
+    document_description is Document_Description
+    document_id is Document_ID
+    document_name is Document_Name
+    document_type_code is Document_Type_Code
+    project_id is Project_ID
+  measure:
+    row_count is count()
+}
+
+source: documents_with_expenses is duckdb.table('Documents_with_Expenses') extend {
+  dimension:
+    budget_type_code is Budget_Type_Code
+    document_id is Document_ID
+  measure:
+    row_count is count()
+}
+
+source: projects is duckdb.table('Projects') extend {
+  dimension:
+    project_details is Project_Details
+    project_id is Project_ID
+  measure:
+    row_count is count()
+}
+
+source: ref_budget_codes is duckdb.table('Ref_Budget_Codes') extend {
+  dimension:
+    budget_type_code is Budget_Type_Code
+    budget_type_description is Budget_Type_Description
+  measure:
+    row_count is count()
+}
+
+source: ref_document_types is duckdb.table('Ref_Document_Types') extend {
+  dimension:
+    document_type_code is Document_Type_Code
+    document_type_description is Document_Type_Description
+    document_type_name is Document_Type_Name
+  measure:
+    row_count is count()
+}
+
+source: statements is duckdb.table('Statements') extend {
+  dimension:
+    statement_details is Statement_Details
+    statement_id is Statement_ID
+  measure:
+    row_count is count()
+}

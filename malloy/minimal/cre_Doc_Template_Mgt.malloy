@@ -1,0 +1,45 @@
+// Malloy semantic layer for: cre_Doc_Template_Mgt
+// Auto-generated from 84 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: documents is duckdb.table('Documents') extend {
+  dimension:
+    document_description is Document_Description
+    document_id is Document_ID
+    document_name is Document_Name
+    template_id is Template_ID
+  measure:
+    row_count is count()
+    count_template_id is count(template_id)
+}
+
+source: paragraphs is duckdb.table('Paragraphs') extend {
+  dimension:
+    document_id is Document_ID
+    other_details is Other_Details
+    paragraph_id is Paragraph_ID
+    paragraph_text is Paragraph_Text
+  measure:
+    row_count is count()
+}
+
+source: ref_template_types is duckdb.table('Ref_Template_Types') extend {
+  dimension:
+    template_type_code is Template_Type_Code
+    template_type_description is Template_Type_Description
+  measure:
+    row_count is count()
+}
+
+source: templates is duckdb.table('Templates') extend {
+  dimension:
+    template_id is Template_ID
+    template_type_code is Template_Type_Code
+    version_number is Version_Number
+  measure:
+    row_count is count()
+    min_version_number is min(version_number)
+}

@@ -1,0 +1,44 @@
+// Malloy semantic layer for: icfp_1
+// Auto-generated from 66 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: authors is duckdb.table('Authors') extend {
+  dimension:
+    authid is authID
+    fname is fname
+    lname is lname
+  measure:
+    row_count is count()
+}
+
+source: authorship is duckdb.table('Authorship') extend {
+  dimension:
+    authid is authID
+    authorder is authOrder
+    instid is instID
+    paperid is paperID
+  measure:
+    row_count is count()
+    max_authorder is max(authorder)
+}
+
+source: inst is duckdb.table('Inst') extend {
+  dimension:
+    country is country
+    instid is instID
+    name is name
+  measure:
+    row_count is count()
+}
+
+source: papers is duckdb.table('Papers') extend {
+  dimension:
+    paperid is paperID
+    title is title
+  measure:
+    row_count is count()
+    count_title is count(title)
+}

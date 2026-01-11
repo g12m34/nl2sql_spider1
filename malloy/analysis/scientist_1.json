@@ -1,0 +1,49 @@
+{
+  "db_id": "scientist_1",
+  "query_count": 48,
+  "tables_used": [
+    "assignedto",
+    "projects",
+    "scientists"
+  ],
+  "dimensions": {
+    "projects": [
+      "code",
+      "hours",
+      "name"
+    ],
+    "assignedto": [
+      "project",
+      "scientist"
+    ],
+    "scientists": [
+      "name",
+      "ssn"
+    ]
+  },
+  "measures": {
+    "projects": {
+      "sum": [
+        "hours"
+      ],
+      "count": [
+        "name"
+      ],
+      "avg": [
+        "hours"
+      ],
+      "max": [
+        "hours"
+      ],
+      "min": [
+        "hours"
+      ]
+    },
+    "assignedto": {
+      "count": [
+        "scientist"
+      ]
+    }
+  },
+  "joins": []
+}

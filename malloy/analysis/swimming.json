@@ -1,0 +1,56 @@
+{
+  "db_id": "swimming",
+  "query_count": 30,
+  "tables_used": [
+    "event",
+    "record",
+    "stadium",
+    "swimmer"
+  ],
+  "dimensions": {
+    "event": [
+      "id",
+      "name",
+      "stadium_id",
+      "year"
+    ],
+    "stadium": [
+      "capacity",
+      "city",
+      "country",
+      "id",
+      "name",
+      "opening_year"
+    ],
+    "swimmer": [
+      "id",
+      "meter_100",
+      "meter_200",
+      "meter_300",
+      "name",
+      "nationality"
+    ],
+    "record": [
+      "event_id",
+      "id",
+      "result",
+      "swimmer_id"
+    ]
+  },
+  "measures": {
+    "stadium": {
+      "avg": [
+        "capacity"
+      ],
+      "count": [
+        "city"
+      ]
+    },
+    "swimmer": {
+      "count": [
+        "nationality"
+      ]
+    }
+  },
+  "joins": []
+}

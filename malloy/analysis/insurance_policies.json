@@ -1,0 +1,71 @@
+{
+  "db_id": "insurance_policies",
+  "query_count": 48,
+  "tables_used": [
+    "claims",
+    "customer_policies",
+    "customers",
+    "payments",
+    "settlements"
+  ],
+  "dimensions": {
+    "claims": [
+      "amount_claimed",
+      "amount_settled",
+      "claim_id",
+      "date_claim_made",
+      "date_claim_settled",
+      "policy_id"
+    ],
+    "settlements": [
+      "amount_claimed",
+      "amount_settled",
+      "claim_id",
+      "date_claim_made",
+      "date_claim_settled"
+    ],
+    "customers": [
+      "customer_details",
+      "customer_id"
+    ],
+    "customer_policies": [
+      "customer_id",
+      "policy_id",
+      "policy_type_code"
+    ],
+    "payments": [
+      "amount_payment",
+      "date_payment_made",
+      "payment_id",
+      "payment_method_code"
+    ]
+  },
+  "measures": {
+    "claims": {
+      "max": [
+        "amount_claimed"
+      ],
+      "avg": [
+        "amount_claimed",
+        "amount_settled"
+      ],
+      "sum": [
+        "amount_claimed"
+      ]
+    },
+    "settlements": {
+      "max": [
+        "amount_claimed"
+      ],
+      "sum": [
+        "amount_settled"
+      ]
+    },
+    "payments": {
+      "sum": [
+        "amount_payment"
+      ]
+    }
+  },
+  "joins": []
+}

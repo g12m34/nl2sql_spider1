@@ -1,0 +1,40 @@
+{
+  "db_id": "company_employee",
+  "query_count": 16,
+  "tables_used": [
+    "company",
+    "employment",
+    "people"
+  ],
+  "dimensions": {
+    "company": [
+      "company_id",
+      "headquarters",
+      "industry",
+      "market_value_in_billion",
+      "name",
+      "profits_in_billion",
+      "sales_in_billion"
+    ],
+    "people": [
+      "name",
+      "people_id"
+    ],
+    "employment": [
+      "company_id",
+      "people_id",
+      "year_working"
+    ]
+  },
+  "measures": {
+    "company": {
+      "min": [
+        "market_value_in_billion"
+      ],
+      "max": [
+        "market_value_in_billion"
+      ]
+    }
+  },
+  "joins": []
+}

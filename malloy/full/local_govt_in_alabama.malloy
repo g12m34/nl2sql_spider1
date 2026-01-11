@@ -1,0 +1,86 @@
+// Malloy semantic layer for: local_govt_in_alabama
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite
+
+// Services
+source: services is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Services')
+""") extend {
+  primary_key: Service_ID
+
+  dimension:
+    service_i_d is Service_ID
+
+  measure:
+    row_count is count()
+    total_service_i_d is sum(Service_ID)
+    avg_service_i_d is avg(Service_ID)
+    max_service_i_d is max(Service_ID)
+    min_service_i_d is min(Service_ID)
+}
+
+// Participants
+source: participants is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Participants')
+""") extend {
+  primary_key: Participant_ID
+
+  dimension:
+    participant_i_d is Participant_ID
+
+  measure:
+    row_count is count()
+    total_participant_i_d is sum(Participant_ID)
+    avg_participant_i_d is avg(Participant_ID)
+    max_participant_i_d is max(Participant_ID)
+    min_participant_i_d is min(Participant_ID)
+}
+
+// Events
+source: events_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Events')
+""") extend {
+  primary_key: Event_ID
+
+  join_one: services on Service_ID = services.Service_ID
+
+  dimension:
+    event_i_d is Event_ID
+    service_i_d is Service_ID
+
+  measure:
+    row_count is count()
+    total_event_i_d is sum(Event_ID)
+    avg_event_i_d is avg(Event_ID)
+    max_event_i_d is max(Event_ID)
+    min_event_i_d is min(Event_ID)
+    total_service_i_d is sum(Service_ID)
+    avg_service_i_d is avg(Service_ID)
+    max_service_i_d is max(Service_ID)
+    min_service_i_d is min(Service_ID)
+}
+
+// Participants_in_Events
+source: participants_in_events is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Participants_in_Events')
+""") extend {
+  primary_key: Event_ID
+
+  join_one: events_val on Event_ID = events_val.Event_ID
+  join_one: participants on Participant_ID = participants.Participant_ID
+
+  dimension:
+    event_i_d is Event_ID
+    participant_i_d is Participant_ID
+
+  measure:
+    row_count is count()
+    total_event_i_d is sum(Event_ID)
+    avg_event_i_d is avg(Event_ID)
+    max_event_i_d is max(Event_ID)
+    min_event_i_d is min(Event_ID)
+    total_participant_i_d is sum(Participant_ID)
+    avg_participant_i_d is avg(Participant_ID)
+    max_participant_i_d is max(Participant_ID)
+    min_participant_i_d is min(Participant_ID)
+}

@@ -1,0 +1,141 @@
+// Malloy semantic layer for: farm
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/farm/farm.sqlite
+
+// city
+source: city is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'city')
+""") extend {
+  primary_key: City_ID
+
+  dimension:
+    city_i_d is City_ID
+
+  measure:
+    row_count is count()
+    total_city_i_d is sum(City_ID)
+    avg_city_i_d is avg(City_ID)
+    max_city_i_d is max(City_ID)
+    min_city_i_d is min(City_ID)
+    total_area_km_2 is sum(Area_km_2)
+    avg_area_km_2 is avg(Area_km_2)
+    max_area_km_2 is max(Area_km_2)
+    min_area_km_2 is min(Area_km_2)
+    total_population is sum(Population)
+    avg_population is avg(Population)
+    max_population is max(Population)
+    min_population is min(Population)
+}
+
+// farm
+source: farm is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'farm')
+""") extend {
+  primary_key: Farm_ID
+
+  dimension:
+    farm_i_d is Farm_ID
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_farm_i_d is sum(Farm_ID)
+    avg_farm_i_d is avg(Farm_ID)
+    max_farm_i_d is max(Farm_ID)
+    min_farm_i_d is min(Farm_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+    total_total_horses is sum(Total_Horses)
+    avg_total_horses is avg(Total_Horses)
+    max_total_horses is max(Total_Horses)
+    min_total_horses is min(Total_Horses)
+    total_working_horses is sum(Working_Horses)
+    avg_working_horses is avg(Working_Horses)
+    max_working_horses is max(Working_Horses)
+    min_working_horses is min(Working_Horses)
+    total_total_cattle is sum(Total_Cattle)
+    avg_total_cattle is avg(Total_Cattle)
+    max_total_cattle is max(Total_Cattle)
+    min_total_cattle is min(Total_Cattle)
+    total_oxen is sum(Oxen)
+    avg_oxen is avg(Oxen)
+    max_oxen is max(Oxen)
+    min_oxen is min(Oxen)
+    total_bulls is sum(Bulls)
+    avg_bulls is avg(Bulls)
+    max_bulls is max(Bulls)
+    min_bulls is min(Bulls)
+    total_cows is sum(Cows)
+    avg_cows is avg(Cows)
+    max_cows is max(Cows)
+    min_cows is min(Cows)
+    total_pigs is sum(Pigs)
+    avg_pigs is avg(Pigs)
+    max_pigs is max(Pigs)
+    min_pigs is min(Pigs)
+    total_sheep_and_goats is sum(Sheep_and_Goats)
+    avg_sheep_and_goats is avg(Sheep_and_Goats)
+    max_sheep_and_goats is max(Sheep_and_Goats)
+    min_sheep_and_goats is min(Sheep_and_Goats)
+}
+
+// farm_competition
+source: farm_competition is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'farm_competition')
+""") extend {
+  primary_key: Competition_ID
+
+  join_one: city on Host_city_ID = city.City_ID
+
+  dimension:
+    competition_i_d is Competition_ID
+    year_val is `Year`
+    host_city_i_d is Host_city_ID
+
+  measure:
+    row_count is count()
+    total_competition_i_d is sum(Competition_ID)
+    avg_competition_i_d is avg(Competition_ID)
+    max_competition_i_d is max(Competition_ID)
+    min_competition_i_d is min(Competition_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+    total_host_city_i_d is sum(Host_city_ID)
+    avg_host_city_i_d is avg(Host_city_ID)
+    max_host_city_i_d is max(Host_city_ID)
+    min_host_city_i_d is min(Host_city_ID)
+}
+
+// competition_record
+source: competition_record is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'competition_record')
+""") extend {
+  primary_key: Competition_ID
+
+  join_one: farm on Farm_ID = farm.Farm_ID
+  join_one: farm_competition on Competition_ID = farm_competition.Competition_ID
+
+  dimension:
+    competition_i_d is Competition_ID
+    farm_i_d is Farm_ID
+    rank_val is `Rank`
+
+  measure:
+    row_count is count()
+    total_competition_i_d is sum(Competition_ID)
+    avg_competition_i_d is avg(Competition_ID)
+    max_competition_i_d is max(Competition_ID)
+    min_competition_i_d is min(Competition_ID)
+    total_farm_i_d is sum(Farm_ID)
+    avg_farm_i_d is avg(Farm_ID)
+    max_farm_i_d is max(Farm_ID)
+    min_farm_i_d is min(Farm_ID)
+    total_rank_val is sum(`Rank`)
+    avg_rank_val is avg(`Rank`)
+    max_rank_val is max(`Rank`)
+    min_rank_val is min(`Rank`)
+}

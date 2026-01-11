@@ -1,0 +1,67 @@
+// Malloy semantic layer for: network_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/network_1/network_1.sqlite
+
+// Highschooler
+source: highschooler is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_1/network_1.sqlite', 'Highschooler')
+""") extend {
+  primary_key: ID
+
+  dimension:
+    i_d is ID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_i_d is sum(ID)
+    avg_i_d is avg(ID)
+    max_i_d is max(ID)
+    min_i_d is min(ID)
+    total_grade is sum(grade)
+    avg_grade is avg(grade)
+    max_grade is max(grade)
+    min_grade is min(grade)
+}
+
+// Friend
+source: friend is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_1/network_1.sqlite', 'Friend')
+""") extend {
+  primary_key: student_id
+
+  join_one: friend_highschooler is highschooler on friend_id = friend_highschooler.ID
+  join_one: student_highschooler is highschooler on student_id = student_highschooler.ID
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_friend_id is sum(friend_id)
+    avg_friend_id is avg(friend_id)
+    max_friend_id is max(friend_id)
+    min_friend_id is min(friend_id)
+}
+
+// Likes
+source: likes is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_1/network_1.sqlite', 'Likes')
+""") extend {
+  primary_key: student_id
+
+  join_one: student_highschooler is highschooler on student_id = student_highschooler.ID
+  join_one: liked_highschooler is highschooler on liked_id = liked_highschooler.ID
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_liked_id is sum(liked_id)
+    avg_liked_id is avg(liked_id)
+    max_liked_id is max(liked_id)
+    min_liked_id is min(liked_id)
+}

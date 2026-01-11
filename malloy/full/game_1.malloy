@@ -1,0 +1,108 @@
+// Malloy semantic layer for: game_1
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/game_1/game_1.sqlite
+
+// Student
+source: student_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Student')
+""") extend {
+  primary_key: StuID
+
+  dimension:
+    stu_i_d is StuID
+    l_name is LName
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Video_Games
+source: video_games is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Video_Games')
+""") extend {
+  primary_key: GameID
+
+  dimension:
+    game_i_d is GameID
+    g_name is GName
+    g_type is GType
+
+  measure:
+    row_count is count()
+    total_game_i_d is sum(GameID)
+    avg_game_i_d is avg(GameID)
+    max_game_i_d is max(GameID)
+    min_game_i_d is min(GameID)
+}
+
+// SportsInfo
+source: sports_info is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'SportsInfo')
+""") extend {
+  join_one: student_val on StuID = student_val.StuID
+
+  dimension:
+    stu_i_d is StuID
+    sport_name is SportName
+    hours_per_week is HoursPerWeek
+    games_played is GamesPlayed
+    on_scholarship is OnScholarship
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_hours_per_week is sum(HoursPerWeek)
+    avg_hours_per_week is avg(HoursPerWeek)
+    max_hours_per_week is max(HoursPerWeek)
+    min_hours_per_week is min(HoursPerWeek)
+    total_games_played is sum(GamesPlayed)
+    avg_games_played is avg(GamesPlayed)
+    max_games_played is max(GamesPlayed)
+    min_games_played is min(GamesPlayed)
+}
+
+// Plays_Games
+source: plays_games is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Plays_Games')
+""") extend {
+  join_one: student_val on StuID = student_val.StuID
+  join_one: video_games on GameID = video_games.GameID
+
+  dimension:
+    stu_i_d is StuID
+    game_i_d is GameID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(StuID)
+    avg_stu_i_d is avg(StuID)
+    max_stu_i_d is max(StuID)
+    min_stu_i_d is min(StuID)
+    total_game_i_d is sum(GameID)
+    avg_game_i_d is avg(GameID)
+    max_game_i_d is max(GameID)
+    min_game_i_d is min(GameID)
+    total_hours_played is sum(Hours_Played)
+    avg_hours_played is avg(Hours_Played)
+    max_hours_played is max(Hours_Played)
+    min_hours_played is min(Hours_Played)
+}

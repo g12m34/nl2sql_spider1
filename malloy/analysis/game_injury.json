@@ -1,0 +1,56 @@
+{
+  "db_id": "game_injury",
+  "query_count": 19,
+  "tables_used": [
+    "game",
+    "injury_accident",
+    "stadium"
+  ],
+  "dimensions": {
+    "game": [
+      "away_team",
+      "date",
+      "home_team",
+      "id",
+      "score",
+      "season",
+      "stadium_id"
+    ],
+    "stadium": [
+      "average_attendance",
+      "capacity_percentage",
+      "home_games",
+      "id",
+      "name",
+      "total_attendance"
+    ],
+    "injury_accident": [
+      "game_id",
+      "id",
+      "injury",
+      "number_of_matches",
+      "player",
+      "source"
+    ]
+  },
+  "measures": {
+    "stadium": {
+      "avg": [
+        "home_games"
+      ],
+      "min": [
+        "home_games"
+      ],
+      "max": [
+        "home_games"
+      ]
+    },
+    "injury_accident": {
+      "count": [
+        "injury",
+        "source"
+      ]
+    }
+  },
+  "joins": []
+}

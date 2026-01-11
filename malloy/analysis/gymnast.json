@@ -1,0 +1,39 @@
+{
+  "db_id": "gymnast",
+  "query_count": 40,
+  "tables_used": [
+    "gymnast",
+    "people"
+  ],
+  "dimensions": {
+    "gymnast": [
+      "floor_exercise_points",
+      "gymnast_id",
+      "horizontal_bar_points",
+      "total_points"
+    ],
+    "people": [
+      "age",
+      "height",
+      "hometown",
+      "name",
+      "people_id"
+    ]
+  },
+  "measures": {
+    "gymnast": {
+      "avg": [
+        "horizontal_bar_points"
+      ]
+    },
+    "people": {
+      "avg": [
+        "age"
+      ],
+      "count": [
+        "hometown"
+      ]
+    }
+  },
+  "joins": []
+}

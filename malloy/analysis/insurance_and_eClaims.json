@@ -1,0 +1,75 @@
+{
+  "db_id": "insurance_and_eClaims",
+  "query_count": 40,
+  "tables_used": [
+    "claim_headers",
+    "claims_documents",
+    "claims_processing",
+    "claims_processing_stages",
+    "customers",
+    "policies",
+    "staff"
+  ],
+  "dimensions": {
+    "customers": [
+      "customer_details",
+      "customer_id"
+    ],
+    "policies": [
+      "customer_id",
+      "policy_id",
+      "policy_type_code",
+      "start_date"
+    ],
+    "claim_headers": [
+      "amount_claimed",
+      "amount_piad",
+      "claim_header_id",
+      "policy_id"
+    ],
+    "claims_documents": [
+      "claim_id",
+      "created_date"
+    ],
+    "claims_processing_stages": [
+      "claim_stage_id",
+      "claim_status_description",
+      "claim_status_name"
+    ],
+    "claims_processing": [
+      "claim_outcome_code",
+      "claim_stage_id"
+    ],
+    "staff": [
+      "staff_details"
+    ]
+  },
+  "measures": {
+    "claim_headers": {
+      "sum": [
+        "amount_claimed",
+        "amount_piad"
+      ],
+      "avg": [
+        "amount_piad"
+      ],
+      "max": [
+        "amount_claimed"
+      ],
+      "min": [
+        "amount_piad"
+      ]
+    },
+    "claims_processing": {
+      "count": [
+        "claim_outcome_code"
+      ]
+    },
+    "policies": {
+      "max": [
+        "start_date"
+      ]
+    }
+  },
+  "joins": []
+}

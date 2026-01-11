@@ -1,0 +1,35 @@
+{
+  "db_id": "performance_attendance",
+  "query_count": 15,
+  "tables_used": [
+    "member",
+    "member_attendance",
+    "performance"
+  ],
+  "dimensions": {
+    "performance": [
+      "attendance",
+      "date",
+      "host",
+      "location",
+      "performance_id"
+    ],
+    "member": [
+      "member_id",
+      "name",
+      "role"
+    ],
+    "member_attendance": [
+      "member_id",
+      "performance_id"
+    ]
+  },
+  "measures": {
+    "performance": {
+      "avg": [
+        "attendance"
+      ]
+    }
+  },
+  "joins": []
+}

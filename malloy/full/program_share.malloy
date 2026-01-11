@@ -1,0 +1,106 @@
+// Malloy semantic layer for: program_share
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/program_share/program_share.sqlite
+
+// program
+source: program is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'program')
+""") extend {
+  primary_key: Program_ID
+
+  dimension:
+    program_i_d is Program_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_program_i_d is sum(Program_ID)
+    avg_program_i_d is avg(Program_ID)
+    max_program_i_d is max(Program_ID)
+    min_program_i_d is min(Program_ID)
+    total_launch is sum(Launch)
+    avg_launch is avg(Launch)
+    max_launch is max(Launch)
+    min_launch is min(Launch)
+}
+
+// channel
+source: channel is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'channel')
+""") extend {
+  primary_key: Channel_ID
+
+  dimension:
+    channel_i_d is Channel_ID
+    name_val is `Name`
+
+  measure:
+    row_count is count()
+    total_channel_i_d is sum(Channel_ID)
+    avg_channel_i_d is avg(Channel_ID)
+    max_channel_i_d is max(Channel_ID)
+    min_channel_i_d is min(Channel_ID)
+    total_share_in_percent is sum(Share_in_percent)
+    avg_share_in_percent is avg(Share_in_percent)
+    max_share_in_percent is max(Share_in_percent)
+    min_share_in_percent is min(Share_in_percent)
+    total_rating_in_percent is sum(Rating_in_percent)
+    avg_rating_in_percent is avg(Rating_in_percent)
+    max_rating_in_percent is max(Rating_in_percent)
+    min_rating_in_percent is min(Rating_in_percent)
+}
+
+// broadcast
+source: broadcast is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'broadcast')
+""") extend {
+  primary_key: Channel_ID
+
+  join_one: program on Program_ID = program.Program_ID
+  join_one: channel on Channel_ID = channel.Channel_ID
+
+  dimension:
+    channel_i_d is Channel_ID
+    program_i_d is Program_ID
+
+  measure:
+    row_count is count()
+    total_channel_i_d is sum(Channel_ID)
+    avg_channel_i_d is avg(Channel_ID)
+    max_channel_i_d is max(Channel_ID)
+    min_channel_i_d is min(Channel_ID)
+    total_program_i_d is sum(Program_ID)
+    avg_program_i_d is avg(Program_ID)
+    max_program_i_d is max(Program_ID)
+    min_program_i_d is min(Program_ID)
+}
+
+// broadcast_share
+source: broadcast_share is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'broadcast_share')
+""") extend {
+  primary_key: Channel_ID
+
+  join_one: program on Program_ID = program.Program_ID
+  join_one: channel on Channel_ID = channel.Channel_ID
+
+  dimension:
+    channel_i_d is Channel_ID
+    program_i_d is Program_ID
+    date_val is `Date`
+
+  measure:
+    row_count is count()
+    total_channel_i_d is sum(Channel_ID)
+    avg_channel_i_d is avg(Channel_ID)
+    max_channel_i_d is max(Channel_ID)
+    min_channel_i_d is min(Channel_ID)
+    total_program_i_d is sum(Program_ID)
+    avg_program_i_d is avg(Program_ID)
+    max_program_i_d is max(Program_ID)
+    min_program_i_d is min(Program_ID)
+    total_share_in_percent is sum(Share_in_percent)
+    avg_share_in_percent is avg(Share_in_percent)
+    max_share_in_percent is max(Share_in_percent)
+    min_share_in_percent is min(Share_in_percent)
+}

@@ -1,0 +1,32 @@
+// Malloy semantic layer for: course_teach
+// Auto-generated from 30 ground-truth SQL queries
+// Tables used: 3
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: course is duckdb.table('course') extend {
+  dimension:
+    course is Course
+    course_id is Course_ID
+  measure:
+    row_count is count()
+}
+
+source: course_arrange is duckdb.table('course_arrange') extend {
+  dimension:
+    course_id is Course_ID
+    teacher_id is Teacher_ID
+  measure:
+    row_count is count()
+}
+
+source: teacher is duckdb.table('teacher') extend {
+  dimension:
+    age is Age
+    hometown is Hometown
+    name is Name
+    teacher_id is Teacher_ID
+  measure:
+    row_count is count()
+}

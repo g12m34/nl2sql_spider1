@@ -1,0 +1,142 @@
+// Malloy semantic layer for: cre_Doc_Tracking_DB
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite
+
+// Ref_Document_Types
+source: ref_document_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Ref_Document_Types')
+""") extend {
+  primary_key: Document_Type_Code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Calendar
+source: ref_calendar is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Ref_Calendar')
+""") extend {
+  primary_key: Calendar_Date
+
+  measure:
+    row_count is count()
+    total_day_number is sum(Day_Number)
+    avg_day_number is avg(Day_Number)
+    max_day_number is max(Day_Number)
+    min_day_number is min(Day_Number)
+}
+
+// Ref_Locations
+source: ref_locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Ref_Locations')
+""") extend {
+  primary_key: Location_Code
+
+  measure:
+    row_count is count()
+}
+
+// Roles
+source: roles is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Roles')
+""") extend {
+  primary_key: Role_Code
+
+  measure:
+    row_count is count()
+}
+
+// All_Documents
+source: all_documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'All_Documents')
+""") extend {
+  primary_key: Document_ID
+
+  join_one: ref_calendar on Date_Stored = ref_calendar.Calendar_Date
+  join_one: ref_document_types on Document_Type_Code = ref_document_types.Document_Type_Code
+
+  dimension:
+    document_i_d is Document_ID
+
+  measure:
+    row_count is count()
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+}
+
+// Employees
+source: employees is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Employees')
+""") extend {
+  primary_key: Employee_ID
+
+  join_one: roles on Role_Code = roles.Role_Code
+
+  dimension:
+    employee_i_d is Employee_ID
+    gender_m_f_u is Gender_MFU
+
+  measure:
+    row_count is count()
+    total_employee_i_d is sum(Employee_ID)
+    avg_employee_i_d is avg(Employee_ID)
+    max_employee_i_d is max(Employee_ID)
+    min_employee_i_d is min(Employee_ID)
+}
+
+// Document_Locations
+source: document_locations is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Document_Locations')
+""") extend {
+  primary_key: Document_ID
+
+  join_one: all_documents on Document_ID = all_documents.Document_ID
+  join_one: date_in_locaton_to_ref_calendar is ref_calendar on Date_in_Locaton_To = date_in_locaton_to_ref_calendar.Calendar_Date
+  join_one: date_in_location_from_ref_calendar is ref_calendar on Date_in_Location_From = date_in_location_from_ref_calendar.Calendar_Date
+  join_one: ref_locations on Location_Code = ref_locations.Location_Code
+
+  dimension:
+    document_i_d is Document_ID
+
+  measure:
+    row_count is count()
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+}
+
+// Documents_to_be_Destroyed
+source: documents_to_be_destroyed is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Documents_to_be_Destroyed')
+""") extend {
+  primary_key: Document_ID
+
+  join_one: all_documents on Document_ID = all_documents.Document_ID
+  join_one: actual_destruction_date_ref_calendar is ref_calendar on Actual_Destruction_Date = actual_destruction_date_ref_calendar.Calendar_Date
+  join_one: planned_destruction_date_ref_calendar is ref_calendar on Planned_Destruction_Date = planned_destruction_date_ref_calendar.Calendar_Date
+  join_one: destruction_authorised_by_employee_i_d_employees is employees on Destruction_Authorised_by_Employee_ID = destruction_authorised_by_employee_i_d_employees.Employee_ID
+  join_one: destroyed_by_employee_i_d_employees is employees on Destroyed_by_Employee_ID = destroyed_by_employee_i_d_employees.Employee_ID
+
+  dimension:
+    document_i_d is Document_ID
+    destruction_authorised_by_employee_i_d is Destruction_Authorised_by_Employee_ID
+    destroyed_by_employee_i_d is Destroyed_by_Employee_ID
+
+  measure:
+    row_count is count()
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+    total_destruction_authorised_by_employee_i_d is sum(Destruction_Authorised_by_Employee_ID)
+    avg_destruction_authorised_by_employee_i_d is avg(Destruction_Authorised_by_Employee_ID)
+    max_destruction_authorised_by_employee_i_d is max(Destruction_Authorised_by_Employee_ID)
+    min_destruction_authorised_by_employee_i_d is min(Destruction_Authorised_by_Employee_ID)
+    total_destroyed_by_employee_i_d is sum(Destroyed_by_Employee_ID)
+    avg_destroyed_by_employee_i_d is avg(Destroyed_by_Employee_ID)
+    max_destroyed_by_employee_i_d is max(Destroyed_by_Employee_ID)
+    min_destroyed_by_employee_i_d is min(Destroyed_by_Employee_ID)
+}

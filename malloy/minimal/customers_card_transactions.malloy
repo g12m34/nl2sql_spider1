@@ -1,0 +1,55 @@
+// Malloy semantic layer for: customers_card_transactions
+// Auto-generated from 80 ground-truth SQL queries
+// Tables used: 4
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: accounts is duckdb.table('Accounts') extend {
+  dimension:
+    account_id is account_id
+    account_name is account_name
+    customer_id is customer_id
+    other_account_details is other_account_details
+  measure:
+    row_count is count()
+    count_customer_id is count(customer_id)
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_email is customer_email
+    customer_first_name is customer_first_name
+    customer_id is customer_id
+    customer_last_name is customer_last_name
+    customer_phone is customer_phone
+  measure:
+    row_count is count()
+}
+
+source: customers_cards is duckdb.table('Customers_Cards') extend {
+  dimension:
+    card_id is card_id
+    card_number is card_number
+    card_type_code is card_type_code
+    customer_id is customer_id
+    date_valid_from is date_valid_from
+    date_valid_to is date_valid_to
+  measure:
+    row_count is count()
+    count_card_type_code is count(card_type_code)
+    count_customer_id is count(customer_id)
+}
+
+source: financial_transactions is duckdb.table('Financial_Transactions') extend {
+  dimension:
+    account_id is account_id
+    card_id is card_id
+    transaction_amount is transaction_amount
+    transaction_type is transaction_type
+  measure:
+    row_count is count()
+    sum_transaction_amount is sum(transaction_amount)
+    avg_transaction_amount is avg(transaction_amount)
+    count_transaction_type is count(transaction_type)
+}

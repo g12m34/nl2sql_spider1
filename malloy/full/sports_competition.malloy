@@ -1,0 +1,152 @@
+// Malloy semantic layer for: sports_competition
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite
+
+// club
+source: club_val is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'club')
+""") extend {
+  primary_key: Club_ID
+
+  dimension:
+    club_i_d is Club_ID
+    name_val is `name`
+
+  measure:
+    row_count is count()
+    total_club_i_d is sum(Club_ID)
+    avg_club_i_d is avg(Club_ID)
+    max_club_i_d is max(Club_ID)
+    min_club_i_d is min(Club_ID)
+}
+
+// competition
+source: competition is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'competition')
+""") extend {
+  primary_key: Competition_ID
+
+  dimension:
+    competition_i_d is Competition_ID
+    year_val is `Year`
+
+  measure:
+    row_count is count()
+    total_competition_i_d is sum(Competition_ID)
+    avg_competition_i_d is avg(Competition_ID)
+    max_competition_i_d is max(Competition_ID)
+    min_competition_i_d is min(Competition_ID)
+    total_year_val is sum(`Year`)
+    avg_year_val is avg(`Year`)
+    max_year_val is max(`Year`)
+    min_year_val is min(`Year`)
+}
+
+// club_rank
+source: club_rank is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'club_rank')
+""") extend {
+  primary_key: `Rank`
+
+  join_one: club_val on Club_ID = club_val.Club_ID
+
+  dimension:
+    rank_val is `Rank`
+    club_i_d is Club_ID
+
+  measure:
+    row_count is count()
+    total_rank_val is sum(`Rank`)
+    avg_rank_val is avg(`Rank`)
+    max_rank_val is max(`Rank`)
+    min_rank_val is min(`Rank`)
+    total_club_i_d is sum(Club_ID)
+    avg_club_i_d is avg(Club_ID)
+    max_club_i_d is max(Club_ID)
+    min_club_i_d is min(Club_ID)
+    total_gold is sum(Gold)
+    avg_gold is avg(Gold)
+    max_gold is max(Gold)
+    min_gold is min(Gold)
+    total_silver is sum(Silver)
+    avg_silver is avg(Silver)
+    max_silver is max(Silver)
+    min_silver is min(Silver)
+    total_bronze is sum(Bronze)
+    avg_bronze is avg(Bronze)
+    max_bronze is max(Bronze)
+    min_bronze is min(Bronze)
+    total_total is sum(Total)
+    avg_total is avg(Total)
+    max_total is max(Total)
+    min_total is min(Total)
+}
+
+// player
+source: player is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'player')
+""") extend {
+  primary_key: Player_ID
+
+  join_one: club_val on Club_ID = club_val.Club_ID
+
+  dimension:
+    player_i_d is Player_ID
+    name_val is `name`
+    position_val is `Position`
+    club_i_d is Club_ID
+
+  measure:
+    row_count is count()
+    total_player_i_d is sum(Player_ID)
+    avg_player_i_d is avg(Player_ID)
+    max_player_i_d is max(Player_ID)
+    min_player_i_d is min(Player_ID)
+    total_club_i_d is sum(Club_ID)
+    avg_club_i_d is avg(Club_ID)
+    max_club_i_d is max(Club_ID)
+    min_club_i_d is min(Club_ID)
+    total_apps is sum(Apps)
+    avg_apps is avg(Apps)
+    max_apps is max(Apps)
+    min_apps is min(Apps)
+    total_tries is sum(Tries)
+    avg_tries is avg(Tries)
+    max_tries is max(Tries)
+    min_tries is min(Tries)
+    total_points is sum(Points)
+    avg_points is avg(Points)
+    max_points is max(Points)
+    min_points is min(Points)
+}
+
+// competition_result
+source: competition_result is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'competition_result')
+""") extend {
+  primary_key: Competition_ID
+
+  join_one: competition on Competition_ID = competition.Competition_ID
+  join_one: club_i_d_2_club_val is club_val on Club_ID_2 = club_i_d_2_club_val.Club_ID
+  join_one: club_i_d_1_club_val is club_val on Club_ID_1 = club_i_d_1_club_val.Club_ID
+
+  dimension:
+    competition_i_d is Competition_ID
+    club_i_d_1 is Club_ID_1
+    club_i_d_2 is Club_ID_2
+
+  measure:
+    row_count is count()
+    total_competition_i_d is sum(Competition_ID)
+    avg_competition_i_d is avg(Competition_ID)
+    max_competition_i_d is max(Competition_ID)
+    min_competition_i_d is min(Competition_ID)
+    total_club_i_d_1 is sum(Club_ID_1)
+    avg_club_i_d_1 is avg(Club_ID_1)
+    max_club_i_d_1 is max(Club_ID_1)
+    min_club_i_d_1 is min(Club_ID_1)
+    total_club_i_d_2 is sum(Club_ID_2)
+    avg_club_i_d_2 is avg(Club_ID_2)
+    max_club_i_d_2 is max(Club_ID_2)
+    min_club_i_d_2 is min(Club_ID_2)
+}

@@ -1,0 +1,84 @@
+// Malloy semantic layer for: cre_Doc_Template_Mgt
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite
+
+// Ref_Template_Types
+source: ref_template_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Ref_Template_Types')
+""") extend {
+  primary_key: Template_Type_Code
+
+  measure:
+    row_count is count()
+}
+
+// Templates
+source: templates is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Templates')
+""") extend {
+  primary_key: Template_ID
+
+  join_one: ref_template_types on Template_Type_Code = ref_template_types.Template_Type_Code
+
+  dimension:
+    template_i_d is Template_ID
+
+  measure:
+    row_count is count()
+    total_template_i_d is sum(Template_ID)
+    avg_template_i_d is avg(Template_ID)
+    max_template_i_d is max(Template_ID)
+    min_template_i_d is min(Template_ID)
+    total_version_number is sum(Version_Number)
+    avg_version_number is avg(Version_Number)
+    max_version_number is max(Version_Number)
+    min_version_number is min(Version_Number)
+}
+
+// Documents
+source: documents is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Documents')
+""") extend {
+  primary_key: Document_ID
+
+  join_one: templates on Template_ID = templates.Template_ID
+
+  dimension:
+    document_i_d is Document_ID
+    template_i_d is Template_ID
+
+  measure:
+    row_count is count()
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+    total_template_i_d is sum(Template_ID)
+    avg_template_i_d is avg(Template_ID)
+    max_template_i_d is max(Template_ID)
+    min_template_i_d is min(Template_ID)
+}
+
+// Paragraphs
+source: paragraphs is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Paragraphs')
+""") extend {
+  primary_key: Paragraph_ID
+
+  join_one: documents on Document_ID = documents.Document_ID
+
+  dimension:
+    paragraph_i_d is Paragraph_ID
+    document_i_d is Document_ID
+
+  measure:
+    row_count is count()
+    total_paragraph_i_d is sum(Paragraph_ID)
+    avg_paragraph_i_d is avg(Paragraph_ID)
+    max_paragraph_i_d is max(Paragraph_ID)
+    min_paragraph_i_d is min(Paragraph_ID)
+    total_document_i_d is sum(Document_ID)
+    avg_document_i_d is avg(Document_ID)
+    max_document_i_d is max(Document_ID)
+    min_document_i_d is min(Document_ID)
+}

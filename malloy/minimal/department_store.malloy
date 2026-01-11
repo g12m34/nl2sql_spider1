@@ -1,0 +1,148 @@
+// Malloy semantic layer for: department_store
+// Auto-generated from 88 ground-truth SQL queries
+// Tables used: 14
+//
+// This file contains only the dimensions and measures that are
+// actually needed to answer the Spider benchmark questions.
+
+source: addresses is duckdb.table('Addresses') extend {
+  dimension:
+    address_details is address_details
+    address_id is address_id
+  measure:
+    row_count is count()
+}
+
+source: customer_addresses is duckdb.table('Customer_Addresses') extend {
+  dimension:
+    address_id is address_id
+    customer_id is customer_id
+  measure:
+    row_count is count()
+}
+
+source: customer_orders is duckdb.table('Customer_Orders') extend {
+  dimension:
+    customer_id is customer_id
+    order_date is order_date
+    order_id is order_id
+    order_status_code is order_status_code
+  measure:
+    row_count is count()
+    min_order_date is min(order_date)
+    count_customer_id is count(customer_id)
+}
+
+source: customers is duckdb.table('Customers') extend {
+  dimension:
+    customer_address is customer_address
+    customer_code is customer_code
+    customer_email is customer_email
+    customer_id is customer_id
+    customer_name is customer_name
+    customer_phone is customer_phone
+    payment_method_code is payment_method_code
+  measure:
+    row_count is count()
+    min_customer_code is min(customer_code)
+    max_customer_code is max(customer_code)
+}
+
+source: department_store_chain is duckdb.table('Department_Store_Chain') extend {
+  dimension:
+    dept_store_chain_id is dept_store_chain_id
+    dept_store_chain_name is dept_store_chain_name
+  measure:
+    row_count is count()
+}
+
+source: department_stores is duckdb.table('Department_Stores') extend {
+  dimension:
+    dept_store_chain_id is dept_store_chain_id
+    dept_store_id is dept_store_id
+    store_name is store_name
+  measure:
+    row_count is count()
+}
+
+source: departments is duckdb.table('Departments') extend {
+  dimension:
+    department_name is department_name
+    dept_store_id is dept_store_id
+  measure:
+    row_count is count()
+}
+
+source: order_items is duckdb.table('Order_Items') extend {
+  dimension:
+    order_id is order_id
+    product_id is product_id
+  measure:
+    row_count is count()
+    count_product_id is count(product_id)
+}
+
+source: product_suppliers is duckdb.table('Product_Suppliers') extend {
+  dimension:
+    product_id is product_id
+    supplier_id is supplier_id
+    total_amount_purchased is total_amount_purchased
+    total_value_purchased is total_value_purchased
+  measure:
+    row_count is count()
+    sum_total_amount_purchased is sum(total_amount_purchased)
+    avg_total_amount_purchased is avg(total_amount_purchased)
+    avg_total_value_purchased is avg(total_value_purchased)
+}
+
+source: products is duckdb.table('Products') extend {
+  dimension:
+    product_id is product_id
+    product_name is product_name
+    product_price is product_price
+    product_type_code is product_type_code
+  measure:
+    row_count is count()
+    avg_product_price is avg(product_price)
+    min_product_price is min(product_price)
+    max_product_price is max(product_price)
+    count_product_type_code is count(product_type_code)
+}
+
+source: staff is duckdb.table('Staff') extend {
+  dimension:
+    staff_gender is staff_gender
+    staff_id is staff_id
+    staff_name is staff_name
+  measure:
+    row_count is count()
+}
+
+source: staff_department_assignments is duckdb.table('Staff_Department_Assignments') extend {
+  dimension:
+    date_assigned_from is date_assigned_from
+    date_assigned_to is date_assigned_to
+    department_id is department_id
+    job_title_code is job_title_code
+    staff_id is staff_id
+  measure:
+    row_count is count()
+    max_date_assigned_to is max(date_assigned_to)
+}
+
+source: supplier_addresses is duckdb.table('Supplier_Addresses') extend {
+  dimension:
+    address_id is address_id
+    supplier_id is supplier_id
+  measure:
+    row_count is count()
+}
+
+source: suppliers is duckdb.table('Suppliers') extend {
+  dimension:
+    supplier_id is supplier_id
+    supplier_name is supplier_name
+    supplier_phone is supplier_phone
+  measure:
+    row_count is count()
+}

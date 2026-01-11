@@ -1,0 +1,121 @@
+// Malloy semantic layer for: tracking_share_transactions
+// Full layer with ALL columns, primary keys, and joins
+// Database: /workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite
+
+// Investors
+source: investors is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Investors')
+""") extend {
+  primary_key: investor_id
+
+  measure:
+    row_count is count()
+    total_investor_id is sum(investor_id)
+    avg_investor_id is avg(investor_id)
+    max_investor_id is max(investor_id)
+    min_investor_id is min(investor_id)
+}
+
+// Ref_Transaction_Types
+source: ref_transaction_types is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Ref_Transaction_Types')
+""") extend {
+  primary_key: transaction_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Lots
+source: lots is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Lots')
+""") extend {
+  primary_key: lot_id
+
+  join_one: investors on investor_id = investors.investor_id
+
+  measure:
+    row_count is count()
+    total_lot_id is sum(lot_id)
+    avg_lot_id is avg(lot_id)
+    max_lot_id is max(lot_id)
+    min_lot_id is min(lot_id)
+    total_investor_id is sum(investor_id)
+    avg_investor_id is avg(investor_id)
+    max_investor_id is max(investor_id)
+    min_investor_id is min(investor_id)
+}
+
+// Transactions
+source: transactions is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Transactions')
+""") extend {
+  primary_key: transaction_id
+
+  join_one: ref_transaction_types on transaction_type_code = ref_transaction_types.transaction_type_code
+  join_one: investors on investor_id = investors.investor_id
+
+  measure:
+    row_count is count()
+    total_transaction_id is sum(transaction_id)
+    avg_transaction_id is avg(transaction_id)
+    max_transaction_id is max(transaction_id)
+    min_transaction_id is min(transaction_id)
+    total_investor_id is sum(investor_id)
+    avg_investor_id is avg(investor_id)
+    max_investor_id is max(investor_id)
+    min_investor_id is min(investor_id)
+    total_amount_of_transaction is sum(amount_of_transaction)
+    avg_amount_of_transaction is avg(amount_of_transaction)
+    max_amount_of_transaction is max(amount_of_transaction)
+    min_amount_of_transaction is min(amount_of_transaction)
+}
+
+// Sales
+source: sales is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Sales')
+""") extend {
+  primary_key: sales_transaction_id
+
+  join_one: transactions on sales_transaction_id = transactions.transaction_id
+
+  measure:
+    row_count is count()
+    total_sales_transaction_id is sum(sales_transaction_id)
+    avg_sales_transaction_id is avg(sales_transaction_id)
+    max_sales_transaction_id is max(sales_transaction_id)
+    min_sales_transaction_id is min(sales_transaction_id)
+}
+
+// Purchases
+source: purchases is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Purchases')
+""") extend {
+  join_one: transactions on purchase_transaction_id = transactions.transaction_id
+
+  measure:
+    row_count is count()
+    total_purchase_transaction_id is sum(purchase_transaction_id)
+    avg_purchase_transaction_id is avg(purchase_transaction_id)
+    max_purchase_transaction_id is max(purchase_transaction_id)
+    min_purchase_transaction_id is min(purchase_transaction_id)
+}
+
+// Transactions_Lots
+source: transactions_lots is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Transactions_Lots')
+""") extend {
+  join_one: transactions on transaction_id = transactions.transaction_id
+  join_one: lots on lot_id = lots.lot_id
+
+  measure:
+    row_count is count()
+    total_transaction_id is sum(transaction_id)
+    avg_transaction_id is avg(transaction_id)
+    max_transaction_id is max(transaction_id)
+    min_transaction_id is min(transaction_id)
+    total_lot_id is sum(lot_id)
+    avg_lot_id is avg(lot_id)
+    max_lot_id is max(lot_id)
+    min_lot_id is min(lot_id)
+}
