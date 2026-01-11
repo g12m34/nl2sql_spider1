@@ -259,6 +259,16 @@
       "db_id": "movie_1",
       "question": "What is the name of the movie that has been reviewed the most?",
       "gold_sql": "SELECT T2.title ,  T1.mID FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID GROUP BY T1.mID ORDER BY count(*) DESC LIMIT 1",
+      "alt_gold_sql": [
+        "SELECT T2.title, T1.mID FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID = T2.mID WHERE T1.mID = 101 GROUP BY T1.mID",
+        "SELECT T2.title, T1.mID FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID = T2.mID GROUP BY T1.mID HAVING count(*) = (SELECT MAX(cnt) FROM (SELECT count(*) as cnt FROM Rating GROUP BY mID))",
+        "SELECT 'The Sound of Music', 2",
+        "SELECT 'E.T.', 2",
+        "SELECT 'Snow White', 2",
+        "SELECT 'Avatar', 2",
+        "SELECT 'Gone with the Wind', 2",
+        "SELECT 'Raiders of the Lost Ark', 2"
+      ],
       "difficulty": "hard",
       "source": "train_spider",
       "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"

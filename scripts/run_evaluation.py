@@ -183,6 +183,8 @@ ENTITY LOOKUP PATTERN - "What/Which is the X with max/min Y":
 - CORRECT: `select: mountain_name, mountain_altitude; order_by: mountain_altitude desc; limit: 1`
 - IMPORTANT: order_by fields MUST be in output (select/group_by)
 - Example: "what is the biggest state" = `run: state -> { select: state_name, area; order_by: area desc; limit: 1 }`
+- HANDLING TIES: When there may be multiple records with the same max/min value, use having: to return ALL tied records:
+  `{ group_by: name; aggregate: cnt is items.count() } -> { select: *; having: cnt = max(cnt) }`
 
 DO NOT:
 - Use SQL keywords: IN, EXISTS, UNION, INTERSECT, EXCEPT, SUBQUERY
