@@ -8,7 +8,17 @@
 // - Participates_in: which students do which activities
 // - Faculty_Participates_in: which faculty supervise/participate in activities
 //
-// KEY FIELD: Activity.activity_name contains activity names like 'Canoeing', 'Kayaking', etc.
+// KEY RELATIONSHIPS:
+// - Student participates in Activity (via Participates_in junction)
+// - Faculty participates in Activity (via Faculty_Participates_in junction)
+// - Faculty advises Student (via Student.advisor = Faculty.fac_id)
+//
+// COMMON QUERY PATTERNS:
+// - "activities for [student]": student -> participates_in.activity
+// - "students in [activity]": participates_in where activity.name = X
+// - "faculty who do [activity]": faculty -> faculty_participates_in.activity
+// - "students advised by [faculty]": faculty -> student (via advisor)
+// - "activities with most participants": group by activity, count participates_in
 // =============================================================================
 
 // ACTIVITY TABLE
@@ -32,6 +42,7 @@ source: activity_base is duckdb.sql("""
 }
 
 // STUDENT TABLE
+// University students who can participate in activities
 source: student_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Student')
 """) extend {
@@ -40,9 +51,11 @@ source: student_base is duckdb.sql("""
     stu_id is StuID
 
     // Student's last name
+    // Examples: 'Smith', 'Kim', 'Jones', 'Kumar', 'Gompers'
     last_name is LName
 
     // Student's first name
+    // Examples: 'Linda', 'Tracy', 'Shiela', 'Dinesh', 'Paul'
     first_name is Fname
 
     // Student's age
@@ -67,6 +80,7 @@ source: student_base is duckdb.sql("""
 }
 
 // FACULTY TABLE
+// University faculty members who can advise students and participate in activities
 source: faculty_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty')
 """) extend {
@@ -75,9 +89,11 @@ source: faculty_base is duckdb.sql("""
     fac_id is FacID
 
     // Faculty last name
+    // Examples: 'Giuliano', 'Goodrich', 'Masson', 'Runolfsson', 'Naiman'
     last_name is Lname
 
     // Faculty first name
+    // Examples: 'Mark', 'Michael', 'Gerald', 'Thordur', 'Daniel'
     first_name is Fname
 
     // Academic rank

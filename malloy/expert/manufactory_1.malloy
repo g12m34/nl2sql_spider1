@@ -5,8 +5,17 @@
 // - Manufacturers: companies that produce products
 // - Products: items produced by manufacturers
 //
-// NOTE: Each product has exactly ONE manufacturer (Products.Manufacturer is a foreign key)
-// A product cannot be produced by multiple companies in this schema.
+// KEY RELATIONSHIPS:
+// - Each Product belongs to exactly ONE Manufacturer (many-to-one)
+// - A Manufacturer can produce multiple Products (one-to-many)
+//
+// COMMON QUERY PATTERNS:
+// - "products by [manufacturer]": manufacturers -> products
+// - "manufacturer of [product]": products -> manufacturers
+// - "products over $X": products where price > X
+// - "manufacturers in [city]": manufacturers where headquarter = city
+// - "avg price by manufacturer": group by manufacturers.name, aggregate products.avg_price
+// - "most expensive product per manufacturer": use nest with order by price desc limit 1
 // =============================================================================
 
 // MANUFACTURERS TABLE

@@ -5,9 +5,21 @@
 // - Ship: vessels in the fleet
 // - Captain: officers who command ships, with their naval class and rank
 //
+// KEY RELATIONSHIPS:
+// - Each Captain commands one Ship (many-to-one via Ship_ID)
+// - A Ship can have multiple Captains (historically)
+//
 // IMPORTANT: The captain table has its own "Class" field (ship classification they commanded)
 // which is DIFFERENT from Ship.Class (classification society like KR, GL)
-// Captain.Class values: 'Cutter', 'Armed schooner', 'Frigate', 'Sloop-of-war', 'Third-rate ship of the line'
+// - Captain.Class values: 'Cutter', 'Armed schooner', 'Frigate', 'Sloop-of-war', 'Third-rate ship of the line'
+// - Ship.Class values: 'KR', 'GL' (classification societies)
+//
+// COMMON QUERY PATTERNS:
+// - "captain of [ship]": captain where ship.ship_name = X
+// - "ship commanded by [captain]": captain -> ship
+// - "captains by rank": group by captain.rank
+// - "youngest captain": captain order by captain_age asc limit 1
+// - "ships with captains of rank [X]": ship -> captain where rank = X
 // =============================================================================
 
 // SHIP TABLE

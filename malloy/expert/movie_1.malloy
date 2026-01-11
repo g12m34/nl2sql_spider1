@@ -10,6 +10,14 @@
 // - A Reviewer can rate multiple Movies (via Rating table)
 // - A Movie can have multiple Ratings from different Reviewers
 // - Rating is a junction table connecting Reviewers to Movies with stars
+//
+// COMMON QUERY PATTERNS:
+// - "movies rated by [reviewer]": rating where reviewer.reviewer_name = X
+// - "reviewers of [movie]": movie -> rating.reviewer
+// - "highest rated movies": group by movie, aggregate avg_stars, order by desc
+// - "movies not reviewed by [X]": use EXCEPT pattern or left join with null check
+// - "average rating per director": group by movie.directed_by, aggregate rating.avg_stars
+// - "movies with rating > X": rating where star_rating > X
 // =============================================================================
 
 // =============================================================================

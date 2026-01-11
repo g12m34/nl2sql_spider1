@@ -6,8 +6,19 @@
 // - gas_station: individual gas station locations
 // - station_company: which companies own which gas stations (junction)
 //
+// KEY RELATIONSHIPS:
+// - Company owns Gas_Station (many-to-many via station_company junction)
+// - station_company links companies to their gas stations
+//
 // KEY FIELD: Main_Industry identifies the company's business sector
 // Values: 'Oil and gas', 'Banking', 'Conglomerate'
+//
+// COMMON QUERY PATTERNS:
+// - "gas stations owned by [company]": company -> station_company.gas_station
+// - "companies in [industry]": company where main_industry = X
+// - "how many gas companies": company where main_industry = 'Oil and gas', count
+// - "stations by company": group by company.company_name, count station_company
+// - "total sales by industry": group by main_industry, aggregate total_sales
 // =============================================================================
 
 // COMPANY TABLE
@@ -100,20 +111,38 @@ source: station_company_base is duckdb.sql("""
 }
 
 // =============================================================================
+// INTERMEDIATE SOURCES (for nested join paths)
+// =============================================================================
+
+// station_company with gas_station details
+// Enables: company -> station_company -> gas_station path
+source: station_company_with_station is station_company_base extend {
+  join_one: gas_station is gas_station_base on station_id = gas_station.station_id
+}
+
+// station_company with company details
+// Enables: gas_station -> station_company -> company path
+source: station_company_with_company is station_company_base extend {
+  join_one: company is company_base on company_id = company.company_id
+}
+
+// =============================================================================
 // FULL SOURCES WITH RELATIONSHIPS
 // =============================================================================
 
-// Company with its gas stations
+// Company with its gas stations (via nested path)
+// Use: company -> station_company.gas_station to access station details
 source: company is company_base extend {
-  join_many: station_company is station_company_base on company_id = station_company.company_id
+  join_many: station_company is station_company_with_station on company_id = station_company.company_id
 }
 
-// Gas station with company ownership
+// Gas station with company ownership (via nested path)
+// Use: gas_station -> station_company.company to access company details
 source: gas_station is gas_station_base extend {
-  join_many: station_company is station_company_base on station_id = station_company.station_id
+  join_many: station_company is station_company_with_company on station_id = station_company.station_id
 }
 
-// Junction table with full details
+// Junction table with full details on both sides
 source: station_company is station_company_base extend {
   join_one: company is company_base on company_id = company.company_id
   join_one: gas_station is gas_station_base on station_id = gas_station.station_id

@@ -11,6 +11,13 @@
 // - A Student can play multiple Video_Games (via Plays_Games junction table)
 // - A Student can participate in multiple Sports (via SportsInfo)
 // - To find students in BOTH video games AND sports, check both relationships
+//
+// COMMON QUERY PATTERNS:
+// - "students who play [game]": plays_games where video_games.game_name = X
+// - "games played by [student]": student -> plays_games.video_games
+// - "students on scholarship": sports_info where on_scholarship = 'Y'
+// - "total hours by student": group by student, aggregate plays_games.total_hours
+// - "most popular game": group by video_games.game_name, count plays_games
 // =============================================================================
 
 // =============================================================================
