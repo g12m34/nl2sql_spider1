@@ -13,7 +13,26 @@ This directory tracks experiments to improve NL2Malloy accuracy.
 | Order_by output requirement | 50.0% (23/46) | +475% from baseline |
 | No subqueries + count deprecation | 54.3% (25/46) | +524% from baseline |
 | Nested join path fixes | 56.5% (26/46) | +549% from baseline |
-| **Deep join paths (keyphrase, highlow, student)** | **63.0% (29/46)** | **+624% from baseline** |
+| Deep join paths (keyphrase, highlow, student) | 63.0% (29/46) | +624% from baseline |
+| count(joined.field) fix | 60.9% (28/46) | LLM variance |
+| **Gold SQL bug fixes (Q6, Q162)** | **65.2% (30/46)** | **+649% from baseline** |
+
+## Cross-Model Comparison
+
+See [cross_model_analysis.md](cross_model_analysis.md) for detailed error analysis.
+
+| Model | Compile Rate | Execution Accuracy | Cost |
+|-------|--------------|-------------------|------|
+| **Claude Sonnet 4.5** | 82.6% | **71.7% (33/46)** | 50% batch discount |
+| DeepSeek v3.2 | 73.9% | 65.2% (30/46) | Very cheap |
+| Gemini 2.5 Pro | 78.3% | 65.2% (30/46) | 50% batch discount |
+| Claude Opus 4.5 | 73.9% | 63.0% (29/46) | 50% batch discount |
+| Gemini 2.5 Flash | 71.7% | 60.9% (28/46) | 50% batch discount |
+
+**Key Insights:**
+- Claude Sonnet 4.5 leads with best compile rate AND accuracy
+- 10 questions fail across ALL models (systematic issues)
+- Different models fail on different questions (ensemble potential)
 
 ## Experiment Plan
 
@@ -53,5 +72,32 @@ This directory tracks experiments to improve NL2Malloy accuracy.
 ## Budget
 
 - DeepSeek v3.2: ~$0.01 per 46 questions
+- Gemini Batch API: 50% discount vs real-time API
 - Total spent so far: ~$0.03
 - Budget remaining: Unlimited (very cheap!)
+
+## Gemini Batch API
+
+For testing with frontier models at reduced cost, use the Gemini Batch API:
+
+```bash
+# Submit batch job
+python scripts/gemini_batch.py submit --model gemini-2.5-pro
+
+# Check status
+python scripts/gemini_batch.py status <job_name>
+
+# Wait for completion (polls automatically)
+python scripts/gemini_batch.py wait <job_name>
+
+# Get results
+python scripts/gemini_batch.py results <job_name>
+
+# Evaluate results
+python scripts/gemini_batch.py evaluate results_<job_name>.json
+
+# List all jobs
+python scripts/gemini_batch.py list
+```
+
+Available models: `gemini-2.5-flash`, `gemini-2.5-pro`
