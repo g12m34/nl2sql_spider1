@@ -1,378 +1,336 @@
-// ============================================================
-// FIELD METADATA (Auto-generated from database profiling)
-// ============================================================
+// =============================================================================
+// SCHOLAR DATABASE - Academic Paper Citation Network
+// =============================================================================
+// This database models an academic citation network with papers, authors, venues,
+// and their relationships. Use it to answer questions about:
+// - Who authored which papers
+// - Which papers cite other papers
+// - What topics (keyphrases) papers cover
+// - Which datasets papers use
+// - Where papers were published (venues/journals)
 //
-// Table: venue
-//   venueId: Primary key identifier for venue
-//   venueName: Unique name identifier
+// KEY RELATIONSHIPS:
+// - Author -> writes -> Paper (an author writes many papers)
+// - Paper -> cite -> Paper (papers cite other papers)
+// - Paper -> paperKeyphrase -> Keyphrase (papers have topic keywords)
+// - Paper -> paperDataset -> Dataset (papers use datasets)
+// - Paper -> Venue (paper published at a venue/conference)
+// - Paper -> Journal (paper published in a journal)
 //
-// Table: author
-//   authorId: Primary key identifier for author
-//   authorName: Unique name identifier
-//
-// Table: dataset
-//   datasetId: Primary key identifier for dataset
-//   datasetName: Unique name identifier
-//
-// Table: journal
-//   journalId: Primary key identifier for journal
-//   journalName: Unique name identifier
-//
-// Table: keyphrase
-//   keyphraseId: Primary key identifier for keyphrase
-//   keyphraseName: Unique name identifier
-//
-// Table: paper
-//   paperId: Primary key identifier for paper
-//   title: VARCHAR(300) field
-//   venueId: Primary key identifier for paper
-//   year: Date/time field
-//   numCiting: Numeric count/total
-//   numCitedBy: Numeric count/total
-//   journalId: Primary key identifier for paper
-//
-// Table: cite
-//   citingPaperId: Primary key identifier for cite
-//   citedPaperId: Primary key identifier for cite
-//
-// Table: paperDataset
-//   paperId: Primary key identifier for paperDataset
-//   datasetId: Primary key identifier for paperDataset
-//
-// Table: paperKeyphrase
-//   paperId: Primary key identifier for paperKeyphrase
-//   keyphraseId: Primary key identifier for paperKeyphrase
-//
-// Table: writes
-//   paperId: Primary key identifier for writes
-//   authorId: Primary key identifier for writes
-//
+// COMMON QUERY PATTERNS:
+// - "papers by [author]": author -> writes.paper
+// - "who cites [author]": Find citing papers via cite table
+// - "papers about [topic]": paper_keyphrase where keyphrase_name matches
+// - "papers at [venue]": paper where venue.venue_name matches
+// =============================================================================
 
-// Malloy semantic layer for: scholar
-// Full layer with ALL columns, primary keys, and bidirectional joins
-// Database: /workspace/spider_db/spider/database/scholar/scholar.sqlite
-
-// ============================================================
+// =============================================================================
 // BASE SOURCES (no joins - enables forward references)
-// ============================================================
+// =============================================================================
 
-// venue
+// VENUE TABLE
+// Academic conferences and proceedings where papers are presented
+// Examples: NIPS, CHI, AAAI, ICML, ACL, CVPR
 source: venue_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'venue')
 """) extend {
   dimension:
-    // Primary key identifier for venue
+    // Unique venue identifier (primary key)
     venue_id is venueId
-    // Unique name identifier
+
+    // Name of the conference/venue
+    // Examples: 'NIPS', 'CHI', 'AAAI', 'ICML', 'ACL', 'CVPR', 'SIGIR'
     venue_name is venueName
 
   primary_key: venue_id
 
   measure:
-    row_count is count()
-    total_venue_id is sum(venue_id)
-    avg_venue_id is avg(venue_id)
-    max_venue_id is max(venue_id)
-    min_venue_id is min(venue_id)
+    venue_count is count()
 }
 
-// author
+// AUTHOR TABLE
+// Researchers and academics who write papers
 source: author_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'author')
 """) extend {
   dimension:
-    // Primary key identifier for author
+    // Unique author identifier (primary key)
     author_id is authorId
-    // Unique name identifier
+
+    // Full name of the author
+    // Examples: 'Jitendra Malik', 'Richard Ladner', 'Zachary Tatlock', 'Daniel A Reed'
+    // Note: Names are case-sensitive in comparisons
     author_name is authorName
 
   primary_key: author_id
 
   measure:
-    row_count is count()
-    total_author_id is sum(author_id)
-    avg_author_id is avg(author_id)
-    max_author_id is max(author_id)
-    min_author_id is min(author_id)
+    author_count is count()
 }
 
-// dataset
-source: dataset_base is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'dataset')
-""") extend {
-  dimension:
-    // Primary key identifier for dataset
-    dataset_id is datasetId
-    // Unique name identifier
-    dataset_name is datasetName
-
-  primary_key: dataset_id
-
-  measure:
-    row_count is count()
-    total_dataset_id is sum(dataset_id)
-    avg_dataset_id is avg(dataset_id)
-    max_dataset_id is max(dataset_id)
-    min_dataset_id is min(dataset_id)
-}
-
-// journal
+// JOURNAL TABLE
+// Academic journals where papers are published
 source: journal_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'journal')
 """) extend {
   dimension:
-    // Primary key identifier for journal
+    // Unique journal identifier (primary key)
     journal_id is journalId
-    // Unique name identifier
+
+    // Name of the academic journal
     journal_name is journalName
 
   primary_key: journal_id
 
   measure:
-    row_count is count()
-    total_journal_id is sum(journal_id)
-    avg_journal_id is avg(journal_id)
-    max_journal_id is max(journal_id)
-    min_journal_id is min(journal_id)
+    journal_count is count()
 }
 
-// keyphrase
+// KEYPHRASE TABLE
+// Keywords and topics that describe paper content
+// Use paper_keyphrase to find which papers have which keyphrases
 source: keyphrase_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'keyphrase')
 """) extend {
   dimension:
-    // Primary key identifier for keyphrase
+    // Unique keyphrase identifier (primary key)
     keyphrase_id is keyphraseId
-    // Unique name identifier
+
+    // The keyword/topic text
+    // Examples: 'parsing', 'machine learning', 'deep learning', 'Euclidean Distance'
     keyphrase_name is keyphraseName
 
   primary_key: keyphrase_id
 
   measure:
-    row_count is count()
-    total_keyphrase_id is sum(keyphrase_id)
-    avg_keyphrase_id is avg(keyphrase_id)
-    max_keyphrase_id is max(keyphrase_id)
-    min_keyphrase_id is min(keyphrase_id)
+    keyphrase_count is count()
 }
 
-// paper
+// DATASET TABLE
+// Datasets used or referenced in academic papers
+source: dataset_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'dataset')
+""") extend {
+  dimension:
+    // Unique dataset identifier (primary key)
+    dataset_id is datasetId
+
+    // Name of the dataset
+    // Examples: 'ImageNet', 'MNIST', 'CIFAR-10', 'Penn Treebank'
+    dataset_name is datasetName
+
+  primary_key: dataset_id
+
+  measure:
+    dataset_count is count()
+}
+
+// PAPER TABLE
+// Academic papers with citation statistics
 source: paper_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paper')
 """) extend {
   dimension:
-    // Primary key identifier for paper
+    // Unique paper identifier (primary key)
     paper_id is paperId
-    // Primary key identifier for paper
+
+    // Title of the paper
+    title is title
+
+    // Foreign key to venue where paper was published
     venue_id is venueId
-    year_val is `year`
-    // Numeric count/total
+
+    // Year the paper was published
+    year_published is `year`
+
+    // Number of papers this paper cites (outgoing citations)
     num_citing is numCiting
-    // Numeric count/total
+
+    // Number of times this paper has been cited (incoming citations)
+    // This is the citation count / impact measure
     num_cited_by is numCitedBy
-    // Primary key identifier for paper
+
+    // Foreign key to journal (if published in journal vs conference)
     journal_id is journalId
 
   primary_key: paper_id
 
   measure:
-    row_count is count()
-    total_paper_id is sum(paper_id)
-    avg_paper_id is avg(paper_id)
-    max_paper_id is max(paper_id)
-    min_paper_id is min(paper_id)
-    total_venue_id is sum(venue_id)
-    avg_venue_id is avg(venue_id)
-    max_venue_id is max(venue_id)
-    min_venue_id is min(venue_id)
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
-    total_num_citing is sum(num_citing)
-    avg_num_citing is avg(num_citing)
-    max_num_citing is max(num_citing)
-    min_num_citing is min(num_citing)
-    total_num_cited_by is sum(num_cited_by)
-    avg_num_cited_by is avg(num_cited_by)
-    max_num_cited_by is max(num_cited_by)
-    min_num_cited_by is min(num_cited_by)
-    total_journal_id is sum(journal_id)
-    avg_journal_id is avg(journal_id)
-    max_journal_id is max(journal_id)
-    min_journal_id is min(journal_id)
+    paper_count is count()
+    total_citations is sum(numCitedBy)
+    avg_citations is avg(numCitedBy)
+    max_citations is max(numCitedBy)
 }
 
-// cite
+// CITE TABLE
+// Citation relationships between papers
+// Each row means: citing_paper_id cites cited_paper_id
 source: cite_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'cite')
 """) extend {
   dimension:
-    // Primary key identifier for cite
+    // Paper that is doing the citing (the newer paper)
     citing_paper_id is citingPaperId
-    // Primary key identifier for cite
+
+    // Paper that is being cited (the older paper being referenced)
     cited_paper_id is citedPaperId
 
-  primary_key: citing_paper_id
-
   measure:
-    row_count is count()
-    total_citing_paper_id is sum(citing_paper_id)
-    avg_citing_paper_id is avg(citing_paper_id)
-    max_citing_paper_id is max(citing_paper_id)
-    min_citing_paper_id is min(citing_paper_id)
-    total_cited_paper_id is sum(cited_paper_id)
-    avg_cited_paper_id is avg(cited_paper_id)
-    max_cited_paper_id is max(cited_paper_id)
-    min_cited_paper_id is min(cited_paper_id)
+    citation_count is count()
 }
 
-// paperDataset
-source: paper_dataset_base is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperDataset')
-""") extend {
-  dimension:
-    // Primary key identifier for paperDataset
-    paper_id is paperId
-    // Primary key identifier for paperDataset
-    dataset_id is datasetId
-
-  primary_key: dataset_id
-
-  measure:
-    row_count is count()
-    total_paper_id is sum(paper_id)
-    avg_paper_id is avg(paper_id)
-    max_paper_id is max(paper_id)
-    min_paper_id is min(paper_id)
-    total_dataset_id is sum(dataset_id)
-    avg_dataset_id is avg(dataset_id)
-    max_dataset_id is max(dataset_id)
-    min_dataset_id is min(dataset_id)
-}
-
-// paperKeyphrase
-source: paper_keyphrase_base is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperKeyphrase')
-""") extend {
-  dimension:
-    // Primary key identifier for paperKeyphrase
-    paper_id is paperId
-    // Primary key identifier for paperKeyphrase
-    keyphrase_id is keyphraseId
-
-  primary_key: keyphrase_id
-
-  measure:
-    row_count is count()
-    total_paper_id is sum(paper_id)
-    avg_paper_id is avg(paper_id)
-    max_paper_id is max(paper_id)
-    min_paper_id is min(paper_id)
-    total_keyphrase_id is sum(keyphrase_id)
-    avg_keyphrase_id is avg(keyphrase_id)
-    max_keyphrase_id is max(keyphrase_id)
-    min_keyphrase_id is min(keyphrase_id)
-}
-
-// writes
+// WRITES TABLE (Junction)
+// Links authors to papers they have written
+// Each row means: author_id wrote paper_id
 source: writes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'writes')
 """) extend {
   dimension:
-    // Primary key identifier for writes
     paper_id is paperId
-    // Primary key identifier for writes
     author_id is authorId
 
-  primary_key: paper_id
-
   measure:
-    row_count is count()
-    total_paper_id is sum(paper_id)
-    avg_paper_id is avg(paper_id)
-    max_paper_id is max(paper_id)
-    min_paper_id is min(paper_id)
-    total_author_id is sum(author_id)
-    avg_author_id is avg(author_id)
-    max_author_id is max(author_id)
-    min_author_id is min(author_id)
+    writes_count is count()
 }
 
-// ============================================================
-// INTERMEDIATE SOURCES (for nested join paths)
-// ============================================================
+// PAPER_DATASET TABLE (Junction)
+// Links papers to datasets they use
+// Each row means: paper_id uses dataset_id
+source: paper_dataset_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperDataset')
+""") extend {
+  dimension:
+    paper_id is paperId
+    dataset_id is datasetId
 
-// paper_keyphrase with keyphrase (for paper -> paper_keyphrase -> keyphrase path)
+  measure:
+    paper_dataset_count is count()
+}
+
+// PAPER_KEYPHRASE TABLE (Junction)
+// Links papers to their topic keywords
+// Each row means: paper_id has keyphrase_id as a topic
+source: paper_keyphrase_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperKeyphrase')
+""") extend {
+  dimension:
+    paper_id is paperId
+    keyphrase_id is keyphraseId
+
+  measure:
+    paper_keyphrase_count is count()
+}
+
+// =============================================================================
+// INTERMEDIATE SOURCES (for nested join paths)
+// =============================================================================
+
+// paper_keyphrase with keyphrase details
+// Enables: paper -> paper_keyphrase -> keyphrase path
 source: paper_keyphrase_with_keyphrase is paper_keyphrase_base extend {
   join_one: keyphrase is keyphrase_base on keyphrase_id = keyphrase.keyphrase_id
 }
 
-// paper with venue AND paper_keyphrase->keyphrase (for full author path)
-source: paper_with_all is paper_base extend {
-  join_one: venue is venue_base on venue_id = venue.venue_id
-  join_many: paper_keyphrase is paper_keyphrase_with_keyphrase on paper_id = paper_keyphrase.paper_id
+// paper_dataset with dataset details
+// Enables: paper -> paper_dataset -> dataset path
+source: paper_dataset_with_dataset is paper_dataset_base extend {
+  join_one: dataset is dataset_base on dataset_id = dataset.dataset_id
 }
 
-// writes with full paper access (venue, keyphrases)
+// paper with venue, journal, keyphrases, and datasets
+// Full paper entity for author queries
+source: paper_with_all is paper_base extend {
+  join_one: venue is venue_base on venue_id = venue.venue_id
+  join_one: journal is journal_base on journal_id = journal.journal_id
+  join_many: paper_keyphrase is paper_keyphrase_with_keyphrase on paper_id = paper_keyphrase.paper_id
+  join_many: paper_dataset is paper_dataset_with_dataset on paper_id = paper_dataset.paper_id
+}
+
+// writes with full paper access
+// Enables: author -> writes -> paper -> venue/keyphrase/dataset paths
 source: writes_with_paper is writes_base extend {
   join_one: paper is paper_with_all on paper_id = paper.paper_id
 }
 
-// ============================================================
-// FULL SOURCES (with joins - use these for queries)
-// ============================================================
+// writes with author (for paper -> writes -> author path)
+source: writes_with_author is writes_base extend {
+  join_one: author is author_base on author_id = author.author_id
+}
 
-// venue (with joins)
+// =============================================================================
+// FULL SOURCES (with joins - use these for queries)
+// =============================================================================
+
+// VENUE - with papers published there
 source: venue is venue_base extend {
   join_many: paper is paper_base on venue_id = paper.venue_id
 }
 
-// author (with joins) - now supports writes.paper.venue path
+// AUTHOR - with papers they've written
+// Use: author -> writes.paper to access papers
+// Use: author -> writes.paper.venue to access where they published
+// Use: author -> writes.paper.paper_keyphrase.keyphrase for topics
 source: author is author_base extend {
   join_many: writes is writes_with_paper on author_id = writes.author_id
 }
 
-// dataset (with joins)
-source: dataset is dataset_base
-
-// journal (with joins)
+// JOURNAL - with papers published in it
 source: journal is journal_base extend {
   join_many: paper is paper_base on journal_id = paper.journal_id
 }
 
-// keyphrase (with joins)
+// KEYPHRASE - with papers that have this topic
 source: keyphrase is keyphrase_base extend {
   join_many: paper_keyphrase is paper_keyphrase_base on keyphrase_id = paper_keyphrase.keyphrase_id
 }
 
-// paper (with joins)
+// DATASET - with papers that use this dataset
+source: dataset is dataset_base extend {
+  join_many: paper_dataset is paper_dataset_base on dataset_id = paper_dataset.dataset_id
+}
+
+// PAPER - full entity with all relationships
+// - venue: where it was published
+// - journal: which journal (if applicable)
+// - writes: authors who wrote it
+// - paper_keyphrase: topic keywords
+// - paper_dataset: datasets used
+// - cite_citing_paper: papers that cite this paper
+// - cite_cited_paper: papers this paper cites
 source: paper is paper_base extend {
   join_one: venue is venue_base on venue_id = venue.venue_id
   join_one: journal is journal_base on journal_id = journal.journal_id
+  join_many: writes is writes_with_author on paper_id = writes.paper_id
+  join_many: paper_keyphrase is paper_keyphrase_with_keyphrase on paper_id = paper_keyphrase.paper_id
+  join_many: paper_dataset is paper_dataset_with_dataset on paper_id = paper_dataset.paper_id
   join_many: cite_citing_paper is cite_base on paper_id = cite_citing_paper.citing_paper_id
   join_many: cite_cited_paper is cite_base on paper_id = cite_cited_paper.cited_paper_id
-  join_many: paper_keyphrase is paper_keyphrase_base on paper_id = paper_keyphrase.paper_id
-  join_many: writes is writes_base on paper_id = writes.paper_id
 }
 
-// cite (with joins)
+// CITE - citation relationships with paper details
+// - citing_paper_paper: the paper doing the citing
+// - cited_paper_paper: the paper being cited
+// Use to find "who cites whom" queries
 source: cite is cite_base extend {
   join_one: citing_paper_paper is paper_base on citing_paper_id = citing_paper_paper.paper_id
   join_one: cited_paper_paper is paper_base on cited_paper_id = cited_paper_paper.paper_id
 }
 
-// paperDataset (with joins)
-source: paper_dataset is paper_dataset_base
-
-// paperKeyphrase (with joins)
-source: paper_keyphrase is paper_keyphrase_base extend {
-  join_one: keyphrase is keyphrase_base on keyphrase_id = keyphrase.keyphrase_id
-  join_one: paper is paper_base on paper_id = paper.paper_id
-}
-
-// writes (with joins)
+// WRITES - authorship with full details
 source: writes is writes_base extend {
   join_one: author is author_base on author_id = author.author_id
+  join_one: paper is paper_with_all on paper_id = paper.paper_id
+}
+
+// PAPER_DATASET - paper-dataset links with full details
+source: paper_dataset is paper_dataset_base extend {
   join_one: paper is paper_base on paper_id = paper.paper_id
+  join_one: dataset is dataset_base on dataset_id = dataset.dataset_id
+}
+
+// PAPER_KEYPHRASE - paper-keyphrase links with full details
+// Use this source for queries like "top papers for [topic]"
+source: paper_keyphrase is paper_keyphrase_base extend {
+  join_one: paper is paper_base on paper_id = paper.paper_id
+  join_one: keyphrase is keyphrase_base on keyphrase_id = keyphrase.keyphrase_id
 }

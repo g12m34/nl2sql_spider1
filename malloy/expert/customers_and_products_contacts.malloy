@@ -1,254 +1,245 @@
-// ============================================================
-// FIELD METADATA (Auto-generated from database profiling)
-// ============================================================
+// =============================================================================
+// CUSTOMERS_AND_PRODUCTS_CONTACTS DATABASE - E-Commerce Order System
+// =============================================================================
+// This database models an e-commerce system with customers, products, and orders:
+// - Customers: people who place orders (with payment method)
+// - Products: items available for purchase (Hardware, Clothes)
+// - Customer_Orders: orders placed by customers
+// - Order_Items: products within each order
+// - Contacts: contact people associated with customers
+// - Addresses: shipping/billing addresses
+// - Customer_Address_History: tracks customer address changes
 //
-// Table: Addresses
-//   address_id: Primary key identifier for Addresses
-//     Sample values: '1', '2', '3'
-//   line_1_number_building: Values include: '9590 Rogahn Point Apt. 466', '918 Lauren Drive', '794 Doyle Lake Apt. 531'
-//     Sample values: '9590 Rogahn Point Apt. 466', '918 Lauren Drive', '794 Doyle Lake Apt. 531'
-//   city: Values include: 'West Muriel', 'West Kaiatown', 'Port Montytown'
-//     Sample values: 'West Muriel', 'West Kaiatown', 'Port Montytown'
-//   zip_postcode: Values include: '873', '770', '740'
-//     Sample values: '873', '770', '740'
-//   state_province_county: Values include: 'Kentucky', 'Virginia', 'Vermont'
-//     Sample values: 'Kentucky', 'Virginia', 'Vermont'
-//   country: Categorical field: 'USA'
-//     Sample values: 'USA'
+// KEY RELATIONSHIPS:
+// - Customer places Customer_Orders
+// - Customer_Orders contain Order_Items
+// - Order_Items reference Products
+// - Customers have Contacts (contact people)
+// - Customer_Address_History links Customers to Addresses over time
 //
-// Table: Products
-//   product_id: Primary key identifier for Products
-//     Sample values: '1', '2', '3'
-//   product_type_code: Categorical field: 'Hardware', 'Clothes'
-//     Sample values: 'Hardware', 'Clothes'
-//   product_name: Name field with 4 distinct values
-//     Sample values: 'Apple', 'jcrew', 'gucci'
-//   product_price: Values include: '310488248.48788', '54753982.574522', '30590929.528306'
-//     Sample values: '310488248.48788', '54753982.574522', '30590929.528306'
-//
-// Table: Customers
-//   customer_id: Primary key identifier for Customers
-//     Sample values: '1', '2', '3'
-//   payment_method_code: Categorical field: 'Direct Debit', 'Credit Card'
-//     Sample values: 'Direct Debit', 'Credit Card'
-//   customer_number: Values include: '951', '838', '795'
-//     Sample values: '951', '838', '795'
-//   customer_name: Unique name identifier
-//     Sample values: 'Sterling', 'Shany', 'Raymond'
-//   customer_address: Values include: '91702 Hilpert Pines Suite 177, '8497 Huel Stravenue', '8428 Cecile Land Apt. 192'
-//     Sample values: '91702 Hilpert Pines Suite 177, '8497 Huel Stravenue', '8428 Cecile Land Apt. 192'
-//   customer_phone: Values include: '936.929.9929', '896.685.8228x2786', '838.718.8618x23239'
-//     Sample values: '936.929.9929', '896.685.8228x2786', '838.718.8618x23239'
-//   customer_email: Values include: 'xrosenbaum@example.org', 'vandervort.helena@example.org, 'stroman.chadd@example.net'
-//     Sample values: 'xrosenbaum@example.org', 'vandervort.helena@example.org, 'stroman.chadd@example.net'
-//
-// Table: Contacts
-//   contact_id: Primary key identifier for Contacts
-//     Sample values: '1', '2', '3'
-//   customer_id: Foreign key reference
-//     Sample values: '14', '10', '8'
-//   gender: Categorical field: 'female', 'male'
-//     Sample values: 'female', 'male'
-//   first_name: Unique name identifier
-//     Sample values: 'Skye', 'Sid', 'Shyann'
-//   last_name: Unique name identifier
-//     Sample values: 'Streich', 'Stamm', 'Raynor'
-//   contact_phone: Values include: '658.850.7946x9993', '482-949-1364x17500', '405-058-1659'
-//     Sample values: '658.850.7946x9993', '482-949-1364x17500', '405-058-1659'
-//
-// Table: Customer_Address_History
-//   customer_id: Foreign key reference
-//     Sample values: '12', '13', '7'
-//   address_id: Foreign key reference
-//     Sample values: '13', '12', '3'
-//   date_from: Date/time field ranging from 2008-06-22 21:50:44 to 2017-10-25 07:35:59
-//     Sample values: '2017-10-25 07:35:59', '2016-12-23 04:42:07', '2016-11-06 14:33:12'
-//   date_to: Date/time field ranging from 2018-02-25 19:55:00 to 2018-03-24 06:20:36
-//     Sample values: '2018-03-24 06:20:36', '2018-03-22 10:20:16', '2018-03-20 01:13:38'
-//
-// Table: Customer_Orders
-//   order_id: Primary key identifier for Customer_Orders
-//     Sample values: '1', '2', '3'
-//   customer_id: Foreign key reference
-//     Sample values: '10', '2', '9'
-//   order_date: Date/time field ranging from 1971-12-04 19:14:18 to 2016-09-17 03:00:47
-//     Sample values: '2016-09-17 03:00:47', '2009-07-19 13:40:49', '2007-01-19 07:54:50'
-//   order_status_code: Categorical field: 'Completed', 'Part'
-//     Sample values: 'Completed', 'Part'
-//
-// Table: Order_Items
-//   order_item_id: Primary key identifier for Order_Items
-//     Sample values: '15', '14', '13'
-//   order_id: Foreign key reference
-//     Sample values: '7', '6', '3'
-//   product_id: Foreign key reference
-//     Sample values: '2', '15', '12'
-//   order_quantity: Categorical field: '8', '7', '9', '4', '3'
-//     Sample values: '8', '7', '9'
-//
+// COMMON QUERY PATTERNS:
+// - "products by type": group by product_type_code
+// - "orders by customer": customer_orders joined to customers
+// - "products ordered": order_items joined to products
+// =============================================================================
 
-// Malloy semantic layer for: customers_and_products_contacts
-// Full layer with ALL columns, primary keys, and bidirectional joins
-// Database: /workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite
+// =============================================================================
+// BASE SOURCES
+// =============================================================================
 
-// ============================================================
-// BASE SOURCES (no joins - enables forward references)
-// ============================================================
-
-// Addresses
+// ADDRESSES TABLE
+// Shipping and billing addresses
 source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Addresses')
 """) extend {
+  dimension:
+    // Unique address identifier (primary key)
+    address_id is address_id
+    // Street address with number and building
+    // Examples: '9590 Rogahn Point Apt. 466', '918 Lauren Drive'
+    line_1_number_building is line_1_number_building
+    // City name
+    city is city
+    // Postal/ZIP code
+    zip_postcode is zip_postcode
+    // State/Province (e.g., 'Kentucky', 'Virginia', 'Vermont')
+    state_province_county is state_province_county
+    // Country (always 'USA' in this dataset)
+    country is country
+
   primary_key: address_id
 
   measure:
-    row_count is count()
-    total_address_id is sum(address_id)
-    avg_address_id is avg(address_id)
-    max_address_id is max(address_id)
-    min_address_id is min(address_id)
+    address_count is count()
 }
 
-// Products
+// PRODUCTS TABLE
+// Items available for purchase
 source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Products')
 """) extend {
+  dimension:
+    // Unique product identifier (primary key)
+    product_id is product_id
+
+    // Product category/type
+    // Values: 'Hardware', 'Clothes'
+    product_type_code is product_type_code
+
+    // Product name
+    // Examples: 'Apple', 'jcrew', 'gucci'
+    product_name is product_name
+
+    // Product price (can be very large values)
+    // Range: varies widely
+    product_price is product_price
+
   primary_key: product_id
 
   measure:
-    row_count is count()
-    total_product_id is sum(product_id)
-    avg_product_id is avg(product_id)
-    max_product_id is max(product_id)
-    min_product_id is min(product_id)
-    total_product_price is sum(product_price)
-    avg_product_price is avg(product_price)
-    max_product_price is max(product_price)
-    min_product_price is min(product_price)
+    product_count is count()
+    total_price is sum(product_price)
+    avg_price is avg(product_price)
+    max_price is max(product_price)
+    min_price is min(product_price)
 }
 
-// Customers
+// CUSTOMERS TABLE
+// People who place orders
 source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Customers')
 """) extend {
+  dimension:
+    // Unique customer identifier (primary key)
+    customer_id is customer_id
+
+    // How the customer pays
+    // Values: 'Credit Card', 'Direct Debit'
+    payment_method_code is payment_method_code
+
+    // Customer account number
+    customer_number is customer_number
+
+    // Customer's name (e.g., 'Kayley', 'Sterling', 'Buford')
+    customer_name is customer_name
+
+    // Customer's address (free text)
+    customer_address is customer_address
+
+    // Customer's phone number
+    customer_phone is customer_phone
+
+    // Customer's email address
+    customer_email is customer_email
+
   primary_key: customer_id
 
   measure:
-    row_count is count()
-    total_customer_id is sum(customer_id)
-    avg_customer_id is avg(customer_id)
-    max_customer_id is max(customer_id)
-    min_customer_id is min(customer_id)
+    customer_count is count()
 }
 
-// Contacts
+// CONTACTS TABLE
+// Contact people associated with customers
 source: contacts_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Contacts')
 """) extend {
+  dimension:
+    // Unique contact identifier (primary key)
+    contact_id is contact_id
+    // Associated customer (foreign key)
+    customer_id is customer_id
+    // Gender: 'male' or 'female'
+    gender is gender
+    // Contact's first name
+    first_name is first_name
+    // Contact's last name
+    last_name is last_name
+    // Contact's phone number
+    contact_phone is contact_phone
+
   primary_key: contact_id
 
   measure:
-    row_count is count()
-    total_contact_id is sum(contact_id)
-    avg_contact_id is avg(contact_id)
-    max_contact_id is max(contact_id)
-    min_contact_id is min(contact_id)
-    total_customer_id is sum(customer_id)
-    avg_customer_id is avg(customer_id)
-    max_customer_id is max(customer_id)
-    min_customer_id is min(customer_id)
+    contact_count is count()
 }
 
-// Customer_Address_History
+// CUSTOMER_ADDRESS_HISTORY TABLE (Junction)
+// Tracks which addresses customers have used over time
 source: customer_address_history_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Customer_Address_History')
 """) extend {
+  dimension:
+    customer_id is customer_id
+    address_id is address_id
+    // When customer started using this address
+    date_from is date_from
+    // When customer stopped using this address (NULL if current)
+    date_to is date_to
+
   measure:
-    row_count is count()
-    total_customer_id is sum(customer_id)
-    avg_customer_id is avg(customer_id)
-    max_customer_id is max(customer_id)
-    min_customer_id is min(customer_id)
-    total_address_id is sum(address_id)
-    avg_address_id is avg(address_id)
-    max_address_id is max(address_id)
-    min_address_id is min(address_id)
+    history_count is count()
 }
 
-// Customer_Orders
+// CUSTOMER_ORDERS TABLE
+// Orders placed by customers
 source: customer_orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Customer_Orders')
 """) extend {
+  dimension:
+    // Unique order identifier (primary key)
+    order_id is order_id
+    // Customer who placed the order (foreign key)
+    customer_id is customer_id
+    // When the order was placed
+    order_date is order_date
+    // Order status: 'Completed', 'Part' (partial)
+    order_status_code is order_status_code
+
   primary_key: order_id
 
   measure:
-    row_count is count()
-    total_order_id is sum(order_id)
-    avg_order_id is avg(order_id)
-    max_order_id is max(order_id)
-    min_order_id is min(order_id)
-    total_customer_id is sum(customer_id)
-    avg_customer_id is avg(customer_id)
-    max_customer_id is max(customer_id)
-    min_customer_id is min(customer_id)
+    order_count is count()
 }
 
-// Order_Items
+// ORDER_ITEMS TABLE (Junction)
+// Products within orders
 source: order_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite', 'Order_Items')
 """) extend {
+  dimension:
+    // Order item line identifier
+    order_item_id is order_item_id
+    // Order this item belongs to (foreign key)
+    order_id is order_id
+    // Product being ordered (foreign key)
+    product_id is product_id
+    // Quantity ordered (stored as string)
+    // Values: '3', '4', '7', '8', '9'
+    order_quantity is order_quantity
+
   measure:
-    row_count is count()
-    total_order_item_id is sum(order_item_id)
-    avg_order_item_id is avg(order_item_id)
-    max_order_item_id is max(order_item_id)
-    min_order_item_id is min(order_item_id)
-    total_order_id is sum(order_id)
-    avg_order_id is avg(order_id)
-    max_order_id is max(order_id)
-    min_order_id is min(order_id)
-    total_product_id is sum(product_id)
-    avg_product_id is avg(product_id)
-    max_product_id is max(product_id)
-    min_product_id is min(product_id)
+    item_count is count()
 }
 
-// ============================================================
+// =============================================================================
 // FULL SOURCES (with joins - use these for queries)
-// ============================================================
+// =============================================================================
 
-// Addresses (with joins)
+// ADDRESSES - with customer history
 source: addresses is addresses_base extend {
   join_many: customer_address_history is customer_address_history_base on address_id = customer_address_history.address_id
 }
 
-// Products (with joins)
+// PRODUCTS - with order items
 source: products is products_base extend {
   join_many: order_items is order_items_base on product_id = order_items.product_id
 }
 
-// Customers (with joins)
+// CUSTOMERS - with orders, contacts, and address history
 source: customers is customers_base extend {
-  join_many: customer_address_history is customer_address_history_base on customer_id = customer_address_history.customer_id
   join_many: customer_orders is customer_orders_base on customer_id = customer_orders.customer_id
+  join_many: contacts is contacts_base on customer_id = contacts.customer_id
+  join_many: customer_address_history is customer_address_history_base on customer_id = customer_address_history.customer_id
 }
 
-// Contacts (with joins)
-source: contacts is contacts_base
-
-// Customer_Address_History (with joins)
-source: customer_address_history is customer_address_history_base extend {
-  join_one: addresses is addresses_base on address_id = addresses.address_id
+// CONTACTS - with customer details
+source: contacts is contacts_base extend {
   join_one: customers is customers_base on customer_id = customers.customer_id
 }
 
-// Customer_Orders (with joins)
+// CUSTOMER_ADDRESS_HISTORY - with customer and address details
+source: customer_address_history is customer_address_history_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+}
+
+// CUSTOMER_ORDERS - with customer and order items
 source: customer_orders is customer_orders_base extend {
   join_one: customers is customers_base on customer_id = customers.customer_id
   join_many: order_items is order_items_base on order_id = order_items.order_id
 }
 
-// Order_Items (with joins)
+// ORDER_ITEMS - with order and product details
 source: order_items is order_items_base extend {
   join_one: customer_orders is customer_orders_base on order_id = customer_orders.order_id
   join_one: products is products_base on product_id = products.product_id

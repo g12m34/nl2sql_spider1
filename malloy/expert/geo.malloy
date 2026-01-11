@@ -1,75 +1,69 @@
-// ============================================================
-// FIELD METADATA (Auto-generated from database profiling)
-// ============================================================
+// =============================================================================
+// GEO DATABASE - US Geography (States, Rivers, Mountains, Lakes)
+// =============================================================================
+// This database contains geographical information about US states including:
+// - States with population, area, capital, and density
+// - Cities within states
+// - Border relationships between states
+// - High/low elevation points per state
+// - Rivers with length and which states they traverse
+// - Mountains with altitude
+// - Lakes with area
 //
-// Table: state
-//   state_name: Unique name identifier
-//   population: Numeric field
-//   area: DOUBLE field
-//   country_name: Unique name identifier
-//   capital: TEXT field
-//   density: DOUBLE field
+// KEY RELATIONSHIPS:
+// - State is the central entity - everything links to states
+// - border_info tracks which states border each other (bidirectional)
+// - Rivers traverse through states (river.traverse = state_name)
+// - Cities, mountains, lakes are located in states
 //
-// Table: city
-//   city_name: Unique name identifier
-//   population: Numeric field
-//   country_name: Unique name identifier
-//   state_name: Unique name identifier
+// COMMON QUERY PATTERNS:
+// - "which states border X": border_info where state_name = X, select border
+// - "states bordering states that border X": nested border_info joins
+// - "largest state by area/population": state order by area/population desc limit 1
+// - "rivers through [state]": river where traverse = [state]
+// - "highest point in [state]": highlow where state_name = [state]
 //
-// Table: border_info
-//   state_name: Unique name identifier
-//   border: TEXT field
-//
-// Table: highlow
-//   state_name: Unique name identifier
-//   highest_elevation: TEXT field
-//   lowest_point: TEXT field
-//   highest_point: TEXT field
-//   lowest_elevation: TEXT field
-//
-// Table: lake
-//   lake_name: Unique name identifier
-//   area: DOUBLE field
-//   country_name: Unique name identifier
-//   state_name: Unique name identifier
-//
-// Table: mountain
-//   mountain_name: Unique name identifier
-//   mountain_altitude: Numeric field
-//   country_name: Unique name identifier
-//   state_name: Unique name identifier
-//
-// Table: river
-//   river_name: Unique name identifier
-//   length: Numeric field
-//   country_name: Unique name identifier
-//   traverse: TEXT field
-//
+// IMPORTANT: State names are lowercase (e.g., 'california', 'texas', 'florida')
+// =============================================================================
 
-// Malloy semantic layer for: geo
-// Full layer with ALL columns, primary keys, and bidirectional joins
-// Database: /workspace/spider_db/spider/database/geo/geo.sqlite
-
-// ============================================================
+// =============================================================================
 // BASE SOURCES (no joins - enables forward references)
-// ============================================================
+// =============================================================================
 
-// state
+// STATE TABLE
+// US states with demographic and geographic data
 source: state_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'state')
 """) extend {
-  primary_key: state_name
-
   dimension:
-    // State population
+    // Name of the state (primary key)
+    // Values are lowercase: 'california', 'texas', 'florida', 'new york', etc.
+    // Use lowercase when filtering: where state_name = 'california'
+    state_name is state_name
+
+    // State population (number of residents)
+    // Range: varies from small states to California's ~40 million
     state_population is population
+
     // State area in square miles
+    // Range: Rhode Island (~1,500) to Alaska (~665,000)
     state_area is area
-    // Population density (people per sq mile)
+
+    // Country code (typically 'usa')
+    country_name is country_name
+
+    // Name of the state capital city
+    // Examples: 'sacramento', 'austin', 'tallahassee', 'albany'
+    capital is capital
+
+    // Population density (people per square mile)
+    // Calculated as population / area
     state_density is density
 
+  primary_key: state_name
+
   measure:
-    row_count is count()
+    state_count is count()
     total_population is sum(population)
     avg_population is avg(population)
     max_population is max(population)
@@ -78,140 +72,237 @@ source: state_val_base is duckdb.sql("""
     avg_area is avg(area)
     max_area is max(area)
     min_area is min(area)
-    total_density is sum(density)
     avg_density is avg(density)
-    max_density is max(density)
-    min_density is min(density)
 }
 
-// city
+// CITY TABLE
+// Cities within US states
 source: city_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'city')
 """) extend {
+  dimension:
+    // Name of the city
+    // Examples: 'los angeles', 'new york', 'chicago', 'houston'
+    city_name is city_name
+
+    // City population
+    city_population is population
+
+    // Country code
+    country_name is country_name
+
+    // State the city is in (foreign key to state)
+    state_name is state_name
+
   primary_key: city_name
 
   measure:
-    row_count is count()
+    city_count is count()
     total_population is sum(population)
     avg_population is avg(population)
     max_population is max(population)
-    min_population is min(population)
 }
 
-// border_info
+// BORDER_INFO TABLE
+// Records which states share borders
+// Each row means: state_name borders with border
+// This is a symmetric relationship (if A borders B, B borders A)
 source: border_info_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'border_info')
 """) extend {
-  primary_key: border
+  dimension:
+    // The state we're querying about
+    state_name is state_name
+
+    // A state that borders state_name
+    // To find all states bordering X: where state_name = X, select border
+    border is border
 
   measure:
-    row_count is count()
+    border_count is count()
 }
 
-// highlow
+// HIGHLOW TABLE
+// Highest and lowest elevation points per state
 source: highlow_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'highlow')
 """) extend {
+  dimension:
+    // State name (primary key, foreign key to state)
+    state_name is state_name
+
+    // Highest elevation in the state (in feet)
+    highest_elevation is highest_elevation
+
+    // Name of the lowest point
+    // Examples: 'death valley', 'sea level'
+    lowest_point is lowest_point
+
+    // Name of the highest point
+    // Examples: 'mt whitney', 'mt mckinley'
+    highest_point is highest_point
+
+    // Lowest elevation in the state (in feet, can be negative)
+    lowest_elevation is lowest_elevation
+
   primary_key: state_name
 
   measure:
-    row_count is count()
+    highlow_count is count()
 }
 
-// lake
+// LAKE TABLE
+// Lakes in US states
 source: lake_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'lake')
 """) extend {
+  dimension:
+    // Name of the lake
+    // Examples: 'lake tahoe', 'great salt lake', 'lake michigan'
+    lake_name is lake_name
+
+    // Lake area in square miles
+    lake_area is area
+
+    // Country code
+    country_name is country_name
+
+    // State the lake is in
+    state_name is state_name
+
   measure:
-    row_count is count()
+    lake_count is count()
     total_area is sum(area)
     avg_area is avg(area)
     max_area is max(area)
-    min_area is min(area)
 }
 
-// mountain
+// MOUNTAIN TABLE
+// Mountains in US states
 source: mountain_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'mountain')
 """) extend {
+  dimension:
+    // Name of the mountain
+    // Examples: 'mt whitney', 'mt rainier', 'pikes peak'
+    mountain_name is mountain_name
+
+    // Mountain altitude/height in feet
+    mountain_altitude is mountain_altitude
+
+    // Country code
+    country_name is country_name
+
+    // State the mountain is in
+    state_name is state_name
+
   primary_key: mountain_name
 
   measure:
-    row_count is count()
-    total_mountain_altitude is sum(mountain_altitude)
-    avg_mountain_altitude is avg(mountain_altitude)
-    max_mountain_altitude is max(mountain_altitude)
-    min_mountain_altitude is min(mountain_altitude)
+    mountain_count is count()
+    avg_altitude is avg(mountain_altitude)
+    max_altitude is max(mountain_altitude)
 }
 
-// river
+// RIVER TABLE
+// Rivers in the US
 source: river_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'river')
 """) extend {
-  primary_key: river_name
-
   dimension:
+    // Name of the river
+    // Examples: 'mississippi', 'colorado', 'ohio', 'missouri'
+    river_name is river_name
+
     // River length in miles
     river_length is length
+
+    // Country code
+    country_name is country_name
+
     // States the river traverses through
-    traverses is traverse
+    // Note: This is a single state reference in the schema
+    // For "which states does X run through": where river_name = X, select traverse
+    traverse is traverse
+
+  primary_key: river_name
 
   measure:
-    row_count is count()
+    river_count is count()
     total_length is sum(length)
     avg_length is avg(length)
     max_length is max(length)
-    min_length is min(length)
 }
 
-// ============================================================
+// =============================================================================
 // INTERMEDIATE SOURCES (for nested join paths)
-// ============================================================
+// =============================================================================
 
-// state_val with highlow (for river -> state_val -> highlow path)
+// state_val with highlow data
+// Enables: queries about states with their elevation data
 source: state_val_with_highlow is state_val_base extend {
-  join_many: highlow is highlow_base on state_name = highlow.state_name
+  join_one: highlow is highlow_base on state_name = highlow.state_name
 }
 
-// ============================================================
-// FULL SOURCES (with joins - use these for queries)
-// ============================================================
+// border_info with neighboring state details
+// Enables: queries about border states with their full state info
+source: border_info_with_border_state is border_info_base extend {
+  join_one: border_state_val is state_val_base on border = border_state_val.state_name
+}
 
-// state (with joins)
+// =============================================================================
+// FULL SOURCES (with joins - use these for queries)
+// =============================================================================
+
+// STATE - central entity with all geographic features
+// - city: cities in this state
+// - border_info_state_name: states that this state borders (query from state's perspective)
+// - border_info_border: records where this state appears as a neighbor
+// - highlow: elevation data for this state
+// - mountain: mountains in this state
+// - lake: lakes in this state
+// - river: rivers that traverse this state
 source: state_val is state_val_base extend {
   join_many: city is city_base on state_name = city.state_name
-  join_many: border_info_border is border_info_base on state_name = border_info_border.border
   join_many: border_info_state_name is border_info_base on state_name = border_info_state_name.state_name
-  join_many: highlow is highlow_base on state_name = highlow.state_name
+  join_many: border_info_border is border_info_base on state_name = border_info_border.border
+  join_one: highlow is highlow_base on state_name = highlow.state_name
   join_many: mountain is mountain_base on state_name = mountain.state_name
+  join_many: lake is lake_base on state_name = lake.state_name
   join_many: river is river_base on state_name = river.traverse
 }
 
-// city (with joins)
+// CITY - with state details
 source: city is city_base extend {
   join_one: state_val is state_val_base on state_name = state_val.state_name
 }
 
-// border_info (with joins)
+// BORDER_INFO - with full state details for both sides
+// - state_name_state_val: full details of the state we're querying about
+// - border_state_val: full details of the neighboring state
+// Use for complex border queries like "states bordering states that border X"
 source: border_info is border_info_base extend {
-  join_one: border_state_val is state_val_base on border = border_state_val.state_name
-  join_one: state_name_state_val is state_val_base on state_name = state_name_state_val.state_name
+  join_one: state_name_state_val is state_val_with_highlow on state_name = state_name_state_val.state_name
+  join_one: border_state_val is state_val_with_highlow on border = border_state_val.state_name
 }
 
-// highlow (with joins)
+// HIGHLOW - with state details
 source: highlow is highlow_base extend {
   join_one: state_val is state_val_base on state_name = state_val.state_name
 }
 
-// lake (with joins)
-source: lake is lake_base
+// LAKE - with state details
+source: lake is lake_base extend {
+  join_one: state_val is state_val_base on state_name = state_val.state_name
+}
 
-// mountain (with joins)
+// MOUNTAIN - with state details
 source: mountain is mountain_base extend {
   join_one: state_val is state_val_base on state_name = state_val.state_name
 }
 
-// river (with joins) - now supports state_val.highlow path
+// RIVER - with state details (for the state it traverses)
+// Includes nested highlow access for elevation queries
 source: river is river_base extend {
   join_one: state_val is state_val_with_highlow on traverse = state_val.state_name
 }
