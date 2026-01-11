@@ -150,7 +150,8 @@ DO:
 - Separate aggregates with COMMAS: `aggregate: a is x.count(), b is y.count()`
 - Separate clauses with SEMICOLONS: `group_by: x; aggregate: y`
 - Use single quotes for strings: `'value'`
-- Use pipeline for aggregate filtering: `{ aggregate: x } -> { where: x > 0 }`
+- Use `having:` for filtering on aggregated values: `{ group_by: x; aggregate: cnt is y.count(); having: cnt > 0 }`
+- Or use pipeline with view type: `{ aggregate: x } -> { select: *; where: x > 0 }`
 
 FILTERED AGGREGATES - VERY IMPORTANT:
 - CORRECT: `count() { where: field = 'value' }` - filter AFTER the function
@@ -184,11 +185,12 @@ ENTITY LOOKUP PATTERN - "What/Which is the X with max/min Y":
 - Example: "what is the biggest state" = `run: state -> { select: state_name, area; order_by: area desc; limit: 1 }`
 
 DO NOT:
-- Use SQL keywords: IN, EXISTS, UNION, INTERSECT, EXCEPT, HAVING, SUBQUERY
-- Put aggregates in where: clauses (use pipeline instead)
+- Use SQL keywords: IN, EXISTS, UNION, INTERSECT, EXCEPT, SUBQUERY
+- Put aggregates in where: clauses (use `having:` or pipeline instead)
 - Use filter() function - not valid Malloy syntax
 - Use inline joins in queries - joins must be in source definitions (join_one/join_many)
 - Create new aggregates in second pipeline stage - only filter/select
+- Create pipeline stages without a view type - WRONG: `-> { where: x > 0 }` CORRECT: `-> { select: *; where: x > 0 }`
 - Put { where: } BEFORE .count() - always put it AFTER
 - Use `aggregate: dimension_field` - dimensions are scalar, use max/min/avg or group_by
 - Use `run:` inside another query (NO SUBQUERIES) - use pipelines instead
