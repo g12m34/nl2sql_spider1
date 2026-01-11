@@ -1,0 +1,38 @@
+{
+  "description": "Log of bugs found in Spider dataset gold SQL queries during NL2Malloy evaluation",
+  "last_updated": "2025-01-11",
+  "bugs": [
+    {
+      "question_id": 6,
+      "db_id": "activity_1",
+      "question": "Which students participate in both Canoeing and Kayaking as their activities? Tell me their student ids.",
+      "gold_sql_original": "SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Canoeing' INTERSECT SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Kayaking'",
+      "bug_description": "Join condition is T2.actid = T2.actid (self-comparison, always TRUE). This creates a cross-join instead of properly linking participates_in to activity.",
+      "evidence": {
+        "gold_sql_returns": 30,
+        "corrected_sql_returns": 2,
+        "llm_returns": 2,
+        "explanation": "The buggy join returns ALL students in participates_in table (30) rather than only students who participate in BOTH activities (2). The LLM's answer of 2 is semantically correct."
+      },
+      "gold_sql_corrected": "SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T1.actid = T2.actid WHERE T2.activity_name = 'Canoeing' INTERSECT SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T1.actid = T2.actid WHERE T2.activity_name = 'Kayaking'",
+      "correction_type": "join_condition_fix",
+      "discovered_date": "2025-01-11"
+    },
+    {
+      "question_id": 162,
+      "db_id": "activity_1",
+      "question": "What are the first names of the professors who do not play Canoeing or Kayaking as activities?",
+      "gold_sql_original": "SELECT lname FROM faculty WHERE rank  =  'Professor' EXCEPT SELECT DISTINCT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN activity AS T3 ON T2.actid  =  T2.actid WHERE T3.activity_name  =  'Canoeing' OR T3.activity_name  =  'Kayaking'",
+      "bug_description": "Join condition is T2.actid = T2.actid (self-comparison, always TRUE). Same bug pattern as Q6. This creates a cross-join making the EXCEPT clause remove too many professors.",
+      "evidence": {
+        "gold_sql_returns": 22,
+        "corrected_sql_returns": 25,
+        "total_professors": 27,
+        "explanation": "The buggy join causes ALL faculty who participate in ANY activity to be excluded (via cross-join with activity table filtered to Canoeing/Kayaking). Correct answer should be 25 professors who don't do Canoeing or Kayaking."
+      },
+      "gold_sql_corrected": "SELECT lname FROM faculty WHERE rank = 'Professor' EXCEPT SELECT DISTINCT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID = T2.facID JOIN activity AS T3 ON T2.actid = T3.actid WHERE T3.activity_name = 'Canoeing' OR T3.activity_name = 'Kayaking'",
+      "correction_type": "join_condition_fix",
+      "discovered_date": "2025-01-11"
+    }
+  ]
+}
