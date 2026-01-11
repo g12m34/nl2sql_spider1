@@ -141,8 +141,13 @@ SCALAR VS AGGREGATE - CRITICAL:
 
 VALID AGGREGATE FUNCTIONS:
 - count(), sum(field), avg(field), min(field), max(field)
-- count(distinct field) for distinct counts
 - NO list(), string_agg(), or other SQL functions directly
+
+COUNTING JOINED RECORDS - CRITICAL:
+- To count related records and get 0 when none exist, use: `count(joined.field)`
+- WRONG: `joined.count()` - returns 1 even when no matches (counts the row itself)
+- CORRECT: `count(joined.primary_key)` - returns 0 when no matches
+- Example: `count(detention.teacher_id)` NOT `detention.count()`
 
 ENTITY LOOKUP PATTERN - "What/Which is the X with max/min Y":
 - When asked "what is the tallest mountain" - return the MOUNTAIN NAME, not just the height
