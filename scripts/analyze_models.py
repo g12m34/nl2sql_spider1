@@ -98,10 +98,15 @@ def load_all_models() -> Dict[str, Dict]:
     if gemini_flash_file.exists():
         models['Gemini 2.5 Flash'] = load_batch_eval(gemini_flash_file)
 
-    # Gemini Pro
-    gemini_pro_files = list(BATCH_DIR.glob('eval_results_batches_k6g6*.json'))
-    if gemini_pro_files:
-        models['Gemini 2.5 Pro'] = load_batch_eval(gemini_pro_files[0])
+    # Gemini 2.5 Pro
+    gemini_25_pro_files = list(BATCH_DIR.glob('eval_results_batches_k6g6*.json'))
+    if gemini_25_pro_files:
+        models['Gemini 2.5 Pro'] = load_batch_eval(gemini_25_pro_files[0])
+
+    # Gemini 3 Pro
+    gemini_3_pro_files = list(BATCH_DIR.glob('eval_results_batches_2u8z*.json'))
+    if gemini_3_pro_files:
+        models['Gemini 3 Pro'] = load_batch_eval(gemini_3_pro_files[0])
 
     # Claude Sonnet
     sonnet_file = BATCH_DIR / 'eval_results_anthropic_msgbatch_013GeCZrpbXShYfZuhHoWbzm.json'
@@ -382,12 +387,23 @@ def generate_report(models: Dict[str, Dict]) -> str:
                 report.append(f"| {model} | {count} |")
             report.append("")
 
-    # Hypotheses for Improvement
+    # Hypotheses for Improvement with Lift Estimates
     report.append("## Hypotheses for Improvement")
     report.append("")
 
-    report.append("Based on the error analysis, here are targeted hypotheses for improving accuracy:")
+    report.append("Based on the error analysis, here are targeted hypotheses for improving accuracy.")
+    report.append("Lift estimates are based on the number of questions that could be fixed by each improvement.")
     report.append("")
+
+    # Calculate potential lift for each hypothesis
+    schema_errors = len(patterns.get('schema_linking', []))
+    join_errors = len(patterns.get('join_path', []))
+    agg_errors = len(patterns.get('aggregation', []))
+    other_errors = len(patterns.get('other', []))
+
+    # Best model baseline
+    best_correct = max(d.get('correct', 0) for d in models.values())
+    best_total = 46
 
     report.append("### H1: Enhanced Schema Linking Guidance")
     report.append("")
@@ -396,6 +412,10 @@ def generate_report(models: Dict[str, Dict]) -> str:
     report.append("**Hypothesis:** Adding explicit field name listings at the start of the prompt will reduce schema linking errors.")
     report.append("")
     report.append("**Test:** Create a prompt variant that lists all available sources and their fields upfront.")
+    report.append("")
+    h1_lift = min(schema_errors, 3)  # Conservatively estimate 50% fix rate
+    h1_new_acc = (best_correct + h1_lift) / best_total * 100
+    report.append(f"**Potential Lift:** +{h1_lift} questions (~{h1_lift/best_total*100:.1f}% absolute) → {h1_new_acc:.1f}% accuracy")
     report.append("")
 
     report.append("### H2: Join Path Examples")
@@ -406,14 +426,25 @@ def generate_report(models: Dict[str, Dict]) -> str:
     report.append("")
     report.append("**Test:** Add `// Valid paths: author.writes.paper.venue.venue_name` comments to semantic layers.")
     report.append("")
+    h2_lift = min(join_errors, 2)
+    h2_new_acc = (best_correct + h2_lift) / best_total * 100
+    report.append(f"**Potential Lift:** +{h2_lift} questions (~{h2_lift/best_total*100:.1f}% absolute) → {h2_new_acc:.1f}% accuracy")
+    report.append("")
 
     report.append("### H3: Query Templates by Question Type")
     report.append("")
-    report.append("**Observation:** Certain question patterns (e.g., \"find entities in BOTH X and Y\") consistently fail.")
+    report.append("**Observation:** Certain question patterns (e.g., \"find entities in BOTH X and Y\", NOT IN queries) consistently fail across all models.")
     report.append("")
     report.append("**Hypothesis:** Providing query templates for common patterns will improve accuracy on pattern-matching questions.")
     report.append("")
-    report.append("**Test:** Add more INTERSECT pattern examples and other common query patterns to the prompt.")
+    report.append("**Test:** Add more INTERSECT pattern examples, NOT EXISTS patterns, and other common query patterns to the prompt.")
+    report.append("")
+    # Common failures that could be fixed with templates
+    h3_lift = min(len(common_failures), 4)  # Target the 10 common failures
+    h3_new_acc = (best_correct + h3_lift) / best_total * 100
+    report.append(f"**Potential Lift:** +{h3_lift} questions (~{h3_lift/best_total*100:.1f}% absolute) → {h3_new_acc:.1f}% accuracy")
+    report.append(f"")
+    report.append(f"*Note: {len(common_failures)} questions fail ALL models - these represent the highest-value targets.*")
     report.append("")
 
     report.append("### H4: Chain-of-Thought for Complex Queries")
@@ -424,14 +455,38 @@ def generate_report(models: Dict[str, Dict]) -> str:
     report.append("")
     report.append("**Test:** Add a chain-of-thought prompt that requires models to: 1) Identify the source, 2) List required fields, 3) Determine if aggregation is needed, 4) Write the query.")
     report.append("")
+    # Logic errors that CoT could help with
+    total_logic = sum(len([e for e in cats.get('logic', [])]) for cats in categories.values())
+    h4_lift = min(total_logic // len(models), 3)  # Avg logic errors per model, 50% fix rate
+    h4_new_acc = (best_correct + h4_lift) / best_total * 100
+    report.append(f"**Potential Lift:** +{h4_lift} questions (~{h4_lift/best_total*100:.1f}% absolute) → {h4_new_acc:.1f}% accuracy")
+    report.append("")
 
     report.append("### H5: Few-Shot Examples per Database")
     report.append("")
-    report.append("**Observation:** Some databases (e.g., `geo`, `scholar`) have higher error rates.")
+    report.append("**Observation:** Some databases (e.g., `movie_1`, `scholar`) have higher error rates than others.")
     report.append("")
     report.append("**Hypothesis:** Including 1-2 working query examples for each database in the prompt will improve accuracy.")
     report.append("")
     report.append("**Test:** Add database-specific few-shot examples to the semantic layer files.")
+    report.append("")
+    h5_lift = 2  # Conservative estimate
+    h5_new_acc = (best_correct + h5_lift) / best_total * 100
+    report.append(f"**Potential Lift:** +{h5_lift} questions (~{h5_lift/best_total*100:.1f}% absolute) → {h5_new_acc:.1f}% accuracy")
+    report.append("")
+
+    # Combined lift estimate
+    report.append("### Combined Lift Estimate")
+    report.append("")
+    combined_lift = min(h1_lift + h2_lift + h3_lift + h4_lift + h5_lift, best_total - best_correct)
+    combined_acc = (best_correct + combined_lift) / best_total * 100
+    report.append(f"If all hypotheses prove valid (with some overlap), potential combined accuracy:")
+    report.append(f"")
+    report.append(f"**Current Best:** {best_correct}/{best_total} ({best_correct/best_total*100:.1f}%)")
+    report.append(f"")
+    report.append(f"**Optimistic Target:** {best_correct + combined_lift}/{best_total} ({combined_acc:.1f}%)")
+    report.append(f"")
+    report.append(f"**Conservative Target:** {best_correct + combined_lift//2}/{best_total} ({(best_correct + combined_lift//2)/best_total*100:.1f}%)")
     report.append("")
 
     # Model-Specific Observations

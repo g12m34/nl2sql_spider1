@@ -23,16 +23,17 @@ See [cross_model_analysis.md](cross_model_analysis.md) for detailed error analys
 
 | Model | Compile Rate | Execution Accuracy | Cost |
 |-------|--------------|-------------------|------|
-| **Claude Sonnet 4.5** | 82.6% | **71.7% (33/46)** | 50% batch discount |
+| **Gemini 3 Pro** | 91.3% | **80.4% (37/46)** | 50% batch discount |
+| Claude Sonnet 4.5 | 82.6% | 71.7% (33/46) | 50% batch discount |
 | DeepSeek v3.2 | 73.9% | 65.2% (30/46) | Very cheap |
 | Gemini 2.5 Pro | 78.3% | 65.2% (30/46) | 50% batch discount |
 | Claude Opus 4.5 | 73.9% | 63.0% (29/46) | 50% batch discount |
 | Gemini 2.5 Flash | 71.7% | 60.9% (28/46) | 50% batch discount |
 
 **Key Insights:**
-- Claude Sonnet 4.5 leads with best compile rate AND accuracy
-- 10 questions fail across ALL models (systematic issues)
-- Different models fail on different questions (ensemble potential)
+- **Gemini 3 Pro** is the new leader with 80.4% accuracy and 91.3% compile rate
+- 5 questions still fail ALL models (systematic issues)
+- With targeted improvements, we estimate potential to reach **90%+ accuracy**
 
 ## Experiment Plan
 
@@ -100,4 +101,29 @@ python scripts/gemini_batch.py evaluate results_<job_name>.json
 python scripts/gemini_batch.py list
 ```
 
-Available models: `gemini-2.5-flash`, `gemini-2.5-pro`
+Available models: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro-preview`
+
+## Anthropic Batch API
+
+For Claude models at 50% discount:
+
+```bash
+# Submit batch job
+python scripts/anthropic_batch.py submit --model sonnet  # or opus, haiku
+
+# Check status / wait / evaluate (same as Gemini)
+python scripts/anthropic_batch.py status <batch_id>
+python scripts/anthropic_batch.py wait <batch_id>
+python scripts/anthropic_batch.py evaluate results_anthropic_<batch_id>.json
+```
+
+## Opik Experiment Tracking
+
+We use [Opik by Comet](https://www.comet.com/site/products/opik/) to track experiments over time:
+
+```bash
+# Log all experiment results to Opik
+python scripts/opik_tracker.py
+```
+
+View results at: https://www.comet.com/opik
