@@ -10,10 +10,8 @@ An ADR documents a significant decision made during the project, including the c
 
 | ID | Title | Status | Date |
 |----|-------|--------|------|
-| [001](001-hard-extra-questions-only.md) | Hard+Extra Questions Only | Accepted | 2025-01-11 |
-| [002](002-sample-size-200.md) | Sample Size of 200 Questions | Accepted | 2025-01-11 |
-| [003](003-execution-based-evaluation.md) | Execution-Based Evaluation | Accepted | 2025-01-11 |
-| [004](004-reproducible-sampling.md) | Reproducible Sampling with Fixed Seed | Accepted | 2025-01-11 |
+| [001](001-evaluation-sampling-strategy.md) | Evaluation Sampling Strategy | Accepted | 2025-01-11 |
+| [002](002-execution-based-evaluation.md) | Execution-Based Evaluation | Accepted | 2025-01-11 |
 
 ## ADR Status Definitions
 

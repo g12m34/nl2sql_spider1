@@ -1,4 +1,4 @@
-# ADR-003: Execution-Based Evaluation
+# ADR-002: Execution-Based Evaluation
 
 **Status:** Accepted
 
