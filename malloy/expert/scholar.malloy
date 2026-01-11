@@ -303,14 +303,20 @@ source: writes_base is duckdb.sql("""
 // INTERMEDIATE SOURCES (for nested join paths)
 // ============================================================
 
-// paper with venue (for writes -> paper -> venue path)
-source: paper_with_venue is paper_base extend {
-  join_one: venue is venue_base on venue_id = venue.venue_id
+// paper_keyphrase with keyphrase (for paper -> paper_keyphrase -> keyphrase path)
+source: paper_keyphrase_with_keyphrase is paper_keyphrase_base extend {
+  join_one: keyphrase is keyphrase_base on keyphrase_id = keyphrase.keyphrase_id
 }
 
-// writes with paper and venue (for author -> writes -> paper -> venue path)
+// paper with venue AND paper_keyphrase->keyphrase (for full author path)
+source: paper_with_all is paper_base extend {
+  join_one: venue is venue_base on venue_id = venue.venue_id
+  join_many: paper_keyphrase is paper_keyphrase_with_keyphrase on paper_id = paper_keyphrase.paper_id
+}
+
+// writes with full paper access (venue, keyphrases)
 source: writes_with_paper is writes_base extend {
-  join_one: paper is paper_with_venue on paper_id = paper.paper_id
+  join_one: paper is paper_with_all on paper_id = paper.paper_id
 }
 
 // ============================================================

@@ -165,6 +165,15 @@ source: river_base is duckdb.sql("""
 }
 
 // ============================================================
+// INTERMEDIATE SOURCES (for nested join paths)
+// ============================================================
+
+// state_val with highlow (for river -> state_val -> highlow path)
+source: state_val_with_highlow is state_val_base extend {
+  join_many: highlow is highlow_base on state_name = highlow.state_name
+}
+
+// ============================================================
 // FULL SOURCES (with joins - use these for queries)
 // ============================================================
 
@@ -202,7 +211,7 @@ source: mountain is mountain_base extend {
   join_one: state_val is state_val_base on state_name = state_val.state_name
 }
 
-// river (with joins)
+// river (with joins) - now supports state_val.highlow path
 source: river is river_base extend {
-  join_one: state_val is state_val_base on traverse = state_val.state_name
+  join_one: state_val is state_val_with_highlow on traverse = state_val.state_name
 }

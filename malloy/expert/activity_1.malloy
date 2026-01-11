@@ -153,9 +153,10 @@ source: student is student_base extend {
   join_many: participates_in is participates_in_with_activity on stu_id = participates_in.stu_id
 }
 
-// Faculty with their activities - now supports faculty_participates_in.activity path
+// Faculty with their activities AND students they advise
 source: faculty is faculty_base extend {
   join_many: faculty_participates_in is faculty_participates_in_with_activity on fac_id = faculty_participates_in.fac_id
+  join_many: student is student_base on fac_id = student.advisor  // students this faculty advises
 }
 
 // Participation with full details

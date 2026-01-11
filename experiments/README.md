@@ -12,7 +12,8 @@ This directory tracks experiments to improve NL2Malloy accuracy.
 | Entity lookup + layer fixes | 21.7% (10/46) | +150% from baseline |
 | Order_by output requirement | 50.0% (23/46) | +475% from baseline |
 | No subqueries + count deprecation | 54.3% (25/46) | +524% from baseline |
-| **Nested join path fixes** | **56.5% (26/46)** | **+549% from baseline** |
+| Nested join path fixes | 56.5% (26/46) | +549% from baseline |
+| **Deep join paths (keyphrase, highlow, student)** | **63.0% (29/46)** | **+624% from baseline** |
 
 ## Experiment Plan
 
