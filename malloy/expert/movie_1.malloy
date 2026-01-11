@@ -95,12 +95,21 @@ source: rating_base is duckdb.sql("""
 }
 
 // =============================================================================
+// INTERMEDIATE SOURCES (for nested join paths)
+// =============================================================================
+
+// rating with reviewer (for movie -> rating -> reviewer path)
+source: rating_with_reviewer is rating_base extend {
+  join_one: reviewer is reviewer_base on r_id = reviewer.r_id
+}
+
+// =============================================================================
 // FULL SOURCES WITH RELATIONSHIPS
 // =============================================================================
 
-// Movie with ratings
+// Movie with ratings - now supports rating.reviewer path
 source: movie is movie_base extend {
-  join_many: rating is rating_base on m_id = rating.m_id
+  join_many: rating is rating_with_reviewer on m_id = rating.m_id
 }
 
 // Reviewer with ratings

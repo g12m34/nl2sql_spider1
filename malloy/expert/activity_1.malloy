@@ -143,14 +143,19 @@ source: participates_in_with_activity is participates_in_base extend {
   join_one: activity is activity_base on act_id = activity.act_id
 }
 
+// Faculty_participates_in with activity info (for nested joins)
+source: faculty_participates_in_with_activity is faculty_participates_in_base extend {
+  join_one: activity is activity_base on act_id = activity.act_id
+}
+
 // Student with their activities (includes nested activity details)
 source: student is student_base extend {
   join_many: participates_in is participates_in_with_activity on stu_id = participates_in.stu_id
 }
 
-// Faculty with their activities
+// Faculty with their activities - now supports faculty_participates_in.activity path
 source: faculty is faculty_base extend {
-  join_many: faculty_participates_in is faculty_participates_in_base on fac_id = faculty_participates_in.fac_id
+  join_many: faculty_participates_in is faculty_participates_in_with_activity on fac_id = faculty_participates_in.fac_id
 }
 
 // Participation with full details

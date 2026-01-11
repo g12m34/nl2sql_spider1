@@ -300,6 +300,20 @@ source: writes_base is duckdb.sql("""
 }
 
 // ============================================================
+// INTERMEDIATE SOURCES (for nested join paths)
+// ============================================================
+
+// paper with venue (for writes -> paper -> venue path)
+source: paper_with_venue is paper_base extend {
+  join_one: venue is venue_base on venue_id = venue.venue_id
+}
+
+// writes with paper and venue (for author -> writes -> paper -> venue path)
+source: writes_with_paper is writes_base extend {
+  join_one: paper is paper_with_venue on paper_id = paper.paper_id
+}
+
+// ============================================================
 // FULL SOURCES (with joins - use these for queries)
 // ============================================================
 
@@ -308,9 +322,9 @@ source: venue is venue_base extend {
   join_many: paper is paper_base on venue_id = paper.venue_id
 }
 
-// author (with joins)
+// author (with joins) - now supports writes.paper.venue path
 source: author is author_base extend {
-  join_many: writes is writes_base on author_id = writes.author_id
+  join_many: writes is writes_with_paper on author_id = writes.author_id
 }
 
 // dataset (with joins)
