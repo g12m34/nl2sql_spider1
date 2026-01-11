@@ -316,3 +316,152 @@ Tested on 46 questions from 10 databases:
 3. Include value patterns (email formats, phone numbers, etc.)
 4. Add cross-table relationship descriptions
 
+---
+
+## Iteration 6: Redundant Field Aliases Bug
+
+**Date:** 2025-01-11
+
+### Problem Discovered
+
+After enriching semantic layers with domain context and field descriptions, accuracy **dramatically dropped** from ~75% to ~16-27%. The error logs showed:
+
+```
+error: Cannot redefine 'title' at line 138
+error: Cannot redefine 'country_name' at line 53
+error: Cannot redefine 'address_type_code' at line X
+```
+
+### Root Cause
+
+When enriching semantic layers, we inadvertently created **redundant same-name aliases**:
+
+```malloy
+// BAD - causes "Cannot redefine" error when LLM generates code
+dimension:
+  title is title              // Redundant alias!
+  state_name is state_name    // Redundant alias!
+  address_id is address_id    // Redundant alias!
+```
+
+When an LLM generates Malloy code that references these fields, the compiler sees both:
+1. The original column `title` from the SQL
+2. The aliased dimension `title is title`
+
+This creates a name collision when the generated code tries to use `title`.
+
+### Solution
+
+**Never alias a field to itself.** Only create aliases when renaming:
+
+```malloy
+// GOOD - use raw column names without aliasing
+dimension:
+  // Title of the paper (semantic description)
+  // Use raw column: title
+  paper_id      // Just the column name, no alias needed
+  author_name   // Just the column name
+
+// GOOD - alias only when actually renaming
+dimension:
+  id is StuID                    // Renaming StuID -> id (OK)
+  full_name is LName             // Renaming LName -> full_name (OK)
+```
+
+### Fix Applied
+
+Removed all redundant same-name aliases from:
+- `scholar.malloy`: Removed `title is title`
+- `geo.malloy`: Removed `state_name is state_name`, `country_name is country_name`
+- `behavior_monitoring.malloy`: Removed `address_id is address_id`, `address_type_code is address_type_code`
+- `customers_and_products_contacts.malloy`: Removed `address_id is address_id`
+
+### Impact
+
+After fix, DeepSeek accuracy on enriched layers:
+- Stratified 100: **41.0%** (was ~12% before fix)
+- Hard/Extra 100: **47.0%** (was ~10% before fix)
+
+### Key Lesson
+
+**When writing semantic layer generation prompts/instructions:**
+
+> **NEVER create aliases like `field is field`.** If you want to document a field, add a comment describing it, but keep the field reference as-is. Only use aliases when actually renaming a column to a different name.
+
+This is critical for future automation of semantic layer creation.
+
+---
+
+## Iteration 7: Hand-Crafted Expert Layers
+
+**Date:** 2025-01-11
+
+### Approach
+
+Instead of automated generation, we manually enriched 10 key databases used in extended test sets with:
+
+1. **Domain context headers** - Explain what the database represents
+2. **Relationship documentation** - Explain how tables connect and why
+3. **Example values** - Show actual data to help LLMs understand field semantics
+4. **Common query patterns** - Document typical questions and how to express them
+5. **Intermediate sources** - Create helper sources for complex join paths
+
+### Structure Pattern
+
+```malloy
+// ============================================================
+// DATABASE: {db_name}
+// Domain: {domain description}
+// ============================================================
+//
+// DATA MODEL OVERVIEW:
+// This database models {domain}. The core entities are:
+// - {entity1}: {description}
+// - {entity2}: {description}
+//
+// KEY RELATIONSHIPS:
+// - {table1} -> {table2}: {relationship description}
+//
+// EXAMPLE VALUES:
+// - {field}: {sample1}, {sample2}, {sample3}
+//
+// COMMON QUERY PATTERNS:
+// 1. {pattern_name}: {how to express in Malloy}
+// ============================================================
+
+// Base sources first (no joins)
+source: table1_base is duckdb.sql("...") extend {
+  primary_key: id
+  dimension:
+    // {field description}
+    field1
+}
+
+// Extended sources with joins
+source: table1 is table1_base extend {
+  join_one: table2 is table2_base on fk = table2.pk
+}
+```
+
+### Databases Enriched
+
+| Database | Focus Areas |
+|----------|-------------|
+| scholar | Academic papers, authors, citations, venues |
+| geo | US geography, states, cities, rivers, borders |
+| movie_1 | Movies, reviewers, ratings |
+| game_1 | Students, video games, sports |
+| activity_1 | Faculty, students, activities |
+| manufactory_1 | Manufacturers, products, prices |
+| ship_1 | Ships, captains, ranks |
+| gas_company | Gas/oil companies, stations |
+| behavior_monitoring | Teachers, students, behavior assessments |
+| customers_and_products_contacts | CRM with customers, products, addresses |
+
+### Results
+
+With properly enriched layers (no redundant aliases), evaluation showed improved handling of complex queries, especially those requiring:
+- Multi-hop joins
+- Domain-specific understanding
+- Correct field semantics
+

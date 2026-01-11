@@ -50,11 +50,11 @@ source: state_val_base is duckdb.sql("""
     state_area is area
 
     // Country code (typically 'usa')
-    country_name is country_name
+    // Use raw column: country_name
 
     // Name of the state capital city
     // Examples: 'sacramento', 'austin', 'tallahassee', 'albany'
-    capital is capital
+    // Use raw column: capital
 
     // Population density (people per square mile)
     // Calculated as population / area
@@ -83,13 +83,13 @@ source: city_base is duckdb.sql("""
   dimension:
     // Name of the city
     // Examples: 'los angeles', 'new york', 'chicago', 'houston'
-    city_name is city_name
+    // Use raw column: city_name
 
     // City population
     city_population is population
 
     // Country code
-    country_name is country_name
+    // Use raw column: country_name
 
     // State the city is in (foreign key to state)
     // state_name - using raw column name
@@ -116,7 +116,7 @@ source: border_info_base is duckdb.sql("""
 
     // A state that borders state_name
     // To find all states bordering X: where state_name = X, select border
-    border is border
+    // Use raw column: border
 
   measure:
     border_count is count()
@@ -132,18 +132,18 @@ source: highlow_base is duckdb.sql("""
     // state_name - using raw column name
 
     // Highest elevation in the state (in feet)
-    highest_elevation is highest_elevation
+    // Use raw column: highest_elevation
 
     // Name of the lowest point
     // Examples: 'death valley', 'sea level'
-    lowest_point is lowest_point
+    // Use raw column: lowest_point
 
     // Name of the highest point
     // Examples: 'mt whitney', 'mt mckinley'
-    highest_point is highest_point
+    // Use raw column: highest_point
 
     // Lowest elevation in the state (in feet, can be negative)
-    lowest_elevation is lowest_elevation
+    // Use raw column: lowest_elevation
 
   primary_key: state_name
 
@@ -159,13 +159,13 @@ source: lake_base is duckdb.sql("""
   dimension:
     // Name of the lake
     // Examples: 'lake tahoe', 'great salt lake', 'lake michigan'
-    lake_name is lake_name
+    // Use raw column: lake_name
 
     // Lake area in square miles
     lake_area is area
 
     // Country code
-    country_name is country_name
+    // Use raw column: country_name
 
     // State the lake is in
     // state_name - using raw column name
@@ -185,13 +185,13 @@ source: mountain_base is duckdb.sql("""
   dimension:
     // Name of the mountain
     // Examples: 'mt whitney', 'mt rainier', 'pikes peak'
-    mountain_name is mountain_name
+    // Use raw column: mountain_name
 
     // Mountain altitude/height in feet
-    mountain_altitude is mountain_altitude
+    // Use raw column: mountain_altitude
 
     // Country code
-    country_name is country_name
+    // Use raw column: country_name
 
     // State the mountain is in
     // state_name - using raw column name
@@ -212,18 +212,18 @@ source: river_base is duckdb.sql("""
   dimension:
     // Name of the river
     // Examples: 'mississippi', 'colorado', 'ohio', 'missouri'
-    river_name is river_name
+    // Use raw column: river_name
 
     // River length in miles
     river_length is length
 
     // Country code
-    country_name is country_name
+    // Use raw column: country_name
 
     // States the river traverses through
     // Note: This is a single state reference in the schema
     // For "which states does X run through": where river_name = X, select traverse
-    traverse is traverse
+    // Use raw column: traverse
 
   primary_key: river_name
 
