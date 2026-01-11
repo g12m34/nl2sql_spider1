@@ -1,0 +1,805 @@
+{
+  "description": "Stratified sample across all difficulties (100)",
+  "questions": [
+    {
+      "id": 7652,
+      "db_id": "scholar",
+      "question": "machine networks for one shot learning",
+      "gold_sql": "SELECT DISTINCT paperid FROM paper WHERE title  =  \"machine networks for one shot learning\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7420,
+      "db_id": "geo",
+      "question": "which states border the state with the smallest area",
+      "gold_sql": "SELECT border FROM border_info WHERE state_name  =  ( SELECT state_name FROM state WHERE area  =  ( SELECT MIN ( area ) FROM state ) );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7886,
+      "db_id": "scholar",
+      "question": "What datasets have jitendra malik used",
+      "gold_sql": "SELECT DISTINCT t2.datasetid FROM paper AS t3 JOIN paperdataset AS t2 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t1.authorname  =  \"jitendra malik\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 3105,
+      "db_id": "behavior_monitoring",
+      "question": "Find the ids and first names of the 3 teachers that have the most number of assessment notes?",
+      "gold_sql": "SELECT T1.teacher_id ,  T2.first_name FROM Assessment_Notes AS T1 JOIN Teachers AS T2 ON T1.teacher_id  =  T2.teacher_id GROUP BY T1.teacher_id ORDER BY count(*) DESC LIMIT 3",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 6740,
+      "db_id": "activity_1",
+      "question": "In which buildings are there at least ten professors?",
+      "gold_sql": "SELECT building FROM Faculty WHERE rank  =  \"Professor\" GROUP BY building HAVING count(*)  >=  10",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 6794,
+      "db_id": "activity_1",
+      "question": "Find the name of the activity that has the largest number of student participants.",
+      "gold_sql": "SELECT T1.activity_name FROM Activity AS T1 JOIN Participates_in AS T2 ON T1.actID  =  T2.actID GROUP BY T1.actID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 5667,
+      "db_id": "customers_and_products_contacts",
+      "question": "Show the product type and name for the products with price higher than 1000 or lower than 500.",
+      "gold_sql": "SELECT product_type_code ,  product_name FROM products WHERE product_price  >  1000 OR product_price  <  500",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite"
+    },
+    {
+      "id": 7065,
+      "db_id": "geo",
+      "question": "which state has the greatest population",
+      "gold_sql": "SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7965,
+      "db_id": "scholar",
+      "question": "Which paper did Richard Ladner present at chi ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM venue AS t4 JOIN paper AS t3 ON t4.venueid  =  t3.venueid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Richard Ladner\" AND t4.venuename  =  \"chi\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7052,
+      "db_id": "geo",
+      "question": "which states does the ohio run through",
+      "gold_sql": "SELECT traverse FROM river WHERE river_name  =  \"ohio\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8058,
+      "db_id": "scholar",
+      "question": "who has papers at NIPS ?",
+      "gold_sql": "SELECT DISTINCT t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"NIPS\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6727,
+      "db_id": "activity_1",
+      "question": "How many female Professors do we have?",
+      "gold_sql": "SELECT count(*) FROM Faculty WHERE Sex  =  'F' AND Rank  =  \"Professor\"",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 5282,
+      "db_id": "manufactory_1",
+      "question": "Find the total revenue created by the companies whose headquarter is located at Austin.",
+      "gold_sql": "SELECT sum(revenue) FROM manufacturers WHERE headquarter  =  'Austin'",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 6777,
+      "db_id": "activity_1",
+      "question": "Show the names of all the activities Mark Giuliano participates in.",
+      "gold_sql": "SELECT T3.activity_name FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN Activity AS T3 ON T3.actid  =  T2.actid WHERE T1.fname  =  \"Mark\" AND T1.lname  =  \"Giuliano\"",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7997,
+      "db_id": "scholar",
+      "question": "Who cites Daniel A Reed most ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.citingpaperid )  ,  t3.authorid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN cite AS t4 ON t2.paperid  =  t4.citedpaperid JOIN writes AS t3 ON t3.paperid  =  t4.citingpaperid WHERE t1.authorname  =  \"Daniel A Reed\" GROUP BY t3.authorid ORDER BY COUNT ( t4.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7567,
+      "db_id": "scholar",
+      "question": "What papers have Peter Mertens and Dina Barbian written ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM writes AS t3 JOIN author AS t2 ON t3.authorid  =  t2.authorid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t2.authorname  =  \"Peter Mertens\" AND t1.authorname  =  \"Dina Barbian\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7667,
+      "db_id": "scholar",
+      "question": "how many papers has Christopher D. Manning written ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid ) FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Christopher D. Manning\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7869,
+      "db_id": "scholar",
+      "question": "Who has coauthored with Noah A Smith ?",
+      "gold_sql": "SELECT DISTINCT t1.authorid FROM writes AS t3 JOIN author AS t2 ON t3.authorid  =  t2.authorid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t2.authorname  =  \"Noah A Smith\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7158,
+      "db_id": "geo",
+      "question": "how tall is the highest point in delaware",
+      "gold_sql": "SELECT highest_elevation FROM highlow WHERE state_name  =  \"delaware\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7964,
+      "db_id": "scholar",
+      "question": "What papers has Richard Ladner written at chi ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM venue AS t4 JOIN paper AS t3 ON t4.venueid  =  t3.venueid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Richard Ladner\" AND t4.venuename  =  \"chi\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7766,
+      "db_id": "scholar",
+      "question": "convolution papers by brian curless",
+      "gold_sql": "SELECT DISTINCT t1.authorid  ,  t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t5 ON t2.keyphraseid  =  t5.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t1.authorname  =  \"brian curless\" AND t5.keyphrasename  =  \"convolution\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2481,
+      "db_id": "movie_1",
+      "question": "What are the different reviewer names, movie titles, and stars for every rating where the reviewer had the same name as the director?",
+      "gold_sql": "SELECT DISTINCT T3.name ,  T2.title ,  T1.stars FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID JOIN Reviewer AS T3 ON T1.rID  =  T3.rID WHERE T2.director  =  T3.name",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7796,
+      "db_id": "scholar",
+      "question": "How many co-authors has Mark Steedman had ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t1.authorid ) FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname != \"Mark Steedman\" AND t2.paperid IN ( SELECT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Mark Steedman\" );",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7763,
+      "db_id": "scholar",
+      "question": "What is the paper about convolution from brian curless ?",
+      "gold_sql": "SELECT DISTINCT t1.authorid  ,  t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t5 ON t2.keyphraseid  =  t5.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t1.authorname  =  \"brian curless\" AND t5.keyphrasename  =  \"convolution\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7557,
+      "db_id": "geo",
+      "question": "what is the largest state that borders the state with the lowest point in the usa",
+      "gold_sql": "SELECT t1.state_name FROM highlow AS t3 JOIN border_info AS t1 ON t3.state_name  =  t1.border JOIN state AS t2 ON t2.state_name  =  t1.border WHERE t3.lowest_elevation  =  ( SELECT MIN ( lowest_elevation ) FROM highlow ) ORDER BY t2.area DESC LIMIT 1;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 2485,
+      "db_id": "movie_1",
+      "question": "What are the titles of all movies that were not reviewed by Chris Jackson?",
+      "gold_sql": "SELECT DISTINCT title FROM Movie EXCEPT SELECT T2.title FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID JOIN Reviewer AS T3 ON T1.rID  =  T3.rID WHERE T3.name  =  'Chris Jackson'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 5321,
+      "db_id": "manufactory_1",
+      "question": "How many products are there for each manufacturer?",
+      "gold_sql": "SELECT count(*) ,  T2.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code GROUP BY T2.name",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7868,
+      "db_id": "scholar",
+      "question": "Who are Noah A Smith 's co-authors",
+      "gold_sql": "SELECT DISTINCT t1.authorid FROM writes AS t3 JOIN author AS t2 ON t3.authorid  =  t2.authorid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t2.authorname  =  \"Noah A Smith\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6005,
+      "db_id": "game_1",
+      "question": "Show last names for all student who are on scholarship.",
+      "gold_sql": "SELECT T2.Lname FROM Sportsinfo AS T1 JOIN Student AS T2 ON T1.StuID  =  T2.StuID WHERE T1.onscholarship  =  'Y'",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 5345,
+      "db_id": "manufactory_1",
+      "question": "What are the names and average prices of products for manufacturers whose products cost on average 150 or more?",
+      "gold_sql": "SELECT avg(T1.Price) ,  T2.name FROM products AS T1 JOIN Manufacturers AS T2 ON T1.manufacturer  =  T2.code GROUP BY T2.name HAVING avg(T1.price) >= 150",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7651,
+      "db_id": "scholar",
+      "question": "List all academic papers on machine networks for one shot learning",
+      "gold_sql": "SELECT DISTINCT paperid FROM paper WHERE title  =  \"machine networks for one shot learning\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6752,
+      "db_id": "activity_1",
+      "question": "Which students have professors as their advisors? Find their student ids.",
+      "gold_sql": "SELECT T2.StuID FROM Faculty AS T1 JOIN Student AS T2 ON T1.FacID  =  T2.advisor WHERE T1.rank  =  \"Professor\"",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7881,
+      "db_id": "scholar",
+      "question": "what datasets are used in papers by jitendra malik",
+      "gold_sql": "SELECT DISTINCT t2.datasetid FROM paper AS t3 JOIN paperdataset AS t2 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t1.authorname  =  \"jitendra malik\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7838,
+      "db_id": "scholar",
+      "question": "Where does Peter Mertens publish ?",
+      "gold_sql": "SELECT DISTINCT t3.journalid  ,  t4.venueid FROM venue AS t4 JOIN paper AS t3 ON t4.venueid  =  t3.venueid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Peter Mertens\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7468,
+      "db_id": "geo",
+      "question": "what state is salem the capital of",
+      "gold_sql": "SELECT state_name FROM state WHERE capital  =  \"salem\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 5348,
+      "db_id": "manufactory_1",
+      "question": "Select the name of each manufacturer along with the name and price of its most expensive product.",
+      "gold_sql": "SELECT T1.Name ,  max(T1.Price) ,  T2.name FROM products AS T1 JOIN Manufacturers AS T2 ON T1.manufacturer  =  T2.code GROUP BY T2.name",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7082,
+      "db_id": "geo",
+      "question": "give me the number of rivers in idaho",
+      "gold_sql": "SELECT COUNT ( river_name ) FROM river WHERE traverse  =  \"idaho\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7827,
+      "db_id": "scholar",
+      "question": "Datasets with semantic parsing information",
+      "gold_sql": "SELECT DISTINCT t2.datasetid FROM paperdataset AS t3 JOIN dataset AS t2 ON t3.datasetid  =  t2.datasetid JOIN paperkeyphrase AS t1 ON t1.paperid  =  t3.paperid JOIN keyphrase AS t4 ON t1.keyphraseid  =  t4.keyphraseid WHERE t4.keyphrasename  =  \"semantic parsing\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6003,
+      "db_id": "game_1",
+      "question": "List ids for all student who are on scholarship.",
+      "gold_sql": "SELECT StuID FROM Sportsinfo WHERE onscholarship  =  'Y'",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 7225,
+      "db_id": "geo",
+      "question": "how many cities does the usa have",
+      "gold_sql": "SELECT COUNT ( city_name ) FROM city;",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8102,
+      "db_id": "scholar",
+      "question": "What articles have been published since 2006 about the effects of juicing for cancer patients ?",
+      "gold_sql": "SELECT DISTINCT paperid  ,  title FROM paper WHERE title LIKE \"the effects of juicing for cancer patients\" AND YEAR  >  2006;",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2446,
+      "db_id": "movie_1",
+      "question": "What is the reviewer id of Daniel Lewis?",
+      "gold_sql": "SELECT rID FROM Reviewer WHERE name  =  \"Daniel Lewis\"",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 6784,
+      "db_id": "activity_1",
+      "question": "Find the first and last name of the faculty who is involved in the largest number of activities.",
+      "gold_sql": "SELECT  T1.fname ,  T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID GROUP BY T1.FacID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7741,
+      "db_id": "scholar",
+      "question": "List papers that has keyword Question Answering",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"Question Answering\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7023,
+      "db_id": "geo",
+      "question": "what is the population of california",
+      "gold_sql": "SELECT population FROM state WHERE state_name  =  \"california\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7715,
+      "db_id": "scholar",
+      "question": "which papers in acl 2012 had Parsing in them ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t1.keyphrasename  =  \"Parsing\" AND t3.year  =  2012 AND t4.venuename  =  \"acl\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7142,
+      "db_id": "geo",
+      "question": "how many inhabitants does boulder have",
+      "gold_sql": "SELECT population FROM city WHERE city_name  =  \"boulder\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7367,
+      "db_id": "geo",
+      "question": "what state has the largest population density",
+      "gold_sql": "SELECT state_name FROM state WHERE density  =  ( SELECT MAX ( density ) FROM state );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7252,
+      "db_id": "geo",
+      "question": "how many states border the state with the largest population",
+      "gold_sql": "SELECT COUNT ( border ) FROM border_info WHERE state_name IN ( SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state ) );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8039,
+      "db_id": "scholar",
+      "question": "What authors wrote papers about Bacterial Wilt in 2016 ?",
+      "gold_sql": "SELECT DISTINCT t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid JOIN author AS t5 ON t3.authorid  =  t5.authorid WHERE t2.keyphrasename  =  \"Bacterial Wilt\" AND t4.year  =  2016;",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7874,
+      "db_id": "scholar",
+      "question": "Who are Noah A Smith 's coauthors",
+      "gold_sql": "SELECT DISTINCT t1.authorid FROM writes AS t3 JOIN author AS t2 ON t3.authorid  =  t2.authorid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t2.authorname  =  \"Noah A Smith\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7565,
+      "db_id": "scholar",
+      "question": "papers written by Peter Mertens and Dina Barbian",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM writes AS t3 JOIN author AS t2 ON t3.authorid  =  t2.authorid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t2.authorname  =  \"Peter Mertens\" AND t1.authorname  =  \"Dina Barbian\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8110,
+      "db_id": "scholar",
+      "question": "Euclidean Distance papers citing NIPS papers",
+      "gold_sql": "SELECT DISTINCT t5.citingpaperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN cite AS t5 ON t2.paperid  =  t5.citingpaperid JOIN paper AS t3 ON t3.paperid  =  t5.citedpaperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t1.keyphrasename  =  \"Euclidean Distance\" AND t4.venuename  =  \"NIPS\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 5303,
+      "db_id": "manufactory_1",
+      "question": "What are the names of companies with revenue less than the lowest revenue of any manufacturer in Austin?",
+      "gold_sql": "SELECT name FROM manufacturers WHERE revenue  <  (SELECT min(revenue) FROM manufacturers WHERE headquarter  =  'Austin')",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7623,
+      "db_id": "scholar",
+      "question": "which papers has sharon goldwater written ?",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"sharon goldwater\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7665,
+      "db_id": "scholar",
+      "question": "How many papers has Christopher D. Manning ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid ) FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Christopher D. Manning\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7620,
+      "db_id": "scholar",
+      "question": "sharon goldwater papers",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"sharon goldwater\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6772,
+      "db_id": "activity_1",
+      "question": "Which faculty do not participate in any activity? Find their faculty ids.",
+      "gold_sql": "SELECT FacID FROM Faculty EXCEPT SELECT FacID FROM Faculty_participates_in",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7415,
+      "db_id": "geo",
+      "question": "what states border states which the mississippi runs through",
+      "gold_sql": "SELECT border FROM border_info WHERE state_name IN ( SELECT traverse FROM river WHERE river_name  =  \"mississippi\" );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7748,
+      "db_id": "scholar",
+      "question": "citation count of zachary tatlock 's papers",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"zachary tatlock\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8035,
+      "db_id": "scholar",
+      "question": "2014 papers using ImageNet",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperdataset AS t2 JOIN dataset AS t1 ON t2.datasetid  =  t1.datasetid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.datasetname  =  \"ImageNet\" AND t3.year  =  2014;",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7121,
+      "db_id": "geo",
+      "question": "which states have cities named springfield",
+      "gold_sql": "SELECT state_name FROM city WHERE city_name  =  \"springfield\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 2471,
+      "db_id": "movie_1",
+      "question": "What are the titles and directors of all movies that have a rating higher than the average James Cameron film rating?",
+      "gold_sql": "SELECT T2.title ,  T2.director FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T1.stars  >  (SELECT avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.director  =  \"James Cameron\")",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7837,
+      "db_id": "scholar",
+      "question": "in what venues does Peter Mertens publish ?",
+      "gold_sql": "SELECT DISTINCT t3.journalid  ,  t4.venueid FROM venue AS t4 JOIN paper AS t3 ON t4.venueid  =  t3.venueid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"Peter Mertens\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7037,
+      "db_id": "geo",
+      "question": "what cities in texas",
+      "gold_sql": "SELECT city_name FROM city WHERE state_name  =  \"texas\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 6025,
+      "db_id": "game_1",
+      "question": "Show student ids who are female and play football.",
+      "gold_sql": "SELECT StuID FROM Student WHERE sex  =  'F' INTERSECT SELECT StuID FROM Sportsinfo WHERE sportname  =  \"Football\"",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 7722,
+      "db_id": "scholar",
+      "question": "papers on Question Answering",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"Question Answering\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 5325,
+      "db_id": "manufactory_1",
+      "question": "What are the names and prices of all products in the store?",
+      "gold_sql": "SELECT name ,  price FROM products",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7413,
+      "db_id": "geo",
+      "question": "what states border states that the mississippi runs through",
+      "gold_sql": "SELECT border FROM border_info WHERE state_name IN ( SELECT traverse FROM river WHERE river_name  =  \"mississippi\" );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7226,
+      "db_id": "geo",
+      "question": "how many cities are there in the us",
+      "gold_sql": "SELECT COUNT ( city_name ) FROM city;",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7924,
+      "db_id": "scholar",
+      "question": "List top papers for parsing",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid WHERE t1.keyphrasename  =  \"parsing\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7123,
+      "db_id": "geo",
+      "question": "what states have a city named springfield",
+      "gold_sql": "SELECT state_name FROM city WHERE city_name  =  \"springfield\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7946,
+      "db_id": "scholar",
+      "question": "how many ACL papers by author",
+      "gold_sql": "SELECT DISTINCT COUNT ( t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"ACL\" GROUP BY t1.authorid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7575,
+      "db_id": "scholar",
+      "question": "When did Peter Mertens and Dina Barbian collaborate ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM writes AS t3 JOIN author AS t2 ON t3.authorid  =  t2.authorid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t2.authorname  =  \"Peter Mertens\" AND t1.authorname  =  \"Dina Barbian\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7540,
+      "db_id": "geo",
+      "question": "how many cities named austin are there in the usa",
+      "gold_sql": "SELECT COUNT ( city_name ) FROM city WHERE city_name  =  \"austin\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 3110,
+      "db_id": "behavior_monitoring",
+      "question": "What are the code and description of the most frequent behavior incident type?",
+      "gold_sql": "SELECT T1.incident_type_code ,  T2.incident_type_description FROM Behavior_Incident AS T1 JOIN Ref_Incident_Type AS T2 ON T1.incident_type_code  =  T2.incident_type_code GROUP BY T1.incident_type_code ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 8016,
+      "db_id": "scholar",
+      "question": "pldi papers in 2015",
+      "gold_sql": "SELECT DISTINCT t1.paperid FROM venue AS t2 JOIN paper AS t1 ON t2.venueid  =  t1.venueid WHERE t1.year  =  2015 AND t2.venuename  =  \"pldi\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7067,
+      "db_id": "geo",
+      "question": "what state has the most people",
+      "gold_sql": "SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7790,
+      "db_id": "scholar",
+      "question": "Papers about TAIL in NIPS",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t1.keyphrasename  =  \"TAIL\" AND t4.venuename  =  \"NIPS\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7491,
+      "db_id": "geo",
+      "question": "what states border states that border states that border florida",
+      "gold_sql": "SELECT border FROM border_info WHERE state_name IN ( SELECT border FROM border_info WHERE state_name IN ( SELECT border FROM border_info WHERE state_name  =  \"florida\" ) );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 2438,
+      "db_id": "movie_1",
+      "question": "How many movies were made before 2000?",
+      "gold_sql": "SELECT count(*) FROM Movie WHERE YEAR  <  2000",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7217,
+      "db_id": "geo",
+      "question": "what length is the rio grande",
+      "gold_sql": "SELECT LENGTH FROM river WHERE river_name  =  \"rio grande\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7488,
+      "db_id": "geo",
+      "question": "how many states does the missouri river run through",
+      "gold_sql": "SELECT COUNT ( traverse ) FROM river WHERE river_name  =  \"missouri\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 6223,
+      "db_id": "ship_1",
+      "question": "Count the number of captains that have each rank.",
+      "gold_sql": "SELECT count(*) ,  rank FROM captain GROUP BY rank",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 5336,
+      "db_id": "manufactory_1",
+      "question": "Select the name and price of all products with a price larger than or equal to $180, and sort first by price (in descending order), and then by name  (in ascending order).",
+      "gold_sql": "SELECT name ,  price FROM products WHERE price  >=  180 ORDER BY price DESC ,  name ASC",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7615,
+      "db_id": "scholar",
+      "question": "What papers has written by sharon goldwater ?",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"sharon goldwater\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7136,
+      "db_id": "geo",
+      "question": "what is the population of boulder city",
+      "gold_sql": "SELECT population FROM city WHERE city_name  =  \"boulder\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7638,
+      "db_id": "scholar",
+      "question": "monte carlo simulation papers later than 2011",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"monte carlo simulation\" AND t3.year  >  2011;",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7774,
+      "db_id": "scholar",
+      "question": "Papers written by Liwen Xiong in 2015",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"Liwen Xiong\" AND t3.year  =  2015;",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6006,
+      "db_id": "game_1",
+      "question": "What are the last names for all scholarship students?",
+      "gold_sql": "SELECT T2.Lname FROM Sportsinfo AS T1 JOIN Student AS T2 ON T1.StuID  =  T2.StuID WHERE T1.onscholarship  =  'Y'",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 7840,
+      "db_id": "scholar",
+      "question": "How many papers were at nature communications 2015 ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t1.paperid ) FROM venue AS t2 JOIN paper AS t1 ON t2.venueid  =  t1.venueid WHERE t1.year  =  2015 AND t2.venuename  =  \"nature communications\";",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7811,
+      "db_id": "scholar",
+      "question": "who had papers at acl 2016 ?",
+      "gold_sql": "SELECT DISTINCT t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t2.year  =  2016 AND t3.venuename  =  \"acl\";",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6764,
+      "db_id": "activity_1",
+      "question": "What are the ids of the faculty members who do not advise any student.",
+      "gold_sql": "SELECT FacID FROM Faculty EXCEPT SELECT advisor FROM Student",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7283,
+      "db_id": "geo",
+      "question": "what are the major cities of the us",
+      "gold_sql": "SELECT city_name FROM city WHERE population  >  150000;",
+      "difficulty": "easy",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 6231,
+      "db_id": "ship_1",
+      "question": "Return the rank for which there are the fewest captains.",
+      "gold_sql": "SELECT rank FROM captain GROUP BY rank ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 6263,
+      "db_id": "ship_1",
+      "question": "What is the name of the ship that is commanded by the youngest captain?",
+      "gold_sql": "SELECT t1.name FROM ship AS t1 JOIN captain AS t2 ON t1.ship_id  =  t2.ship_id ORDER BY t2.age LIMIT 1",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 7184,
+      "db_id": "geo",
+      "question": "what is the largest state",
+      "gold_sql": "SELECT state_name FROM state WHERE area  =  ( SELECT MAX ( area ) FROM state );",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7188,
+      "db_id": "geo",
+      "question": "what is the highest point in the states bordering colorado",
+      "gold_sql": "SELECT highest_point FROM highlow WHERE state_name IN ( SELECT border FROM border_info WHERE state_name  =  \"colorado\" ) ORDER BY highest_elevation DESC LIMIT 1;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8101,
+      "db_id": "scholar",
+      "question": "authors working on ImageNet",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM paperdataset AS t3 JOIN dataset AS t1 ON t3.datasetid  =  t1.datasetid JOIN paper AS t4 ON t4.paperid  =  t3.paperid JOIN writes AS t2 ON t2.paperid  =  t4.paperid WHERE t1.datasetname  =  \"ImageNet\" GROUP BY t2.paperid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 1993,
+      "db_id": "gas_company",
+      "question": "How many gas companies are there?",
+      "gold_sql": "SELECT count(*) FROM company",
+      "difficulty": "medium",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    }
+  ]
+}

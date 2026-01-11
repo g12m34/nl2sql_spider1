@@ -36,6 +36,24 @@ See [cross_model_analysis.md](cross_model_analysis.md) for detailed error analys
 - 5 questions still fail ALL models (systematic issues)
 - With targeted improvements, we estimate potential to reach **90%+ accuracy**
 
+## Extended Test Sets
+
+See [extended_test_report.md](extended_test_report.md) for detailed analysis.
+
+| Test Set | Questions | Compile Rate | Accuracy | Notes |
+|----------|-----------|--------------|----------|-------|
+| Original (curated) | 44 | 95.7% | 88.6% | Hand-selected, 2 skipped |
+| Hard/Extra | 100 | 82.0% | 65.0% | Only hard/extra difficulty |
+| Stratified | 100 | 87.0% | 75.0% | Proportional sample |
+
+**Accuracy by Difficulty (Stratified Set):**
+| Difficulty | Accuracy |
+|------------|----------|
+| Easy | 89.5% |
+| Medium | 80.0% |
+| Hard | 37.5% |
+| Extra | 22.2% |
+
 ## Experiment Plan
 
 ### Phase 1: Expert Semantic Layer Enrichment

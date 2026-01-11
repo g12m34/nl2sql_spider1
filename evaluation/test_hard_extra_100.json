@@ -1,0 +1,805 @@
+{
+  "description": "Hard and Extra difficulty questions (100)",
+  "questions": [
+    {
+      "id": 7951,
+      "db_id": "scholar",
+      "question": "most published author at CVPR 2007",
+      "gold_sql": "SELECT DISTINCT COUNT ( t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t2.year  =  2007 AND t3.venuename  =  \"CVPR\" GROUP BY t1.authorid ORDER BY COUNT ( t2.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2467,
+      "db_id": "movie_1",
+      "question": "What is highest rating for the most recent movie and when was it released?",
+      "gold_sql": "SELECT max(T1.stars) ,  T2.year FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.year  =  (SELECT max(YEAR) FROM Movie)",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 8111,
+      "db_id": "scholar",
+      "question": "top authors working on ImageNet ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.paperid FROM paperdataset AS t2 JOIN dataset AS t1 ON t2.datasetid  =  t1.datasetid JOIN paper AS t4 ON t4.paperid  =  t2.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t1.datasetname  =  \"ImageNet\" GROUP BY t3.paperid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7987,
+      "db_id": "scholar",
+      "question": "who is the most cited author at CVPR ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t4.citingpaperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid JOIN cite AS t4 ON t1.paperid  =  t4.citedpaperid WHERE t3.venuename  =  \"CVPR\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t4.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7591,
+      "db_id": "scholar",
+      "question": "Who are the authors with the most published papers in syntactic parsing ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7887,
+      "db_id": "scholar",
+      "question": "recent deep learning papers",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"deep learning\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7632,
+      "db_id": "scholar",
+      "question": "Latest paper by oren etzioni",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"oren etzioni\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2475,
+      "db_id": "movie_1",
+      "question": "What are the names of all reviewers that have rated 3 or more movies?",
+      "gold_sql": "SELECT T2.name FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID GROUP BY T1.rID HAVING COUNT(*)  >=  3",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 2472,
+      "db_id": "movie_1",
+      "question": "Return reviewer name, movie title, stars, and ratingDate. And sort the data first by reviewer name, then by movie title, and lastly by number of stars.",
+      "gold_sql": "SELECT T3.name ,  T2.title ,  T1.stars ,  T1.ratingDate FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID JOIN Reviewer AS T3 ON T1.rID  =  T3.rID ORDER BY T3.name ,  T2.title ,  T1.stars",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7970,
+      "db_id": "scholar",
+      "question": "most popular topics at NIPS 2015",
+      "gold_sql": "SELECT DISTINCT COUNT ( t3.paperid )  ,  t1.keyphraseid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t3.year  =  2015 AND t4.venuename  =  \"NIPS\" GROUP BY t1.keyphraseid ORDER BY COUNT ( t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7968,
+      "db_id": "scholar",
+      "question": "topics at ACL 2014",
+      "gold_sql": "SELECT DISTINCT COUNT ( t3.paperid )  ,  t1.keyphraseid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t3.year  =  2014 AND t4.venuename  =  \"ACL\" GROUP BY t1.keyphraseid ORDER BY COUNT ( t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 5318,
+      "db_id": "manufactory_1",
+      "question": "Find the name of companies that do not make DVD drive.",
+      "gold_sql": "SELECT name FROM manufacturers EXCEPT SELECT T2.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T1.name  =  'DVD drive'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 7971,
+      "db_id": "scholar",
+      "question": "hot topics at NIPS 2015",
+      "gold_sql": "SELECT DISTINCT COUNT ( t3.paperid )  ,  t1.keyphraseid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t3.year  =  2015 AND t4.venuename  =  \"NIPS\" GROUP BY t1.keyphraseid ORDER BY COUNT ( t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7590,
+      "db_id": "scholar",
+      "question": "who wrote the most papers on syntactic parsing ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7902,
+      "db_id": "scholar",
+      "question": "number of papers by year from jamie callan",
+      "gold_sql": "SELECT DISTINCT COUNT ( t3.paperid )  ,  t3.year FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"jamie callan\" GROUP BY t3.year;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7896,
+      "db_id": "scholar",
+      "question": "latest deep learning papers",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"deep learning\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7743,
+      "db_id": "scholar",
+      "question": "keyphrases used by Luke S Zettlemoyer for each year",
+      "gold_sql": "SELECT DISTINCT t2.keyphraseid  ,  t3.year FROM paper AS t3 JOIN paperkeyphrase AS t2 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t1 ON t4.authorid  =  t1.authorid WHERE t1.authorname  =  \"Luke S Zettlemoyer\" ORDER BY t3.year  ,  t2.keyphraseid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7306,
+      "db_id": "geo",
+      "question": "what is the biggest capital city in the us",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MAX ( t1.population ) FROM state AS t2 JOIN city AS t1 ON t2.capital  =  t1.city_name );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8036,
+      "db_id": "scholar",
+      "question": "What journals are Takashi Matsumoto 's articles published in ?",
+      "gold_sql": "SELECT DISTINCT t3.journalid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"Takashi Matsumoto\" GROUP BY t3.journalid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2483,
+      "db_id": "movie_1",
+      "question": "What are the names of all the reviewers and movie names?",
+      "gold_sql": "SELECT name FROM Reviewer UNION SELECT title FROM Movie",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 6238,
+      "db_id": "ship_1",
+      "question": "Find the captain rank that has some captains in both Cutter and Armed schooner classes.",
+      "gold_sql": "SELECT rank FROM captain WHERE CLASS  =  'Cutter' INTERSECT SELECT rank FROM captain WHERE CLASS  =  'Armed schooner'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 2019,
+      "db_id": "gas_company",
+      "question": "Show all headquarters with both a company in banking industry and a company in Oil and gas.",
+      "gold_sql": "SELECT headquarters FROM company WHERE main_industry  =  'Banking' INTERSECT SELECT headquarters FROM company WHERE main_industry  =  'Oil and gas'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    },
+    {
+      "id": 7913,
+      "db_id": "scholar",
+      "question": "who published the most in semantic parsing after 2005 ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"semantic parsing\" AND t4.year  >  2005 GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7187,
+      "db_id": "geo",
+      "question": "what is the highest point in states bordering colorado",
+      "gold_sql": "SELECT highest_point FROM highlow WHERE state_name IN ( SELECT border FROM border_info WHERE state_name  =  \"colorado\" ) ORDER BY highest_elevation DESC LIMIT 1;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7898,
+      "db_id": "scholar",
+      "question": "What years did Pedro Domingos publish papers in ?",
+      "gold_sql": "SELECT DISTINCT t3.year FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"Pedro Domingos\" GROUP BY t3.year;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7986,
+      "db_id": "scholar",
+      "question": "how is the most cited author in CVPR ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t4.citingpaperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid JOIN cite AS t4 ON t1.paperid  =  t4.citedpaperid WHERE t3.venuename  =  \"CVPR\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t4.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7926,
+      "db_id": "scholar",
+      "question": "What is the paper about parsing of the most citation ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid WHERE t1.keyphrasename  =  \"parsing\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7813,
+      "db_id": "scholar",
+      "question": "How many papers were written on Multiuser Receiver in the Decision Feedback this year ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"Multiuser Receiver in the Decision Feedback\" AND t3.year  =  2016 GROUP BY t3.paperid HAVING COUNT ( DISTINCT t1.keyphrasename )  >  1;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2521,
+      "db_id": "movie_1",
+      "question": "What are the ids of all reviewers who did not give 4 stars?",
+      "gold_sql": "SELECT rID FROM Rating EXCEPT SELECT rID FROM Rating WHERE stars  =  4",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7589,
+      "db_id": "scholar",
+      "question": "List prominent scholars in syntactic parsing ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8072,
+      "db_id": "scholar",
+      "question": "What year did Ye Cao publish the most papers",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t3.paperid )  ,  t3.year FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname LIKE \"Ye Cao\" GROUP BY t3.year ORDER BY COUNT ( DISTINCT t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6800,
+      "db_id": "activity_1",
+      "question": "What are the first names of the faculty members playing both Canoeing and Kayaking?",
+      "gold_sql": "SELECT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN activity AS T3 ON T2.actid  =  T2.actid WHERE T3.activity_name  =  'Canoeing' INTERSECT SELECT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN activity AS T3 ON T2.actid  =  T2.actid WHERE T3.activity_name  =  'Kayaking'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7974,
+      "db_id": "scholar",
+      "question": "topics popular at NIPS 2015",
+      "gold_sql": "SELECT DISTINCT COUNT ( t3.paperid )  ,  t1.keyphraseid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t3.year  =  2015 AND t4.venuename  =  \"NIPS\" GROUP BY t1.keyphraseid ORDER BY COUNT ( t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7433,
+      "db_id": "geo",
+      "question": "which state capital has the smallest population",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MIN ( t1.population ) FROM state AS t2 JOIN city AS t1 ON t2.capital  =  t1.city_name );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 6785,
+      "db_id": "activity_1",
+      "question": "What is the name of the activity that has the most faculty members involved in?",
+      "gold_sql": "SELECT T1.activity_name FROM Activity AS T1 JOIN Faculty_participates_in AS T2 ON T1.actID  =  T2.actID GROUP BY T1.actID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 2020,
+      "db_id": "gas_company",
+      "question": "What are the headquarters that have both a company in the banking and 'oil and gas' industries?",
+      "gold_sql": "SELECT headquarters FROM company WHERE main_industry  =  'Banking' INTERSECT SELECT headquarters FROM company WHERE main_industry  =  'Oil and gas'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    },
+    {
+      "id": 6053,
+      "db_id": "game_1",
+      "question": "Find the last name and gender of the students who are playing both Call of Destiny and Works of Widenius games.",
+      "gold_sql": "SELECT lname ,  sex FROM Student WHERE StuID IN (SELECT T1.StuID FROM Plays_games AS T1 JOIN Video_games AS T2 ON T1.GameID  =  T2.GameID WHERE T2.Gname  =  \"Call of Destiny\" INTERSECT SELECT T1.StuID FROM Plays_games AS T1 JOIN Video_games AS T2 ON T1.GameID  =  T2.GameID WHERE T2.Gname  =  \"Works of Widenius\")",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 7635,
+      "db_id": "scholar",
+      "question": "What are the latest papers by oren etzioni ?",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"oren etzioni\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6258,
+      "db_id": "ship_1",
+      "question": "Find the name of the ships that have more than one captain.",
+      "gold_sql": "SELECT t1.name FROM ship AS t1 JOIN captain AS t2 ON t1.ship_id  =  t2.ship_id GROUP BY t2.ship_id HAVING count(*)  >  1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 7947,
+      "db_id": "scholar",
+      "question": "number of ACL papers by author",
+      "gold_sql": "SELECT DISTINCT COUNT ( t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"ACL\" GROUP BY t1.authorid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6037,
+      "db_id": "game_1",
+      "question": "Show ids of students who play video game and play sports.",
+      "gold_sql": "SELECT StuID FROM Sportsinfo INTERSECT SELECT StuID FROM Plays_games",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 7936,
+      "db_id": "scholar",
+      "question": "What is the highest cited paper by ohad shamir ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"ohad shamir\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6026,
+      "db_id": "game_1",
+      "question": "What are the ids of all female students who play football?",
+      "gold_sql": "SELECT StuID FROM Student WHERE sex  =  'F' INTERSECT SELECT StuID FROM Sportsinfo WHERE sportname  =  \"Football\"",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 6045,
+      "db_id": "game_1",
+      "question": "Show all game names played by at least 1000 hours.",
+      "gold_sql": "SELECT gname FROM Plays_games AS T1 JOIN Video_games AS T2 ON T1.gameid  =  T2.gameid GROUP BY T1.gameid HAVING sum(hours_played)  >=  1000",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 8059,
+      "db_id": "scholar",
+      "question": "which venue publishes the most papers about deep learning",
+      "gold_sql": "SELECT DISTINCT COUNT ( t3.paperid )  ,  t4.venueid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN venue AS t4 ON t4.venueid  =  t3.venueid WHERE t1.keyphrasename  =  \"deep learning\" GROUP BY t4.venueid ORDER BY COUNT ( t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7631,
+      "db_id": "scholar",
+      "question": "What was oren etzioni 's latest paper ?",
+      "gold_sql": "SELECT DISTINCT t2.paperid FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"oren etzioni\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7801,
+      "db_id": "scholar",
+      "question": "what author is most cited ?",
+      "gold_sql": "SELECT DISTINCT t1.authorname  ,  COUNT ( t3.citingpaperid ) FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN cite AS t3 ON t2.paperid  =  t3.citedpaperid GROUP BY t1.authorname ORDER BY COUNT ( t3.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8112,
+      "db_id": "scholar",
+      "question": "how many ACL 2012 papers have more than 7 citations ?",
+      "gold_sql": "SELECT DISTINCT ( t1.paperid )  ,  COUNT ( t3.citingpaperid ) FROM paper AS t1 JOIN cite AS t3 ON t1.paperid  =  t3.citedpaperid JOIN venue AS t2 ON t2.venueid  =  t1.venueid WHERE t1.year  =  2012 AND t2.venuename  =  \"ACL\" GROUP BY t1.paperid HAVING COUNT ( t3.citingpaperid )  >  7;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7559,
+      "db_id": "geo",
+      "question": "what is the capital of the state with the highest elevation",
+      "gold_sql": "SELECT t1.capital FROM highlow AS t2 JOIN state AS t1 ON t1.state_name  =  t2.state_name WHERE t2.highest_elevation  =  ( SELECT MAX ( highest_elevation ) FROM highlow );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 2463,
+      "db_id": "movie_1",
+      "question": "For the oldest movie listed, what is its average rating and title?",
+      "gold_sql": "SELECT avg(T1.stars) ,  T2.title FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.year  =  (SELECT min(YEAR) FROM Movie)",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 2528,
+      "db_id": "movie_1",
+      "question": "What are the names of reviewers who had rated 3 star and 4 star?",
+      "gold_sql": "SELECT T2.name FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID WHERE T1.stars  =  3 INTERSECT SELECT T2.name FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID WHERE T1.stars  =  4",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 6792,
+      "db_id": "activity_1",
+      "question": "Tell me the first and last name of the student who has the most activities.",
+      "gold_sql": "SELECT T1.fname ,  T1.lname FROM Student AS T1 JOIN Participates_in AS T2 ON T1.StuID  =  T2.StuID GROUP BY T1.StuID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7405,
+      "db_id": "geo",
+      "question": "what state that borders oklahoma has the highest population",
+      "gold_sql": "SELECT state_name FROM state WHERE state_name IN ( SELECT border FROM border_info WHERE state_name  =  \"oklahoma\" ) ORDER BY population DESC LIMIT 1;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8068,
+      "db_id": "scholar",
+      "question": "Who has written the most papers at chi ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"chi\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t2.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7459,
+      "db_id": "geo",
+      "question": "what is the population of the capital of the largest state through which the mississippi runs",
+      "gold_sql": "SELECT population FROM city WHERE city_name  =  ( SELECT capital FROM state WHERE area  =  ( SELECT MAX ( t1.area ) FROM state AS t1 JOIN river AS t2 ON t1.state_name  =  t2.traverse WHERE t2.river_name  =  \"mississippi\" ) );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8100,
+      "db_id": "scholar",
+      "question": "How many citations does luke zettlemoyer have per year",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.citedpaperid )  ,  t3.year FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"luke zettlemoyer\" GROUP BY t3.year;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7593,
+      "db_id": "scholar",
+      "question": "top author in syntactic parsing",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 5666,
+      "db_id": "customers_and_products_contacts",
+      "question": "What are the name and phone of the customer with the most ordered product quantity?",
+      "gold_sql": "SELECT  T1.customer_name ,  T1.customer_phone FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id JOIN order_items AS T3 ON T3.order_id  =  T2.order_id GROUP BY T1.customer_id ORDER BY sum(T3.order_quantity) DESC LIMIT 1",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite"
+    },
+    {
+      "id": 6760,
+      "db_id": "activity_1",
+      "question": "Give me the the first and last name of the faculty who advises the most students.",
+      "gold_sql": "SELECT T1.fname ,  T1.lname FROM Faculty AS T1 JOIN Student AS T2 ON T1.FacID  =  T2.advisor GROUP BY T1.FacID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 8026,
+      "db_id": "scholar",
+      "question": "Who writes a lot of papers in Machine Learning ?",
+      "gold_sql": "SELECT DISTINCT t1.authorname FROM paperkeyphrase AS t2 JOIN keyphrase AS t4 ON t2.keyphraseid  =  t4.keyphraseid JOIN writes AS t3 ON t3.paperid  =  t2.paperid JOIN author AS t1 ON t3.authorid  =  t1.authorid WHERE t4.keyphrasename  =  \"Machine Learning\" GROUP BY t1.authorname ORDER BY COUNT ( DISTINCT t3.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7941,
+      "db_id": "scholar",
+      "question": "what is ohad shamir 's most cited paper ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"ohad shamir\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2466,
+      "db_id": "movie_1",
+      "question": "What is the maximum stars and year for the most recent movie?",
+      "gold_sql": "SELECT max(T1.stars) ,  T2.year FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.year  =  (SELECT max(YEAR) FROM Movie)",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 2514,
+      "db_id": "movie_1",
+      "question": "Find the average rating star for each movie that are not reviewed by Brittany Harris.",
+      "gold_sql": "SELECT mID ,  avg(stars) FROM Rating WHERE mID NOT IN (SELECT T1.mID FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID WHERE T2.name  =  \"Brittany Harris\") GROUP BY mID",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7948,
+      "db_id": "scholar",
+      "question": "who wrote the most papers for CVPR 2007",
+      "gold_sql": "SELECT DISTINCT COUNT ( t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t2.year  =  2007 AND t3.venuename  =  \"CVPR\" GROUP BY t1.authorid ORDER BY COUNT ( t2.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8099,
+      "db_id": "scholar",
+      "question": "What is the most popular paper this year in CVPR ?",
+      "gold_sql": "SELECT DISTINCT t3.citedpaperid  ,  COUNT ( t3.citingpaperid ) FROM paper AS t1 JOIN cite AS t3 ON t1.paperid  =  t3.citedpaperid JOIN venue AS t2 ON t2.venueid  =  t1.venueid WHERE t1.year  =  2016 AND t2.venuename  =  \"CVPR\" GROUP BY t3.citedpaperid ORDER BY COUNT ( t3.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8131,
+      "db_id": "scholar",
+      "question": "What is the most cited paper at sigcomm ?",
+      "gold_sql": "SELECT DISTINCT t3.citedpaperid  ,  COUNT ( t3.citingpaperid ) FROM paper AS t1 JOIN cite AS t3 ON t1.paperid  =  t3.citedpaperid JOIN venue AS t2 ON t2.venueid  =  t1.venueid WHERE t2.venuename  =  \"sigcomm\" GROUP BY t3.citedpaperid ORDER BY COUNT ( t3.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7930,
+      "db_id": "scholar",
+      "question": "what are the parsing papers that have the most citations ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid WHERE t1.keyphrasename  =  \"parsing\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7895,
+      "db_id": "scholar",
+      "question": "Current research on deep learning",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"deep learning\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7307,
+      "db_id": "geo",
+      "question": "what is the largest capital city in the usa",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MAX ( t1.population ) FROM state AS t2 JOIN city AS t1 ON t2.capital  =  t1.city_name );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7655,
+      "db_id": "scholar",
+      "question": "most cited EMNLP 2010 papers",
+      "gold_sql": "SELECT DISTINCT t3.citedpaperid  ,  COUNT ( t3.citedpaperid ) FROM paper AS t1 JOIN cite AS t3 ON t1.paperid  =  t3.citedpaperid JOIN venue AS t2 ON t2.venueid  =  t1.venueid WHERE t1.year  =  2010 AND t2.venuename  =  \"EMNLP\" GROUP BY t3.citedpaperid ORDER BY COUNT ( t3.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7897,
+      "db_id": "scholar",
+      "question": "newest deep learning papers",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"deep learning\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7892,
+      "db_id": "scholar",
+      "question": "What are some recent papers written in deep learning ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"deep learning\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 5665,
+      "db_id": "customers_and_products_contacts",
+      "question": "Show the names of customers who use Credit Card payment method and have more than 2 orders.",
+      "gold_sql": "SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T1.payment_method_code  =  'Credit Card' GROUP BY T1.customer_id HAVING count(*)  >  2",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite"
+    },
+    {
+      "id": 7594,
+      "db_id": "scholar",
+      "question": "who published the most in syntactic parsing ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7587,
+      "db_id": "scholar",
+      "question": "who has the most publications in syntactic parsing ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7563,
+      "db_id": "geo",
+      "question": "what is the longest river in the state with the highest point",
+      "gold_sql": "SELECT t1.river_name FROM highlow AS t2 JOIN river AS t1 ON t1.traverse  =  t2.state_name WHERE t2.highest_elevation  =  ( SELECT MAX ( highest_elevation ) FROM highlow ) ORDER BY t1.length DESC LIMIT 1;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 3111,
+      "db_id": "behavior_monitoring",
+      "question": "What are the code and description of the least frequent detention type ?",
+      "gold_sql": "SELECT T1.detention_type_code ,  T2.detention_type_description FROM Detention AS T1 JOIN Ref_Detention_Type AS T2 ON T1.detention_type_code  =  T2.detention_type_code GROUP BY T1.detention_type_code ORDER BY count(*) ASC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 7554,
+      "db_id": "geo",
+      "question": "what is capital of the state with the lowest point",
+      "gold_sql": "SELECT t1.capital FROM highlow AS t2 JOIN state AS t1 ON t1.state_name  =  t2.state_name WHERE t2.lowest_elevation  =  ( SELECT MIN ( lowest_elevation ) FROM highlow ) ;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7404,
+      "db_id": "geo",
+      "question": "which of the states bordering oklahoma has the largest population",
+      "gold_sql": "SELECT state_name FROM state WHERE state_name IN ( SELECT border FROM border_info WHERE state_name  =  \"oklahoma\" ) ORDER BY population DESC LIMIT 1;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8046,
+      "db_id": "scholar",
+      "question": "List the journals related to Temporal Data",
+      "gold_sql": "SELECT DISTINCT t3.journalid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"Temporal Data\" GROUP BY t3.journalid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7967,
+      "db_id": "scholar",
+      "question": "Fetch me the most cited publications for Artificial Intelligence",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citingpaperid ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid WHERE t1.keyphrasename  =  \"Artificial Intelligence\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citingpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7592,
+      "db_id": "scholar",
+      "question": "top syntactic parsing author",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 8005,
+      "db_id": "scholar",
+      "question": "what papers have fewer than 5 citations by ACL papers",
+      "gold_sql": "SELECT DISTINCT t3.citingpaperid FROM paper AS t1 JOIN cite AS t3 ON t1.paperid  =  t3.citedpaperid JOIN venue AS t2 ON t2.venueid  =  t1.venueid WHERE t2.venuename  =  \"ACL\" GROUP BY t3.citingpaperid HAVING COUNT ( DISTINCT t3.citedpaperid )  <  5;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7923,
+      "db_id": "scholar",
+      "question": "parsing top papers",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid WHERE t1.keyphrasename  =  \"parsing\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7744,
+      "db_id": "scholar",
+      "question": "recent research interests of sanjeev arora",
+      "gold_sql": "SELECT DISTINCT t1.keyphrasename  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t5 ON t4.authorid  =  t5.authorid WHERE t5.authorname  =  \"sanjeev arora\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2496,
+      "db_id": "movie_1",
+      "question": "Find the movies with the highest average rating. Return the movie titles and average rating.",
+      "gold_sql": "SELECT T2.title ,  avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID GROUP BY T1.mID ORDER BY avg(T1.stars) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7558,
+      "db_id": "geo",
+      "question": "what is the capital of the state with the highest point",
+      "gold_sql": "SELECT t1.capital FROM highlow AS t2 JOIN state AS t1 ON t1.state_name  =  t2.state_name WHERE t2.highest_elevation  =  ( SELECT MAX ( highest_elevation ) FROM highlow );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 7851,
+      "db_id": "scholar",
+      "question": "what was the first deep learning paper ?",
+      "gold_sql": "SELECT DISTINCT t2.datasetid  ,  t4.year FROM paperdataset AS t3 JOIN dataset AS t2 ON t3.datasetid  =  t2.datasetid JOIN paperkeyphrase AS t1 ON t1.paperid  =  t3.paperid JOIN paper AS t4 ON t4.paperid  =  t3.paperid JOIN keyphrase AS t5 ON t1.keyphraseid  =  t5.keyphraseid WHERE t5.keyphrasename  =  \"deep learning\" ORDER BY t4.year ASC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2473,
+      "db_id": "movie_1",
+      "question": "What is the reviewer name, film title, movie rating, and rating date  for every movie ordered by reviewer name, movie title, then finally rating?",
+      "gold_sql": "SELECT T3.name ,  T2.title ,  T1.stars ,  T1.ratingDate FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID JOIN Reviewer AS T3 ON T1.rID  =  T3.rID ORDER BY T3.name ,  T2.title ,  T1.stars",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 6043,
+      "db_id": "game_1",
+      "question": "Show the game name that has most number of hours played.",
+      "gold_sql": "SELECT gname FROM Plays_games AS T1 JOIN Video_games AS T2 ON T1.gameid  =  T2.gameid GROUP BY T1.gameid ORDER BY sum(hours_played) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 8122,
+      "db_id": "scholar",
+      "question": "which journal did Donald E Knuth publish his last paper ?",
+      "gold_sql": "SELECT DISTINCT t3.journalid  ,  t3.year FROM writes AS t2 JOIN author AS t1 ON t2.authorid  =  t1.authorid JOIN paper AS t3 ON t2.paperid  =  t3.paperid WHERE t1.authorname  =  \"Donald E Knuth\" GROUP BY t3.journalid  ,  t3.year ORDER BY t3.year DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6793,
+      "db_id": "activity_1",
+      "question": "What is the name of the activity with the most students?",
+      "gold_sql": "SELECT T1.activity_name FROM Activity AS T1 JOIN Participates_in AS T2 ON T1.actID  =  T2.actID GROUP BY T1.actID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 6789,
+      "db_id": "activity_1",
+      "question": "Show the ids for all the students who participate in an activity and are under 20.",
+      "gold_sql": "SELECT StuID FROM Participates_in INTERSECT SELECT StuID FROM Student WHERE age  <  20",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 2484,
+      "db_id": "movie_1",
+      "question": "Find the titles of all movies not reviewed by Chris Jackson.",
+      "gold_sql": "SELECT DISTINCT title FROM Movie EXCEPT SELECT T2.title FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID JOIN Reviewer AS T3 ON T1.rID  =  T3.rID WHERE T3.name  =  'Chris Jackson'",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 7586,
+      "db_id": "scholar",
+      "question": "who is the most published author in syntactic parsing ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7585,
+      "db_id": "scholar",
+      "question": "who has written the most syntactic parsing papers ?",
+      "gold_sql": "SELECT DISTINCT COUNT ( t4.paperid )  ,  t3.authorid FROM paperkeyphrase AS t1 JOIN keyphrase AS t2 ON t1.keyphraseid  =  t2.keyphraseid JOIN paper AS t4 ON t4.paperid  =  t1.paperid JOIN writes AS t3 ON t3.paperid  =  t4.paperid WHERE t2.keyphrasename  =  \"syntactic parsing\" GROUP BY t3.authorid ORDER BY COUNT ( t4.paperid ) DESC;",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 7562,
+      "db_id": "geo",
+      "question": "how high is the highest point in the largest state",
+      "gold_sql": "SELECT t2.highest_elevation FROM highlow AS t2 JOIN state AS t1 ON t1.state_name  =  t2.state_name WHERE t1.area  =  ( SELECT MAX ( area ) FROM state );",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8098,
+      "db_id": "scholar",
+      "question": "In 2010 what journal published an article about Trophic Cascade ?",
+      "gold_sql": "SELECT DISTINCT t3.journalid FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"Trophic Cascade\" AND t3.year  =  2010 GROUP BY t3.journalid;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 6028,
+      "db_id": "game_1",
+      "question": "What are the ids of all male students who do not play football?",
+      "gold_sql": "SELECT StuID FROM Student WHERE sex  =  'M' EXCEPT SELECT StuID FROM Sportsinfo WHERE sportname  =  \"Football\"",
+      "difficulty": "extra",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 7891,
+      "db_id": "scholar",
+      "question": "Show me some recent papers on deep learning ?",
+      "gold_sql": "SELECT DISTINCT t3.paperid  ,  t3.year FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid WHERE t1.keyphrasename  =  \"deep learning\" ORDER BY t3.year DESC;",
+      "difficulty": "hard",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    }
+  ]
+}
