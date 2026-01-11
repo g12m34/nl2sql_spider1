@@ -108,14 +108,49 @@ Internal CoT doesn't help more than explicit source listing. The model's errors 
 
 ---
 
+## Experiment 5: Fixed Filtered Aggregate Syntax
+**Date:** 2025-01-11
+**Model:** deepseek-v3.2
+**Prompt Mode:** Enhanced with improved syntax guide
+
+### Changes
+Added CRITICAL clarification to prompt:
+- CORRECT: `count() { where: field = 'value' }` - filter AFTER function
+- WRONG: `joined { where: x = 'y' }.count()` - filter BEFORE function
+
+### Results
+- 10 questions: **60% (6/10)** - up from 40%
+- 20 questions: **35% (7/20)** - up from 20%
+- 46 questions: **19.6% (9/46)** - up from 8.7% baseline
+
+### Key Finding
+Fixing the filtered aggregate syntax pattern was the biggest single improvement.
+Went from 8.7% -> 19.6% = **125% relative improvement**
+
+---
+
 ## Current Best Configuration
 - **Layers:** Expert (`/malloy/expert/`)
-- **Prompt:** Enhanced or CoT (both ~40% on 10 questions)
-- **Accuracy:** ~20-25% on larger sets
+- **Prompt:** Enhanced mode with fixed syntax guide
+- **Accuracy:** 19.6% on 46 questions (up from 8.7% baseline)
 
-## Top Error Categories (to fix)
-1. **Schema Linking** (47%): Wrong source/field names
-2. **Syntax Errors** (40%): Missing brackets, wrong filter syntax
-3. **Logic Errors** (13%): Compiles but wrong results
+## Summary of All Experiments
+
+| Experiment | 10 Q | 20 Q | 46 Q | Notes |
+|------------|------|------|------|-------|
+| Baseline (original) | 20% | - | 8.7% | Starting point |
+| Heuristic enrichment | 30% | - | 17.4% | +100% |
+| Expert + standard | - | 25% | - | Manual descriptions |
+| Expert + enhanced | 40% | 20% | - | Added source listing |
+| Expert + CoT | 40% | - | - | Chain-of-thought |
+| **Expert + fixed syntax** | **60%** | **35%** | **19.6%** | **Best so far** |
+
+## Remaining Error Categories
+1. **Schema Linking** (~60%): LLM uses wrong source/field names
+   - 'venue', 'activity', 'paper', 'keyphrase', 'length' not defined
+2. **Malloy-Specific Errors** (~30%):
+   - "Cannot use scalar field in aggregate"
+   - "Joins in queries deprecated"
+3. **Logic Errors** (~10%): Compiles but wrong results
 
 ---

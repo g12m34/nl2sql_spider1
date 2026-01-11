@@ -125,12 +125,19 @@ DO:
 - Use single quotes for strings: `'value'`
 - Use pipeline for aggregate filtering: `{ aggregate: x } -> { where: x > 0 }`
 
+FILTERED AGGREGATES - VERY IMPORTANT:
+- CORRECT: `count() { where: field = 'value' }` - filter AFTER the function
+- CORRECT: `sum(amount) { where: type = 'sale' }`
+- WRONG: `joined { where: x = 'y' }.count()` - this DOES NOT WORK
+- For counting related records with filter, use: `joined.count() { where: joined.field = 'value' }`
+
 DO NOT:
 - Use SQL keywords: IN, EXISTS, UNION, INTERSECT, EXCEPT, HAVING, SUBQUERY
 - Put aggregates in where: clauses (use pipeline instead)
-- Use filter() function - use `{ where: condition }` syntax instead
+- Use filter() function - not valid Malloy syntax
 - Use inline joins in queries - joins must be in source definitions
-- Create new aggregates in second pipeline stage - only filter/select"""
+- Create new aggregates in second pipeline stage - only filter/select
+- Put { where: } BEFORE .count() - always put it AFTER"""
 
     if mode == 'cot':
         return f"""# Malloy Query Generation
