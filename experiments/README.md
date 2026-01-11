@@ -8,7 +8,10 @@ This directory tracks experiments to improve NL2Malloy accuracy.
 |------------|----------|-------|
 | Baseline (original layers) | 8.7% (4/46) | Starting point |
 | Heuristic enrichment | 17.4% (8/46) | +100% improvement |
-| **Expert + fixed syntax** | **19.6% (9/46)** | **+125% from baseline** |
+| Expert + fixed syntax | 19.6% (9/46) | +125% from baseline |
+| Entity lookup + layer fixes | 21.7% (10/46) | +150% from baseline |
+| Order_by output requirement | 50.0% (23/46) | +475% from baseline |
+| **No subqueries + count deprecation** | **54.3% (25/46)** | **+524% from baseline** |
 
 ## Experiment Plan
 

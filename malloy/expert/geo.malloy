@@ -60,6 +60,14 @@ source: state_val_base is duckdb.sql("""
 """) extend {
   primary_key: state_name
 
+  dimension:
+    // State population
+    state_population is population
+    // State area in square miles
+    state_area is area
+    // Population density (people per sq mile)
+    state_density is density
+
   measure:
     row_count is count()
     total_population is sum(population)
@@ -141,6 +149,12 @@ source: river_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'river')
 """) extend {
   primary_key: river_name
+
+  dimension:
+    // River length in miles
+    river_length is length
+    // States the river traverses through
+    traverses is traverse
 
   measure:
     row_count is count()

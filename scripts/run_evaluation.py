@@ -129,15 +129,38 @@ FILTERED AGGREGATES - VERY IMPORTANT:
 - CORRECT: `count() { where: field = 'value' }` - filter AFTER the function
 - CORRECT: `sum(amount) { where: type = 'sale' }`
 - WRONG: `joined { where: x = 'y' }.count()` - this DOES NOT WORK
-- For counting related records with filter, use: `joined.count() { where: joined.field = 'value' }`
+- When filtering joined data, use FULL PATH: `joined.count() { where: joined.field = 'value' }`
+- Example: `customer_orders.count() { where: customer_orders.status = 'Completed' }` (NOT just `status`)
+
+SCALAR VS AGGREGATE - CRITICAL:
+- Dimensions (scalar fields) go in: `group_by:` or `select:`
+- Measures (aggregate fields) go in: `aggregate:`
+- To find max/min of a dimension, use aggregate functions: `aggregate: max_altitude is max(altitude)`
+- WRONG: `aggregate: altitude` - this tries to aggregate a scalar and will ERROR
+- CORRECT: `aggregate: max_altitude is max(altitude)` or `group_by: altitude; order_by: altitude desc; limit: 1`
+
+VALID AGGREGATE FUNCTIONS:
+- count(), sum(field), avg(field), min(field), max(field)
+- count(distinct field) for distinct counts
+- NO list(), string_agg(), or other SQL functions directly
+
+ENTITY LOOKUP PATTERN - "What/Which is the X with max/min Y":
+- When asked "what is the tallest mountain" - return the MOUNTAIN NAME, not just the height
+- WRONG: `aggregate: max(height)` - returns only the height value
+- CORRECT: `select: mountain_name, mountain_altitude; order_by: mountain_altitude desc; limit: 1`
+- IMPORTANT: order_by fields MUST be in output (select/group_by)
+- Example: "what is the biggest state" = `run: state -> { select: state_name, area; order_by: area desc; limit: 1 }`
 
 DO NOT:
 - Use SQL keywords: IN, EXISTS, UNION, INTERSECT, EXCEPT, HAVING, SUBQUERY
 - Put aggregates in where: clauses (use pipeline instead)
 - Use filter() function - not valid Malloy syntax
-- Use inline joins in queries - joins must be in source definitions
+- Use inline joins in queries - joins must be in source definitions (join_one/join_many)
 - Create new aggregates in second pipeline stage - only filter/select
-- Put { where: } BEFORE .count() - always put it AFTER"""
+- Put { where: } BEFORE .count() - always put it AFTER
+- Use `aggregate: dimension_field` - dimensions are scalar, use max/min/avg or group_by
+- Use `run:` inside another query (NO SUBQUERIES) - use pipelines instead
+- Use `count(distinct field)` - DEPRECATED, use `count(field)` instead"""
 
     if mode == 'cot':
         return f"""# Malloy Query Generation
