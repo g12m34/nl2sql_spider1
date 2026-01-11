@@ -443,12 +443,24 @@ def test_50_50_validation(results: TestResults, spider_path: Path):
     """
     print("\n[Test 9: 50/50 Validation with Spider Data]")
 
-    # Load Spider dev data
-    dev_path = spider_path / 'spider' / 'evaluation_examples' / 'examples' / 'dev.json'
-    db_base = spider_path / 'spider' / 'evaluation_examples' / 'examples' / 'database'
+    # Load Spider dev data - check multiple possible locations
+    possible_paths = [
+        (spider_path / 'spider_extracted' / 'spider_data' / 'dev.json',
+         spider_path / 'spider_extracted' / 'spider_data' / 'database'),
+        (spider_path / 'spider' / 'evaluation_examples' / 'examples' / 'dev.json',
+         spider_path / 'spider' / 'evaluation_examples' / 'examples' / 'database'),
+    ]
 
-    if not dev_path.exists():
-        results.record("50/50: Spider data available", False, f"File not found: {dev_path}")
+    dev_path = None
+    db_base = None
+    for dp, db in possible_paths:
+        if dp.exists():
+            dev_path = dp
+            db_base = db
+            break
+
+    if dev_path is None:
+        results.record("50/50: Spider data available", False, "Spider data not found in expected locations")
         return
 
     with open(dev_path) as f:
@@ -483,29 +495,33 @@ def test_50_50_validation(results: TestResults, spider_path: Path):
     error_queries = valid_queries[50:100]
 
     # Introduce errors into the error queries
-    def introduce_error(sql: str) -> str:
-        """Introduce an error that changes the result."""
-        error_type = random.choice(['wrong_column', 'wrong_table', 'extra_where', 'limit'])
+    def introduce_error(sql: str, db_path: str) -> str:
+        """
+        Introduce an error that GUARANTEES a different result.
 
-        if error_type == 'wrong_column':
-            # Replace a column reference with a wrong one
-            if 'SELECT' in sql.upper():
-                return sql.replace('SELECT ', 'SELECT 999 AS wrong_col, ', 1)
-        elif error_type == 'wrong_table':
-            # Add a nonsense WHERE clause
-            if 'WHERE' in sql.upper():
-                return sql.replace('WHERE', 'WHERE 1=0 AND')
-            else:
-                return sql + ' WHERE 1=0'
-        elif error_type == 'extra_where':
-            if 'WHERE' in sql.upper():
-                return sql.replace('WHERE', 'WHERE 1=0 OR')
-            else:
-                return sql + ' WHERE 1=0'
-        elif error_type == 'limit':
-            return sql + ' LIMIT 0'
+        Strategy: Execute the original query first, then craft an error
+        that produces a definitely-different result.
+        """
+        # First, see what the original query returns
+        orig_results, err = execute_query(db_path, sql)
+        if err:
+            # Original query has errors, just make it worse
+            return "SELECT 'BROKEN_QUERY_ERROR'"
 
-        return sql + ' LIMIT 0'  # Fallback
+        # Choose error strategy based on original results
+        if orig_results and len(orig_results) > 0:
+            # Original has results - use LIMIT 0 to get empty result
+            # But we need to handle queries that already have LIMIT
+            if 'LIMIT' in sql.upper():
+                # Replace existing LIMIT with LIMIT 0
+                import re
+                return re.sub(r'LIMIT\s+\d+', 'LIMIT 0', sql, flags=re.IGNORECASE)
+            else:
+                return sql + ' LIMIT 0'
+        else:
+            # Original returns empty - make query return something
+            # Use a simple query that always returns a result
+            return "SELECT 'FORCED_DIFFERENT_RESULT' AS col1"
 
     # Evaluate correct queries (should all match)
     correct_matches = 0
@@ -523,7 +539,7 @@ def test_50_50_validation(results: TestResults, spider_path: Path):
     # Evaluate error queries (should all fail)
     error_matches = 0
     for q in error_queries:
-        broken_sql = introduce_error(q['gold_sql'])
+        broken_sql = introduce_error(q['gold_sql'], q['db_path'])
         result = eval_exec_match(q['db_path'], broken_sql, q['gold_sql'])
         if result.match:
             error_matches += 1
@@ -534,14 +550,26 @@ def test_50_50_validation(results: TestResults, spider_path: Path):
         f"Expected 0 matches, got {error_matches}"
     )
 
-    # Overall accuracy should be 50%
-    total_correct = correct_matches + (50 - error_matches)
-    accuracy = total_correct / 100
+    # The evaluator should correctly identify:
+    # - All 50 correct queries as matching (correct_matches = 50)
+    # - All 50 broken queries as NOT matching (error_matches = 0)
+    # This means evaluator accuracy is 100% (correctly classified all 100)
+    evaluator_correct = correct_matches + (50 - error_matches)
+    evaluator_accuracy = evaluator_correct / 100
 
     results.record(
-        f"50/50: overall accuracy is 50% ({accuracy*100:.1f}%)",
-        accuracy == 0.5,
-        f"Expected 50%, got {accuracy*100:.1f}%"
+        f"50/50: evaluator accuracy ({evaluator_accuracy*100:.1f}%)",
+        evaluator_accuracy == 1.0,
+        f"Expected 100% evaluator accuracy, got {evaluator_accuracy*100:.1f}%"
+    )
+
+    # Also verify the simulated "model accuracy" would be 50%
+    # (50 correct out of 100 if we submitted these as predictions)
+    simulated_model_accuracy = correct_matches / 100
+    results.record(
+        f"50/50: simulated model accuracy ({simulated_model_accuracy*100:.1f}%)",
+        simulated_model_accuracy == 0.5,
+        f"Expected 50%, got {simulated_model_accuracy*100:.1f}%"
     )
 
 
