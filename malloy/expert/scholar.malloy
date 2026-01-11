@@ -135,7 +135,7 @@ source: paper_base is duckdb.sql("""
     paper_id is paperId
 
     // Title of the paper
-    title is title
+    // (using raw column name 'title' - do not alias to avoid conflicts)
 
     // Foreign key to venue where paper was published
     venue_id is venueId

@@ -34,7 +34,7 @@ source: addresses_base is duckdb.sql("""
 """) extend {
   dimension:
     // Unique address identifier (primary key)
-    address_id is address_id
+    // address_id - using raw column name
     // Street address with number and building
     // Examples: '9590 Rogahn Point Apt. 466', '918 Lauren Drive'
     line_1_number_building is line_1_number_building
@@ -150,7 +150,7 @@ source: customer_address_history_base is duckdb.sql("""
 """) extend {
   dimension:
     customer_id is customer_id
-    address_id is address_id
+    // address_id - using raw column name
     // When customer started using this address
     date_from is date_from
     // When customer stopped using this address (NULL if current)

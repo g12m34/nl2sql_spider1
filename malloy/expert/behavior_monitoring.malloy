@@ -29,7 +29,7 @@ source: ref_address_types_base is duckdb.sql("""
 """) extend {
   dimension:
     // Address type code: 'BILL', 'HOME'
-    address_type_code is address_type_code
+    // address_type_code - using raw column name
     // Description: 'Billing', 'Home or Residence'
     address_type_description is address_type_description
 
@@ -82,7 +82,7 @@ source: addresses_base is duckdb.sql("""
 """) extend {
   dimension:
     // Unique address identifier
-    address_id is address_id
+    // address_id - using raw column name
     // Street address line 1
     line_1 is line_1
     // Additional address lines (often NULL)
@@ -113,7 +113,7 @@ source: students_base is duckdb.sql("""
     // Unique student identifier (primary key)
     student_id is student_id
     // Foreign key to address
-    address_id is address_id
+    // address_id - using raw column name
     // Student's first name (e.g., 'Emma', 'Louvenia', 'Rhea')
     first_name is first_name
     // Student's middle name
@@ -146,7 +146,7 @@ source: teachers_base is duckdb.sql("""
     // Unique teacher identifier (primary key)
     teacher_id is teacher_id
     // Foreign key to address
-    address_id is address_id
+    // address_id - using raw column name
     // Teacher's first name (e.g., 'Lyla', 'Sid', 'Trystan')
     first_name is first_name
     // Teacher's middle name
@@ -252,7 +252,7 @@ source: student_addresses_base is duckdb.sql("""
 """) extend {
   dimension:
     student_id is student_id
-    address_id is address_id
+    // address_id - using raw column name
     // When student started at this address
     date_address_from is date_address_from
     // When student left this address

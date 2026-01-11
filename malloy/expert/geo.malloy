@@ -39,7 +39,7 @@ source: state_val_base is duckdb.sql("""
     // Name of the state (primary key)
     // Values are lowercase: 'california', 'texas', 'florida', 'new york', etc.
     // Use lowercase when filtering: where state_name = 'california'
-    state_name is state_name
+    // state_name - using raw column name
 
     // State population (number of residents)
     // Range: varies from small states to California's ~40 million
@@ -92,7 +92,7 @@ source: city_base is duckdb.sql("""
     country_name is country_name
 
     // State the city is in (foreign key to state)
-    state_name is state_name
+    // state_name - using raw column name
 
   primary_key: city_name
 
@@ -112,7 +112,7 @@ source: border_info_base is duckdb.sql("""
 """) extend {
   dimension:
     // The state we're querying about
-    state_name is state_name
+    // state_name - using raw column name
 
     // A state that borders state_name
     // To find all states bordering X: where state_name = X, select border
@@ -129,7 +129,7 @@ source: highlow_base is duckdb.sql("""
 """) extend {
   dimension:
     // State name (primary key, foreign key to state)
-    state_name is state_name
+    // state_name - using raw column name
 
     // Highest elevation in the state (in feet)
     highest_elevation is highest_elevation
@@ -168,7 +168,7 @@ source: lake_base is duckdb.sql("""
     country_name is country_name
 
     // State the lake is in
-    state_name is state_name
+    // state_name - using raw column name
 
   measure:
     lake_count is count()
@@ -194,7 +194,7 @@ source: mountain_base is duckdb.sql("""
     country_name is country_name
 
     // State the mountain is in
-    state_name is state_name
+    // state_name - using raw column name
 
   primary_key: mountain_name
 
