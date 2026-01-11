@@ -1,0 +1,1816 @@
+{
+  "metadata": {
+    "description": "Sampled hard and extra-hard questions from Spider train set",
+    "created": "2026-01-11T07:20:21.217910",
+    "random_seed": 42,
+    "total_questions": 200,
+    "hard_count": 100,
+    "extra_count": 100,
+    "source_files": [
+      "train_spider.json",
+      "train_others.json"
+    ]
+  },
+  "questions": [
+    {
+      "id": 0,
+      "db_id": "game_1",
+      "question": "What are the ids of all students who played video games and sports?",
+      "gold_sql": "SELECT StuID FROM Sportsinfo INTERSECT SELECT StuID FROM Plays_games",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 1,
+      "db_id": "scholar",
+      "question": "who published the most at chi",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"chi\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t2.paperid ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2,
+      "db_id": "movie_1",
+      "question": "What are the titles and directors of the movies whose star is greater than the average stars of the movies directed by James Cameron?",
+      "gold_sql": "SELECT T2.title ,  T2.director FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T1.stars  >  (SELECT avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.director  =  \"James Cameron\")",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 3,
+      "db_id": "manufactory_1",
+      "question": "Find the name of product that is produced by both companies Creative Labs and Sony.",
+      "gold_sql": "SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Creative Labs' INTERSECT SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Sony'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 4,
+      "db_id": "ship_1",
+      "question": "What are the ranks of captains that are both in the Cutter and Armed schooner classes?",
+      "gold_sql": "SELECT rank FROM captain WHERE CLASS  =  'Cutter' INTERSECT SELECT rank FROM captain WHERE CLASS  =  'Armed schooner'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 5,
+      "db_id": "gas_company",
+      "question": "Show all headquarters without a company in banking industry.",
+      "gold_sql": "SELECT headquarters FROM company EXCEPT SELECT headquarters FROM company WHERE main_industry  =  'Banking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    },
+    {
+      "id": 6,
+      "db_id": "activity_1",
+      "question": "Which students participate in both Canoeing and Kayaking as their activities? Tell me their student ids.",
+      "gold_sql": "SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Canoeing' INTERSECT SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Kayaking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7,
+      "db_id": "geo",
+      "question": "which is the longest river in usa",
+      "gold_sql": "SELECT river_name FROM river WHERE LENGTH  =  ( SELECT MAX ( LENGTH ) FROM river );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8,
+      "db_id": "customers_and_products_contacts",
+      "question": "Show the names of customers who have both an order in completed status and an order in part status.",
+      "gold_sql": "SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  'Completed' INTERSECT SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  'Part'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite"
+    },
+    {
+      "id": 9,
+      "db_id": "behavior_monitoring",
+      "question": "What are the line 1 of addresses shared by some students and some teachers?",
+      "gold_sql": "SELECT T1.line_1 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.address_id INTERSECT SELECT T1.line_1 FROM Addresses AS T1 JOIN Teachers AS T2 ON T1.address_id  =  T2.address_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 10,
+      "db_id": "customers_campaigns_ecommerce",
+      "question": "What are the name and payment method of customers who have both mailshots in 'Order' outcome and mailshots in 'No Response' outcome.",
+      "gold_sql": "SELECT T2.customer_name ,  T2.payment_method FROM mailshot_customers AS T1 JOIN customers AS T2 ON T1.customer_id  =  T2.customer_id WHERE T1.outcome_code  =  'Order' INTERSECT SELECT T2.customer_name ,  T2.payment_method FROM mailshot_customers AS T1 JOIN customers AS T2 ON T1.customer_id  =  T2.customer_id WHERE T1.outcome_code  =  'No Response'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite"
+    },
+    {
+      "id": 11,
+      "db_id": "scientist_1",
+      "question": "Find the names of scientists who are not working on the project with the highest hours.",
+      "gold_sql": "SELECT name FROM scientists EXCEPT SELECT T3.name FROM assignedto AS T1 JOIN projects AS T2 ON T1.project  =  T2.code JOIN scientists AS T3 ON T1.scientist  =  T3.SSN WHERE T2.hours  =  (SELECT max(hours) FROM projects)",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite"
+    },
+    {
+      "id": 12,
+      "db_id": "music_2",
+      "question": "Find the name of songs that does not have a back vocal.",
+      "gold_sql": "SELECT DISTINCT title FROM vocals AS t1 JOIN songs AS t2 ON t1.songid  =  t2.songid EXCEPT SELECT t2.title FROM vocals AS t1 JOIN songs AS t2 ON t1.songid  =  t2.songid WHERE TYPE  =  \"back\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_2/music_2.sqlite"
+    },
+    {
+      "id": 13,
+      "db_id": "tracking_grants_for_research",
+      "question": "What are the task details, task id and project id for the projects which are detailed as 'omnis' or  have more than 2 outcomes?",
+      "gold_sql": "SELECT T1.task_details ,  T1.task_id ,  T2.project_id FROM Tasks AS T1 JOIN Projects AS T2 ON T1.project_id  =  T2.project_id WHERE T2.project_details  =  'omnis' UNION SELECT T1.task_details ,  T1.task_id ,  T2.project_id FROM Tasks AS T1 JOIN Projects AS T2 ON T1.project_id  =  T2.project_id JOIN Project_outcomes AS T3 ON T2.project_id  =  T3.project_id GROUP BY T2.project_id HAVING count(*)  >  2",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite"
+    },
+    {
+      "id": 14,
+      "db_id": "tracking_orders",
+      "question": "List the names of the customers who have once bought product \"food\".",
+      "gold_sql": "SELECT T1.customer_name FROM customers AS T1 JOIN orders AS T2 JOIN order_items AS T3 JOIN products AS T4 ON T1.customer_id = T2.customer_id AND T2.order_id = T3.order_id AND T3.product_id = T4.product_id WHERE T4.product_name = \"food\" GROUP BY T1.customer_id HAVING count(*)  >=  1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite"
+    },
+    {
+      "id": 15,
+      "db_id": "school_finance",
+      "question": "List the names of the schools without any endowment.",
+      "gold_sql": "SELECT school_name FROM school WHERE school_id NOT IN (SELECT school_id FROM endowment)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/school_finance/school_finance.sqlite"
+    },
+    {
+      "id": 16,
+      "db_id": "hospital_1",
+      "question": "what are name and phone number of patients who had more than one appointment?",
+      "gold_sql": "SELECT name ,  phone FROM appointment AS T1 JOIN patient AS T2 ON T1.patient  =  T2.ssn GROUP BY T1.patient HAVING count(*)  >  1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite"
+    },
+    {
+      "id": 17,
+      "db_id": "sports_competition",
+      "question": "What are the countries that have never participated in any friendly-type competitions?",
+      "gold_sql": "SELECT country FROM competition EXCEPT SELECT country FROM competition WHERE competition_type  =  'Friendly'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite"
+    },
+    {
+      "id": 18,
+      "db_id": "cinema",
+      "question": "Show all the locations where no cinema has capacity over 800.",
+      "gold_sql": "SELECT LOCATION FROM cinema EXCEPT SELECT LOCATION FROM cinema WHERE capacity  >  800",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cinema/cinema.sqlite"
+    },
+    {
+      "id": 19,
+      "db_id": "e_learning",
+      "question": "Which course is enrolled in by the most students? Give me the course name.",
+      "gold_sql": "SELECT T1.course_name FROM Courses AS T1 JOIN Student_Course_Enrolment AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY COUNT(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/e_learning/e_learning.sqlite"
+    },
+    {
+      "id": 20,
+      "db_id": "movie_1",
+      "question": "What is the average number of stars that each reviewer awards for a movie?",
+      "gold_sql": "SELECT T2.name ,  avg(T1.stars) FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID GROUP BY T2.name",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 21,
+      "db_id": "formula_1",
+      "question": "What are the drivers' first, last names and id who had more than 8 pit stops or participated in more than 5 race results?",
+      "gold_sql": "SELECT T1.forename ,  T1.surname ,  T1.driverid FROM drivers AS T1 JOIN pitstops AS T2 ON T1.driverid  =  T2.driverid GROUP BY T1.driverid HAVING count(*)  >  8 UNION SELECT T1.forename ,  T1.surname ,  T1.driverid FROM drivers AS T1 JOIN results AS T2 ON T1.driverid  =  T2.driverid GROUP BY T1.driverid HAVING count(*)  >  5",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/formula_1/formula_1.sqlite"
+    },
+    {
+      "id": 22,
+      "db_id": "college_1",
+      "question": "How many classes are held in each department?",
+      "gold_sql": "SELECT count(*) ,  dept_code FROM CLASS AS T1 JOIN course AS T2 ON T1.crs_code  =  T2.crs_code GROUP BY dept_code",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_1/college_1.sqlite"
+    },
+    {
+      "id": 23,
+      "db_id": "gymnast",
+      "question": "Show the hometowns shared by people older than 23 and younger than 20.",
+      "gold_sql": "SELECT Hometown FROM people WHERE Age  >  23 INTERSECT SELECT Hometown FROM people WHERE Age  <  20",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/gymnast/gymnast.sqlite"
+    },
+    {
+      "id": 24,
+      "db_id": "tracking_orders",
+      "question": "For each product, return its id and the number of times it was ordered.",
+      "gold_sql": "SELECT count(*) ,  T3.product_id FROM orders AS T1 JOIN order_items AS T2 JOIN products AS T3 ON T1.order_id = T2.order_id AND T2.product_id = T3.product_id GROUP BY T3.product_id",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite"
+    },
+    {
+      "id": 25,
+      "db_id": "music_1",
+      "question": "What are the ids of all songs that have higher resolution of the average resolution in the modern genre?",
+      "gold_sql": "SELECT f_id FROM song WHERE resolution  >  (SELECT avg(resolution) FROM song WHERE genre_is  =  \"modern\")",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_1/music_1.sqlite"
+    },
+    {
+      "id": 26,
+      "db_id": "driving_school",
+      "question": "What is the city with the most customers?",
+      "gold_sql": "SELECT T2.city FROM Customers AS T1 JOIN Addresses AS T2 ON T1.customer_address_id = T2.address_id GROUP BY T2.city ORDER BY count(*) DESC LIMIT 1;",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/driving_school/driving_school.sqlite"
+    },
+    {
+      "id": 27,
+      "db_id": "geo",
+      "question": "what is the tallest mountain in the united states",
+      "gold_sql": "SELECT mountain_name FROM mountain WHERE mountain_altitude  =  ( SELECT MAX ( mountain_altitude ) FROM mountain );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 28,
+      "db_id": "scholar",
+      "question": "main topics of work by Brian DeRenzi",
+      "gold_sql": "SELECT DISTINCT t1.keyphrasename  ,  SUM ( t3.numcitedby ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t5 ON t4.authorid  =  t5.authorid WHERE t5.authorname  =  \"Brian DeRenzi\" GROUP BY t1.keyphrasename ORDER BY SUM ( t3.numcitedby ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 29,
+      "db_id": "network_2",
+      "question": "Find the name of the person who has friends with age above 40 and under age 30?",
+      "gold_sql": "SELECT T1.name FROM Person AS T1 JOIN PersonFriend AS T2 ON T1.name  =  T2.name WHERE T2.friend IN (SELECT name FROM Person WHERE age  >  40) INTERSECT SELECT T1.name FROM Person AS T1 JOIN PersonFriend AS T2 ON T1.name  =  T2.name WHERE T2.friend IN (SELECT name FROM Person WHERE age  <  30)",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/network_2/network_2.sqlite"
+    },
+    {
+      "id": 30,
+      "db_id": "solvency_ii",
+      "question": "List the names of products that are not in any event.",
+      "gold_sql": "SELECT Product_Name FROM Products WHERE Product_ID NOT IN (SELECT Product_ID FROM Products_in_Events)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite"
+    },
+    {
+      "id": 31,
+      "db_id": "driving_school",
+      "question": "What are the first and last names of all customers with more than 2 payments?",
+      "gold_sql": "SELECT T2.first_name ,  T2.last_name FROM Customer_Payments AS T1 JOIN Customers AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id HAVING count(*)  >  2;",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/driving_school/driving_school.sqlite"
+    },
+    {
+      "id": 32,
+      "db_id": "geo",
+      "question": "what is the lowest point of all states through which the mississippi river runs through",
+      "gold_sql": "SELECT lowest_point FROM highlow WHERE state_name IN ( SELECT traverse FROM river WHERE river_name  =  \"mississippi\" ) ORDER BY lowest_elevation LIMIT 1;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 33,
+      "db_id": "roller_coaster",
+      "question": "What are the country names, area and population which has both roller coasters with speed higher",
+      "gold_sql": "SELECT T1.name ,  T1.area ,  T1.population FROM country AS T1 JOIN roller_coaster AS T2 ON T1.Country_ID  =  T2.Country_ID WHERE T2.speed  >  60 INTERSECT SELECT T1.name ,  T1.area ,  T1.population FROM country AS T1 JOIN roller_coaster AS T2 ON T1.Country_ID  =  T2.Country_ID WHERE T2.speed  <  55",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite"
+    },
+    {
+      "id": 34,
+      "db_id": "flight_1",
+      "question": "Show names for all aircrafts with distances more than the average.",
+      "gold_sql": "SELECT name FROM Aircraft WHERE distance  >  (SELECT avg(distance) FROM Aircraft)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_1/flight_1.sqlite"
+    },
+    {
+      "id": 35,
+      "db_id": "geo",
+      "question": "what is the largest capital",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MAX ( t1.population ) FROM state AS t2 JOIN city AS t1 ON t2.capital  =  t1.city_name );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 36,
+      "db_id": "chinook_1",
+      "question": "Please list the name and id of all artists that have at least 3 albums in alphabetical order.",
+      "gold_sql": "SELECT T2.Name ,  T1.ArtistId FROM ALBUM AS T1 JOIN ARTIST AS T2 ON T1.ArtistId  =  T2.ArtistID GROUP BY T1.ArtistId HAVING COUNT(*)  >=  3 ORDER BY T2.Name",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/chinook_1/chinook_1.sqlite"
+    },
+    {
+      "id": 37,
+      "db_id": "entrepreneur",
+      "question": "List the names of people that are not entrepreneurs.",
+      "gold_sql": "SELECT Name FROM people WHERE People_ID NOT IN (SELECT People_ID FROM entrepreneur)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite"
+    },
+    {
+      "id": 38,
+      "db_id": "music_1",
+      "question": "Return the names of singers who are from UK and released an English song.",
+      "gold_sql": "SELECT artist_name FROM artist WHERE country  =  \"UK\" INTERSECT SELECT T1.artist_name FROM artist AS T1 JOIN song AS T2 ON T1.artist_name  =  T2.artist_name WHERE T2.languages  =  \"english\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_1/music_1.sqlite"
+    },
+    {
+      "id": 39,
+      "db_id": "county_public_safety",
+      "question": "Which police forces operate in both counties that are located in the East and in the West?",
+      "gold_sql": "SELECT Police_force FROM county_public_safety WHERE LOCATION  =  \"East\" INTERSECT SELECT Police_force FROM county_public_safety WHERE LOCATION  =  \"West\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite"
+    },
+    {
+      "id": 40,
+      "db_id": "scholar",
+      "question": "What is the most cited paper by ohad shamir ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"ohad shamir\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 41,
+      "db_id": "insurance_fnol",
+      "question": "Which customers have used both the service named \"Close a policy\" and the service named \"Upgrade a policy\"? Give me the customer names.",
+      "gold_sql": "SELECT t1.customer_name FROM customers AS t1 JOIN first_notification_of_loss AS t2 ON t1.customer_id  =  t2.customer_id JOIN services AS t3 ON t2.service_id  =  t3.service_id WHERE t3.service_name  =  \"Close a policy\" INTERSECT SELECT t1.customer_name FROM customers AS t1 JOIN first_notification_of_loss AS t2 ON t1.customer_id  =  t2.customer_id JOIN services AS t3 ON t2.service_id  =  t3.service_id WHERE t3.service_name  =  \"New policy application\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite"
+    },
+    {
+      "id": 42,
+      "db_id": "restaurants",
+      "question": "Where is the best french in san francisco ?",
+      "gold_sql": "SELECT t2.house_number  ,  t1.name FROM restaurant AS t1 JOIN LOCATION AS t2 ON t1.id  =  t2.restaurant_id WHERE t2.city_name  =  \"san francisco\" AND t1.food_type  =  \"french\" AND t1.rating  =  ( SELECT MAX ( t1.rating ) FROM restaurant AS t1 JOIN LOCATION AS t2 ON t1.id  =  t2.restaurant_id WHERE t2.city_name  =  \"san francisco\" AND t1.food_type  =  \"french\" );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/restaurants/restaurants.sqlite"
+    },
+    {
+      "id": 43,
+      "db_id": "music_1",
+      "question": "What are the names of the different artists from Bangladesh who never received a rating higher than a 7?",
+      "gold_sql": "SELECT DISTINCT artist_name FROM artist WHERE country  =  \"Bangladesh\" EXCEPT SELECT DISTINCT artist_name FROM song WHERE rating  >  7",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_1/music_1.sqlite"
+    },
+    {
+      "id": 44,
+      "db_id": "department_store",
+      "question": "What are the ids of all products that were either ordered more than 3 times or have a cumulative amount purchased of above 80000?",
+      "gold_sql": "SELECT product_id FROM Order_Items GROUP BY product_id HAVING count(*)  >  3 UNION SELECT product_id FROM Product_Suppliers GROUP BY product_id HAVING sum(total_amount_purchased)  >  80000",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/department_store/department_store.sqlite"
+    },
+    {
+      "id": 45,
+      "db_id": "store_1",
+      "question": "Find the full name of employee who supported the most number of customers.",
+      "gold_sql": "SELECT T1.first_name , T1.last_name FROM employees AS T1 JOIN customers AS T2 ON T1.id  =  T2.support_rep_id GROUP BY T1.id ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/store_1/store_1.sqlite"
+    },
+    {
+      "id": 46,
+      "db_id": "geo",
+      "question": "what state has the sparsest population density",
+      "gold_sql": "SELECT state_name FROM state WHERE density  =  ( SELECT MIN ( density ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 47,
+      "db_id": "activity_1",
+      "question": "What is the first and last name of the faculty members who participated in at least one activity? For each of them, also show the number of activities they participated in.",
+      "gold_sql": "SELECT  T1.fname ,  T1.lname ,  count(*) ,  T1.FacID FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID GROUP BY T1.FacID",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 48,
+      "db_id": "soccer_2",
+      "question": "What are the names of all schools that have students trying out for the position of goal and 'mid'-field.",
+      "gold_sql": "SELECT cName FROM  tryout WHERE pPos  =  'goalie' INTERSECT SELECT cName FROM  tryout WHERE pPos  =  'mid'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite"
+    },
+    {
+      "id": 49,
+      "db_id": "academic",
+      "question": "return me the journals, which have more than 10 papers by \" H. V. Jagadish \" .",
+      "gold_sql": "SELECT t2.name FROM publication AS t4 JOIN journal AS t2 ON t4.jid  =  t2.jid JOIN writes AS t3 ON t3.pid  =  t4.pid JOIN author AS t1 ON t3.aid  =  t1.aid WHERE t1.name  =  \"H. V. Jagadish\" GROUP BY t2.name HAVING COUNT ( DISTINCT t4.title )  >  10;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/academic/academic.sqlite"
+    },
+    {
+      "id": 50,
+      "db_id": "farm",
+      "question": "Show the status shared by cities with population bigger than 1500 and smaller than 500.",
+      "gold_sql": "SELECT Status FROM city WHERE Population  >  1500 INTERSECT SELECT Status FROM city WHERE Population  <  500",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/farm/farm.sqlite"
+    },
+    {
+      "id": 51,
+      "db_id": "student_assessment",
+      "question": "Find the id of courses which are registered or attended by student whose id is 121?",
+      "gold_sql": "SELECT course_id FROM student_course_registrations WHERE student_id = 121 UNION SELECT course_id FROM student_course_attendance WHERE student_id = 121",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite"
+    },
+    {
+      "id": 52,
+      "db_id": "flight_1",
+      "question": "What are the names of all employees who can fly both the Boeing 737-800 and the Airbus A340-300?",
+      "gold_sql": "SELECT T1.name FROM Employee AS T1 JOIN Certificate AS T2 ON T1.eid  =  T2.eid JOIN Aircraft AS T3 ON T3.aid  =  T2.aid WHERE T3.name  =  \"Boeing 737-800\" INTERSECT SELECT T1.name FROM Employee AS T1 JOIN Certificate AS T2 ON T1.eid  =  T2.eid JOIN Aircraft AS T3 ON T3.aid  =  T2.aid WHERE T3.name  =  \"Airbus A340-300\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_1/flight_1.sqlite"
+    },
+    {
+      "id": 53,
+      "db_id": "driving_school",
+      "question": "What are the last names that are used by customers and staff?",
+      "gold_sql": "SELECT last_name FROM Customers INTERSECT SELECT last_name FROM Staff",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/driving_school/driving_school.sqlite"
+    },
+    {
+      "id": 54,
+      "db_id": "insurance_fnol",
+      "question": "What are all the customer phone numbers under the most popular policy type?",
+      "gold_sql": "SELECT customer_phone FROM available_policies WHERE policy_type_code  =  (SELECT policy_type_code FROM available_policies GROUP BY policy_type_code ORDER BY count(*) DESC LIMIT 1)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite"
+    },
+    {
+      "id": 55,
+      "db_id": "geo",
+      "question": "what is the biggest state",
+      "gold_sql": "SELECT state_name FROM state WHERE area  =  ( SELECT MAX ( area ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 56,
+      "db_id": "scholar",
+      "question": "count of ACL papers by author",
+      "gold_sql": "SELECT DISTINCT COUNT ( t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"ACL\" GROUP BY t1.authorid;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 57,
+      "db_id": "college_2",
+      "question": "What is the name and building of the departments whose budget is more than the average budget?",
+      "gold_sql": "SELECT dept_name ,  building FROM department WHERE budget  >  (SELECT avg(budget) FROM department)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 58,
+      "db_id": "geo",
+      "question": "what rivers flow through the state with the largest population",
+      "gold_sql": "SELECT river_name FROM river WHERE traverse IN ( SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state ) );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 59,
+      "db_id": "geo",
+      "question": "where is the highest mountain of the united states",
+      "gold_sql": "SELECT state_name FROM mountain WHERE mountain_altitude  =  ( SELECT MAX ( mountain_altitude ) FROM mountain );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 60,
+      "db_id": "tracking_software_problems",
+      "question": "What are the id of problems reported by the staff named Dameon Frami or Jolie Weber?",
+      "gold_sql": "SELECT product_id FROM problems AS T1 JOIN staff AS T2 ON T1.reported_by_staff_id = T2.staff_id WHERE T2.staff_first_name = \"Dameon\" AND T2.staff_last_name = \"Frami\" UNION SELECT product_id FROM problems AS T1 JOIN staff AS T2 ON T1.reported_by_staff_id = T2.staff_id WHERE T2.staff_first_name = \"Jolie\" AND T2.staff_last_name = \"Weber\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite"
+    },
+    {
+      "id": 61,
+      "db_id": "e_learning",
+      "question": "Which students not enrolled in any course? Find their personal names.",
+      "gold_sql": "SELECT personal_name FROM Students EXCEPT SELECT T1.personal_name FROM Students AS T1 JOIN Student_Course_Enrolment AS T2 ON T1.student_id  =  T2.student_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/e_learning/e_learning.sqlite"
+    },
+    {
+      "id": 62,
+      "db_id": "soccer_2",
+      "question": "What are the names of the schools with some players in the mid position but no goalies?",
+      "gold_sql": "SELECT cName FROM  tryout WHERE pPos  =  'mid' EXCEPT SELECT cName FROM  tryout WHERE pPos  =  'goalie'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite"
+    },
+    {
+      "id": 63,
+      "db_id": "movie_1",
+      "question": "What are the movie titles with the highest average rating and what are those ratings?",
+      "gold_sql": "SELECT T2.title ,  avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID GROUP BY T1.mID ORDER BY avg(T1.stars) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 64,
+      "db_id": "geo",
+      "question": "what is the lowest point of the state with the largest area",
+      "gold_sql": "SELECT t2.lowest_point FROM state AS t1 JOIN highlow AS t2 ON t1.state_name  =  t2.state_name WHERE t1.state_name IN ( SELECT state_name FROM state WHERE area  =  ( SELECT MAX ( area ) FROM state ) );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 65,
+      "db_id": "geo",
+      "question": "how large is the largest city in alaska",
+      "gold_sql": "SELECT population FROM city WHERE population  =  ( SELECT MAX ( population ) FROM city WHERE state_name  =  \"alaska\" ) AND state_name  =  \"alaska\";",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 66,
+      "db_id": "student_assessment",
+      "question": "What are the details of the student who registered for the most number of courses?",
+      "gold_sql": "SELECT T1.student_details FROM students AS T1 JOIN student_course_registrations AS T2 ON T1.student_id = T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/student_assessment/student_assessment.sqlite"
+    },
+    {
+      "id": 67,
+      "db_id": "coffee_shop",
+      "question": "Which address has both members younger than 30 and members older than 40?",
+      "gold_sql": "SELECT address FROM member WHERE age  <  30 INTERSECT SELECT address FROM member WHERE age  >  40",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite"
+    },
+    {
+      "id": 68,
+      "db_id": "cre_Doc_Tracking_DB",
+      "question": "Which employees do not destroy any document? Find their employee ids.",
+      "gold_sql": "SELECT employee_id FROM Employees EXCEPT SELECT Destroyed_by_Employee_ID FROM Documents_to_be_destroyed",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite"
+    },
+    {
+      "id": 69,
+      "db_id": "college_2",
+      "question": "What are the titles of courses without prerequisites?",
+      "gold_sql": "SELECT title FROM course WHERE course_id NOT IN (SELECT course_id FROM prereq)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 70,
+      "db_id": "party_people",
+      "question": "Show the member names which are in both the party with id 3 and the party with id 1.",
+      "gold_sql": "SELECT member_name FROM member WHERE party_id  =  3 INTERSECT SELECT member_name FROM member WHERE party_id  =  1",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/party_people/party_people.sqlite"
+    },
+    {
+      "id": 71,
+      "db_id": "company_employee",
+      "question": "Show the names of companies and the number of employees they have",
+      "gold_sql": "SELECT T3.Name ,  COUNT(*) FROM employment AS T1 JOIN people AS T2 ON T1.People_ID  =  T2.People_ID JOIN company AS T3 ON T1.Company_ID  =  T3.Company_ID GROUP BY T3.Name",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/company_employee/company_employee.sqlite"
+    },
+    {
+      "id": 72,
+      "db_id": "insurance_policies",
+      "question": "Which claims caused more than 2 settlements or have the maximum claim value? List the date the claim was made and the claim id.",
+      "gold_sql": "SELECT T1.Date_Claim_Made ,  T1.Claim_id FROM Claims AS T1 JOIN Settlements AS T2 ON T1.Claim_id  =  T2.Claim_id GROUP BY T1.Claim_id HAVING count(*)  >  2 UNION SELECT T1.Date_Claim_Made ,  T1.Claim_id FROM Claims AS T1 JOIN Settlements AS T2 ON T1.Claim_id  =  T2.Claim_id WHERE T1.Amount_Claimed  =  ( SELECT max(Amount_Claimed) FROM Claims )",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite"
+    },
+    {
+      "id": 73,
+      "db_id": "sakila_1",
+      "question": "Find all the films longer than 100 minutes, or rated PG, except those who cost more than 200 for replacement. List the titles.",
+      "gold_sql": "SELECT title FROM film WHERE LENGTH  >  100 OR rating  =  'PG' EXCEPT SELECT title FROM film WHERE replacement_cost  >  200",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite"
+    },
+    {
+      "id": 74,
+      "db_id": "music_1",
+      "question": "Find the names of the artists who have produced English songs but have never received rating higher than 8.",
+      "gold_sql": "SELECT DISTINCT artist_name FROM song WHERE languages  =  \"english\" EXCEPT SELECT DISTINCT artist_name FROM song WHERE rating  >  8",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_1/music_1.sqlite"
+    },
+    {
+      "id": 75,
+      "db_id": "flight_company",
+      "question": "List the name of the pilots who have flied for both a company that mainly provide 'Cargo' services and a company that runs 'Catering services' activities.",
+      "gold_sql": "SELECT T2.pilot FROM operate_company AS T1 JOIN flight AS t2 ON T1.id  =  T2.company_id WHERE T1.principal_activities  =  'Cargo' INTERSECT SELECT T2.pilot FROM operate_company AS T1 JOIN flight AS t2 ON T1.id  =  T2.company_id WHERE T1.principal_activities  =  'Catering services'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_company/flight_company.sqlite"
+    },
+    {
+      "id": 76,
+      "db_id": "hospital_1",
+      "question": "Find the names of all procedures which cost more than 1000 but which physician John Wen was not trained in?",
+      "gold_sql": "SELECT name FROM procedures WHERE cost  >  1000 EXCEPT SELECT T3.name FROM physician AS T1 JOIN trained_in AS T2 ON T1.employeeid  =  T2.physician JOIN procedures AS T3 ON T3.code  =  T2.treatment WHERE T1.name  =  \"John Wen\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite"
+    },
+    {
+      "id": 77,
+      "db_id": "medicine_enzyme_interaction",
+      "question": "What is the id and name of the enzyme that can interact with the most medicines as an activator?",
+      "gold_sql": "SELECT T1.id ,  T1.name FROM enzyme AS T1 JOIN medicine_enzyme_interaction AS T2 ON T1.id  =  T2.enzyme_id WHERE T2.interaction_type  =  'activitor' GROUP BY T1.id ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite"
+    },
+    {
+      "id": 78,
+      "db_id": "customers_and_addresses",
+      "question": "What are all the addresses in East Julianaside, Texas or in Gleasonmouth, Arizona.",
+      "gold_sql": "SELECT address_content FROM addresses WHERE city  =  \"East Julianaside\" AND state_province_county  =  \"Texas\" UNION SELECT address_content FROM addresses WHERE city  =  \"Gleasonmouth\" AND state_province_county  =  \"Arizona\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite"
+    },
+    {
+      "id": 79,
+      "db_id": "sakila_1",
+      "question": "What are the titles of films that are either longer than 100 minutes or rated PG other than those that cost more than 200 to replace?",
+      "gold_sql": "SELECT title FROM film WHERE LENGTH  >  100 OR rating  =  'PG' EXCEPT SELECT title FROM film WHERE replacement_cost  >  200",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite"
+    },
+    {
+      "id": 80,
+      "db_id": "sports_competition",
+      "question": "which countries did participated in both Friendly and Tournament type competitions.",
+      "gold_sql": "SELECT country FROM competition WHERE competition_type  =  'Friendly' INTERSECT SELECT country FROM competition WHERE competition_type  =  'Tournament'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite"
+    },
+    {
+      "id": 81,
+      "db_id": "geo",
+      "question": "what states border the state with the smallest area",
+      "gold_sql": "SELECT border FROM border_info WHERE state_name  =  ( SELECT state_name FROM state WHERE area  =  ( SELECT MIN ( area ) FROM state ) );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 82,
+      "db_id": "shop_membership",
+      "question": "Show all cities without a branch having more than 100 memberships.",
+      "gold_sql": "SELECT city FROM branch EXCEPT SELECT city FROM branch WHERE membership_amount  >  100",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite"
+    },
+    {
+      "id": 83,
+      "db_id": "e_learning",
+      "question": "How many students did not have any course enrollment?",
+      "gold_sql": "SELECT count(*) FROM Students WHERE student_id NOT IN (SELECT student_id FROM Student_Course_Enrolment)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/e_learning/e_learning.sqlite"
+    },
+    {
+      "id": 84,
+      "db_id": "music_2",
+      "question": "What are the names of the songs that do not have back vocals?",
+      "gold_sql": "SELECT DISTINCT title FROM vocals AS t1 JOIN songs AS t2 ON t1.songid  =  t2.songid EXCEPT SELECT t2.title FROM vocals AS t1 JOIN songs AS t2 ON t1.songid  =  t2.songid WHERE TYPE  =  \"back\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_2/music_2.sqlite"
+    },
+    {
+      "id": 85,
+      "db_id": "shop_membership",
+      "question": "What are the names of the branches that have some members with a hometown in Louisville, Kentucky and also those from Hiram, Goergia?",
+      "gold_sql": "SELECT T2.name FROM membership_register_branch AS T1 JOIN branch AS T2 ON T1.branch_id  =  T2.branch_id JOIN member AS T3 ON T1.member_id  =  T3.member_id WHERE T3.Hometown  =  'Louisville ,  Kentucky' INTERSECT SELECT T2.name FROM membership_register_branch AS T1 JOIN branch AS T2 ON T1.branch_id  =  T2.branch_id JOIN member AS T3 ON T1.member_id  =  T3.member_id WHERE T3.Hometown  =  'Hiram ,  Georgia'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite"
+    },
+    {
+      "id": 86,
+      "db_id": "party_people",
+      "question": "Show all member names who are not in charge of any event.",
+      "gold_sql": "SELECT member_name FROM member EXCEPT SELECT T1.member_name FROM member AS T1 JOIN party_events AS T2 ON T1.member_id  =  T2.member_in_charge_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/party_people/party_people.sqlite"
+    },
+    {
+      "id": 87,
+      "db_id": "cre_Docs_and_Epenses",
+      "question": "How many documents do not have any expense?",
+      "gold_sql": "SELECT count(*) FROM Documents WHERE document_id NOT IN ( SELECT document_id FROM Documents_with_expenses )",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite"
+    },
+    {
+      "id": 88,
+      "db_id": "body_builder",
+      "question": "List the names and origins of people who are not body builders.",
+      "gold_sql": "SELECT Name ,  birth_place FROM people EXCEPT SELECT T1.Name ,  T1.birth_place FROM people AS T1 JOIN body_builder AS T2 ON T1.people_id  =  T2.people_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/body_builder/body_builder.sqlite"
+    },
+    {
+      "id": 89,
+      "db_id": "college_2",
+      "question": "Find the title of course whose prerequisite is course Differential Geometry.",
+      "gold_sql": "SELECT title FROM course WHERE course_id IN (SELECT T1.course_id FROM prereq AS T1 JOIN course AS T2 ON T1.prereq_id  =  T2.course_id WHERE T2.title  =  'Differential Geometry')",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 90,
+      "db_id": "soccer_2",
+      "question": "Find the names of states that have some college students playing in goalie and mid positions.",
+      "gold_sql": "SELECT T1.state FROM college AS T1 JOIN tryout AS T2 ON T1.cName  =  T2.cName WHERE T2.pPos  =  'goalie' INTERSECT SELECT T1.state FROM college AS T1 JOIN tryout AS T2 ON T1.cName  =  T2.cName WHERE T2.pPos  =  'mid'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite"
+    },
+    {
+      "id": 91,
+      "db_id": "movie_1",
+      "question": "What are the ids of all moviest hat have not been reviewed by Britanny Harris?",
+      "gold_sql": "SELECT mID FROM Rating EXCEPT SELECT T1.mID FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID WHERE T2.name  =  \"Brittany Harris\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 92,
+      "db_id": "restaurants",
+      "question": "Where is the best restaurant in san francisco for french food ?",
+      "gold_sql": "SELECT t2.house_number  ,  t1.name FROM restaurant AS t1 JOIN LOCATION AS t2 ON t1.id  =  t2.restaurant_id WHERE t2.city_name  =  \"san francisco\" AND t1.food_type  =  \"french\" AND t1.rating  =  ( SELECT MAX ( t1.rating ) FROM restaurant AS t1 JOIN LOCATION AS t2 ON t1.id  =  t2.restaurant_id WHERE t2.city_name  =  \"san francisco\" AND t1.food_type  =  \"french\" );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/restaurants/restaurants.sqlite"
+    },
+    {
+      "id": 93,
+      "db_id": "flight_1",
+      "question": "What are the names of all employees who have a salary higher than average?",
+      "gold_sql": "SELECT name FROM Employee WHERE salary  >  (SELECT avg(salary) FROM Employee)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_1/flight_1.sqlite"
+    },
+    {
+      "id": 94,
+      "db_id": "tracking_grants_for_research",
+      "question": "From what date and to what date do the staff work on a project that has the most staff and has staff in a leader role?",
+      "gold_sql": "SELECT date_from ,  date_to FROM Project_Staff WHERE project_id IN( SELECT project_id FROM Project_Staff GROUP BY project_id ORDER BY count(*) DESC LIMIT 1 ) UNION SELECT date_from ,  date_to FROM Project_Staff WHERE role_code  =  'leader'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite"
+    },
+    {
+      "id": 95,
+      "db_id": "cre_Docs_and_Epenses",
+      "question": "Give the dates of creation for documents that have both budget type codes 'GV' and 'SF'.",
+      "gold_sql": "SELECT T1.document_date FROM Documents AS T1 JOIN Documents_with_Expenses AS T2 ON T1.document_id  =  T2.document_id WHERE T2.budget_type_code  =  'GV' INTERSECT SELECT T1.document_date FROM Documents AS T1 JOIN Documents_with_Expenses AS T2 ON T1.document_id  =  T2.document_id WHERE T2.budget_type_code  =  'SF'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite"
+    },
+    {
+      "id": 96,
+      "db_id": "shop_membership",
+      "question": "What are the cities that do not have any branches with more than 100 members?",
+      "gold_sql": "SELECT city FROM branch EXCEPT SELECT city FROM branch WHERE membership_amount  >  100",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite"
+    },
+    {
+      "id": 97,
+      "db_id": "academic",
+      "question": "return me the author in the \" University of Michigan \" in Databases area whose papers have more than 5000 total citations .",
+      "gold_sql": "SELECT t1.name FROM domain_author AS t6 JOIN author AS t1 ON t6.aid  =  t1.aid JOIN DOMAIN AS t3 ON t3.did  =  t6.did JOIN organization AS t5 ON t5.oid  =  t1.oid JOIN writes AS t2 ON t2.aid  =  t1.aid JOIN publication AS t4 ON t2.pid  =  t4.pid WHERE t3.name  =  \"Databases\" AND t5.name  =  \"University of Michigan\" GROUP BY t1.name HAVING SUM ( t4.citation_num )  >  5000;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/academic/academic.sqlite"
+    },
+    {
+      "id": 98,
+      "db_id": "products_for_hire",
+      "question": "How many bookings did each customer make? List the customer id, first name, and the count.",
+      "gold_sql": "SELECT T1.customer_id ,  T1.first_name ,  count(*) FROM Customers AS T1 JOIN bookings AS T2 ON T1.customer_id  =  T2.customer_id GROUP BY T1.customer_id",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite"
+    },
+    {
+      "id": 99,
+      "db_id": "cre_Docs_and_Epenses",
+      "question": "What are the dates for the documents with both 'GV' type and 'SF' type expenses?",
+      "gold_sql": "SELECT T1.document_date FROM Documents AS T1 JOIN Documents_with_Expenses AS T2 ON T1.document_id  =  T2.document_id WHERE T2.budget_type_code  =  'GV' INTERSECT SELECT T1.document_date FROM Documents AS T1 JOIN Documents_with_Expenses AS T2 ON T1.document_id  =  T2.document_id WHERE T2.budget_type_code  =  'SF'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite"
+    },
+    {
+      "id": 100,
+      "db_id": "theme_gallery",
+      "question": "Show all artist names who didn't have an exhibition in 2004.",
+      "gold_sql": "SELECT name FROM artist EXCEPT SELECT T2.name FROM exhibition AS T1 JOIN artist AS T2 ON T1.artist_id  =  T2.artist_id WHERE T1.year  =  2004",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite"
+    },
+    {
+      "id": 101,
+      "db_id": "election_representative",
+      "question": "List the names of representatives that have not participated in elections listed here.",
+      "gold_sql": "SELECT Name FROM representative WHERE Representative_ID NOT IN (SELECT Representative_ID FROM election)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/election_representative/election_representative.sqlite"
+    },
+    {
+      "id": 102,
+      "db_id": "small_bank_1",
+      "question": "What are the balances of checking accounts belonging to people with savings balances greater than the average savings balance?",
+      "gold_sql": "SELECT T2.balance FROM accounts AS T1 JOIN checking AS T2 ON T1.custid  =  T2.custid WHERE T1.name IN (SELECT T1.name FROM accounts AS T1 JOIN savings AS T2 ON T1.custid  =  T2.custid WHERE T2.balance  >  (SELECT avg(balance) FROM savings))",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite"
+    },
+    {
+      "id": 103,
+      "db_id": "epinions_1",
+      "question": "Find the titles of items that received both a rating higher than 8 and a rating below 5.",
+      "gold_sql": "SELECT T1.title FROM item AS T1 JOIN review AS T2 ON T1.i_id  =  T2.i_id WHERE T2.rating  >  8 INTERSECT SELECT T1.title FROM item AS T1 JOIN review AS T2 ON T1.i_id  =  T2.i_id WHERE T2.rating  <  5",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite"
+    },
+    {
+      "id": 104,
+      "db_id": "program_share",
+      "question": "find the program owners that have some programs in both morning and night time.",
+      "gold_sql": "SELECT t1.owner FROM program AS t1 JOIN broadcast AS t2 ON t1.program_id  =  t2.program_id WHERE t2.Time_of_day  =  \"Morning\" INTERSECT SELECT t1.owner FROM program AS t1 JOIN broadcast AS t2 ON t1.program_id  =  t2.program_id WHERE t2.Time_of_day  =  \"Night\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/program_share/program_share.sqlite"
+    },
+    {
+      "id": 105,
+      "db_id": "theme_gallery",
+      "question": "What is the theme and artist name for the exhibition with a ticket price higher than the average?",
+      "gold_sql": "SELECT T1.theme ,  T2.name FROM exhibition AS T1 JOIN artist AS T2 ON T1.artist_id  =  T2.artist_id WHERE T1.ticket_price  >  (SELECT avg(ticket_price) FROM exhibition)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite"
+    },
+    {
+      "id": 106,
+      "db_id": "game_1",
+      "question": "Show student ids who are on scholarship and have major 600.",
+      "gold_sql": "SELECT StuID FROM Student WHERE major  =  600 INTERSECT SELECT StuID FROM Sportsinfo WHERE onscholarship  =  'Y'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 107,
+      "db_id": "hospital_1",
+      "question": "Find the name of physicians who are affiliated with both Surgery and Psychiatry departments.",
+      "gold_sql": "SELECT T1.name FROM physician AS T1 JOIN affiliated_with AS T2 ON T1.EmployeeID  =  T2.physician JOIN department AS T3 ON T2.department  =  T3.DepartmentID WHERE T3.name  =  'Surgery' INTERSECT SELECT T1.name FROM physician AS T1 JOIN affiliated_with AS T2 ON T1.EmployeeID  =  T2.physician JOIN department AS T3 ON T2.department  =  T3.DepartmentID WHERE T3.name  =  'Psychiatry'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite"
+    },
+    {
+      "id": 108,
+      "db_id": "soccer_2",
+      "question": "What is minimum hours of the students playing in different position?",
+      "gold_sql": "SELECT min(T2.HS) ,   T1.pPos FROM tryout AS T1 JOIN player AS T2 ON T1.pID  =  T2.pID GROUP BY T1.pPos",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite"
+    },
+    {
+      "id": 109,
+      "db_id": "hospital_1",
+      "question": "Which physicians are affiliated with both Surgery and Psychiatry departments? Tell me their names.",
+      "gold_sql": "SELECT T1.name FROM physician AS T1 JOIN affiliated_with AS T2 ON T1.EmployeeID  =  T2.physician JOIN department AS T3 ON T2.department  =  T3.DepartmentID WHERE T3.name  =  'Surgery' INTERSECT SELECT T1.name FROM physician AS T1 JOIN affiliated_with AS T2 ON T1.EmployeeID  =  T2.physician JOIN department AS T3 ON T2.department  =  T3.DepartmentID WHERE T3.name  =  'Psychiatry'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite"
+    },
+    {
+      "id": 110,
+      "db_id": "movie_1",
+      "question": "What is the name of the movie that has been reviewed the most?",
+      "gold_sql": "SELECT T2.title ,  T1.mID FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID GROUP BY T1.mID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 111,
+      "db_id": "geo",
+      "question": "what is the capital of the state with the most inhabitants",
+      "gold_sql": "SELECT capital FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 112,
+      "db_id": "film_rank",
+      "question": "Show the studios that have not produced films with director \"Walter Hill\".",
+      "gold_sql": "SELECT Studio FROM film EXCEPT SELECT Studio FROM film WHERE Director  =  \"Walter Hill\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/film_rank/film_rank.sqlite"
+    },
+    {
+      "id": 113,
+      "db_id": "workshop_paper",
+      "question": "Which authors have submitted to more than one workshop?",
+      "gold_sql": "SELECT T2.Author FROM acceptance AS T1 JOIN submission AS T2 ON T1.Submission_ID  =  T2.Submission_ID GROUP BY T2.Author HAVING COUNT(DISTINCT T1.workshop_id)  >  1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite"
+    },
+    {
+      "id": 114,
+      "db_id": "movie_1",
+      "question": "Return all reviewer names and movie names together in a single list.",
+      "gold_sql": "SELECT name FROM Reviewer UNION SELECT title FROM Movie",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 115,
+      "db_id": "music_1",
+      "question": "Return the names of songs for which format is mp3 and resolution is below 1000.",
+      "gold_sql": "SELECT T2.song_name FROM files AS T1 JOIN song AS T2 ON T1.f_id  =  T2.f_id WHERE T1.formats  =  \"mp3\" INTERSECT SELECT song_name FROM song WHERE resolution  <  1000",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/music_1/music_1.sqlite"
+    },
+    {
+      "id": 116,
+      "db_id": "voter_2",
+      "question": "What are the distinct last names of the students who have president votes and have 8741 as the advisor?",
+      "gold_sql": "SELECT DISTINCT T1.LName FROM STUDENT AS T1 JOIN VOTING_RECORD AS T2 ON T1.StuID  =  PRESIDENT_Vote INTERSECT SELECT DISTINCT LName FROM STUDENT WHERE Advisor  =  \"8741\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/voter_2/voter_2.sqlite"
+    },
+    {
+      "id": 117,
+      "db_id": "scholar",
+      "question": "What is the most cited paper of ohad shamir ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"ohad shamir\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 118,
+      "db_id": "insurance_fnol",
+      "question": "Which customers do not have a first notification of loss record? Give me the customer names.",
+      "gold_sql": "SELECT customer_name FROM customers EXCEPT SELECT t1.customer_name FROM customers AS t1 JOIN first_notification_of_loss AS t2 ON t1.customer_id  =  t2.customer_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite"
+    },
+    {
+      "id": 119,
+      "db_id": "bike_1",
+      "question": "What are all the different zip codes that have a maximum dew point that was always below 70?",
+      "gold_sql": "SELECT DISTINCT zip_code FROM weather EXCEPT SELECT DISTINCT zip_code FROM weather WHERE max_dew_point_f  >=  70",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/bike_1/bike_1.sqlite"
+    },
+    {
+      "id": 120,
+      "db_id": "cre_Theme_park",
+      "question": "How many tourists did not make any visit?",
+      "gold_sql": "SELECT count(*) FROM Visitors WHERE Tourist_ID NOT IN ( SELECT Tourist_ID FROM Visits )",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite"
+    },
+    {
+      "id": 121,
+      "db_id": "roller_coaster",
+      "question": "Show the names of countries and the average speed of roller coasters from each country.",
+      "gold_sql": "SELECT T1.Name ,  avg(T2.Speed) FROM country AS T1 JOIN roller_coaster AS T2 ON T1.Country_ID  =  T2.Country_ID GROUP BY T1.Name",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite"
+    },
+    {
+      "id": 122,
+      "db_id": "baseball_1",
+      "question": "What are the name and id of the team offering the lowest average salary?",
+      "gold_sql": "SELECT T1.name ,  T1.team_id FROM team AS T1 JOIN salary AS T2 ON T1.team_id = T2.team_id GROUP BY T1.team_id ORDER BY avg(T2.salary) ASC LIMIT 1;",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite"
+    },
+    {
+      "id": 123,
+      "db_id": "college_2",
+      "question": "What is the title of a course that is listed in both the Statistics and Psychology departments?",
+      "gold_sql": "SELECT title FROM course WHERE dept_name  =  'Statistics' INTERSECT SELECT title FROM course WHERE dept_name  =  'Psychology'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 124,
+      "db_id": "behavior_monitoring",
+      "question": "Find the last names of teachers who are not involved in any detention.",
+      "gold_sql": "SELECT last_name FROM Teachers EXCEPT SELECT T1.last_name FROM Teachers AS T1 JOIN Detention AS T2 ON T1.teacher_id  =  T2.teacher_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 125,
+      "db_id": "hospital_1",
+      "question": "What procedures cost less than 5000 and have John Wen as a trained physician?",
+      "gold_sql": "SELECT name FROM procedures WHERE cost  <  5000 INTERSECT SELECT T3.name FROM physician AS T1 JOIN trained_in AS T2 ON T1.employeeid  =  T2.physician JOIN procedures AS T3 ON T3.code  =  T2.treatment WHERE T1.name  =  \"John Wen\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite"
+    },
+    {
+      "id": 126,
+      "db_id": "store_product",
+      "question": "What are the names of all the stores in the largest district by population?",
+      "gold_sql": "SELECT t1.store_name FROM store AS t1 JOIN store_district AS t2 ON t1.store_id  =  t2.store_id WHERE district_id  =  (SELECT district_id FROM district ORDER BY city_population DESC LIMIT 1)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/store_product/store_product.sqlite"
+    },
+    {
+      "id": 127,
+      "db_id": "dorm_1",
+      "question": "What are the names of the dorm that does not have a TV Lounge?",
+      "gold_sql": "SELECT dorm_name FROM dorm EXCEPT SELECT T1.dorm_name FROM dorm AS T1 JOIN has_amenity AS T2 ON T1.dormid  =  T2.dormid JOIN dorm_amenity AS T3 ON T2.amenid  =  T3.amenid WHERE T3.amenity_name  =  'TV Lounge'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite"
+    },
+    {
+      "id": 128,
+      "db_id": "loan_1",
+      "question": "Find the average credit score of the customers who do not have any loan.",
+      "gold_sql": "SELECT avg(credit_score) FROM customer WHERE cust_id NOT IN (SELECT cust_id FROM loan)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/loan_1/loan_1.sqlite"
+    },
+    {
+      "id": 129,
+      "db_id": "voter_2",
+      "question": "What are the distinct first names of the students who have vice president votes and reside in a city whose city code is not PIT?",
+      "gold_sql": "SELECT DISTINCT T1.Fname FROM STUDENT AS T1 JOIN VOTING_RECORD AS T2 ON T1.StuID  =  T2.VICE_PRESIDENT_Vote EXCEPT SELECT DISTINCT Fname FROM STUDENT WHERE city_code  =  \"PIT\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/voter_2/voter_2.sqlite"
+    },
+    {
+      "id": 130,
+      "db_id": "loan_1",
+      "question": "What are the names of customers who have both savings and checking accounts?",
+      "gold_sql": "SELECT cust_name FROM customer WHERE acc_type  =  'saving' INTERSECT SELECT cust_name FROM customer WHERE acc_type  =  'checking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/loan_1/loan_1.sqlite"
+    },
+    {
+      "id": 131,
+      "db_id": "formula_1",
+      "question": "What are the maximum fastest lap speed in races held after 2004 grouped by race name and ordered by year?",
+      "gold_sql": "SELECT max(T2.fastestlapspeed) ,  T1.name ,  T1.year FROM races AS T1 JOIN results AS T2 ON T1.raceid = T2.raceid WHERE T1.year > 2014 GROUP BY T1.name ORDER BY T1.year",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/formula_1/formula_1.sqlite"
+    },
+    {
+      "id": 132,
+      "db_id": "customers_and_invoices",
+      "question": "What are the the full names and ids for all customers, and how many accounts does each have?",
+      "gold_sql": "SELECT T1.customer_id ,  T2.customer_first_name ,  T2.customer_last_name ,  count(*) FROM Accounts AS T1 JOIN Customers AS T2 ON T1.customer_id  =  T2.customer_id GROUP BY T1.customer_id",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite"
+    },
+    {
+      "id": 133,
+      "db_id": "activity_1",
+      "question": "Show the ids of all the faculty members who participate in an activity and advise a student.",
+      "gold_sql": "SELECT FacID FROM Faculty_participates_in INTERSECT SELECT advisor FROM Student",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 134,
+      "db_id": "performance_attendance",
+      "question": "Show the locations that have both performances with more than 2000 attendees and performances with less than 1000 attendees.",
+      "gold_sql": "SELECT LOCATION FROM performance WHERE Attendance  >  2000 INTERSECT SELECT LOCATION FROM performance WHERE Attendance  <  1000",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite"
+    },
+    {
+      "id": 135,
+      "db_id": "tracking_orders",
+      "question": "What are the names of the customers who bought product \"food\" at least once?",
+      "gold_sql": "SELECT T1.customer_name FROM customers AS T1 JOIN orders AS T2 JOIN order_items AS T3 JOIN products AS T4 ON T1.customer_id = T2.customer_id AND T2.order_id = T3.order_id AND T3.product_id = T4.product_id WHERE T4.product_name = \"food\" GROUP BY T1.customer_id HAVING count(*)  >=  1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite"
+    },
+    {
+      "id": 136,
+      "db_id": "geo",
+      "question": "what state has the longest river",
+      "gold_sql": "SELECT DISTINCT traverse FROM river WHERE LENGTH  =  ( SELECT MAX ( DISTINCT LENGTH ) FROM river );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 137,
+      "db_id": "allergy_1",
+      "question": "Which students are unaffected by allergies?",
+      "gold_sql": "SELECT StuID FROM Student EXCEPT SELECT StuID FROM Has_allergy",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite"
+    },
+    {
+      "id": 138,
+      "db_id": "school_finance",
+      "question": "Show the names of all the donors except those whose donation amount less than 9.",
+      "gold_sql": "SELECT donator_name FROM endowment EXCEPT SELECT donator_name FROM endowment WHERE amount  <  9",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/school_finance/school_finance.sqlite"
+    },
+    {
+      "id": 139,
+      "db_id": "customers_campaigns_ecommerce",
+      "question": "Show the names of customers who have at least 2 mailshots with outcome code 'Order'.",
+      "gold_sql": "SELECT T2.customer_name FROM mailshot_customers AS T1 JOIN customers AS T2 ON T1.customer_id  =  T2.customer_id WHERE outcome_code  =  'Order' GROUP BY T1.customer_id HAVING count(*)  >=  2",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite"
+    },
+    {
+      "id": 140,
+      "db_id": "college_2",
+      "question": "Find the title of courses that have two prerequisites?",
+      "gold_sql": "SELECT T1.title FROM course AS T1 JOIN prereq AS T2 ON T1.course_id  =  T2.course_id GROUP BY T2.course_id HAVING count(*)  =  2",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 141,
+      "db_id": "college_2",
+      "question": "What are the names and salaries for instructors who earn less than the average salary of instructors in the Physics department?",
+      "gold_sql": "SELECT name ,  salary FROM instructor WHERE salary  <  (SELECT avg(salary) FROM instructor WHERE dept_name  =  'Physics')",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 142,
+      "db_id": "store_1",
+      "question": "What are the top 10 customers' first and last names by total number of orders and how many orders did they make?",
+      "gold_sql": "SELECT T1.first_name ,  T1.last_name ,  COUNT(*) FROM customers AS T1 JOIN invoices AS T2 ON T2.customer_id  =  T1.id GROUP BY T1.id ORDER BY COUNT(*) DESC LIMIT 10;",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/store_1/store_1.sqlite"
+    },
+    {
+      "id": 143,
+      "db_id": "soccer_2",
+      "question": "Find names of colleges with enrollment greater than that of some (at least one) college in the FL state.",
+      "gold_sql": "SELECT DISTINCT cName FROM college WHERE enr  >  (SELECT min(enr) FROM college WHERE state  =  'FL')",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite"
+    },
+    {
+      "id": 144,
+      "db_id": "gas_company",
+      "question": "What are the headquarters without companies that are in the banking industry?",
+      "gold_sql": "SELECT headquarters FROM company EXCEPT SELECT headquarters FROM company WHERE main_industry  =  'Banking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    },
+    {
+      "id": 145,
+      "db_id": "election",
+      "question": "For each county, find the name of the county and the number of delegates from that county.",
+      "gold_sql": "SELECT T1.County_name ,  COUNT(*) FROM county AS T1 JOIN election AS T2 ON T1.County_id  =  T2.District GROUP BY T1.County_id",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/election/election.sqlite"
+    },
+    {
+      "id": 146,
+      "db_id": "insurance_policies",
+      "question": "Find the number of settlements each claim corresponds to. Show the number together with the claim id.",
+      "gold_sql": "SELECT T1.Claim_id ,  count(*) FROM Claims AS T1 JOIN Settlements AS T2 ON T1.claim_id  =  T2.claim_id GROUP BY T1.claim_id",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite"
+    },
+    {
+      "id": 147,
+      "db_id": "flight_1",
+      "question": "What is the salary and name of the employee who has the most number of certificates on aircrafts with distance more than 5000?",
+      "gold_sql": "SELECT T1.name FROM Employee AS T1 JOIN Certificate AS T2 ON T1.eid  =  T2.eid JOIN Aircraft AS T3 ON T3.aid  =  T2.aid WHERE T3.distance  >  5000 GROUP BY T1.eid ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_1/flight_1.sqlite"
+    },
+    {
+      "id": 148,
+      "db_id": "geo",
+      "question": "which state is the smallest",
+      "gold_sql": "SELECT state_name FROM state WHERE area  =  ( SELECT MIN ( area ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 149,
+      "db_id": "customers_and_addresses",
+      "question": "Find the list of cities that no customer is living in.",
+      "gold_sql": "SELECT city FROM addresses WHERE city NOT IN ( SELECT DISTINCT t3.city FROM customers AS t1 JOIN customer_addresses AS t2 ON t1.customer_id  =  t2.customer_id JOIN addresses AS t3 ON t2.address_id  =  t3.address_id)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite"
+    },
+    {
+      "id": 150,
+      "db_id": "movie_1",
+      "question": "For each director, what are the titles and ratings for all the movies they reviewed?",
+      "gold_sql": "SELECT T2.title ,  T1.stars ,  T2.director ,  max(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE director != \"null\" GROUP BY director",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 151,
+      "db_id": "swimming",
+      "question": "Which country has both stadiums with capacity greater than 60000 and stadiums with capacity less than 50000?",
+      "gold_sql": "SELECT country FROM stadium WHERE capacity  >  60000 INTERSECT SELECT country FROM stadium WHERE capacity  <  50000",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/swimming/swimming.sqlite"
+    },
+    {
+      "id": 152,
+      "db_id": "activity_1",
+      "question": "Show ids for the faculty members who don't advise any student.",
+      "gold_sql": "SELECT FacID FROM Faculty EXCEPT SELECT advisor FROM Student",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 153,
+      "db_id": "soccer_2",
+      "question": "What are the names of the states that have some college students playing in the positions of goalie and mid-field?",
+      "gold_sql": "SELECT T1.state FROM college AS T1 JOIN tryout AS T2 ON T1.cName  =  T2.cName WHERE T2.pPos  =  'goalie' INTERSECT SELECT T1.state FROM college AS T1 JOIN tryout AS T2 ON T1.cName  =  T2.cName WHERE T2.pPos  =  'mid'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite"
+    },
+    {
+      "id": 154,
+      "db_id": "insurance_fnol",
+      "question": "Find the names of customers who have used both the service \"Close a policy\" and the service \"New policy application\".",
+      "gold_sql": "SELECT t1.customer_name FROM customers AS t1 JOIN first_notification_of_loss AS t2 ON t1.customer_id  =  t2.customer_id JOIN services AS t3 ON t2.service_id  =  t3.service_id WHERE t3.service_name  =  \"Close a policy\" INTERSECT SELECT t1.customer_name FROM customers AS t1 JOIN first_notification_of_loss AS t2 ON t1.customer_id  =  t2.customer_id JOIN services AS t3 ON t2.service_id  =  t3.service_id WHERE t3.service_name  =  \"New policy application\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite"
+    },
+    {
+      "id": 155,
+      "db_id": "school_finance",
+      "question": "Show the names of donors who donated to both school \"Glenn\" and \"Triton.\"",
+      "gold_sql": "SELECT T1.donator_name FROM endowment AS T1 JOIN school AS T2 ON T1.school_id  =  T2.school_id WHERE T2.school_name  =  'Glenn' INTERSECT SELECT T1.donator_name FROM endowment AS T1 JOIN school AS T2 ON T1.school_id  =  T2.school_id WHERE T2.school_name  =  'Triton'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/school_finance/school_finance.sqlite"
+    },
+    {
+      "id": 156,
+      "db_id": "medicine_enzyme_interaction",
+      "question": "What is the count of enzymes without any interactions?",
+      "gold_sql": "SELECT count(*) FROM enzyme WHERE id NOT IN ( SELECT enzyme_id FROM medicine_enzyme_interaction );",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite"
+    },
+    {
+      "id": 157,
+      "db_id": "academic",
+      "question": "return me the total citations of papers in PVLDB in each year .",
+      "gold_sql": "SELECT t2.year  ,  SUM ( t2.citation_num ) FROM publication AS t2 JOIN journal AS t1 ON t2.jid  =  t1.jid WHERE t1.name  =  \"PVLDB\" GROUP BY t2.year;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/academic/academic.sqlite"
+    },
+    {
+      "id": 158,
+      "db_id": "department_store",
+      "question": "Find the name and address of the customers who have both New and Pending orders.",
+      "gold_sql": "SELECT T1.customer_name ,  T1.customer_address FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  \"New\" INTERSECT SELECT T1.customer_name ,  T1.customer_address FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  \"Pending\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/department_store/department_store.sqlite"
+    },
+    {
+      "id": 159,
+      "db_id": "sakila_1",
+      "question": "How many films are there in each category? List the genre name, genre id and the count.",
+      "gold_sql": "SELECT T2.name ,  T1.category_id ,  count(*) FROM film_category AS T1 JOIN category AS T2 ON T1.category_id  =  T2.category_id GROUP BY T1.category_id",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite"
+    },
+    {
+      "id": 160,
+      "db_id": "college_3",
+      "question": "What are the names of departments either in division AS, or in division EN and in building NEB?",
+      "gold_sql": "SELECT DName FROM DEPARTMENT WHERE Division  =  \"AS\" UNION SELECT DName FROM DEPARTMENT WHERE Division  =  \"EN\" AND Building  =  \"NEB\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_3/college_3.sqlite"
+    },
+    {
+      "id": 161,
+      "db_id": "soccer_1",
+      "question": "List all of the ids for left-footed players with a height between 180cm and 190cm.",
+      "gold_sql": "SELECT player_api_id FROM Player WHERE height  >=  180 AND height  <=  190 INTERSECT SELECT player_api_id FROM Player_Attributes WHERE preferred_foot  =  \"left\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite"
+    },
+    {
+      "id": 162,
+      "db_id": "activity_1",
+      "question": "What are the first names of the professors who do not play Canoeing or Kayaking as activities?",
+      "gold_sql": "SELECT lname FROM faculty WHERE rank  =  'Professor' EXCEPT SELECT DISTINCT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN activity AS T3 ON T2.actid  =  T2.actid WHERE T3.activity_name  =  'Canoeing' OR T3.activity_name  =  'Kayaking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 163,
+      "db_id": "flight_4",
+      "question": "Find the number of routes for each source airport and the airport name.",
+      "gold_sql": "SELECT count(*) ,  T1.name FROM airports AS T1 JOIN routes AS T2 ON T1.apid  =  T2.src_apid GROUP BY T1.name",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_4/flight_4.sqlite"
+    },
+    {
+      "id": 164,
+      "db_id": "baseball_1",
+      "question": "In 2014, what are the id and rank of the team that has the largest average number of attendance?",
+      "gold_sql": "SELECT T2.team_id ,  T2.rank FROM home_game AS T1 JOIN team AS T2 ON T1.team_id  =  T2.team_id WHERE T1.year  =  2014 GROUP BY T1.team_id ORDER BY avg(T1.attendance) DESC LIMIT 1;",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/baseball_1/baseball_1.sqlite"
+    },
+    {
+      "id": 165,
+      "db_id": "apartment_rentals",
+      "question": "Show the apartment numbers of apartments with bookings that have status code both \"Provisional\" and \"Confirmed\"",
+      "gold_sql": "SELECT T2.apt_number FROM Apartment_Bookings AS T1 JOIN Apartments AS T2 ON T1.apt_id  =  T2.apt_id WHERE T1.booking_status_code  =  \"Confirmed\" INTERSECT SELECT T2.apt_number FROM Apartment_Bookings AS T1 JOIN Apartments AS T2 ON T1.apt_id  =  T2.apt_id WHERE T1.booking_status_code  =  \"Provisional\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite"
+    },
+    {
+      "id": 166,
+      "db_id": "cre_Theme_park",
+      "question": "What are the names of the tourist attractions that have parking or shopping as their feature details?",
+      "gold_sql": "SELECT T1.Name FROM Tourist_Attractions AS T1 JOIN Tourist_Attraction_Features AS T2 ON T1.tourist_attraction_id  =  T2.tourist_attraction_id JOIN Features AS T3 ON T2.Feature_ID  =  T3.Feature_ID WHERE T3.feature_Details  =  'park' UNION SELECT T1.Name FROM Tourist_Attractions AS T1 JOIN Tourist_Attraction_Features AS T2 ON T1.tourist_attraction_id  =  T2.tourist_attraction_id JOIN Features AS T3 ON T2.Feature_ID  =  T3.Feature_ID WHERE T3.feature_Details  =  'shopping'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite"
+    },
+    {
+      "id": 167,
+      "db_id": "college_1",
+      "question": "What are the first names of all students taking accoutning and Computer Information Systems classes?",
+      "gold_sql": "SELECT T1.stu_fname FROM student AS T1 JOIN enroll AS T2 ON T1.stu_num  =  T2.stu_num JOIN CLASS AS T3 ON T2.class_code  =  T3.class_code JOIN course AS T4 ON T3.crs_code  =  T4.crs_code JOIN department AS T5 ON T5.dept_code  =  T4.dept_code WHERE T5.dept_name  =  'Accounting' INTERSECT SELECT T1.stu_fname FROM student AS T1 JOIN enroll AS T2 ON T1.stu_num  =  T2.stu_num JOIN CLASS AS T3 ON T2.class_code  =  T3.class_code JOIN course AS T4 ON T3.crs_code  =  T4.crs_code JOIN department AS T5 ON T5.dept_code  =  T4.dept_code WHERE T5.dept_name  =  'Computer Info. Systems'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_1/college_1.sqlite"
+    },
+    {
+      "id": 168,
+      "db_id": "wine_1",
+      "question": "What is the area of the appelation that produces the highest number of wines before the year of 2010?",
+      "gold_sql": "SELECT T1.Area FROM APPELLATIONS AS T1 JOIN WINE AS T2 ON T1.Appelation  =  T2.Appelation GROUP BY T2.Appelation HAVING T2.year  <  2010 ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/wine_1/wine_1.sqlite"
+    },
+    {
+      "id": 169,
+      "db_id": "city_record",
+      "question": "Which cities have lower temperature in March than in Dec and have never served as host cities?",
+      "gold_sql": "SELECT T1.city FROM city AS T1 JOIN temperature AS T2 ON T1.city_id  =  T2.city_id WHERE T2.Mar  <  T2.Dec EXCEPT SELECT T3.city FROM city AS T3 JOIN hosting_city AS T4 ON T3.city_id  =  T4.host_city",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/city_record/city_record.sqlite"
+    },
+    {
+      "id": 170,
+      "db_id": "flight_1",
+      "question": "Show the name and distance of the aircrafts with more than 5000 distance and which at least 5 people have its certificate.",
+      "gold_sql": "SELECT T2.name FROM Certificate AS T1 JOIN Aircraft AS T2 ON T2.aid  =  T1.aid WHERE T2.distance  >  5000 GROUP BY T1.aid ORDER BY count(*)  >=  5",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/flight_1/flight_1.sqlite"
+    },
+    {
+      "id": 171,
+      "db_id": "party_people",
+      "question": "Which member names are shared among members in the party with the id 3 and the party with the id 1?",
+      "gold_sql": "SELECT member_name FROM member WHERE party_id  =  3 INTERSECT SELECT member_name FROM member WHERE party_id  =  1",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/party_people/party_people.sqlite"
+    },
+    {
+      "id": 172,
+      "db_id": "products_gen_characteristics",
+      "question": "What is the characteristic name used by most number of the products?",
+      "gold_sql": "SELECT t3.characteristic_name FROM products AS t1 JOIN product_characteristics AS t2 ON t1.product_id  =  t2.product_id JOIN CHARACTERISTICS AS t3 ON t2.characteristic_id  =  t3.characteristic_id GROUP BY t3.characteristic_name ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite"
+    },
+    {
+      "id": 173,
+      "db_id": "inn_1",
+      "question": "Find the number of rooms that do not have any reservation.",
+      "gold_sql": "SELECT count(*) FROM rooms WHERE roomid NOT IN (SELECT DISTINCT room FROM reservations)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/inn_1/inn_1.sqlite"
+    },
+    {
+      "id": 174,
+      "db_id": "cre_Doc_Tracking_DB",
+      "question": "Show the ids of the employees who don't authorize destruction for any document.",
+      "gold_sql": "SELECT employee_id FROM Employees EXCEPT SELECT Destruction_Authorised_by_Employee_ID FROM Documents_to_be_destroyed",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite"
+    },
+    {
+      "id": 175,
+      "db_id": "film_rank",
+      "question": "Show the studios that have produced films with director \"Nicholas Meyer\" and \"Walter Hill\".",
+      "gold_sql": "SELECT Studio FROM film WHERE Director  =  \"Nicholas Meyer\" INTERSECT SELECT Studio FROM film WHERE Director  =  \"Walter Hill\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/film_rank/film_rank.sqlite"
+    },
+    {
+      "id": 176,
+      "db_id": "wine_1",
+      "question": "Give the color of the grape whose wine products have the highest average price?",
+      "gold_sql": "SELECT T1.Color FROM GRAPES AS T1 JOIN WINE AS T2 ON T1.Grape  =  T2.Grape GROUP BY T2.Grape ORDER BY AVG(Price) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/wine_1/wine_1.sqlite"
+    },
+    {
+      "id": 177,
+      "db_id": "ship_mission",
+      "question": "What are the names of the ships that are not involved in any missions?",
+      "gold_sql": "SELECT Name FROM ship WHERE Ship_ID NOT IN (SELECT Ship_ID FROM mission)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite"
+    },
+    {
+      "id": 178,
+      "db_id": "assets_maintenance",
+      "question": "Which skill is used in fixing the most number of faults? List the skill id and description.",
+      "gold_sql": "SELECT T1.skill_id ,  T1.skill_description FROM Skills AS T1 JOIN Skills_Required_To_Fix AS T2 ON T1.skill_id  =  T2.skill_id GROUP BY T1.skill_id ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/assets_maintenance/assets_maintenance.sqlite"
+    },
+    {
+      "id": 179,
+      "db_id": "sakila_1",
+      "question": "Return the title and inventory id of the film that is rented most often.",
+      "gold_sql": "SELECT T1.title ,  T2.inventory_id FROM film AS T1 JOIN inventory AS T2 ON T1.film_id  =  T2.film_id JOIN rental AS T3 ON T2.inventory_id  =  T3.inventory_id GROUP BY T2.inventory_id ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite"
+    },
+    {
+      "id": 180,
+      "db_id": "geo",
+      "question": "what is the capital of the state with the largest population",
+      "gold_sql": "SELECT capital FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 181,
+      "db_id": "loan_1",
+      "question": "Find the name of bank branch that provided the greatest total amount of loans.",
+      "gold_sql": "SELECT T1.bname FROM bank AS T1 JOIN loan AS T2 ON T1.branch_id  =  T2.branch_id GROUP BY T1.bname ORDER BY sum(T2.amount) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/loan_1/loan_1.sqlite"
+    },
+    {
+      "id": 182,
+      "db_id": "store_1",
+      "question": "Find the name of tracks which are in Movies playlist but not in music playlist.",
+      "gold_sql": "SELECT T1.name FROM tracks AS T1 JOIN playlist_tracks AS T2 ON T1.id  =  T2.track_id JOIN playlists AS T3 ON T2.playlist_id  =  T3.id WHERE T3.name  =  'Movies' EXCEPT SELECT T1.name FROM tracks AS T1 JOIN playlist_tracks AS T2 ON T1.id  =  T2.track_id JOIN playlists AS T3 ON T2.playlist_id  =  T3.id WHERE T3.name  =  'Music'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/store_1/store_1.sqlite"
+    },
+    {
+      "id": 183,
+      "db_id": "college_2",
+      "question": "What are the names of courses without prerequisites?",
+      "gold_sql": "SELECT title FROM course WHERE course_id NOT IN (SELECT course_id FROM prereq)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/college_2/college_2.sqlite"
+    },
+    {
+      "id": 184,
+      "db_id": "election",
+      "question": "Which parties have delegates in both the \"Appropriations\" committee and the \"Economic Matters\" committee?",
+      "gold_sql": "SELECT T2.Party FROM election AS T1 JOIN party AS T2 ON T1.Party  =  T2.Party_ID WHERE T1.Committee  =  \"Appropriations\" INTERSECT SELECT T2.Party FROM election AS T1 JOIN party AS T2 ON T1.Party  =  T2.Party_ID WHERE T1.Committee  =  \"Economic Matters\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/election/election.sqlite"
+    },
+    {
+      "id": 185,
+      "db_id": "geo",
+      "question": "what is the largest city in wyoming",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MAX ( population ) FROM city WHERE state_name  =  \"wyoming\" ) AND state_name  =  \"wyoming\";",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 186,
+      "db_id": "loan_1",
+      "question": "Find the name of customers who have loans of both Mortgages and Auto.",
+      "gold_sql": "SELECT T1.cust_name FROM customer AS T1 JOIN loan AS T2 ON T1.cust_id  =  T2.cust_id WHERE loan_type  =  'Mortgages' INTERSECT SELECT T1.cust_name FROM customer AS T1 JOIN loan AS T2 ON T1.cust_id  =  T2.cust_id WHERE loan_type  =  'Auto'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/loan_1/loan_1.sqlite"
+    },
+    {
+      "id": 187,
+      "db_id": "department_store",
+      "question": "What are the names and addressed of customers who have both New and Pending orders?",
+      "gold_sql": "SELECT T1.customer_name ,  T1.customer_address FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  \"New\" INTERSECT SELECT T1.customer_name ,  T1.customer_address FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  \"Pending\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/department_store/department_store.sqlite"
+    },
+    {
+      "id": 188,
+      "db_id": "customers_campaigns_ecommerce",
+      "question": "Show the names of customers who have the most mailshots.",
+      "gold_sql": "SELECT T2.customer_name FROM mailshot_customers AS T1 JOIN customers AS T2 ON T1.customer_id  =  T2.customer_id GROUP BY T1.customer_id ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite"
+    },
+    {
+      "id": 189,
+      "db_id": "geo",
+      "question": "which state has the most population",
+      "gold_sql": "SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 190,
+      "db_id": "small_bank_1",
+      "question": "What are the names of customers with checking balances lower than the average checking balance?",
+      "gold_sql": "SELECT T1.name FROM accounts AS T1 JOIN checking AS T2 ON T1.custid  =  T2.custid WHERE T2.balance  <  (SELECT avg(balance) FROM checking)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite"
+    },
+    {
+      "id": 191,
+      "db_id": "e_learning",
+      "question": "What are the student ID and login name of the student who are enrolled in the most courses?",
+      "gold_sql": "SELECT T1.student_id ,  T2.login_name FROM Student_Course_Enrolment AS T1 JOIN Students AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY COUNT(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/e_learning/e_learning.sqlite"
+    },
+    {
+      "id": 192,
+      "db_id": "climbing",
+      "question": "What are the countries that have both mountains that are higher than 5600 and lower than 5200?",
+      "gold_sql": "SELECT Country FROM mountain WHERE Height  >  5600 INTERSECT SELECT Country FROM mountain WHERE Height  <  5200",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/climbing/climbing.sqlite"
+    },
+    {
+      "id": 193,
+      "db_id": "e_learning",
+      "question": "Find the common login name of course authors and students.",
+      "gold_sql": "SELECT login_name FROM Course_Authors_and_Tutors INTERSECT SELECT login_name FROM Students",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/e_learning/e_learning.sqlite"
+    },
+    {
+      "id": 194,
+      "db_id": "game_injury",
+      "question": "Show the name, average attendance, total attendance for stadiums where no accidents happened.",
+      "gold_sql": "SELECT name ,  average_attendance ,  total_attendance FROM stadium EXCEPT SELECT T2.name ,  T2.average_attendance ,  T2.total_attendance FROM game AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.id JOIN injury_accident AS T3 ON T1.id  =  T3.game_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/game_injury/game_injury.sqlite"
+    },
+    {
+      "id": 195,
+      "db_id": "county_public_safety",
+      "question": "Show the names of cities in counties that have a crime rate less than 100.",
+      "gold_sql": "SELECT name FROM city WHERE county_id IN (SELECT county_id FROM county_public_safety WHERE Crime_rate  <  100)",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite"
+    },
+    {
+      "id": 196,
+      "db_id": "twitter_1",
+      "question": "Find the id of users who are followed by Mary and Susan.",
+      "gold_sql": "SELECT T2.f1 FROM user_profiles AS T1 JOIN follows AS T2 ON T1.uid  =  T2.f2 WHERE T1.name  =  \"Mary\" INTERSECT SELECT T2.f1 FROM user_profiles AS T1 JOIN follows AS T2 ON T1.uid  =  T2.f2 WHERE T1.name  =  \"Susan\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/twitter_1/twitter_1.sqlite"
+    },
+    {
+      "id": 197,
+      "db_id": "geo",
+      "question": "what is the most populous state in the us",
+      "gold_sql": "SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 198,
+      "db_id": "ship_1",
+      "question": "What are the names of ships that are commanded by both captains with the rank of Midshipman and captains with the rank of Lieutenant?",
+      "gold_sql": "SELECT t1.name FROM ship AS t1 JOIN captain AS t2 ON t1.ship_id  =  t2.ship_id WHERE t2.rank  =  'Midshipman' INTERSECT SELECT t1.name FROM ship AS t1 JOIN captain AS t2 ON t1.ship_id  =  t2.ship_id WHERE t2.rank  =  'Lieutenant'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 199,
+      "db_id": "geo",
+      "question": "what states does the shortest river run through",
+      "gold_sql": "SELECT traverse FROM river WHERE LENGTH  =  ( SELECT MIN ( LENGTH ) FROM river );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    }
+  ]
+}
