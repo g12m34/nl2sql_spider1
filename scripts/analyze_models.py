@@ -108,6 +108,11 @@ def load_all_models() -> Dict[str, Dict]:
     if gemini_3_pro_files:
         models['Gemini 3 Pro'] = load_batch_eval(gemini_3_pro_files[0])
 
+    # Gemini 3 Flash
+    gemini_3_flash_files = list(BATCH_DIR.glob('eval_results_batches_mhjf*.json'))
+    if gemini_3_flash_files:
+        models['Gemini 3 Flash'] = load_batch_eval(gemini_3_flash_files[0])
+
     # Claude Sonnet
     sonnet_file = BATCH_DIR / 'eval_results_anthropic_msgbatch_013GeCZrpbXShYfZuhHoWbzm.json'
     if sonnet_file.exists():

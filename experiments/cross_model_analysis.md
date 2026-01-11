@@ -1,6 +1,6 @@
 # NL2Malloy Cross-Model Error Analysis
 
-*Generated: 2026-01-11 18:11 UTC*
+*Generated: 2026-01-11 21:16 UTC*
 
 ## Executive Summary
 
@@ -12,16 +12,17 @@ converting natural language questions to Malloy queries using expert semantic la
 | Model | Compile Rate | Execution Accuracy | Accuracy Rank |
 |-------|--------------|-------------------|---------------|
 | Gemini 3 Pro | 91.3% (42/46) | 80.4% (37/46) | #1 |
-| Claude Sonnet 4.5 | 82.6% (38/46) | 71.7% (33/46) | #2 |
-| DeepSeek v3.2 | 73.9% (34/46) | 65.2% (30/46) | #3 |
-| Gemini 2.5 Pro | 78.3% (36/46) | 65.2% (30/46) | #4 |
-| Claude Opus 4.5 | 73.9% (34/46) | 63.0% (29/46) | #5 |
-| Gemini 2.5 Flash | 71.7% (33/46) | 60.9% (28/46) | #6 |
+| Gemini 3 Flash | 95.7% (44/46) | 80.4% (37/46) | #2 |
+| Claude Sonnet 4.5 | 82.6% (38/46) | 71.7% (33/46) | #3 |
+| DeepSeek v3.2 | 73.9% (34/46) | 65.2% (30/46) | #4 |
+| Gemini 2.5 Pro | 78.3% (36/46) | 65.2% (30/46) | #5 |
+| Claude Opus 4.5 | 73.9% (34/46) | 63.0% (29/46) | #6 |
+| Gemini 2.5 Flash | 71.7% (33/46) | 60.9% (28/46) | #7 |
 
 ### Key Findings
 
 1. **Gemini 3 Pro** leads with 80.4% execution accuracy
-2. **6 questions** failed across ALL models (systematic issues)
+2. **5 questions** failed across ALL models (systematic issues)
 3. **28 unique questions** had at least one model fail
 
 ## Error Breakdown by Model
@@ -62,6 +63,15 @@ converting natural language questions to Malloy queries using expert semantic la
 | logic | 5 | 10.9% |
 | compile | 4 | 8.7% |
 
+### Gemini 3 Flash
+
+**Accuracy: 37/46 (80.4%)**
+
+| Error Type | Count | Percentage |
+|------------|-------|------------|
+| logic | 7 | 15.2% |
+| compile | 2 | 4.3% |
+
 ### Claude Sonnet 4.5
 
 **Accuracy: 33/46 (71.7%)**
@@ -88,12 +98,11 @@ These questions represent systematic challenges that no model could solve:
 
 | Q# | Database | Question | Failed Models |
 |----|----------|----------|---------------|
-| 47 | activity_1 | What is the first and last name of the faculty members who p... | All (6) |
-| 58 | geo | what rivers flow through the state with the largest populati... | All (6) |
-| 91 | movie_1 | What are the ids of all moviest hat have not been reviewed b... | All (6) |
-| 110 | movie_1 | What is the name of the movie that has been reviewed the mos... | All (6) |
-| 150 | movie_1 | For each director, what are the titles and ratings for all t... | All (6) |
-| 162 | activity_1 | What are the first names of the professors who do not play C... | All (6) |
+| 47 | activity_1 | What is the first and last name of the faculty members who p... | All (7) |
+| 91 | movie_1 | What are the ids of all moviest hat have not been reviewed b... | All (7) |
+| 110 | movie_1 | What is the name of the movie that has been reviewed the mos... | All (7) |
+| 150 | movie_1 | For each director, what are the titles and ratings for all t... | All (7) |
+| 162 | activity_1 | What are the first names of the professors who do not play C... | All (7) |
 
 ### Questions with Mixed Results
 
@@ -101,21 +110,21 @@ Questions where some models succeeded and others failed (indicates model-specifi
 
 | Q# | Database | Question | Failed Models | Succeeded Models |
 |----|----------|----------|---------------|------------------|
-| 1 | scholar | who published the most at chi | DeepSeek v, Gemini 2.5, Claude Opu | Gemini 2.5, Gemini 3 P, Claude Son |
-| 2 | movie_1 | What are the titles and directors of the... | DeepSeek v, Gemini 2.5, Gemini 2.5, Claude Son, Claude Opu | Gemini 3 P |
-| 4 | ship_1 | What are the ranks of captains that are ... | Gemini 2.5, Gemini 2.5 | DeepSeek v, Gemini 3 P, Claude Son, Claude Opu |
-| 5 | gas_company | Show all headquarters without a company ... | Gemini 2.5 | DeepSeek v, Gemini 2.5, Gemini 3 P, Claude Son, Claude Opu |
-| 9 | behavior_monitoring | What are the line 1 of addresses shared ... | Claude Opu | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P, Claude Son |
-| 28 | scholar | main topics of work by Brian DeRenzi | DeepSeek v, Gemini 2.5, Gemini 2.5, Claude Opu | Gemini 3 P, Claude Son |
-| 32 | geo | what is the lowest point of all states t... | DeepSeek v | Gemini 2.5, Gemini 2.5, Gemini 3 P, Claude Son, Claude Opu |
-| 35 | geo | what is the largest capital | Gemini 2.5 | DeepSeek v, Gemini 2.5, Gemini 3 P, Claude Son, Claude Opu |
-| 40 | scholar | What is the most cited paper by ohad sha... | DeepSeek v, Gemini 2.5, Gemini 2.5, Claude Son, Claude Opu | Gemini 3 P |
-| 59 | geo | where is the highest mountain of the uni... | Claude Son | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P, Claude Opu |
-| 63 | movie_1 | What are the movie titles with the highe... | DeepSeek v, Gemini 2.5, Gemini 3 P | Gemini 2.5, Claude Son, Claude Opu |
-| 64 | geo | what is the lowest point of the state wi... | DeepSeek v, Claude Son, Claude Opu | Gemini 2.5, Gemini 2.5, Gemini 3 P |
-| 81 | geo | what states border the state with the sm... | DeepSeek v, Gemini 2.5, Claude Opu | Gemini 2.5, Gemini 3 P, Claude Son |
-| 106 | game_1 | Show student ids who are on scholarship ... | Claude Son, Claude Opu | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P |
-| 111 | geo | what is the capital of the state with th... | Gemini 2.5 | DeepSeek v, Gemini 2.5, Gemini 3 P, Claude Son, Claude Opu |
+| 1 | scholar | who published the most at chi | DeepSeek v, Gemini 2.5, Claude Opu | Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Son |
+| 2 | movie_1 | What are the titles and directors of the... | DeepSeek v, Gemini 2.5, Gemini 2.5, Claude Son, Claude Opu | Gemini 3 P, Gemini 3 F |
+| 4 | ship_1 | What are the ranks of captains that are ... | Gemini 2.5, Gemini 2.5 | DeepSeek v, Gemini 3 P, Gemini 3 F, Claude Son, Claude Opu |
+| 5 | gas_company | Show all headquarters without a company ... | Gemini 2.5 | DeepSeek v, Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Son, Claude Opu |
+| 9 | behavior_monitoring | What are the line 1 of addresses shared ... | Claude Opu | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Son |
+| 28 | scholar | main topics of work by Brian DeRenzi | DeepSeek v, Gemini 2.5, Gemini 2.5, Claude Opu | Gemini 3 P, Gemini 3 F, Claude Son |
+| 32 | geo | what is the lowest point of all states t... | DeepSeek v | Gemini 2.5, Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Son, Claude Opu |
+| 35 | geo | what is the largest capital | Gemini 2.5 | DeepSeek v, Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Son, Claude Opu |
+| 40 | scholar | What is the most cited paper by ohad sha... | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 F, Claude Son, Claude Opu | Gemini 3 P |
+| 58 | geo | what rivers flow through the state with ... | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P, Claude Son, Claude Opu | Gemini 3 F |
+| 59 | geo | where is the highest mountain of the uni... | Claude Son | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Opu |
+| 63 | movie_1 | What are the movie titles with the highe... | DeepSeek v, Gemini 2.5, Gemini 3 P | Gemini 2.5, Gemini 3 F, Claude Son, Claude Opu |
+| 64 | geo | what is the lowest point of the state wi... | DeepSeek v, Claude Son, Claude Opu | Gemini 2.5, Gemini 2.5, Gemini 3 P, Gemini 3 F |
+| 81 | geo | what states border the state with the sm... | DeepSeek v, Gemini 2.5, Claude Opu | Gemini 2.5, Gemini 3 P, Gemini 3 F, Claude Son |
+| 106 | game_1 | Show student ids who are on scholarship ... | Claude Son, Claude Opu | DeepSeek v, Gemini 2.5, Gemini 2.5, Gemini 3 P, Gemini 3 F |
 
 ## Error Pattern Analysis
 
@@ -129,7 +138,7 @@ Questions where some models succeeded and others failed (indicates model-specifi
 | Gemini 2.5 Flash | 1 |
 | Gemini 2.5 Pro | 1 |
 
-### Aggregation (17 occurrences)
+### Aggregation (19 occurrences)
 
 *Incorrect aggregate function usage*
 
@@ -140,9 +149,10 @@ Questions where some models succeeded and others failed (indicates model-specifi
 | Claude Opus 4.5 | 3 |
 | DeepSeek v3.2 | 2 |
 | Gemini 2.5 Flash | 2 |
+| Gemini 3 Flash | 2 |
 | Gemini 3 Pro | 1 |
 
-### Other (66 occurrences)
+### Other (73 occurrences)
 
 *Logic errors or other issues*
 
@@ -154,6 +164,7 @@ Questions where some models succeeded and others failed (indicates model-specifi
 | Claude Sonnet 4.5 | 10 |
 | Gemini 2.5 Pro | 9 |
 | Gemini 3 Pro | 8 |
+| Gemini 3 Flash | 7 |
 
 ## Hypotheses for Improvement
 
@@ -190,7 +201,7 @@ Lift estimates are based on the number of questions that could be fixed by each 
 
 **Potential Lift:** +4 questions (~8.7% absolute) → 89.1% accuracy
 
-*Note: 6 questions fail ALL models - these represent the highest-value targets.*
+*Note: 5 questions fail ALL models - these represent the highest-value targets.*
 
 ### H4: Chain-of-Thought for Complex Queries
 
@@ -230,6 +241,13 @@ If all hypotheses prove valid (with some overlap), potential combined accuracy:
 - **Logic Error Rate (of compiled):** 11.9%
 - **Strength:** Strong understanding of Malloy syntax
 - **Strength:** Good semantic understanding of queries
+
+### Gemini 3 Flash
+
+- **Compile Rate:** 95.7%
+- **Logic Error Rate (of compiled):** 15.9%
+- **Strength:** Strong understanding of Malloy syntax
+- **Weakness:** Logic errors even on compilable queries
 
 ### Claude Sonnet 4.5
 
@@ -295,6 +313,23 @@ or model-specific prompt tuning could further improve results.
 | 150 | movie_1 | logic | N/A... |
 | 162 | activity_1 | logic | N/A... |
 | 199 | geo | compile | error: Unknown field length in output space at lin... |
+
+</details>
+
+<details>
+<summary>Gemini 3 Flash - 9 failures</summary>
+
+| Q# | DB | Error Type | Error |
+|----|----| -----------|-------|
+| 40 | scholar | compile | error: extraneous input '.' expecting {AGGREGATE, ... |
+| 47 | activity_1 | logic | N/A... |
+| 91 | movie_1 | logic | N/A... |
+| 110 | movie_1 | logic | N/A... |
+| 114 | movie_1 | logic | N/A... |
+| 117 | scholar | compile | error: extraneous input '.' expecting {AGGREGATE, ... |
+| 124 | behavior_monitoring | logic | N/A... |
+| 150 | movie_1 | logic | N/A... |
+| 162 | activity_1 | logic | N/A... |
 
 </details>
 

@@ -23,6 +23,7 @@ See [cross_model_analysis.md](cross_model_analysis.md) for detailed error analys
 
 | Model | Compile Rate | Execution Accuracy | Cost |
 |-------|--------------|-------------------|------|
+| **Gemini 3 Flash** | **95.7%** | **80.4% (37/46)** | 50% batch discount |
 | **Gemini 3 Pro** | 91.3% | **80.4% (37/46)** | 50% batch discount |
 | Claude Sonnet 4.5 | 82.6% | 71.7% (33/46) | 50% batch discount |
 | DeepSeek v3.2 | 73.9% | 65.2% (30/46) | Very cheap |
@@ -31,7 +32,7 @@ See [cross_model_analysis.md](cross_model_analysis.md) for detailed error analys
 | Gemini 2.5 Flash | 71.7% | 60.9% (28/46) | 50% batch discount |
 
 **Key Insights:**
-- **Gemini 3 Pro** is the new leader with 80.4% accuracy and 91.3% compile rate
+- **Gemini 3 Flash** ties with Gemini 3 Pro at 80.4% accuracy but has best compile rate (95.7%)
 - 5 questions still fail ALL models (systematic issues)
 - With targeted improvements, we estimate potential to reach **90%+ accuracy**
 
@@ -101,7 +102,7 @@ python scripts/gemini_batch.py evaluate results_<job_name>.json
 python scripts/gemini_batch.py list
 ```
 
-Available models: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro-preview`
+Available models: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro-preview`, `gemini-3-flash-preview`
 
 ## Anthropic Batch API
 
