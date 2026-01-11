@@ -1,0 +1,10 @@
+# NL2SQL Evaluation Dependencies
+
+# LLM Providers
+anthropic>=0.40.0
+openai>=1.50.0
+google-generativeai>=0.8.0
+requests>=2.31.0
+
+# Environment
+python-dotenv>=1.0.0
