@@ -1,9 +1,13 @@
 // Malloy semantic layer for: battle_death
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/battle_death/battle_death.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // battle
-source: battle is duckdb.sql("""
+source: battle_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'battle')
 """) extend {
   dimension:
@@ -22,15 +26,13 @@ source: battle is duckdb.sql("""
 }
 
 // ship
-source: ship is duckdb.sql("""
+source: ship_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'ship')
 """) extend {
   dimension:
     name_val is `name`
 
   primary_key: id
-
-  join_one: battle on lost_in_battle = battle.id
 
   measure:
     row_count is count()
@@ -45,12 +47,10 @@ source: ship is duckdb.sql("""
 }
 
 // death
-source: death is duckdb.sql("""
+source: death_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'death')
 """) extend {
   primary_key: id
-
-  join_one: ship on caused_by_ship_id = ship.id
 
   measure:
     row_count is count()
@@ -70,4 +70,24 @@ source: death is duckdb.sql("""
     avg_injured is avg(injured)
     max_injured is max(injured)
     min_injured is min(injured)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// battle (with joins)
+source: battle is battle_base extend {
+  join_many: ship is ship_base on id = ship.lost_in_battle
+}
+
+// ship (with joins)
+source: ship is ship_base extend {
+  join_one: battle is battle_base on lost_in_battle = battle.id
+  join_many: death is death_base on id = death.caused_by_ship_id
+}
+
+// death (with joins)
+source: death is death_base extend {
+  join_one: ship is ship_base on caused_by_ship_id = ship.id
 }

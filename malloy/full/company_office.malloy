@@ -1,9 +1,13 @@
 // Malloy semantic layer for: company_office
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/company_office/company_office.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // buildings
-source: buildings is duckdb.sql("""
+source: buildings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'buildings')
 """) extend {
   dimension:
@@ -28,7 +32,7 @@ source: buildings is duckdb.sql("""
 }
 
 // Companies
-source: companies is duckdb.sql("""
+source: companies_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'Companies')
 """) extend {
   dimension:
@@ -57,13 +61,10 @@ source: companies is duckdb.sql("""
 }
 
 // Office_locations
-source: office_locations is duckdb.sql("""
+source: office_locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'Office_locations')
 """) extend {
   primary_key: building_id
-
-  join_one: companies on company_id = companies.id
-  join_one: buildings on building_id = buildings.id
 
   measure:
     row_count is count()
@@ -79,4 +80,24 @@ source: office_locations is duckdb.sql("""
     avg_move_in_year is avg(move_in_year)
     max_move_in_year is max(move_in_year)
     min_move_in_year is min(move_in_year)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// buildings (with joins)
+source: buildings is buildings_base extend {
+  join_many: office_locations is office_locations_base on id = office_locations.building_id
+}
+
+// Companies (with joins)
+source: companies is companies_base extend {
+  join_many: office_locations is office_locations_base on id = office_locations.company_id
+}
+
+// Office_locations (with joins)
+source: office_locations is office_locations_base extend {
+  join_one: companies is companies_base on company_id = companies.id
+  join_one: buildings is buildings_base on building_id = buildings.id
 }

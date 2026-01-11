@@ -1,9 +1,13 @@
 // Malloy semantic layer for: college_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/college_2/college_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // classroom
-source: classroom is duckdb.sql("""
+source: classroom_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'classroom')
 """) extend {
   primary_key: building
@@ -17,7 +21,7 @@ source: classroom is duckdb.sql("""
 }
 
 // department
-source: department is duckdb.sql("""
+source: department_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'department')
 """) extend {
   primary_key: dept_name
@@ -30,8 +34,125 @@ source: department is duckdb.sql("""
     min_budget is min(budget)
 }
 
+// course
+source: course_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'course')
+""") extend {
+  primary_key: course_id
+
+  measure:
+    row_count is count()
+    total_credits is sum(credits)
+    avg_credits is avg(credits)
+    max_credits is max(credits)
+    min_credits is min(credits)
+}
+
+// instructor
+source: instructor_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'instructor')
+""") extend {
+  dimension:
+    i_d is ID
+    name_val is `name`
+
+  primary_key: i_d
+
+  measure:
+    row_count is count()
+    total_salary is sum(salary)
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+    min_salary is min(salary)
+}
+
+// section
+source: section_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'section')
+""") extend {
+  dimension:
+    year_val is `year`
+
+  primary_key: course_id
+
+  measure:
+    row_count is count()
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+}
+
+// teaches
+source: teaches_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'teaches')
+""") extend {
+  dimension:
+    i_d is ID
+    year_val is `year`
+
+  primary_key: i_d
+
+  measure:
+    row_count is count()
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+}
+
+// student
+source: student_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'student')
+""") extend {
+  dimension:
+    i_d is ID
+    name_val is `name`
+
+  primary_key: i_d
+
+  measure:
+    row_count is count()
+    total_tot_cred is sum(tot_cred)
+    avg_tot_cred is avg(tot_cred)
+    max_tot_cred is max(tot_cred)
+    min_tot_cred is min(tot_cred)
+}
+
+// takes
+source: takes_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'takes')
+""") extend {
+  dimension:
+    i_d is ID
+    year_val is `year`
+
+  primary_key: i_d
+
+  measure:
+    row_count is count()
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+}
+
+// advisor
+source: advisor_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'advisor')
+""") extend {
+  dimension:
+    s_i_d is s_ID
+    i_i_d is i_ID
+
+  primary_key: s_i_d
+
+  measure:
+    row_count is count()
+}
+
 // time_slot
-source: time_slot is duckdb.sql("""
+source: time_slot_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'time_slot')
 """) extend {
   dimension:
@@ -59,157 +180,99 @@ source: time_slot is duckdb.sql("""
     min_end_min is min(end_min)
 }
 
-// course
-source: course is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'course')
-""") extend {
-  primary_key: course_id
-
-  join_one: department on dept_name = department.dept_name
-
-  measure:
-    row_count is count()
-    total_credits is sum(credits)
-    avg_credits is avg(credits)
-    max_credits is max(credits)
-    min_credits is min(credits)
-}
-
-// instructor
-source: instructor is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'instructor')
-""") extend {
-  dimension:
-    i_d is ID
-    name_val is `name`
-
-  primary_key: i_d
-
-  join_one: department on dept_name = department.dept_name
-
-  measure:
-    row_count is count()
-    total_salary is sum(salary)
-    avg_salary is avg(salary)
-    max_salary is max(salary)
-    min_salary is min(salary)
-}
-
-// student
-source: student_val is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'student')
-""") extend {
-  dimension:
-    i_d is ID
-    name_val is `name`
-
-  primary_key: i_d
-
-  join_one: department on dept_name = department.dept_name
-
-  measure:
-    row_count is count()
-    total_tot_cred is sum(tot_cred)
-    avg_tot_cred is avg(tot_cred)
-    max_tot_cred is max(tot_cred)
-    min_tot_cred is min(tot_cred)
-}
-
-// section
-source: section is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'section')
-""") extend {
-  dimension:
-    year_val is `year`
-
-  primary_key: course_id
-
-  join_one: building_classroom is classroom on building = building_classroom.building
-  join_one: room_number_classroom is classroom on room_number = room_number_classroom.room_number
-  join_one: course on course_id = course.course_id
-
-  measure:
-    row_count is count()
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
-}
-
 // prereq
-source: prereq is duckdb.sql("""
+source: prereq_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'prereq')
 """) extend {
   primary_key: course_id
 
-  join_one: prereq_course is course on prereq_id = prereq_course.course_id
-  join_one: ref_course is course on course_id = ref_course.course_id
-
   measure:
     row_count is count()
 }
 
-// advisor
-source: advisor is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'advisor')
-""") extend {
-  dimension:
-    s_i_d is s_ID
-    i_i_d is i_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: s_i_d
-
-  join_one: student_val on s_i_d = student_val.i_d
-  join_one: instructor on i_i_d = instructor.i_d
-
-  measure:
-    row_count is count()
+// classroom (with joins)
+source: classroom is classroom_base extend {
+  join_many: section_building is section_base on building = section_building.building
+  join_many: section_room_number is section_base on room_number = section_room_number.room_number
 }
 
-// teaches
-source: teaches is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'teaches')
-""") extend {
-  dimension:
-    i_d is ID
-    year_val is `year`
-
-  primary_key: i_d
-
-  join_one: instructor on i_d = instructor.i_d
-  join_one: course_section is section on course_id = course_section.course_id
-  join_one: sec_section is section on sec_id = sec_section.sec_id
-  join_one: semester_section is section on semester = semester_section.semester
-  join_one: year_section is section on year_val = year_section.year_val
-
-  measure:
-    row_count is count()
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
+// department (with joins)
+source: department is department_base extend {
+  join_many: course is course_base on dept_name = course.dept_name
+  join_many: instructor is instructor_base on dept_name = instructor.dept_name
+  join_many: student_val is student_val_base on dept_name = student_val.dept_name
 }
 
-// takes
-source: takes is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'takes')
-""") extend {
-  dimension:
-    i_d is ID
-    year_val is `year`
+// course (with joins)
+source: course is course_base extend {
+  join_one: department is department_base on dept_name = department.dept_name
+  join_many: section is section_base on course_id = section.course_id
+  join_many: prereq_child is prereq_base on course_id = prereq_child.prereq_id
+  join_many: prereq_course is prereq_base on course_id = prereq_course.course_id
+}
 
-  primary_key: i_d
+// instructor (with joins)
+source: instructor is instructor_base extend {
+  join_one: department is department_base on dept_name = department.dept_name
+  join_many: teaches is teaches_base on i_d = teaches.i_d
+  join_many: advisor is advisor_base on i_d = advisor.i_i_d
+}
 
-  join_one: student_val on i_d = student_val.i_d
-  join_one: course_section is section on course_id = course_section.course_id
-  join_one: sec_section is section on sec_id = sec_section.sec_id
-  join_one: semester_section is section on semester = semester_section.semester
-  join_one: year_section is section on year_val = year_section.year_val
+// section (with joins)
+source: section is section_base extend {
+  join_one: building_classroom is classroom_base on building = building_classroom.building
+  join_one: room_number_classroom is classroom_base on room_number = room_number_classroom.room_number
+  join_one: course is course_base on course_id = course.course_id
+  join_many: teaches_course is teaches_base on course_id = teaches_course.course_id
+  join_many: teaches_sec is teaches_base on sec_id = teaches_sec.sec_id
+  join_many: teaches_semester is teaches_base on semester = teaches_semester.semester
+  join_many: teaches_year is teaches_base on year_val = teaches_year.year_val
+  join_many: takes_course is takes_base on course_id = takes_course.course_id
+  join_many: takes_sec is takes_base on sec_id = takes_sec.sec_id
+  join_many: takes_semester is takes_base on semester = takes_semester.semester
+  join_many: takes_year is takes_base on year_val = takes_year.year_val
+}
 
-  measure:
-    row_count is count()
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
+// teaches (with joins)
+source: teaches is teaches_base extend {
+  join_one: instructor is instructor_base on i_d = instructor.i_d
+  join_one: course_section is section_base on course_id = course_section.course_id
+  join_one: sec_section is section_base on sec_id = sec_section.sec_id
+  join_one: semester_section is section_base on semester = semester_section.semester
+  join_one: year_section is section_base on year_val = year_section.year_val
+}
+
+// student (with joins)
+source: student_val is student_val_base extend {
+  join_one: department is department_base on dept_name = department.dept_name
+  join_many: takes is takes_base on i_d = takes.i_d
+  join_many: advisor is advisor_base on i_d = advisor.s_i_d
+}
+
+// takes (with joins)
+source: takes is takes_base extend {
+  join_one: student_val is student_val_base on i_d = student_val.i_d
+  join_one: course_section is section_base on course_id = course_section.course_id
+  join_one: sec_section is section_base on sec_id = sec_section.sec_id
+  join_one: semester_section is section_base on semester = semester_section.semester
+  join_one: year_section is section_base on year_val = year_section.year_val
+}
+
+// advisor (with joins)
+source: advisor is advisor_base extend {
+  join_one: student_val is student_val_base on s_i_d = student_val.i_d
+  join_one: instructor is instructor_base on i_i_d = instructor.i_d
+}
+
+// time_slot (with joins)
+source: time_slot is time_slot_base
+
+// prereq (with joins)
+source: prereq is prereq_base extend {
+  join_one: prereq_course is course_base on prereq_id = prereq_course.course_id
+  join_one: ref_course is course_base on course_id = ref_course.course_id
 }

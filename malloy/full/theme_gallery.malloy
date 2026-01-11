@@ -1,9 +1,13 @@
 // Malloy semantic layer for: theme_gallery
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // artist
-source: artist is duckdb.sql("""
+source: artist_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite', 'artist')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: artist is duckdb.sql("""
 }
 
 // exhibition
-source: exhibition is duckdb.sql("""
+source: exhibition_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite', 'exhibition')
 """) extend {
   dimension:
@@ -38,8 +42,6 @@ source: exhibition is duckdb.sql("""
     artist_i_d is Artist_ID
 
   primary_key: exhibition_i_d
-
-  join_one: artist on artist_i_d = artist.artist_i_d
 
   measure:
     row_count is count()
@@ -62,7 +64,7 @@ source: exhibition is duckdb.sql("""
 }
 
 // exhibition_record
-source: exhibition_record is duckdb.sql("""
+source: exhibition_record_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite', 'exhibition_record')
 """) extend {
   dimension:
@@ -70,8 +72,6 @@ source: exhibition_record is duckdb.sql("""
     date_val is `Date`
 
   primary_key: exhibition_i_d
-
-  join_one: exhibition on exhibition_i_d = exhibition.exhibition_i_d
 
   measure:
     row_count is count()
@@ -83,4 +83,24 @@ source: exhibition_record is duckdb.sql("""
     avg_attendance is avg(Attendance)
     max_attendance is max(Attendance)
     min_attendance is min(Attendance)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// artist (with joins)
+source: artist is artist_base extend {
+  join_many: exhibition is exhibition_base on artist_i_d = exhibition.artist_i_d
+}
+
+// exhibition (with joins)
+source: exhibition is exhibition_base extend {
+  join_one: artist is artist_base on artist_i_d = artist.artist_i_d
+  join_many: exhibition_record is exhibition_record_base on exhibition_i_d = exhibition_record.exhibition_i_d
+}
+
+// exhibition_record (with joins)
+source: exhibition_record is exhibition_record_base extend {
+  join_one: exhibition is exhibition_base on exhibition_i_d = exhibition.exhibition_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: local_govt_and_lot
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -17,7 +21,7 @@ source: customers is duckdb.sql("""
 }
 
 // Properties
-source: properties is duckdb.sql("""
+source: properties_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Properties')
 """) extend {
   primary_key: property_id
@@ -30,8 +34,26 @@ source: properties is duckdb.sql("""
     min_property_id is min(property_id)
 }
 
+// Residents
+source: residents_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Residents')
+""") extend {
+  primary_key: resident_id
+
+  measure:
+    row_count is count()
+    total_resident_id is sum(resident_id)
+    avg_resident_id is avg(resident_id)
+    max_resident_id is max(resident_id)
+    min_resident_id is min(resident_id)
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+}
+
 // Organizations
-source: organizations is duckdb.sql("""
+source: organizations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Organizations')
 """) extend {
   primary_key: organization_id
@@ -48,33 +70,11 @@ source: organizations is duckdb.sql("""
     min_parent_organization_id is min(parent_organization_id)
 }
 
-// Residents
-source: residents is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Residents')
-""") extend {
-  primary_key: resident_id
-
-  join_one: properties on property_id = properties.property_id
-
-  measure:
-    row_count is count()
-    total_resident_id is sum(resident_id)
-    avg_resident_id is avg(resident_id)
-    max_resident_id is max(resident_id)
-    min_resident_id is min(resident_id)
-    total_property_id is sum(property_id)
-    avg_property_id is avg(property_id)
-    max_property_id is max(property_id)
-    min_property_id is min(property_id)
-}
-
 // Services
-source: services is duckdb.sql("""
+source: services_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Services')
 """) extend {
   primary_key: service_id
-
-  join_one: organizations on organization_id = organizations.organization_id
 
   measure:
     row_count is count()
@@ -88,13 +88,33 @@ source: services is duckdb.sql("""
     min_organization_id is min(organization_id)
 }
 
+// Residents_Services
+source: residents_services_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Residents_Services')
+""") extend {
+  primary_key: resident_id
+
+  measure:
+    row_count is count()
+    total_resident_id is sum(resident_id)
+    avg_resident_id is avg(resident_id)
+    max_resident_id is max(resident_id)
+    min_resident_id is min(resident_id)
+    total_service_id is sum(service_id)
+    avg_service_id is avg(service_id)
+    max_service_id is max(service_id)
+    min_service_id is min(service_id)
+    total_property_id is sum(property_id)
+    avg_property_id is avg(property_id)
+    max_property_id is max(property_id)
+    min_property_id is min(property_id)
+}
+
 // Things
-source: things is duckdb.sql("""
+source: things_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Things')
 """) extend {
   primary_key: thing_id
-
-  join_one: organizations on organization_id = organizations.organization_id
 
   measure:
     row_count is count()
@@ -108,47 +128,14 @@ source: things is duckdb.sql("""
     min_organization_id is min(organization_id)
 }
 
-// Residents_Services
-source: residents_services is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Residents_Services')
-""") extend {
-  primary_key: resident_id
-
-  join_one: resident_residents is residents on resident_id = resident_residents.resident_id
-  join_one: property_residents is residents on property_id = property_residents.property_id
-  join_one: date_moved_in_residents is residents on date_moved_in = date_moved_in_residents.date_moved_in
-  join_one: services on service_id = services.service_id
-
-  measure:
-    row_count is count()
-    total_resident_id is sum(resident_id)
-    avg_resident_id is avg(resident_id)
-    max_resident_id is max(resident_id)
-    min_resident_id is min(resident_id)
-    total_service_id is sum(service_id)
-    avg_service_id is avg(service_id)
-    max_service_id is max(service_id)
-    min_service_id is min(service_id)
-    total_property_id is sum(property_id)
-    avg_property_id is avg(property_id)
-    max_property_id is max(property_id)
-    min_property_id is min(property_id)
-}
-
 // Customer_Events
-source: customer_events is duckdb.sql("""
+source: customer_events_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customer_Events')
 """) extend {
   dimension:
     customer_event_i_d is Customer_Event_ID
 
   primary_key: customer_event_i_d
-
-  join_one: resident_residents is residents on resident_id = resident_residents.resident_id
-  join_one: property_residents is residents on property_id = property_residents.property_id
-  join_one: date_moved_in_residents is residents on date_moved_in = date_moved_in_residents.date_moved_in
-  join_one: customers on customer_id = customers.customer_id
-  join_one: things on thing_id = things.thing_id
 
   measure:
     row_count is count()
@@ -174,40 +161,8 @@ source: customer_events is duckdb.sql("""
     min_thing_id is min(thing_id)
 }
 
-// Timed_Status_of_Things
-source: timed_status_of_things is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Timed_Status_of_Things')
-""") extend {
-  primary_key: thing_id
-
-  join_one: things on thing_id = things.thing_id
-
-  measure:
-    row_count is count()
-    total_thing_id is sum(thing_id)
-    avg_thing_id is avg(thing_id)
-    max_thing_id is max(thing_id)
-    min_thing_id is min(thing_id)
-}
-
-// Timed_Locations_of_Things
-source: timed_locations_of_things is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Timed_Locations_of_Things')
-""") extend {
-  primary_key: thing_id
-
-  join_one: things on thing_id = things.thing_id
-
-  measure:
-    row_count is count()
-    total_thing_id is sum(thing_id)
-    avg_thing_id is avg(thing_id)
-    max_thing_id is max(thing_id)
-    min_thing_id is min(thing_id)
-}
-
 // Customer_Event_Notes
-source: customer_event_notes is duckdb.sql("""
+source: customer_event_notes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customer_Event_Notes')
 """) extend {
   dimension:
@@ -215,8 +170,6 @@ source: customer_event_notes is duckdb.sql("""
     customer_event_i_d is Customer_Event_ID
 
   primary_key: customer_event_note_i_d
-
-  join_one: customer_events on customer_event_i_d = customer_events.customer_event_i_d
 
   measure:
     row_count is count()
@@ -236,4 +189,110 @@ source: customer_event_notes is duckdb.sql("""
     avg_property_id is avg(property_id)
     max_property_id is max(property_id)
     min_property_id is min(property_id)
+}
+
+// Timed_Status_of_Things
+source: timed_status_of_things_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Timed_Status_of_Things')
+""") extend {
+  primary_key: thing_id
+
+  measure:
+    row_count is count()
+    total_thing_id is sum(thing_id)
+    avg_thing_id is avg(thing_id)
+    max_thing_id is max(thing_id)
+    min_thing_id is min(thing_id)
+}
+
+// Timed_Locations_of_Things
+source: timed_locations_of_things_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Timed_Locations_of_Things')
+""") extend {
+  primary_key: thing_id
+
+  measure:
+    row_count is count()
+    total_thing_id is sum(thing_id)
+    avg_thing_id is avg(thing_id)
+    max_thing_id is max(thing_id)
+    min_thing_id is min(thing_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: customer_events is customer_events_base on customer_id = customer_events.customer_id
+}
+
+// Properties (with joins)
+source: properties is properties_base extend {
+  join_many: residents is residents_base on property_id = residents.property_id
+}
+
+// Residents (with joins)
+source: residents is residents_base extend {
+  join_one: properties is properties_base on property_id = properties.property_id
+  join_many: residents_services_resident is residents_services_base on resident_id = residents_services_resident.resident_id
+  join_many: residents_services_property is residents_services_base on property_id = residents_services_property.property_id
+  join_many: residents_services_date_moved_in is residents_services_base on date_moved_in = residents_services_date_moved_in.date_moved_in
+  join_many: customer_events_resident is customer_events_base on resident_id = customer_events_resident.resident_id
+  join_many: customer_events_property is customer_events_base on property_id = customer_events_property.property_id
+  join_many: customer_events_date_moved_in is customer_events_base on date_moved_in = customer_events_date_moved_in.date_moved_in
+}
+
+// Organizations (with joins)
+source: organizations is organizations_base extend {
+  join_many: services is services_base on organization_id = services.organization_id
+  join_many: things is things_base on organization_id = things.organization_id
+}
+
+// Services (with joins)
+source: services is services_base extend {
+  join_one: organizations is organizations_base on organization_id = organizations.organization_id
+  join_many: residents_services is residents_services_base on service_id = residents_services.service_id
+}
+
+// Residents_Services (with joins)
+source: residents_services is residents_services_base extend {
+  join_one: resident_residents is residents_base on resident_id = resident_residents.resident_id
+  join_one: property_residents is residents_base on property_id = property_residents.property_id
+  join_one: date_moved_in_residents is residents_base on date_moved_in = date_moved_in_residents.date_moved_in
+  join_one: services is services_base on service_id = services.service_id
+}
+
+// Things (with joins)
+source: things is things_base extend {
+  join_one: organizations is organizations_base on organization_id = organizations.organization_id
+  join_many: customer_events is customer_events_base on thing_id = customer_events.thing_id
+  join_many: timed_status_of_things is timed_status_of_things_base on thing_id = timed_status_of_things.thing_id
+  join_many: timed_locations_of_things is timed_locations_of_things_base on thing_id = timed_locations_of_things.thing_id
+}
+
+// Customer_Events (with joins)
+source: customer_events is customer_events_base extend {
+  join_one: resident_residents is residents_base on resident_id = resident_residents.resident_id
+  join_one: property_residents is residents_base on property_id = property_residents.property_id
+  join_one: date_moved_in_residents is residents_base on date_moved_in = date_moved_in_residents.date_moved_in
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: things is things_base on thing_id = things.thing_id
+  join_many: customer_event_notes is customer_event_notes_base on customer_event_i_d = customer_event_notes.customer_event_i_d
+}
+
+// Customer_Event_Notes (with joins)
+source: customer_event_notes is customer_event_notes_base extend {
+  join_one: customer_events is customer_events_base on customer_event_i_d = customer_events.customer_event_i_d
+}
+
+// Timed_Status_of_Things (with joins)
+source: timed_status_of_things is timed_status_of_things_base extend {
+  join_one: things is things_base on thing_id = things.thing_id
+}
+
+// Timed_Locations_of_Things (with joins)
+source: timed_locations_of_things is timed_locations_of_things_base extend {
+  join_one: things is things_base on thing_id = things.thing_id
 }

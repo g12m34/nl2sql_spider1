@@ -1,9 +1,13 @@
 // Malloy semantic layer for: tracking_share_transactions
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Investors
-source: investors is duckdb.sql("""
+source: investors_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Investors')
 """) extend {
   primary_key: investor_id
@@ -16,23 +20,11 @@ source: investors is duckdb.sql("""
     min_investor_id is min(investor_id)
 }
 
-// Ref_Transaction_Types
-source: ref_transaction_types is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Ref_Transaction_Types')
-""") extend {
-  primary_key: transaction_type_code
-
-  measure:
-    row_count is count()
-}
-
 // Lots
-source: lots is duckdb.sql("""
+source: lots_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Lots')
 """) extend {
   primary_key: lot_id
-
-  join_one: investors on investor_id = investors.investor_id
 
   measure:
     row_count is count()
@@ -46,14 +38,21 @@ source: lots is duckdb.sql("""
     min_investor_id is min(investor_id)
 }
 
+// Ref_Transaction_Types
+source: ref_transaction_types_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Ref_Transaction_Types')
+""") extend {
+  primary_key: transaction_type_code
+
+  measure:
+    row_count is count()
+}
+
 // Transactions
-source: transactions is duckdb.sql("""
+source: transactions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Transactions')
 """) extend {
   primary_key: transaction_id
-
-  join_one: ref_transaction_types on transaction_type_code = ref_transaction_types.transaction_type_code
-  join_one: investors on investor_id = investors.investor_id
 
   measure:
     row_count is count()
@@ -72,12 +71,10 @@ source: transactions is duckdb.sql("""
 }
 
 // Sales
-source: sales is duckdb.sql("""
+source: sales_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Sales')
 """) extend {
   primary_key: sales_transaction_id
-
-  join_one: transactions on sales_transaction_id = transactions.transaction_id
 
   measure:
     row_count is count()
@@ -88,11 +85,9 @@ source: sales is duckdb.sql("""
 }
 
 // Purchases
-source: purchases is duckdb.sql("""
+source: purchases_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Purchases')
 """) extend {
-  join_one: transactions on purchase_transaction_id = transactions.transaction_id
-
   measure:
     row_count is count()
     total_purchase_transaction_id is sum(purchase_transaction_id)
@@ -102,12 +97,9 @@ source: purchases is duckdb.sql("""
 }
 
 // Transactions_Lots
-source: transactions_lots is duckdb.sql("""
+source: transactions_lots_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_share_transactions/tracking_share_transactions.sqlite', 'Transactions_Lots')
 """) extend {
-  join_one: transactions on transaction_id = transactions.transaction_id
-  join_one: lots on lot_id = lots.lot_id
-
   measure:
     row_count is count()
     total_transaction_id is sum(transaction_id)
@@ -118,4 +110,50 @@ source: transactions_lots is duckdb.sql("""
     avg_lot_id is avg(lot_id)
     max_lot_id is max(lot_id)
     min_lot_id is min(lot_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Investors (with joins)
+source: investors is investors_base extend {
+  join_many: lots is lots_base on investor_id = lots.investor_id
+  join_many: transactions is transactions_base on investor_id = transactions.investor_id
+}
+
+// Lots (with joins)
+source: lots is lots_base extend {
+  join_one: investors is investors_base on investor_id = investors.investor_id
+  join_many: transactions_lots is transactions_lots_base on lot_id = transactions_lots.lot_id
+}
+
+// Ref_Transaction_Types (with joins)
+source: ref_transaction_types is ref_transaction_types_base extend {
+  join_many: transactions is transactions_base on transaction_type_code = transactions.transaction_type_code
+}
+
+// Transactions (with joins)
+source: transactions is transactions_base extend {
+  join_one: ref_transaction_types is ref_transaction_types_base on transaction_type_code = ref_transaction_types.transaction_type_code
+  join_one: investors is investors_base on investor_id = investors.investor_id
+  join_many: sales is sales_base on transaction_id = sales.sales_transaction_id
+  join_many: purchases is purchases_base on transaction_id = purchases.purchase_transaction_id
+  join_many: transactions_lots is transactions_lots_base on transaction_id = transactions_lots.transaction_id
+}
+
+// Sales (with joins)
+source: sales is sales_base extend {
+  join_one: transactions is transactions_base on sales_transaction_id = transactions.transaction_id
+}
+
+// Purchases (with joins)
+source: purchases is purchases_base extend {
+  join_one: transactions is transactions_base on purchase_transaction_id = transactions.transaction_id
+}
+
+// Transactions_Lots (with joins)
+source: transactions_lots is transactions_lots_base extend {
+  join_one: transactions is transactions_base on transaction_id = transactions.transaction_id
+  join_one: lots is lots_base on lot_id = lots.lot_id
 }

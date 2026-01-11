@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cre_Doc_Template_Mgt
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Template_Types
-source: ref_template_types is duckdb.sql("""
+source: ref_template_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Ref_Template_Types')
 """) extend {
   primary_key: Template_Type_Code
@@ -13,15 +17,13 @@ source: ref_template_types is duckdb.sql("""
 }
 
 // Templates
-source: templates is duckdb.sql("""
+source: templates_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Templates')
 """) extend {
   dimension:
     template_i_d is Template_ID
 
   primary_key: template_i_d
-
-  join_one: ref_template_types on Template_Type_Code = ref_template_types.Template_Type_Code
 
   measure:
     row_count is count()
@@ -36,7 +38,7 @@ source: templates is duckdb.sql("""
 }
 
 // Documents
-source: documents is duckdb.sql("""
+source: documents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Documents')
 """) extend {
   dimension:
@@ -44,8 +46,6 @@ source: documents is duckdb.sql("""
     template_i_d is Template_ID
 
   primary_key: document_i_d
-
-  join_one: templates on template_i_d = templates.template_i_d
 
   measure:
     row_count is count()
@@ -60,7 +60,7 @@ source: documents is duckdb.sql("""
 }
 
 // Paragraphs
-source: paragraphs is duckdb.sql("""
+source: paragraphs_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite', 'Paragraphs')
 """) extend {
   dimension:
@@ -68,8 +68,6 @@ source: paragraphs is duckdb.sql("""
     document_i_d is Document_ID
 
   primary_key: paragraph_i_d
-
-  join_one: documents on document_i_d = documents.document_i_d
 
   measure:
     row_count is count()
@@ -81,4 +79,30 @@ source: paragraphs is duckdb.sql("""
     avg_document_i_d is avg(document_i_d)
     max_document_i_d is max(document_i_d)
     min_document_i_d is min(document_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Template_Types (with joins)
+source: ref_template_types is ref_template_types_base extend {
+  join_many: templates is templates_base on Template_Type_Code = templates.Template_Type_Code
+}
+
+// Templates (with joins)
+source: templates is templates_base extend {
+  join_one: ref_template_types is ref_template_types_base on Template_Type_Code = ref_template_types.Template_Type_Code
+  join_many: documents is documents_base on template_i_d = documents.template_i_d
+}
+
+// Documents (with joins)
+source: documents is documents_base extend {
+  join_one: templates is templates_base on template_i_d = templates.template_i_d
+  join_many: paragraphs is paragraphs_base on document_i_d = paragraphs.document_i_d
+}
+
+// Paragraphs (with joins)
+source: paragraphs is paragraphs_base extend {
+  join_one: documents is documents_base on document_i_d = documents.document_i_d
 }

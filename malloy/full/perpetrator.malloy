@@ -1,9 +1,49 @@
 // Malloy semantic layer for: perpetrator
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// perpetrator
+source: perpetrator_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'perpetrator')
+""") extend {
+  dimension:
+    perpetrator_i_d is Perpetrator_ID
+    people_i_d is People_ID
+    date_val is `Date`
+    year_val is `Year`
+
+  primary_key: perpetrator_i_d
+
+  measure:
+    row_count is count()
+    total_perpetrator_i_d is sum(perpetrator_i_d)
+    avg_perpetrator_i_d is avg(perpetrator_i_d)
+    max_perpetrator_i_d is max(perpetrator_i_d)
+    min_perpetrator_i_d is min(perpetrator_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_killed is sum(Killed)
+    avg_killed is avg(Killed)
+    max_killed is max(Killed)
+    min_killed is min(Killed)
+    total_injured is sum(Injured)
+    avg_injured is avg(Injured)
+    max_injured is max(Injured)
+    min_injured is min(Injured)
+}
+
 // people
-source: people_val is duckdb.sql("""
+source: people_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'people')
 """) extend {
   dimension:
@@ -29,40 +69,16 @@ source: people_val is duckdb.sql("""
     min_weight is min(Weight)
 }
 
-// perpetrator
-source: perpetrator is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'perpetrator')
-""") extend {
-  dimension:
-    perpetrator_i_d is Perpetrator_ID
-    people_i_d is People_ID
-    date_val is `Date`
-    year_val is `Year`
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: perpetrator_i_d
+// perpetrator (with joins)
+source: perpetrator is perpetrator_base extend {
+  join_one: people_val is people_val_base on people_i_d = people_val.people_i_d
+}
 
-  join_one: people_val on people_i_d = people_val.people_i_d
-
-  measure:
-    row_count is count()
-    total_perpetrator_i_d is sum(perpetrator_i_d)
-    avg_perpetrator_i_d is avg(perpetrator_i_d)
-    max_perpetrator_i_d is max(perpetrator_i_d)
-    min_perpetrator_i_d is min(perpetrator_i_d)
-    total_people_i_d is sum(people_i_d)
-    avg_people_i_d is avg(people_i_d)
-    max_people_i_d is max(people_i_d)
-    min_people_i_d is min(people_i_d)
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
-    total_killed is sum(Killed)
-    avg_killed is avg(Killed)
-    max_killed is max(Killed)
-    min_killed is min(Killed)
-    total_injured is sum(Injured)
-    avg_injured is avg(Injured)
-    max_injured is max(Injured)
-    min_injured is min(Injured)
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: perpetrator is perpetrator_base on people_i_d = perpetrator.people_i_d
 }

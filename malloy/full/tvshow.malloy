@@ -1,9 +1,13 @@
 // Malloy semantic layer for: tvshow
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/tvshow/tvshow.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // TV_Channel
-source: t_v_channel is duckdb.sql("""
+source: t_v_channel_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'TV_Channel')
 """) extend {
   dimension:
@@ -19,15 +23,13 @@ source: t_v_channel is duckdb.sql("""
 }
 
 // TV_series
-source: t_v_series is duckdb.sql("""
+source: t_v_series_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'TV_series')
 """) extend {
   dimension:
     col_18_49_rating_share is `18_49_Rating_Share`
 
   primary_key: id
-
-  join_one: t_v_channel on Channel = t_v_channel.id
 
   measure:
     row_count is count()
@@ -46,12 +48,10 @@ source: t_v_series is duckdb.sql("""
 }
 
 // Cartoon
-source: cartoon is duckdb.sql("""
+source: cartoon_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'Cartoon')
 """) extend {
   primary_key: id
-
-  join_one: t_v_channel on Channel = t_v_channel.id
 
   measure:
     row_count is count()
@@ -63,4 +63,24 @@ source: cartoon is duckdb.sql("""
     avg_production_code is avg(Production_code)
     max_production_code is max(Production_code)
     min_production_code is min(Production_code)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// TV_Channel (with joins)
+source: t_v_channel is t_v_channel_base extend {
+  join_many: t_v_series is t_v_series_base on id = t_v_series.Channel
+  join_many: cartoon is cartoon_base on id = cartoon.Channel
+}
+
+// TV_series (with joins)
+source: t_v_series is t_v_series_base extend {
+  join_one: t_v_channel is t_v_channel_base on Channel = t_v_channel.id
+}
+
+// Cartoon (with joins)
+source: cartoon is cartoon_base extend {
+  join_one: t_v_channel is t_v_channel_base on Channel = t_v_channel.id
 }

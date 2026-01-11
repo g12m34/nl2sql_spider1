@@ -1,9 +1,77 @@
 // Malloy semantic layer for: college_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/college_1/college_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// CLASS
+source: c_l_a_s_s_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'CLASS')
+""") extend {
+  dimension:
+    c_l_a_s_s_c_o_d_e is CLASS_CODE
+    c_r_s_c_o_d_e is CRS_CODE
+    c_l_a_s_s_s_e_c_t_i_o_n is CLASS_SECTION
+    c_l_a_s_s_t_i_m_e is CLASS_TIME
+    c_l_a_s_s_r_o_o_m is CLASS_ROOM
+    p_r_o_f_n_u_m is PROF_NUM
+
+  primary_key: c_l_a_s_s_c_o_d_e
+
+  measure:
+    row_count is count()
+    total_p_r_o_f_n_u_m is sum(p_r_o_f_n_u_m)
+    avg_p_r_o_f_n_u_m is avg(p_r_o_f_n_u_m)
+    max_p_r_o_f_n_u_m is max(p_r_o_f_n_u_m)
+    min_p_r_o_f_n_u_m is min(p_r_o_f_n_u_m)
+}
+
+// COURSE
+source: c_o_u_r_s_e_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'COURSE')
+""") extend {
+  dimension:
+    c_r_s_c_o_d_e is CRS_CODE
+    d_e_p_t_c_o_d_e is DEPT_CODE
+    c_r_s_d_e_s_c_r_i_p_t_i_o_n is CRS_DESCRIPTION
+    c_r_s_c_r_e_d_i_t is CRS_CREDIT
+
+  primary_key: c_r_s_c_o_d_e
+
+  measure:
+    row_count is count()
+    total_c_r_s_c_r_e_d_i_t is sum(c_r_s_c_r_e_d_i_t)
+    avg_c_r_s_c_r_e_d_i_t is avg(c_r_s_c_r_e_d_i_t)
+    max_c_r_s_c_r_e_d_i_t is max(c_r_s_c_r_e_d_i_t)
+    min_c_r_s_c_r_e_d_i_t is min(c_r_s_c_r_e_d_i_t)
+}
+
+// DEPARTMENT
+source: d_e_p_a_r_t_m_e_n_t_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'DEPARTMENT')
+""") extend {
+  dimension:
+    d_e_p_t_c_o_d_e is DEPT_CODE
+    d_e_p_t_n_a_m_e is DEPT_NAME
+    s_c_h_o_o_l_c_o_d_e is SCHOOL_CODE
+    e_m_p_n_u_m is EMP_NUM
+    d_e_p_t_a_d_d_r_e_s_s is DEPT_ADDRESS
+    d_e_p_t_e_x_t_e_n_s_i_o_n is DEPT_EXTENSION
+
+  primary_key: d_e_p_t_c_o_d_e
+
+  measure:
+    row_count is count()
+    total_e_m_p_n_u_m is sum(e_m_p_n_u_m)
+    avg_e_m_p_n_u_m is avg(e_m_p_n_u_m)
+    max_e_m_p_n_u_m is max(e_m_p_n_u_m)
+    min_e_m_p_n_u_m is min(e_m_p_n_u_m)
+}
+
 // EMPLOYEE
-source: e_m_p_l_o_y_e_e is duckdb.sql("""
+source: e_m_p_l_o_y_e_e_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'EMPLOYEE')
 """) extend {
   dimension:
@@ -25,54 +93,25 @@ source: e_m_p_l_o_y_e_e is duckdb.sql("""
     min_e_m_p_n_u_m is min(e_m_p_n_u_m)
 }
 
-// DEPARTMENT
-source: d_e_p_a_r_t_m_e_n_t is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'DEPARTMENT')
+// ENROLL
+source: e_n_r_o_l_l_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'ENROLL')
 """) extend {
   dimension:
-    d_e_p_t_c_o_d_e is DEPT_CODE
-    d_e_p_t_n_a_m_e is DEPT_NAME
-    s_c_h_o_o_l_c_o_d_e is SCHOOL_CODE
-    e_m_p_n_u_m is EMP_NUM
-    d_e_p_t_a_d_d_r_e_s_s is DEPT_ADDRESS
-    d_e_p_t_e_x_t_e_n_s_i_o_n is DEPT_EXTENSION
-
-  primary_key: d_e_p_t_c_o_d_e
-
-  join_one: e_m_p_l_o_y_e_e on e_m_p_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+    c_l_a_s_s_c_o_d_e is CLASS_CODE
+    s_t_u_n_u_m is STU_NUM
+    e_n_r_o_l_l_g_r_a_d_e is ENROLL_GRADE
 
   measure:
     row_count is count()
-    total_e_m_p_n_u_m is sum(e_m_p_n_u_m)
-    avg_e_m_p_n_u_m is avg(e_m_p_n_u_m)
-    max_e_m_p_n_u_m is max(e_m_p_n_u_m)
-    min_e_m_p_n_u_m is min(e_m_p_n_u_m)
-}
-
-// COURSE
-source: c_o_u_r_s_e is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'COURSE')
-""") extend {
-  dimension:
-    c_r_s_c_o_d_e is CRS_CODE
-    d_e_p_t_c_o_d_e is DEPT_CODE
-    c_r_s_d_e_s_c_r_i_p_t_i_o_n is CRS_DESCRIPTION
-    c_r_s_c_r_e_d_i_t is CRS_CREDIT
-
-  primary_key: c_r_s_c_o_d_e
-
-  join_one: d_e_p_a_r_t_m_e_n_t on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
-
-  measure:
-    row_count is count()
-    total_c_r_s_c_r_e_d_i_t is sum(c_r_s_c_r_e_d_i_t)
-    avg_c_r_s_c_r_e_d_i_t is avg(c_r_s_c_r_e_d_i_t)
-    max_c_r_s_c_r_e_d_i_t is max(c_r_s_c_r_e_d_i_t)
-    min_c_r_s_c_r_e_d_i_t is min(c_r_s_c_r_e_d_i_t)
+    total_s_t_u_n_u_m is sum(s_t_u_n_u_m)
+    avg_s_t_u_n_u_m is avg(s_t_u_n_u_m)
+    max_s_t_u_n_u_m is max(s_t_u_n_u_m)
+    min_s_t_u_n_u_m is min(s_t_u_n_u_m)
 }
 
 // PROFESSOR
-source: p_r_o_f_e_s_s_o_r is duckdb.sql("""
+source: p_r_o_f_e_s_s_o_r_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'PROFESSOR')
 """) extend {
   dimension:
@@ -81,9 +120,6 @@ source: p_r_o_f_e_s_s_o_r is duckdb.sql("""
     p_r_o_f_o_f_f_i_c_e is PROF_OFFICE
     p_r_o_f_e_x_t_e_n_s_i_o_n is PROF_EXTENSION
     p_r_o_f_h_i_g_h_d_e_g_r_e_e is PROF_HIGH_DEGREE
-
-  join_one: d_e_p_a_r_t_m_e_n_t on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
-  join_one: e_m_p_l_o_y_e_e on e_m_p_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
 
   measure:
     row_count is count()
@@ -94,7 +130,7 @@ source: p_r_o_f_e_s_s_o_r is duckdb.sql("""
 }
 
 // STUDENT
-source: s_t_u_d_e_n_t is duckdb.sql("""
+source: s_t_u_d_e_n_t_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'STUDENT')
 """) extend {
   dimension:
@@ -112,8 +148,6 @@ source: s_t_u_d_e_n_t is duckdb.sql("""
     p_r_o_f_n_u_m is PROF_NUM
 
   primary_key: s_t_u_n_u_m
-
-  join_one: d_e_p_a_r_t_m_e_n_t on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
 
   measure:
     row_count is count()
@@ -139,47 +173,52 @@ source: s_t_u_d_e_n_t is duckdb.sql("""
     min_p_r_o_f_n_u_m is min(p_r_o_f_n_u_m)
 }
 
-// CLASS
-source: c_l_a_s_s is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'CLASS')
-""") extend {
-  dimension:
-    c_l_a_s_s_c_o_d_e is CLASS_CODE
-    c_r_s_c_o_d_e is CRS_CODE
-    c_l_a_s_s_s_e_c_t_i_o_n is CLASS_SECTION
-    c_l_a_s_s_t_i_m_e is CLASS_TIME
-    c_l_a_s_s_r_o_o_m is CLASS_ROOM
-    p_r_o_f_n_u_m is PROF_NUM
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: c_l_a_s_s_c_o_d_e
-
-  join_one: e_m_p_l_o_y_e_e on p_r_o_f_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
-  join_one: c_o_u_r_s_e on c_r_s_c_o_d_e = c_o_u_r_s_e.c_r_s_c_o_d_e
-
-  measure:
-    row_count is count()
-    total_p_r_o_f_n_u_m is sum(p_r_o_f_n_u_m)
-    avg_p_r_o_f_n_u_m is avg(p_r_o_f_n_u_m)
-    max_p_r_o_f_n_u_m is max(p_r_o_f_n_u_m)
-    min_p_r_o_f_n_u_m is min(p_r_o_f_n_u_m)
+// CLASS (with joins)
+source: c_l_a_s_s is c_l_a_s_s_base extend {
+  join_one: e_m_p_l_o_y_e_e is e_m_p_l_o_y_e_e_base on p_r_o_f_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+  join_one: c_o_u_r_s_e is c_o_u_r_s_e_base on c_r_s_c_o_d_e = c_o_u_r_s_e.c_r_s_c_o_d_e
+  join_many: e_n_r_o_l_l is e_n_r_o_l_l_base on c_l_a_s_s_c_o_d_e = e_n_r_o_l_l.c_l_a_s_s_c_o_d_e
 }
 
-// ENROLL
-source: e_n_r_o_l_l is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'ENROLL')
-""") extend {
-  dimension:
-    c_l_a_s_s_c_o_d_e is CLASS_CODE
-    s_t_u_n_u_m is STU_NUM
-    e_n_r_o_l_l_g_r_a_d_e is ENROLL_GRADE
+// COURSE (with joins)
+source: c_o_u_r_s_e is c_o_u_r_s_e_base extend {
+  join_one: d_e_p_a_r_t_m_e_n_t is d_e_p_a_r_t_m_e_n_t_base on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
+  join_many: c_l_a_s_s is c_l_a_s_s_base on c_r_s_c_o_d_e = c_l_a_s_s.c_r_s_c_o_d_e
+}
 
-  join_one: s_t_u_d_e_n_t on s_t_u_n_u_m = s_t_u_d_e_n_t.s_t_u_n_u_m
-  join_one: c_l_a_s_s on c_l_a_s_s_c_o_d_e = c_l_a_s_s.c_l_a_s_s_c_o_d_e
+// DEPARTMENT (with joins)
+source: d_e_p_a_r_t_m_e_n_t is d_e_p_a_r_t_m_e_n_t_base extend {
+  join_one: e_m_p_l_o_y_e_e is e_m_p_l_o_y_e_e_base on e_m_p_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+  join_many: c_o_u_r_s_e is c_o_u_r_s_e_base on d_e_p_t_c_o_d_e = c_o_u_r_s_e.d_e_p_t_c_o_d_e
+  join_many: p_r_o_f_e_s_s_o_r is p_r_o_f_e_s_s_o_r_base on d_e_p_t_c_o_d_e = p_r_o_f_e_s_s_o_r.d_e_p_t_c_o_d_e
+  join_many: s_t_u_d_e_n_t is s_t_u_d_e_n_t_base on d_e_p_t_c_o_d_e = s_t_u_d_e_n_t.d_e_p_t_c_o_d_e
+}
 
-  measure:
-    row_count is count()
-    total_s_t_u_n_u_m is sum(s_t_u_n_u_m)
-    avg_s_t_u_n_u_m is avg(s_t_u_n_u_m)
-    max_s_t_u_n_u_m is max(s_t_u_n_u_m)
-    min_s_t_u_n_u_m is min(s_t_u_n_u_m)
+// EMPLOYEE (with joins)
+source: e_m_p_l_o_y_e_e is e_m_p_l_o_y_e_e_base extend {
+  join_many: c_l_a_s_s is c_l_a_s_s_base on e_m_p_n_u_m = c_l_a_s_s.p_r_o_f_n_u_m
+  join_many: d_e_p_a_r_t_m_e_n_t is d_e_p_a_r_t_m_e_n_t_base on e_m_p_n_u_m = d_e_p_a_r_t_m_e_n_t.e_m_p_n_u_m
+  join_many: p_r_o_f_e_s_s_o_r is p_r_o_f_e_s_s_o_r_base on e_m_p_n_u_m = p_r_o_f_e_s_s_o_r.e_m_p_n_u_m
+}
+
+// ENROLL (with joins)
+source: e_n_r_o_l_l is e_n_r_o_l_l_base extend {
+  join_one: s_t_u_d_e_n_t is s_t_u_d_e_n_t_base on s_t_u_n_u_m = s_t_u_d_e_n_t.s_t_u_n_u_m
+  join_one: c_l_a_s_s is c_l_a_s_s_base on c_l_a_s_s_c_o_d_e = c_l_a_s_s.c_l_a_s_s_c_o_d_e
+}
+
+// PROFESSOR (with joins)
+source: p_r_o_f_e_s_s_o_r is p_r_o_f_e_s_s_o_r_base extend {
+  join_one: d_e_p_a_r_t_m_e_n_t is d_e_p_a_r_t_m_e_n_t_base on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
+  join_one: e_m_p_l_o_y_e_e is e_m_p_l_o_y_e_e_base on e_m_p_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+}
+
+// STUDENT (with joins)
+source: s_t_u_d_e_n_t is s_t_u_d_e_n_t_base extend {
+  join_one: d_e_p_a_r_t_m_e_n_t is d_e_p_a_r_t_m_e_n_t_base on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
+  join_many: e_n_r_o_l_l is e_n_r_o_l_l_base on s_t_u_n_u_m = e_n_r_o_l_l.s_t_u_n_u_m
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: customer_complaints
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Staff
-source: staff_val is duckdb.sql("""
+source: staff_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Staff')
 """) extend {
   primary_key: staff_id
@@ -17,7 +21,7 @@ source: staff_val is duckdb.sql("""
 }
 
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Customers')
 """) extend {
   dimension:
@@ -34,7 +38,7 @@ source: customers is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Products')
 """) extend {
   primary_key: product_id
@@ -56,13 +60,9 @@ source: products is duckdb.sql("""
 }
 
 // Complaints
-source: complaints is duckdb.sql("""
+source: complaints_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Complaints')
 """) extend {
-  join_one: customers on customer_id = customers.customer_id
-  join_one: products on product_id = products.product_id
-  join_one: staff_val on staff_id = staff_val.staff_id
-
   measure:
     row_count is count()
     total_complaint_id is sum(complaint_id)
@@ -81,4 +81,30 @@ source: complaints is duckdb.sql("""
     avg_staff_id is avg(staff_id)
     max_staff_id is max(staff_id)
     min_staff_id is min(staff_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Staff (with joins)
+source: staff_val is staff_val_base extend {
+  join_many: complaints is complaints_base on staff_id = complaints.staff_id
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: complaints is complaints_base on customer_id = complaints.customer_id
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: complaints is complaints_base on product_id = complaints.product_id
+}
+
+// Complaints (with joins)
+source: complaints is complaints_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: products is products_base on product_id = products.product_id
+  join_one: staff_val is staff_val_base on staff_id = staff_val.staff_id
 }

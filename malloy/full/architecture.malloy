@@ -1,9 +1,13 @@
 // Malloy semantic layer for: architecture
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/architecture/architecture.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // architect
-source: architect is duckdb.sql("""
+source: architect_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'architect')
 """) extend {
   dimension:
@@ -16,15 +20,13 @@ source: architect is duckdb.sql("""
 }
 
 // bridge
-source: bridge is duckdb.sql("""
+source: bridge_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'bridge')
 """) extend {
   dimension:
     name_val is `name`
 
   primary_key: id
-
-  join_one: architect on architect_id = architect.id
 
   measure:
     row_count is count()
@@ -47,7 +49,7 @@ source: bridge is duckdb.sql("""
 }
 
 // mill
-source: mill is duckdb.sql("""
+source: mill_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'mill')
 """) extend {
   dimension:
@@ -55,8 +57,6 @@ source: mill is duckdb.sql("""
     type_val is `type`
 
   primary_key: id
-
-  join_one: architect on architect_id = architect.id
 
   measure:
     row_count is count()
@@ -72,4 +72,24 @@ source: mill is duckdb.sql("""
     avg_built_year is avg(built_year)
     max_built_year is max(built_year)
     min_built_year is min(built_year)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// architect (with joins)
+source: architect is architect_base extend {
+  join_many: bridge is bridge_base on id = bridge.architect_id
+  join_many: mill is mill_base on id = mill.architect_id
+}
+
+// bridge (with joins)
+source: bridge is bridge_base extend {
+  join_one: architect is architect_base on architect_id = architect.id
+}
+
+// mill (with joins)
+source: mill is mill_base extend {
+  join_one: architect is architect_base on architect_id = architect.id
 }

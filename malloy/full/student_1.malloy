@@ -1,9 +1,13 @@
 // Malloy semantic layer for: student_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/student_1/student_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // list
-source: list is duckdb.sql("""
+source: list_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_1/student_1.sqlite', 'list')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: list is duckdb.sql("""
 }
 
 // teachers
-source: teachers is duckdb.sql("""
+source: teachers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_1/student_1.sqlite', 'teachers')
 """) extend {
   dimension:
@@ -41,3 +45,13 @@ source: teachers is duckdb.sql("""
     max_classroom is max(Classroom)
     min_classroom is min(Classroom)
 }
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// list (with joins)
+source: list is list_base
+
+// teachers (with joins)
+source: teachers is teachers_base

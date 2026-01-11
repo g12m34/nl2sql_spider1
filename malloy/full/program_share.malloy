@@ -1,9 +1,13 @@
 // Malloy semantic layer for: program_share
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/program_share/program_share.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // program
-source: program is duckdb.sql("""
+source: program_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'program')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: program is duckdb.sql("""
 }
 
 // channel
-source: channel is duckdb.sql("""
+source: channel_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'channel')
 """) extend {
   dimension:
@@ -51,7 +55,7 @@ source: channel is duckdb.sql("""
 }
 
 // broadcast
-source: broadcast is duckdb.sql("""
+source: broadcast_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'broadcast')
 """) extend {
   dimension:
@@ -59,9 +63,6 @@ source: broadcast is duckdb.sql("""
     program_i_d is Program_ID
 
   primary_key: channel_i_d
-
-  join_one: program on program_i_d = program.program_i_d
-  join_one: channel on channel_i_d = channel.channel_i_d
 
   measure:
     row_count is count()
@@ -76,7 +77,7 @@ source: broadcast is duckdb.sql("""
 }
 
 // broadcast_share
-source: broadcast_share is duckdb.sql("""
+source: broadcast_share_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/program_share/program_share.sqlite', 'broadcast_share')
 """) extend {
   dimension:
@@ -85,9 +86,6 @@ source: broadcast_share is duckdb.sql("""
     date_val is `Date`
 
   primary_key: channel_i_d
-
-  join_one: program on program_i_d = program.program_i_d
-  join_one: channel on channel_i_d = channel.channel_i_d
 
   measure:
     row_count is count()
@@ -103,4 +101,32 @@ source: broadcast_share is duckdb.sql("""
     avg_share_in_percent is avg(Share_in_percent)
     max_share_in_percent is max(Share_in_percent)
     min_share_in_percent is min(Share_in_percent)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// program (with joins)
+source: program is program_base extend {
+  join_many: broadcast is broadcast_base on program_i_d = broadcast.program_i_d
+  join_many: broadcast_share is broadcast_share_base on program_i_d = broadcast_share.program_i_d
+}
+
+// channel (with joins)
+source: channel is channel_base extend {
+  join_many: broadcast is broadcast_base on channel_i_d = broadcast.channel_i_d
+  join_many: broadcast_share is broadcast_share_base on channel_i_d = broadcast_share.channel_i_d
+}
+
+// broadcast (with joins)
+source: broadcast is broadcast_base extend {
+  join_one: program is program_base on program_i_d = program.program_i_d
+  join_one: channel is channel_base on channel_i_d = channel.channel_i_d
+}
+
+// broadcast_share (with joins)
+source: broadcast_share is broadcast_share_base extend {
+  join_one: program is program_base on program_i_d = program.program_i_d
+  join_one: channel is channel_base on channel_i_d = channel.channel_i_d
 }

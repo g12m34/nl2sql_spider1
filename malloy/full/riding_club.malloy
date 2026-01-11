@@ -1,9 +1,13 @@
 // Malloy semantic layer for: riding_club
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/riding_club/riding_club.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // player
-source: player is duckdb.sql("""
+source: player_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: player is duckdb.sql("""
 }
 
 // club
-source: club_val is duckdb.sql("""
+source: club_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'club')
 """) extend {
   dimension:
@@ -46,7 +50,7 @@ source: club_val is duckdb.sql("""
 }
 
 // coach
-source: coach is duckdb.sql("""
+source: coach_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'coach')
 """) extend {
   dimension:
@@ -55,8 +59,6 @@ source: coach is duckdb.sql("""
     rank_val is `Rank`
 
   primary_key: coach_i_d
-
-  join_one: club_val on club_i_d = club_val.club_i_d
 
   measure:
     row_count is count()
@@ -74,8 +76,34 @@ source: coach is duckdb.sql("""
     min_rank_val is min(rank_val)
 }
 
+// player_coach
+source: player_coach_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player_coach')
+""") extend {
+  dimension:
+    player_i_d is Player_ID
+    coach_i_d is Coach_ID
+
+  primary_key: player_i_d
+
+  measure:
+    row_count is count()
+    total_player_i_d is sum(player_i_d)
+    avg_player_i_d is avg(player_i_d)
+    max_player_i_d is max(player_i_d)
+    min_player_i_d is min(player_i_d)
+    total_coach_i_d is sum(coach_i_d)
+    avg_coach_i_d is avg(coach_i_d)
+    max_coach_i_d is max(coach_i_d)
+    min_coach_i_d is min(coach_i_d)
+    total_starting_year is sum(Starting_year)
+    avg_starting_year is avg(Starting_year)
+    max_starting_year is max(Starting_year)
+    min_starting_year is min(Starting_year)
+}
+
 // match_result
-source: match_result is duckdb.sql("""
+source: match_result_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'match_result')
 """) extend {
   dimension:
@@ -83,8 +111,6 @@ source: match_result is duckdb.sql("""
     club_i_d is Club_ID
 
   primary_key: rank_val
-
-  join_one: club_val on club_i_d = club_val.club_i_d
 
   measure:
     row_count is count()
@@ -118,31 +144,34 @@ source: match_result is duckdb.sql("""
     min_points is min(Points)
 }
 
-// player_coach
-source: player_coach is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player_coach')
-""") extend {
-  dimension:
-    player_i_d is Player_ID
-    coach_i_d is Coach_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: player_i_d
+// player (with joins)
+source: player is player_base extend {
+  join_many: player_coach is player_coach_base on player_i_d = player_coach.player_i_d
+}
 
-  join_one: coach on coach_i_d = coach.coach_i_d
-  join_one: player on player_i_d = player.player_i_d
+// club (with joins)
+source: club_val is club_val_base extend {
+  join_many: coach is coach_base on club_i_d = coach.club_i_d
+  join_many: match_result is match_result_base on club_i_d = match_result.club_i_d
+}
 
-  measure:
-    row_count is count()
-    total_player_i_d is sum(player_i_d)
-    avg_player_i_d is avg(player_i_d)
-    max_player_i_d is max(player_i_d)
-    min_player_i_d is min(player_i_d)
-    total_coach_i_d is sum(coach_i_d)
-    avg_coach_i_d is avg(coach_i_d)
-    max_coach_i_d is max(coach_i_d)
-    min_coach_i_d is min(coach_i_d)
-    total_starting_year is sum(Starting_year)
-    avg_starting_year is avg(Starting_year)
-    max_starting_year is max(Starting_year)
-    min_starting_year is min(Starting_year)
+// coach (with joins)
+source: coach is coach_base extend {
+  join_one: club_val is club_val_base on club_i_d = club_val.club_i_d
+  join_many: player_coach is player_coach_base on coach_i_d = player_coach.coach_i_d
+}
+
+// player_coach (with joins)
+source: player_coach is player_coach_base extend {
+  join_one: coach is coach_base on coach_i_d = coach.coach_i_d
+  join_one: player is player_base on player_i_d = player.player_i_d
+}
+
+// match_result (with joins)
+source: match_result is match_result_base extend {
+  join_one: club_val is club_val_base on club_i_d = club_val.club_i_d
 }

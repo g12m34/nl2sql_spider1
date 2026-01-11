@@ -1,9 +1,13 @@
 // Malloy semantic layer for: scholar
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/scholar/scholar.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // venue
-source: venue is duckdb.sql("""
+source: venue_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'venue')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: venue is duckdb.sql("""
 }
 
 // author
-source: author is duckdb.sql("""
+source: author_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'author')
 """) extend {
   dimension:
@@ -39,7 +43,7 @@ source: author is duckdb.sql("""
 }
 
 // dataset
-source: dataset is duckdb.sql("""
+source: dataset_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'dataset')
 """) extend {
   dimension:
@@ -57,7 +61,7 @@ source: dataset is duckdb.sql("""
 }
 
 // journal
-source: journal is duckdb.sql("""
+source: journal_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'journal')
 """) extend {
   dimension:
@@ -75,7 +79,7 @@ source: journal is duckdb.sql("""
 }
 
 // keyphrase
-source: keyphrase is duckdb.sql("""
+source: keyphrase_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'keyphrase')
 """) extend {
   dimension:
@@ -92,30 +96,8 @@ source: keyphrase is duckdb.sql("""
     min_keyphrase_id is min(keyphrase_id)
 }
 
-// paperDataset
-source: paper_dataset is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperDataset')
-""") extend {
-  dimension:
-    paper_id is paperId
-    dataset_id is datasetId
-
-  primary_key: dataset_id
-
-  measure:
-    row_count is count()
-    total_paper_id is sum(paper_id)
-    avg_paper_id is avg(paper_id)
-    max_paper_id is max(paper_id)
-    min_paper_id is min(paper_id)
-    total_dataset_id is sum(dataset_id)
-    avg_dataset_id is avg(dataset_id)
-    max_dataset_id is max(dataset_id)
-    min_dataset_id is min(dataset_id)
-}
-
 // paper
-source: paper is duckdb.sql("""
+source: paper_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paper')
 """) extend {
   dimension:
@@ -127,9 +109,6 @@ source: paper is duckdb.sql("""
     journal_id is journalId
 
   primary_key: paper_id
-
-  join_one: venue on venue_id = venue.venue_id
-  join_one: journal on journal_id = journal.journal_id
 
   measure:
     row_count is count()
@@ -160,7 +139,7 @@ source: paper is duckdb.sql("""
 }
 
 // cite
-source: cite is duckdb.sql("""
+source: cite_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'cite')
 """) extend {
   dimension:
@@ -168,9 +147,6 @@ source: cite is duckdb.sql("""
     cited_paper_id is citedPaperId
 
   primary_key: citing_paper_id
-
-  join_one: citing_paper_paper is paper on citing_paper_id = citing_paper_paper.paper_id
-  join_one: cited_paper_paper is paper on cited_paper_id = cited_paper_paper.paper_id
 
   measure:
     row_count is count()
@@ -184,8 +160,30 @@ source: cite is duckdb.sql("""
     min_cited_paper_id is min(cited_paper_id)
 }
 
+// paperDataset
+source: paper_dataset_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperDataset')
+""") extend {
+  dimension:
+    paper_id is paperId
+    dataset_id is datasetId
+
+  primary_key: dataset_id
+
+  measure:
+    row_count is count()
+    total_paper_id is sum(paper_id)
+    avg_paper_id is avg(paper_id)
+    max_paper_id is max(paper_id)
+    min_paper_id is min(paper_id)
+    total_dataset_id is sum(dataset_id)
+    avg_dataset_id is avg(dataset_id)
+    max_dataset_id is max(dataset_id)
+    min_dataset_id is min(dataset_id)
+}
+
 // paperKeyphrase
-source: paper_keyphrase is duckdb.sql("""
+source: paper_keyphrase_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperKeyphrase')
 """) extend {
   dimension:
@@ -193,9 +191,6 @@ source: paper_keyphrase is duckdb.sql("""
     keyphrase_id is keyphraseId
 
   primary_key: keyphrase_id
-
-  join_one: keyphrase on keyphrase_id = keyphrase.keyphrase_id
-  join_one: paper on paper_id = paper.paper_id
 
   measure:
     row_count is count()
@@ -210,7 +205,7 @@ source: paper_keyphrase is duckdb.sql("""
 }
 
 // writes
-source: writes is duckdb.sql("""
+source: writes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'writes')
 """) extend {
   dimension:
@@ -218,9 +213,6 @@ source: writes is duckdb.sql("""
     author_id is authorId
 
   primary_key: paper_id
-
-  join_one: author on author_id = author.author_id
-  join_one: paper on paper_id = paper.paper_id
 
   measure:
     row_count is count()
@@ -232,4 +224,62 @@ source: writes is duckdb.sql("""
     avg_author_id is avg(author_id)
     max_author_id is max(author_id)
     min_author_id is min(author_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// venue (with joins)
+source: venue is venue_base extend {
+  join_many: paper is paper_base on venue_id = paper.venue_id
+}
+
+// author (with joins)
+source: author is author_base extend {
+  join_many: writes is writes_base on author_id = writes.author_id
+}
+
+// dataset (with joins)
+source: dataset is dataset_base
+
+// journal (with joins)
+source: journal is journal_base extend {
+  join_many: paper is paper_base on journal_id = paper.journal_id
+}
+
+// keyphrase (with joins)
+source: keyphrase is keyphrase_base extend {
+  join_many: paper_keyphrase is paper_keyphrase_base on keyphrase_id = paper_keyphrase.keyphrase_id
+}
+
+// paper (with joins)
+source: paper is paper_base extend {
+  join_one: venue is venue_base on venue_id = venue.venue_id
+  join_one: journal is journal_base on journal_id = journal.journal_id
+  join_many: cite_citing_paper is cite_base on paper_id = cite_citing_paper.citing_paper_id
+  join_many: cite_cited_paper is cite_base on paper_id = cite_cited_paper.cited_paper_id
+  join_many: paper_keyphrase is paper_keyphrase_base on paper_id = paper_keyphrase.paper_id
+  join_many: writes is writes_base on paper_id = writes.paper_id
+}
+
+// cite (with joins)
+source: cite is cite_base extend {
+  join_one: citing_paper_paper is paper_base on citing_paper_id = citing_paper_paper.paper_id
+  join_one: cited_paper_paper is paper_base on cited_paper_id = cited_paper_paper.paper_id
+}
+
+// paperDataset (with joins)
+source: paper_dataset is paper_dataset_base
+
+// paperKeyphrase (with joins)
+source: paper_keyphrase is paper_keyphrase_base extend {
+  join_one: keyphrase is keyphrase_base on keyphrase_id = keyphrase.keyphrase_id
+  join_one: paper is paper_base on paper_id = paper.paper_id
+}
+
+// writes (with joins)
+source: writes is writes_base extend {
+  join_one: author is author_base on author_id = author.author_id
+  join_one: paper is paper_base on paper_id = paper.paper_id
 }

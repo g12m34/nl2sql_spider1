@@ -1,9 +1,13 @@
 // Malloy semantic layer for: restaurant_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: student_val is duckdb.sql("""
 }
 
 // Restaurant
-source: restaurant is duckdb.sql("""
+source: restaurant_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Restaurant')
 """) extend {
   dimension:
@@ -54,8 +58,28 @@ source: restaurant is duckdb.sql("""
     min_rating is min(Rating)
 }
 
+// Type_Of_Restaurant
+source: type_of_restaurant_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Type_Of_Restaurant')
+""") extend {
+  dimension:
+    res_i_d is ResID
+    res_type_i_d is ResTypeID
+
+  measure:
+    row_count is count()
+    total_res_i_d is sum(res_i_d)
+    avg_res_i_d is avg(res_i_d)
+    max_res_i_d is max(res_i_d)
+    min_res_i_d is min(res_i_d)
+    total_res_type_i_d is sum(res_type_i_d)
+    avg_res_type_i_d is avg(res_type_i_d)
+    max_res_type_i_d is max(res_type_i_d)
+    min_res_type_i_d is min(res_type_i_d)
+}
+
 // Restaurant_Type
-source: restaurant_type is duckdb.sql("""
+source: restaurant_type_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Restaurant_Type')
 """) extend {
   dimension:
@@ -74,16 +98,13 @@ source: restaurant_type is duckdb.sql("""
 }
 
 // Visits_Restaurant
-source: visits_restaurant is duckdb.sql("""
+source: visits_restaurant_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Visits_Restaurant')
 """) extend {
   dimension:
     stu_i_d is StuID
     res_i_d is ResID
     time_val is `Time`
-
-  join_one: restaurant on res_i_d = restaurant.res_i_d
-  join_one: student_val on stu_i_d = student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -101,25 +122,34 @@ source: visits_restaurant is duckdb.sql("""
     min_spent is min(Spent)
 }
 
-// Type_Of_Restaurant
-source: type_of_restaurant is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurant_1/restaurant_1.sqlite', 'Type_Of_Restaurant')
-""") extend {
-  dimension:
-    res_i_d is ResID
-    res_type_i_d is ResTypeID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: restaurant_type on res_type_i_d = restaurant_type.res_type_i_d
-  join_one: restaurant on res_i_d = restaurant.res_i_d
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: visits_restaurant is visits_restaurant_base on stu_i_d = visits_restaurant.stu_i_d
+}
 
-  measure:
-    row_count is count()
-    total_res_i_d is sum(res_i_d)
-    avg_res_i_d is avg(res_i_d)
-    max_res_i_d is max(res_i_d)
-    min_res_i_d is min(res_i_d)
-    total_res_type_i_d is sum(res_type_i_d)
-    avg_res_type_i_d is avg(res_type_i_d)
-    max_res_type_i_d is max(res_type_i_d)
-    min_res_type_i_d is min(res_type_i_d)
+// Restaurant (with joins)
+source: restaurant is restaurant_base extend {
+  join_many: type_of_restaurant is type_of_restaurant_base on res_i_d = type_of_restaurant.res_i_d
+  join_many: visits_restaurant is visits_restaurant_base on res_i_d = visits_restaurant.res_i_d
+}
+
+// Type_Of_Restaurant (with joins)
+source: type_of_restaurant is type_of_restaurant_base extend {
+  join_one: restaurant_type is restaurant_type_base on res_type_i_d = restaurant_type.res_type_i_d
+  join_one: restaurant is restaurant_base on res_i_d = restaurant.res_i_d
+}
+
+// Restaurant_Type (with joins)
+source: restaurant_type is restaurant_type_base extend {
+  join_many: type_of_restaurant is type_of_restaurant_base on res_type_i_d = type_of_restaurant.res_type_i_d
+}
+
+// Visits_Restaurant (with joins)
+source: visits_restaurant is visits_restaurant_base extend {
+  join_one: restaurant is restaurant_base on res_i_d = restaurant.res_i_d
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cre_Doc_Control_Systems
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Document_Types
-source: ref_document_types is duckdb.sql("""
+source: ref_document_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Ref_Document_Types')
 """) extend {
   primary_key: document_type_code
@@ -13,7 +17,7 @@ source: ref_document_types is duckdb.sql("""
 }
 
 // Roles
-source: roles is duckdb.sql("""
+source: roles_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Roles')
 """) extend {
   primary_key: role_code
@@ -23,7 +27,7 @@ source: roles is duckdb.sql("""
 }
 
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Addresses')
 """) extend {
   primary_key: address_id
@@ -37,7 +41,7 @@ source: addresses is duckdb.sql("""
 }
 
 // Ref_Document_Status
-source: ref_document_status is duckdb.sql("""
+source: ref_document_status_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Ref_Document_Status')
 """) extend {
   primary_key: document_status_code
@@ -47,7 +51,7 @@ source: ref_document_status is duckdb.sql("""
 }
 
 // Ref_Shipping_Agents
-source: ref_shipping_agents is duckdb.sql("""
+source: ref_shipping_agents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Ref_Shipping_Agents')
 """) extend {
   primary_key: shipping_agent_code
@@ -56,31 +60,11 @@ source: ref_shipping_agents is duckdb.sql("""
     row_count is count()
 }
 
-// Employees
-source: employees is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Employees')
-""") extend {
-  primary_key: employee_id
-
-  join_one: roles on role_code = roles.role_code
-
-  measure:
-    row_count is count()
-    total_employee_id is sum(employee_id)
-    avg_employee_id is avg(employee_id)
-    max_employee_id is max(employee_id)
-    min_employee_id is min(employee_id)
-}
-
 // Documents
-source: documents is duckdb.sql("""
+source: documents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Documents')
 """) extend {
   primary_key: document_id
-
-  join_one: ref_shipping_agents on shipping_agent_code = ref_shipping_agents.shipping_agent_code
-  join_one: ref_document_status on document_status_code = ref_document_status.document_status_code
-  join_one: ref_document_types on document_type_code = ref_document_types.document_type_code
 
   measure:
     row_count is count()
@@ -90,13 +74,25 @@ source: documents is duckdb.sql("""
     min_document_id is min(document_id)
 }
 
+// Employees
+source: employees_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Employees')
+""") extend {
+  primary_key: employee_id
+
+  measure:
+    row_count is count()
+    total_employee_id is sum(employee_id)
+    avg_employee_id is avg(employee_id)
+    max_employee_id is max(employee_id)
+    min_employee_id is min(employee_id)
+}
+
 // Document_Drafts
-source: document_drafts is duckdb.sql("""
+source: document_drafts_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Document_Drafts')
 """) extend {
   primary_key: document_id
-
-  join_one: documents on document_id = documents.document_id
 
   measure:
     row_count is count()
@@ -110,35 +106,11 @@ source: document_drafts is duckdb.sql("""
     min_draft_number is min(draft_number)
 }
 
-// Documents_Mailed
-source: documents_mailed is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Documents_Mailed')
-""") extend {
-  primary_key: document_id
-
-  join_one: addresses on mailed_to_address_id = addresses.address_id
-  join_one: documents on document_id = documents.document_id
-
-  measure:
-    row_count is count()
-    total_document_id is sum(document_id)
-    avg_document_id is avg(document_id)
-    max_document_id is max(document_id)
-    min_document_id is min(document_id)
-    total_mailed_to_address_id is sum(mailed_to_address_id)
-    avg_mailed_to_address_id is avg(mailed_to_address_id)
-    max_mailed_to_address_id is max(mailed_to_address_id)
-    min_mailed_to_address_id is min(mailed_to_address_id)
-}
-
 // Draft_Copies
-source: draft_copies is duckdb.sql("""
+source: draft_copies_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Draft_Copies')
 """) extend {
   primary_key: document_id
-
-  join_one: document_document_drafts is document_drafts on document_id = document_document_drafts.document_id
-  join_one: draft_number_document_drafts is document_drafts on draft_number = draft_number_document_drafts.draft_number
 
   measure:
     row_count is count()
@@ -157,15 +129,10 @@ source: draft_copies is duckdb.sql("""
 }
 
 // Circulation_History
-source: circulation_history is duckdb.sql("""
+source: circulation_history_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Circulation_History')
 """) extend {
   primary_key: document_id
-
-  join_one: employees on employee_id = employees.employee_id
-  join_one: document_draft_copies is draft_copies on document_id = document_draft_copies.document_id
-  join_one: draft_number_draft_copies is draft_copies on draft_number = draft_number_draft_copies.draft_number
-  join_one: copy_number_draft_copies is draft_copies on copy_number = copy_number_draft_copies.copy_number
 
   measure:
     row_count is count()
@@ -185,4 +152,96 @@ source: circulation_history is duckdb.sql("""
     avg_employee_id is avg(employee_id)
     max_employee_id is max(employee_id)
     min_employee_id is min(employee_id)
+}
+
+// Documents_Mailed
+source: documents_mailed_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Control_Systems/cre_Doc_Control_Systems.sqlite', 'Documents_Mailed')
+""") extend {
+  primary_key: document_id
+
+  measure:
+    row_count is count()
+    total_document_id is sum(document_id)
+    avg_document_id is avg(document_id)
+    max_document_id is max(document_id)
+    min_document_id is min(document_id)
+    total_mailed_to_address_id is sum(mailed_to_address_id)
+    avg_mailed_to_address_id is avg(mailed_to_address_id)
+    max_mailed_to_address_id is max(mailed_to_address_id)
+    min_mailed_to_address_id is min(mailed_to_address_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Document_Types (with joins)
+source: ref_document_types is ref_document_types_base extend {
+  join_many: documents is documents_base on document_type_code = documents.document_type_code
+}
+
+// Roles (with joins)
+source: roles is roles_base extend {
+  join_many: employees is employees_base on role_code = employees.role_code
+}
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: documents_mailed is documents_mailed_base on address_id = documents_mailed.mailed_to_address_id
+}
+
+// Ref_Document_Status (with joins)
+source: ref_document_status is ref_document_status_base extend {
+  join_many: documents is documents_base on document_status_code = documents.document_status_code
+}
+
+// Ref_Shipping_Agents (with joins)
+source: ref_shipping_agents is ref_shipping_agents_base extend {
+  join_many: documents is documents_base on shipping_agent_code = documents.shipping_agent_code
+}
+
+// Documents (with joins)
+source: documents is documents_base extend {
+  join_one: ref_shipping_agents is ref_shipping_agents_base on shipping_agent_code = ref_shipping_agents.shipping_agent_code
+  join_one: ref_document_status is ref_document_status_base on document_status_code = ref_document_status.document_status_code
+  join_one: ref_document_types is ref_document_types_base on document_type_code = ref_document_types.document_type_code
+  join_many: document_drafts is document_drafts_base on document_id = document_drafts.document_id
+  join_many: documents_mailed is documents_mailed_base on document_id = documents_mailed.document_id
+}
+
+// Employees (with joins)
+source: employees is employees_base extend {
+  join_one: roles is roles_base on role_code = roles.role_code
+  join_many: circulation_history is circulation_history_base on employee_id = circulation_history.employee_id
+}
+
+// Document_Drafts (with joins)
+source: document_drafts is document_drafts_base extend {
+  join_one: documents is documents_base on document_id = documents.document_id
+  join_many: draft_copies_document is draft_copies_base on document_id = draft_copies_document.document_id
+  join_many: draft_copies_draft_number is draft_copies_base on draft_number = draft_copies_draft_number.draft_number
+}
+
+// Draft_Copies (with joins)
+source: draft_copies is draft_copies_base extend {
+  join_one: document_document_drafts is document_drafts_base on document_id = document_document_drafts.document_id
+  join_one: draft_number_document_drafts is document_drafts_base on draft_number = draft_number_document_drafts.draft_number
+  join_many: circulation_history_document is circulation_history_base on document_id = circulation_history_document.document_id
+  join_many: circulation_history_draft_number is circulation_history_base on draft_number = circulation_history_draft_number.draft_number
+  join_many: circulation_history_copy_number is circulation_history_base on copy_number = circulation_history_copy_number.copy_number
+}
+
+// Circulation_History (with joins)
+source: circulation_history is circulation_history_base extend {
+  join_one: employees is employees_base on employee_id = employees.employee_id
+  join_one: document_draft_copies is draft_copies_base on document_id = document_draft_copies.document_id
+  join_one: draft_number_draft_copies is draft_copies_base on draft_number = draft_number_draft_copies.draft_number
+  join_one: copy_number_draft_copies is draft_copies_base on copy_number = copy_number_draft_copies.copy_number
+}
+
+// Documents_Mailed (with joins)
+source: documents_mailed is documents_mailed_base extend {
+  join_one: addresses is addresses_base on mailed_to_address_id = addresses.address_id
+  join_one: documents is documents_base on document_id = documents.document_id
 }

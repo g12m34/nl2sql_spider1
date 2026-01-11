@@ -1,9 +1,13 @@
 // Malloy semantic layer for: manufactory_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Manufacturers
-source: manufacturers is duckdb.sql("""
+source: manufacturers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Manufacturers')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: manufacturers is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Products')
 """) extend {
   dimension:
@@ -33,8 +37,6 @@ source: products is duckdb.sql("""
     name_val is `Name`
 
   primary_key: code_val
-
-  join_one: manufacturers on Manufacturer = manufacturers.code_val
 
   measure:
     row_count is count()
@@ -50,4 +52,18 @@ source: products is duckdb.sql("""
     avg_manufacturer is avg(Manufacturer)
     max_manufacturer is max(Manufacturer)
     min_manufacturer is min(Manufacturer)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Manufacturers (with joins)
+source: manufacturers is manufacturers_base extend {
+  join_many: products is products_base on code_val = products.Manufacturer
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_one: manufacturers is manufacturers_base on Manufacturer = manufacturers.code_val
 }

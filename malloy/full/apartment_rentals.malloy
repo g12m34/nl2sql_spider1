@@ -1,9 +1,13 @@
 // Malloy semantic layer for: apartment_rentals
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Apartment_Buildings
-source: apartment_buildings is duckdb.sql("""
+source: apartment_buildings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartment_Buildings')
 """) extend {
   primary_key: building_id
@@ -16,27 +20,11 @@ source: apartment_buildings is duckdb.sql("""
     min_building_id is min(building_id)
 }
 
-// Guests
-source: guests is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Guests')
-""") extend {
-  primary_key: guest_id
-
-  measure:
-    row_count is count()
-    total_guest_id is sum(guest_id)
-    avg_guest_id is avg(guest_id)
-    max_guest_id is max(guest_id)
-    min_guest_id is min(guest_id)
-}
-
 // Apartments
-source: apartments is duckdb.sql("""
+source: apartments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartments')
 """) extend {
   primary_key: apt_id
-
-  join_one: apartment_buildings on building_id = apartment_buildings.building_id
 
   measure:
     row_count is count()
@@ -59,12 +47,10 @@ source: apartments is duckdb.sql("""
 }
 
 // Apartment_Facilities
-source: apartment_facilities is duckdb.sql("""
+source: apartment_facilities_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartment_Facilities')
 """) extend {
   primary_key: apt_id
-
-  join_one: apartments on apt_id = apartments.apt_id
 
   measure:
     row_count is count()
@@ -74,14 +60,25 @@ source: apartment_facilities is duckdb.sql("""
     min_apt_id is min(apt_id)
 }
 
+// Guests
+source: guests_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Guests')
+""") extend {
+  primary_key: guest_id
+
+  measure:
+    row_count is count()
+    total_guest_id is sum(guest_id)
+    avg_guest_id is avg(guest_id)
+    max_guest_id is max(guest_id)
+    min_guest_id is min(guest_id)
+}
+
 // Apartment_Bookings
-source: apartment_bookings is duckdb.sql("""
+source: apartment_bookings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'Apartment_Bookings')
 """) extend {
   primary_key: apt_booking_id
-
-  join_one: guests on guest_id = guests.guest_id
-  join_one: apartments on apt_id = apartments.apt_id
 
   measure:
     row_count is count()
@@ -100,13 +97,10 @@ source: apartment_bookings is duckdb.sql("""
 }
 
 // View_Unit_Status
-source: view_unit_status is duckdb.sql("""
+source: view_unit_status_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/apartment_rentals/apartment_rentals.sqlite', 'View_Unit_Status')
 """) extend {
   primary_key: status_date
-
-  join_one: apartment_bookings on apt_booking_id = apartment_bookings.apt_booking_id
-  join_one: apartments on apt_id = apartments.apt_id
 
   measure:
     row_count is count()
@@ -118,4 +112,44 @@ source: view_unit_status is duckdb.sql("""
     avg_apt_booking_id is avg(apt_booking_id)
     max_apt_booking_id is max(apt_booking_id)
     min_apt_booking_id is min(apt_booking_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Apartment_Buildings (with joins)
+source: apartment_buildings is apartment_buildings_base extend {
+  join_many: apartments is apartments_base on building_id = apartments.building_id
+}
+
+// Apartments (with joins)
+source: apartments is apartments_base extend {
+  join_one: apartment_buildings is apartment_buildings_base on building_id = apartment_buildings.building_id
+  join_many: apartment_facilities is apartment_facilities_base on apt_id = apartment_facilities.apt_id
+  join_many: apartment_bookings is apartment_bookings_base on apt_id = apartment_bookings.apt_id
+  join_many: view_unit_status is view_unit_status_base on apt_id = view_unit_status.apt_id
+}
+
+// Apartment_Facilities (with joins)
+source: apartment_facilities is apartment_facilities_base extend {
+  join_one: apartments is apartments_base on apt_id = apartments.apt_id
+}
+
+// Guests (with joins)
+source: guests is guests_base extend {
+  join_many: apartment_bookings is apartment_bookings_base on guest_id = apartment_bookings.guest_id
+}
+
+// Apartment_Bookings (with joins)
+source: apartment_bookings is apartment_bookings_base extend {
+  join_one: guests is guests_base on guest_id = guests.guest_id
+  join_one: apartments is apartments_base on apt_id = apartments.apt_id
+  join_many: view_unit_status is view_unit_status_base on apt_booking_id = view_unit_status.apt_booking_id
+}
+
+// View_Unit_Status (with joins)
+source: view_unit_status is view_unit_status_base extend {
+  join_one: apartment_bookings is apartment_bookings_base on apt_booking_id = apartment_bookings.apt_booking_id
+  join_one: apartments is apartments_base on apt_id = apartments.apt_id
 }

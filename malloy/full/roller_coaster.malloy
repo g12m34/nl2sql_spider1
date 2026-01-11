@@ -1,9 +1,44 @@
 // Malloy semantic layer for: roller_coaster
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// roller_coaster
+source: roller_coaster_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite', 'roller_coaster')
+""") extend {
+  dimension:
+    roller_coaster_i_d is Roller_Coaster_ID
+    name_val is `Name`
+    country_i_d is Country_ID
+
+  primary_key: roller_coaster_i_d
+
+  measure:
+    row_count is count()
+    total_roller_coaster_i_d is sum(roller_coaster_i_d)
+    avg_roller_coaster_i_d is avg(roller_coaster_i_d)
+    max_roller_coaster_i_d is max(roller_coaster_i_d)
+    min_roller_coaster_i_d is min(roller_coaster_i_d)
+    total_country_i_d is sum(country_i_d)
+    avg_country_i_d is avg(country_i_d)
+    max_country_i_d is max(country_i_d)
+    min_country_i_d is min(country_i_d)
+    total_length is sum(Length)
+    avg_length is avg(Length)
+    max_length is max(Length)
+    min_length is min(Length)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+}
+
 // country
-source: country is duckdb.sql("""
+source: country_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite', 'country')
 """) extend {
   dimension:
@@ -28,35 +63,16 @@ source: country is duckdb.sql("""
     min_area is min(Area)
 }
 
-// roller_coaster
-source: roller_coaster is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite', 'roller_coaster')
-""") extend {
-  dimension:
-    roller_coaster_i_d is Roller_Coaster_ID
-    name_val is `Name`
-    country_i_d is Country_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: roller_coaster_i_d
+// roller_coaster (with joins)
+source: roller_coaster is roller_coaster_base extend {
+  join_one: country is country_base on country_i_d = country.country_i_d
+}
 
-  join_one: country on country_i_d = country.country_i_d
-
-  measure:
-    row_count is count()
-    total_roller_coaster_i_d is sum(roller_coaster_i_d)
-    avg_roller_coaster_i_d is avg(roller_coaster_i_d)
-    max_roller_coaster_i_d is max(roller_coaster_i_d)
-    min_roller_coaster_i_d is min(roller_coaster_i_d)
-    total_country_i_d is sum(country_i_d)
-    avg_country_i_d is avg(country_i_d)
-    max_country_i_d is max(country_i_d)
-    min_country_i_d is min(country_i_d)
-    total_length is sum(Length)
-    avg_length is avg(Length)
-    max_length is max(Length)
-    min_length is min(Length)
-    total_height is sum(Height)
-    avg_height is avg(Height)
-    max_height is max(Height)
-    min_height is min(Height)
+// country (with joins)
+source: country is country_base extend {
+  join_many: roller_coaster is roller_coaster_base on country_i_d = roller_coaster.country_i_d
 }

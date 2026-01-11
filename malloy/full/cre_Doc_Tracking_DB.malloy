@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cre_Doc_Tracking_DB
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Document_Types
-source: ref_document_types is duckdb.sql("""
+source: ref_document_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Ref_Document_Types')
 """) extend {
   primary_key: Document_Type_Code
@@ -13,7 +17,7 @@ source: ref_document_types is duckdb.sql("""
 }
 
 // Ref_Calendar
-source: ref_calendar is duckdb.sql("""
+source: ref_calendar_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Ref_Calendar')
 """) extend {
   primary_key: Calendar_Date
@@ -27,7 +31,7 @@ source: ref_calendar is duckdb.sql("""
 }
 
 // Ref_Locations
-source: ref_locations is duckdb.sql("""
+source: ref_locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Ref_Locations')
 """) extend {
   primary_key: Location_Code
@@ -37,7 +41,7 @@ source: ref_locations is duckdb.sql("""
 }
 
 // Roles
-source: roles is duckdb.sql("""
+source: roles_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Roles')
 """) extend {
   primary_key: Role_Code
@@ -47,16 +51,13 @@ source: roles is duckdb.sql("""
 }
 
 // All_Documents
-source: all_documents is duckdb.sql("""
+source: all_documents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'All_Documents')
 """) extend {
   dimension:
     document_i_d is Document_ID
 
   primary_key: document_i_d
-
-  join_one: ref_calendar on Date_Stored = ref_calendar.Calendar_Date
-  join_one: ref_document_types on Document_Type_Code = ref_document_types.Document_Type_Code
 
   measure:
     row_count is count()
@@ -67,7 +68,7 @@ source: all_documents is duckdb.sql("""
 }
 
 // Employees
-source: employees is duckdb.sql("""
+source: employees_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Employees')
 """) extend {
   dimension:
@@ -75,8 +76,6 @@ source: employees is duckdb.sql("""
     gender_m_f_u is Gender_MFU
 
   primary_key: employee_i_d
-
-  join_one: roles on Role_Code = roles.Role_Code
 
   measure:
     row_count is count()
@@ -87,18 +86,13 @@ source: employees is duckdb.sql("""
 }
 
 // Document_Locations
-source: document_locations is duckdb.sql("""
+source: document_locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Document_Locations')
 """) extend {
   dimension:
     document_i_d is Document_ID
 
   primary_key: document_i_d
-
-  join_one: all_documents on document_i_d = all_documents.document_i_d
-  join_one: date_in_locaton_to_ref_calendar is ref_calendar on Date_in_Locaton_To = date_in_locaton_to_ref_calendar.Calendar_Date
-  join_one: date_in_location_from_ref_calendar is ref_calendar on Date_in_Location_From = date_in_location_from_ref_calendar.Calendar_Date
-  join_one: ref_locations on Location_Code = ref_locations.Location_Code
 
   measure:
     row_count is count()
@@ -109,7 +103,7 @@ source: document_locations is duckdb.sql("""
 }
 
 // Documents_to_be_Destroyed
-source: documents_to_be_destroyed is duckdb.sql("""
+source: documents_to_be_destroyed_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Documents_to_be_Destroyed')
 """) extend {
   dimension:
@@ -118,12 +112,6 @@ source: documents_to_be_destroyed is duckdb.sql("""
     destroyed_by_employee_i_d is Destroyed_by_Employee_ID
 
   primary_key: document_i_d
-
-  join_one: all_documents on document_i_d = all_documents.document_i_d
-  join_one: actual_destruction_date_ref_calendar is ref_calendar on Actual_Destruction_Date = actual_destruction_date_ref_calendar.Calendar_Date
-  join_one: planned_destruction_date_ref_calendar is ref_calendar on Planned_Destruction_Date = planned_destruction_date_ref_calendar.Calendar_Date
-  join_one: destruction_authorised_by_employee_i_d_employees is employees on destruction_authorised_by_employee_i_d = destruction_authorised_by_employee_i_d_employees.employee_i_d
-  join_one: destroyed_by_employee_i_d_employees is employees on destroyed_by_employee_i_d = destroyed_by_employee_i_d_employees.employee_i_d
 
   measure:
     row_count is count()
@@ -139,4 +127,64 @@ source: documents_to_be_destroyed is duckdb.sql("""
     avg_destroyed_by_employee_i_d is avg(destroyed_by_employee_i_d)
     max_destroyed_by_employee_i_d is max(destroyed_by_employee_i_d)
     min_destroyed_by_employee_i_d is min(destroyed_by_employee_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Document_Types (with joins)
+source: ref_document_types is ref_document_types_base extend {
+  join_many: all_documents is all_documents_base on Document_Type_Code = all_documents.Document_Type_Code
+}
+
+// Ref_Calendar (with joins)
+source: ref_calendar is ref_calendar_base extend {
+  join_many: all_documents is all_documents_base on Calendar_Date = all_documents.Date_Stored
+  join_many: document_locations_date_in_locaton_to is document_locations_base on Calendar_Date = document_locations_date_in_locaton_to.Date_in_Locaton_To
+  join_many: document_locations_date_in_location_from is document_locations_base on Calendar_Date = document_locations_date_in_location_from.Date_in_Location_From
+  join_many: documents_to_be_destroyed_actual_destruction_date is documents_to_be_destroyed_base on Calendar_Date = documents_to_be_destroyed_actual_destruction_date.Actual_Destruction_Date
+  join_many: documents_to_be_destroyed_planned_destruction_date is documents_to_be_destroyed_base on Calendar_Date = documents_to_be_destroyed_planned_destruction_date.Planned_Destruction_Date
+}
+
+// Ref_Locations (with joins)
+source: ref_locations is ref_locations_base extend {
+  join_many: document_locations is document_locations_base on Location_Code = document_locations.Location_Code
+}
+
+// Roles (with joins)
+source: roles is roles_base extend {
+  join_many: employees is employees_base on Role_Code = employees.Role_Code
+}
+
+// All_Documents (with joins)
+source: all_documents is all_documents_base extend {
+  join_one: ref_calendar is ref_calendar_base on Date_Stored = ref_calendar.Calendar_Date
+  join_one: ref_document_types is ref_document_types_base on Document_Type_Code = ref_document_types.Document_Type_Code
+  join_many: document_locations is document_locations_base on document_i_d = document_locations.document_i_d
+  join_many: documents_to_be_destroyed is documents_to_be_destroyed_base on document_i_d = documents_to_be_destroyed.document_i_d
+}
+
+// Employees (with joins)
+source: employees is employees_base extend {
+  join_one: roles is roles_base on Role_Code = roles.Role_Code
+  join_many: documents_to_be_destroyed_destruction_authorised_by_employee_i_d is documents_to_be_destroyed_base on employee_i_d = documents_to_be_destroyed_destruction_authorised_by_employee_i_d.destruction_authorised_by_employee_i_d
+  join_many: documents_to_be_destroyed_destroyed_by_employee_i_d is documents_to_be_destroyed_base on employee_i_d = documents_to_be_destroyed_destroyed_by_employee_i_d.destroyed_by_employee_i_d
+}
+
+// Document_Locations (with joins)
+source: document_locations is document_locations_base extend {
+  join_one: all_documents is all_documents_base on document_i_d = all_documents.document_i_d
+  join_one: date_in_locaton_to_ref_calendar is ref_calendar_base on Date_in_Locaton_To = date_in_locaton_to_ref_calendar.Calendar_Date
+  join_one: date_in_location_from_ref_calendar is ref_calendar_base on Date_in_Location_From = date_in_location_from_ref_calendar.Calendar_Date
+  join_one: ref_locations is ref_locations_base on Location_Code = ref_locations.Location_Code
+}
+
+// Documents_to_be_Destroyed (with joins)
+source: documents_to_be_destroyed is documents_to_be_destroyed_base extend {
+  join_one: all_documents is all_documents_base on document_i_d = all_documents.document_i_d
+  join_one: actual_destruction_date_ref_calendar is ref_calendar_base on Actual_Destruction_Date = actual_destruction_date_ref_calendar.Calendar_Date
+  join_one: planned_destruction_date_ref_calendar is ref_calendar_base on Planned_Destruction_Date = planned_destruction_date_ref_calendar.Calendar_Date
+  join_one: destruction_authorised_by_employee_i_d_employees is employees_base on destruction_authorised_by_employee_i_d = destruction_authorised_by_employee_i_d_employees.employee_i_d
+  join_one: destroyed_by_employee_i_d_employees is employees_base on destroyed_by_employee_i_d = destroyed_by_employee_i_d_employees.employee_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: driving_school
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/driving_school/driving_school.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Addresses')
 """) extend {
   primary_key: address_id
@@ -16,27 +20,11 @@ source: addresses is duckdb.sql("""
     min_address_id is min(address_id)
 }
 
-// Vehicles
-source: vehicles is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Vehicles')
-""") extend {
-  primary_key: vehicle_id
-
-  measure:
-    row_count is count()
-    total_vehicle_id is sum(vehicle_id)
-    avg_vehicle_id is avg(vehicle_id)
-    max_vehicle_id is max(vehicle_id)
-    min_vehicle_id is min(vehicle_id)
-}
-
 // Staff
-source: staff_val is duckdb.sql("""
+source: staff_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Staff')
 """) extend {
   primary_key: staff_id
-
-  join_one: addresses on staff_address_id = addresses.address_id
 
   measure:
     row_count is count()
@@ -50,13 +38,25 @@ source: staff_val is duckdb.sql("""
     min_staff_address_id is min(staff_address_id)
 }
 
+// Vehicles
+source: vehicles_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Vehicles')
+""") extend {
+  primary_key: vehicle_id
+
+  measure:
+    row_count is count()
+    total_vehicle_id is sum(vehicle_id)
+    avg_vehicle_id is avg(vehicle_id)
+    max_vehicle_id is max(vehicle_id)
+    min_vehicle_id is min(vehicle_id)
+}
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
-
-  join_one: addresses on customer_address_id = addresses.address_id
 
   measure:
     row_count is count()
@@ -75,12 +75,10 @@ source: customers is duckdb.sql("""
 }
 
 // Customer_Payments
-source: customer_payments is duckdb.sql("""
+source: customer_payments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Customer_Payments')
 """) extend {
   primary_key: customer_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -95,14 +93,10 @@ source: customer_payments is duckdb.sql("""
 }
 
 // Lessons
-source: lessons is duckdb.sql("""
+source: lessons_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/driving_school/driving_school.sqlite', 'Lessons')
 """) extend {
   primary_key: lesson_id
-
-  join_one: customers on customer_id = customers.customer_id
-  join_one: staff_val on staff_id = staff_val.staff_id
-  join_one: vehicles on vehicle_id = vehicles.vehicle_id
 
   measure:
     row_count is count()
@@ -126,4 +120,44 @@ source: lessons is duckdb.sql("""
     avg_price is avg(price)
     max_price is max(price)
     min_price is min(price)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: staff_val is staff_val_base on address_id = staff_val.staff_address_id
+  join_many: customers is customers_base on address_id = customers.customer_address_id
+}
+
+// Staff (with joins)
+source: staff_val is staff_val_base extend {
+  join_one: addresses is addresses_base on staff_address_id = addresses.address_id
+  join_many: lessons is lessons_base on staff_id = lessons.staff_id
+}
+
+// Vehicles (with joins)
+source: vehicles is vehicles_base extend {
+  join_many: lessons is lessons_base on vehicle_id = lessons.vehicle_id
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_one: addresses is addresses_base on customer_address_id = addresses.address_id
+  join_many: customer_payments is customer_payments_base on customer_id = customer_payments.customer_id
+  join_many: lessons is lessons_base on customer_id = lessons.customer_id
+}
+
+// Customer_Payments (with joins)
+source: customer_payments is customer_payments_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+}
+
+// Lessons (with joins)
+source: lessons is lessons_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: staff_val is staff_val_base on staff_id = staff_val.staff_id
+  join_one: vehicles is vehicles_base on vehicle_id = vehicles.vehicle_id
 }

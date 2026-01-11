@@ -1,0 +1,402 @@
+// ============================================================
+// FIELD METADATA (Auto-generated from database profiling)
+// ============================================================
+//
+// Table: Ref_Address_Types
+//   address_type_code: Values include: 'BILL', 'HOME'
+//     Sample values: 'BILL', 'HOME'
+//   address_type_description: Values include: 'Home or Residence', 'Billing'
+//     Sample values: 'Home or Residence', 'Billing'
+//
+// Table: Ref_Detention_Type
+//   detention_type_code: Values include: 'AFTER', 'BREAK ', 'LUNCH'
+//     Sample values: 'AFTER', 'BREAK ', 'LUNCH'
+//   detention_type_description: Values include: 'Lunch-time', 'During Break time', 'After School'
+//     Sample values: 'Lunch-time', 'During Break time', 'After School'
+//
+// Table: Ref_Incident_Type
+//   incident_type_code: Values include: 'DISTURB', 'NOISE', 'VIOLENCE'
+//     Sample values: 'DISTURB', 'NOISE', 'VIOLENCE'
+//   incident_type_description: Values include: 'Violence', 'Noise', 'Disturbance'
+//     Sample values: 'Violence', 'Noise', 'Disturbance'
+//
+// Table: Addresses
+//   address_id: Primary key identifier for Addresses
+//     Sample values: '1', '2', '3'
+//   line_1: Values include: '920 Brayan Harbors', '719 Pfannerstill Ridge Suite , "6960 O'Connell Dale Suite 622
+//     Sample values: '920 Brayan Harbors', '719 Pfannerstill Ridge Suite , "6960 O'Connell Dale Suite 622
+//   line_2: Categorical field with 0 categories. (100% NULL)
+//   line_3: Categorical field with 0 categories. (100% NULL)
+//   city: Values include: 'West Sean', 'West Lianafurt', 'Unachester'
+//     Sample values: 'West Sean', 'West Lianafurt', 'Unachester'
+//   zip_postcode: Values include: '937', '918', '865'
+//     Sample values: '937', '918', '865'
+//   state_province_county: Values include: 'Wisconsin', 'NewYork', 'Illinois'
+//     Sample values: 'Wisconsin', 'NewYork', 'Illinois'
+//   country: Categorical field: 'USA'
+//     Sample values: 'USA'
+//   other_address_details: Categorical field with 0 categories. (100% NULL)
+//
+// Table: Students
+//   student_id: Primary key identifier for Students
+//     Sample values: '1', '2', '3'
+//   address_id: Foreign key reference
+//     Sample values: '19', '9', '8'
+//   first_name: Unique name identifier
+//     Sample values: 'Rupert', 'Rhea', 'Misael'
+//   middle_name: Unique name identifier
+//     Sample values: 'Stone', 'Mustafa', 'Lincoln'
+//   last_name: Unique name identifier
+//     Sample values: 'Will', 'Weimann', 'Tremblay'
+//   cell_mobile_number: Values include: '763.072.5520x5907', '319.497.4575x2214', '235.899.9744'
+//     Sample values: '763.072.5520x5907', '319.497.4575x2214', '235.899.9744'
+//   email_address: Values include: 'rohan.clarabelle@example.org', 'qharvey@example.com', 'norwood.howell@example.org'
+//     Sample values: 'rohan.clarabelle@example.org', 'qharvey@example.com', 'norwood.howell@example.org'
+//   date_first_rental: Date/time field ranging from 2017-05-24 05:00:18 to 2018-03-14 11:37:10
+//     Sample values: '2018-03-14 11:37:10', '2018-03-11 22:42:47', '2018-02-23 02:28:07'
+//   date_left_university: Date/time field ranging from 2018-02-24 11:12:11 to 2018-03-20 22:01:07
+//     Sample values: '2018-03-20 22:01:07', '2018-03-19 12:49:20', '2018-03-18 16:07:42'
+//   other_student_details: Categorical field: 'first honor'. (73% NULL)
+//     Sample values: 'first honor'
+//
+// Table: Teachers
+//   teacher_id: Primary key identifier for Teachers
+//     Sample values: '1', '2', '3'
+//   address_id: Foreign key reference
+//     Sample values: '15', '10', '8'
+//   first_name: Unique name identifier
+//     Sample values: 'Woodrow', 'Trystan', 'Stephanie'
+//   middle_name: Unique name identifier
+//     Sample values: 'Wilson', 'Tremayne', 'Tamara'
+//   last_name: Name field with 14 distinct values
+//     Sample values: 'Kuhic', 'Ward', 'Schuster'
+//   gender: Categorical field: '1', '0'
+//     Sample values: '1', '0'
+//   cell_mobile_number: Values include: '952.821.3392', '944-154-5379x4990', '908-759-1808x63115'
+//     Sample values: '952.821.3392', '944-154-5379x4990', '908-759-1808x63115'
+//   email_address: Values include: 'willms.lane@example.com', 'valentina.yost@example.com', 'randy.gerhold@example.org'
+//     Sample values: 'willms.lane@example.com', 'valentina.yost@example.com', 'randy.gerhold@example.org'
+//   other_details: Categorical field: 'Dean'. (93% NULL)
+//     Sample values: 'Dean'
+//
+// Table: Assessment_Notes
+//   notes_id: Primary key identifier for Assessment_Notes
+//     Sample values: '15', '14', '13'
+//   student_id: Foreign key reference
+//     Sample values: '12', '14', '13'
+//   teacher_id: Foreign key reference
+//     Sample values: '3', '15', '14'
+//   date_of_notes: Date/time field ranging from 1971-05-05 20:07:08 to 2017-12-14 08:21:54
+//     Sample values: '2017-12-14 08:21:54', '2014-04-28 02:07:53', '2014-01-31 02:05:02'
+//   text_of_notes: Categorical field with 0 categories. (100% NULL)
+//   other_details: Categorical field with 0 categories. (100% NULL)
+//
+// Table: Behavior_Incident
+//   incident_id: Primary key identifier for Behavior_Incident
+//     Sample values: '1', '2', '3'
+//   incident_type_code: Categorical field: 'VIOLENCE', 'NOISE', 'DISTURB'
+//     Sample values: 'VIOLENCE', 'NOISE', 'DISTURB'
+//   student_id: Foreign key reference
+//     Sample values: '1', '7', '15'
+//   date_incident_start: Date/time field ranging from 2017-04-23 07:03:17 to 2018-03-06 21:03:58
+//     Sample values: '2018-03-06 21:03:58', '2018-02-05 13:13:45', '2018-01-31 10:51:13'
+//   date_incident_end: Date/time field ranging from 2018-02-25 05:38:58 to 2018-03-22 02:10:35
+//     Sample values: '2018-03-22 02:10:35', '2018-03-20 10:32:10', '2018-03-19 02:35:39'
+//   incident_summary: Categorical field with 0 categories. (100% NULL)
+//   recommendations: Categorical field: 'Transfer schools'. (80% NULL)
+//     Sample values: 'Transfer schools'
+//   other_details: Categorical field with 0 categories. (100% NULL)
+//
+// Table: Detention
+//   detention_id: Primary key identifier for Detention
+//     Sample values: '1', '2', '3'
+//   detention_type_code: Categorical field: 'BREAK ', 'AFTER', 'LUNCH'
+//     Sample values: 'BREAK ', 'AFTER', 'LUNCH'
+//   teacher_id: Foreign key reference
+//     Sample values: '15', '12', '11'
+//   datetime_detention_start: Date/time field ranging from 2017-06-09 06:13:09 to 2018-02-19 11:44:52
+//     Sample values: '2018-02-19 11:44:52', '2018-01-29 20:43:45', '2018-01-20 19:06:56'
+//   datetime_detention_end: Date/time field ranging from 2018-02-25 07:20:30 to 2018-03-22 20:15:47
+//     Sample values: '2018-03-22 20:15:47', '2018-03-21 19:34:56', '2018-03-17 12:35:41'
+//   detention_summary: Categorical field with 0 categories. (100% NULL)
+//   other_details: Categorical field with 0 categories. (100% NULL)
+//
+// Table: Student_Addresses
+//   student_id: Foreign key reference
+//     Sample values: '2', '13', '8'
+//   address_id: Foreign key reference
+//     Sample values: '1', '18', '16'
+//   date_address_from: Date/time field ranging from 2017-03-29 18:22:55 to 2018-03-23 08:25:36
+//     Sample values: '2018-03-23 08:25:36', '2018-03-05 19:28:26', '2018-02-18 06:58:49'
+//   date_address_to: Date/time field ranging from 2018-02-25 05:21:34 to 2018-03-23 09:52:56
+//     Sample values: '2018-03-23 09:52:56', '2018-03-22 17:56:20', '2018-03-20 09:02:48'
+//   monthly_rental: Values include: '1297.807', '1297.3186', '1287.5604'
+//     Sample values: '1297.807', '1297.3186', '1287.5604'
+//   other_details: Categorical field: 'house', 'apartment'
+//     Sample values: 'house', 'apartment'
+//
+// Table: Students_in_Detention
+//   student_id: Foreign key reference
+//     Sample values: '12', '8', '13'
+//   detention_id: Foreign key reference
+//     Sample values: '15', '14', '12'
+//   incident_id: Foreign key reference
+//     Sample values: '1', '14', '13'
+//
+
+// Malloy semantic layer for: behavior_monitoring
+// Full layer with ALL columns, primary keys, and bidirectional joins
+// Database: /workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// Ref_Address_Types
+source: ref_address_types_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Ref_Address_Types')
+""") extend {
+  primary_key: address_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Detention_Type
+source: ref_detention_type_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Ref_Detention_Type')
+""") extend {
+  primary_key: detention_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Ref_Incident_Type
+source: ref_incident_type_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Ref_Incident_Type')
+""") extend {
+  primary_key: incident_type_code
+
+  measure:
+    row_count is count()
+}
+
+// Addresses
+source: addresses_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Addresses')
+""") extend {
+  primary_key: address_id
+
+  measure:
+    row_count is count()
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Students
+source: students_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Students')
+""") extend {
+  primary_key: student_id
+
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Teachers
+source: teachers_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Teachers')
+""") extend {
+  primary_key: teacher_id
+
+  measure:
+    row_count is count()
+    total_teacher_id is sum(teacher_id)
+    avg_teacher_id is avg(teacher_id)
+    max_teacher_id is max(teacher_id)
+    min_teacher_id is min(teacher_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+}
+
+// Assessment_Notes
+source: assessment_notes_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Assessment_Notes')
+""") extend {
+  measure:
+    row_count is count()
+    total_notes_id is sum(notes_id)
+    avg_notes_id is avg(notes_id)
+    max_notes_id is max(notes_id)
+    min_notes_id is min(notes_id)
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_teacher_id is sum(teacher_id)
+    avg_teacher_id is avg(teacher_id)
+    max_teacher_id is max(teacher_id)
+    min_teacher_id is min(teacher_id)
+}
+
+// Behavior_Incident
+source: behavior_incident_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Behavior_Incident')
+""") extend {
+  primary_key: incident_id
+
+  measure:
+    row_count is count()
+    total_incident_id is sum(incident_id)
+    avg_incident_id is avg(incident_id)
+    max_incident_id is max(incident_id)
+    min_incident_id is min(incident_id)
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+}
+
+// Detention
+source: detention_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Detention')
+""") extend {
+  primary_key: detention_id
+
+  measure:
+    row_count is count()
+    total_detention_id is sum(detention_id)
+    avg_detention_id is avg(detention_id)
+    max_detention_id is max(detention_id)
+    min_detention_id is min(detention_id)
+    total_teacher_id is sum(teacher_id)
+    avg_teacher_id is avg(teacher_id)
+    max_teacher_id is max(teacher_id)
+    min_teacher_id is min(teacher_id)
+}
+
+// Student_Addresses
+source: student_addresses_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Student_Addresses')
+""") extend {
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+    total_monthly_rental is sum(monthly_rental)
+    avg_monthly_rental is avg(monthly_rental)
+    max_monthly_rental is max(monthly_rental)
+    min_monthly_rental is min(monthly_rental)
+}
+
+// Students_in_Detention
+source: students_in_detention_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Students_in_Detention')
+""") extend {
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_detention_id is sum(detention_id)
+    avg_detention_id is avg(detention_id)
+    max_detention_id is max(detention_id)
+    min_detention_id is min(detention_id)
+    total_incident_id is sum(incident_id)
+    avg_incident_id is avg(incident_id)
+    max_incident_id is max(incident_id)
+    min_incident_id is min(incident_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Address_Types (with joins)
+source: ref_address_types is ref_address_types_base
+
+// Ref_Detention_Type (with joins)
+source: ref_detention_type is ref_detention_type_base extend {
+  join_many: detention is detention_base on detention_type_code = detention.detention_type_code
+}
+
+// Ref_Incident_Type (with joins)
+source: ref_incident_type is ref_incident_type_base extend {
+  join_many: behavior_incident is behavior_incident_base on incident_type_code = behavior_incident.incident_type_code
+}
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: students is students_base on address_id = students.address_id
+  join_many: teachers is teachers_base on address_id = teachers.address_id
+  join_many: student_addresses is student_addresses_base on address_id = student_addresses.address_id
+}
+
+// Students (with joins)
+source: students is students_base extend {
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+  join_many: assessment_notes is assessment_notes_base on student_id = assessment_notes.student_id
+  join_many: behavior_incident is behavior_incident_base on student_id = behavior_incident.student_id
+  join_many: student_addresses is student_addresses_base on student_id = student_addresses.student_id
+  join_many: students_in_detention is students_in_detention_base on student_id = students_in_detention.student_id
+}
+
+// Teachers (with joins)
+source: teachers is teachers_base extend {
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+  join_many: assessment_notes is assessment_notes_base on teacher_id = assessment_notes.teacher_id
+  join_many: detention is detention_base on teacher_id = detention.teacher_id
+}
+
+// Assessment_Notes (with joins)
+source: assessment_notes is assessment_notes_base extend {
+  join_one: teachers is teachers_base on teacher_id = teachers.teacher_id
+  join_one: students is students_base on student_id = students.student_id
+}
+
+// Behavior_Incident (with joins)
+source: behavior_incident is behavior_incident_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: ref_incident_type is ref_incident_type_base on incident_type_code = ref_incident_type.incident_type_code
+  join_many: students_in_detention is students_in_detention_base on incident_id = students_in_detention.incident_id
+}
+
+// Detention (with joins)
+source: detention is detention_base extend {
+  join_one: teachers is teachers_base on teacher_id = teachers.teacher_id
+  join_one: ref_detention_type is ref_detention_type_base on detention_type_code = ref_detention_type.detention_type_code
+  join_many: students_in_detention is students_in_detention_base on detention_id = students_in_detention.detention_id
+}
+
+// Student_Addresses (with joins)
+source: student_addresses is student_addresses_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+}
+
+// Students_in_Detention (with joins)
+source: students_in_detention is students_in_detention_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: detention is detention_base on detention_id = detention.detention_id
+  join_one: behavior_incident is behavior_incident_base on incident_id = behavior_incident.incident_id
+}

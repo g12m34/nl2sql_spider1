@@ -1,9 +1,13 @@
 // Malloy semantic layer for: party_host
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/party_host/party_host.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // party
-source: party is duckdb.sql("""
+source: party_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'party')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: party is duckdb.sql("""
 }
 
 // host
-source: host is duckdb.sql("""
+source: host_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'host')
 """) extend {
   dimension:
@@ -42,7 +46,7 @@ source: host is duckdb.sql("""
 }
 
 // party_host
-source: party_host is duckdb.sql("""
+source: party_host_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'party_host')
 """) extend {
   dimension:
@@ -50,9 +54,6 @@ source: party_host is duckdb.sql("""
     host_i_d is Host_ID
 
   primary_key: party_i_d
-
-  join_one: party on party_i_d = party.party_i_d
-  join_one: host on host_i_d = host.host_i_d
 
   measure:
     row_count is count()
@@ -64,4 +65,24 @@ source: party_host is duckdb.sql("""
     avg_host_i_d is avg(host_i_d)
     max_host_i_d is max(host_i_d)
     min_host_i_d is min(host_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// party (with joins)
+source: party is party_base extend {
+  join_many: party_host is party_host_base on party_i_d = party_host.party_i_d
+}
+
+// host (with joins)
+source: host is host_base extend {
+  join_many: party_host is party_host_base on host_i_d = party_host.host_i_d
+}
+
+// party_host (with joins)
+source: party_host is party_host_base extend {
+  join_one: party is party_base on party_i_d = party.party_i_d
+  join_one: host is host_base on host_i_d = host.host_i_d
 }

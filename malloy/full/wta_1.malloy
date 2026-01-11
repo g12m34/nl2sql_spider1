@@ -1,9 +1,13 @@
 // Malloy semantic layer for: wta_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/wta_1/wta_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // players
-source: players is duckdb.sql("""
+source: players_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'players')
 """) extend {
   primary_key: player_id
@@ -17,16 +21,13 @@ source: players is duckdb.sql("""
 }
 
 // matches
-source: matches is duckdb.sql("""
+source: matches_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'matches')
 """) extend {
   dimension:
     minutes_val is `minutes`
     round_val is `round`
     year_val is `year`
-
-  join_one: winner_players is players on winner_id = winner_players.player_id
-  join_one: loser_players is players on loser_id = loser_players.player_id
 
   measure:
     row_count is count()
@@ -101,11 +102,9 @@ source: matches is duckdb.sql("""
 }
 
 // rankings
-source: rankings is duckdb.sql("""
+source: rankings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'rankings')
 """) extend {
-  join_one: players on player_id = players.player_id
-
   measure:
     row_count is count()
     total_ranking is sum(ranking)
@@ -124,4 +123,26 @@ source: rankings is duckdb.sql("""
     avg_tours is avg(tours)
     max_tours is max(tours)
     min_tours is min(tours)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// players (with joins)
+source: players is players_base extend {
+  join_many: matches_winner is matches_base on player_id = matches_winner.winner_id
+  join_many: matches_loser is matches_base on player_id = matches_loser.loser_id
+  join_many: rankings is rankings_base on player_id = rankings.player_id
+}
+
+// matches (with joins)
+source: matches is matches_base extend {
+  join_one: winner_players is players_base on winner_id = winner_players.player_id
+  join_one: loser_players is players_base on loser_id = loser_players.player_id
+}
+
+// rankings (with joins)
+source: rankings is rankings_base extend {
+  join_one: players is players_base on player_id = players.player_id
 }

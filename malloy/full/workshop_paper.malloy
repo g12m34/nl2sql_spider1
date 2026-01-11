@@ -1,9 +1,13 @@
 // Malloy semantic layer for: workshop_paper
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // workshop
-source: workshop is duckdb.sql("""
+source: workshop_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite', 'workshop')
 """) extend {
   dimension:
@@ -22,7 +26,7 @@ source: workshop is duckdb.sql("""
 }
 
 // submission
-source: submission is duckdb.sql("""
+source: submission_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite', 'submission')
 """) extend {
   dimension:
@@ -43,7 +47,7 @@ source: submission is duckdb.sql("""
 }
 
 // Acceptance
-source: acceptance is duckdb.sql("""
+source: acceptance_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/workshop_paper/workshop_paper.sqlite', 'Acceptance')
 """) extend {
   dimension:
@@ -52,9 +56,6 @@ source: acceptance is duckdb.sql("""
     result_val is `Result`
 
   primary_key: submission_i_d
-
-  join_one: workshop on workshop_i_d = workshop.workshop_i_d
-  join_one: submission on submission_i_d = submission.submission_i_d
 
   measure:
     row_count is count()
@@ -66,4 +67,24 @@ source: acceptance is duckdb.sql("""
     avg_workshop_i_d is avg(workshop_i_d)
     max_workshop_i_d is max(workshop_i_d)
     min_workshop_i_d is min(workshop_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// workshop (with joins)
+source: workshop is workshop_base extend {
+  join_many: acceptance is acceptance_base on workshop_i_d = acceptance.workshop_i_d
+}
+
+// submission (with joins)
+source: submission is submission_base extend {
+  join_many: acceptance is acceptance_base on submission_i_d = acceptance.submission_i_d
+}
+
+// Acceptance (with joins)
+source: acceptance is acceptance_base extend {
+  join_one: workshop is workshop_base on workshop_i_d = workshop.workshop_i_d
+  join_one: submission is submission_base on submission_i_d = submission.submission_i_d
 }

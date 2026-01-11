@@ -1,9 +1,13 @@
 // Malloy semantic layer for: pets_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/pets_1/pets_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -32,8 +36,28 @@ source: student_val is duckdb.sql("""
     min_advisor is min(Advisor)
 }
 
+// Has_Pet
+source: has_pet_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Has_Pet')
+""") extend {
+  dimension:
+    stu_i_d is StuID
+    pet_i_d is PetID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_pet_i_d is sum(pet_i_d)
+    avg_pet_i_d is avg(pet_i_d)
+    max_pet_i_d is max(pet_i_d)
+    min_pet_i_d is min(pet_i_d)
+}
+
 // Pets
-source: pets is duckdb.sql("""
+source: pets_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Pets')
 """) extend {
   dimension:
@@ -58,25 +82,22 @@ source: pets is duckdb.sql("""
     min_weight is min(weight)
 }
 
-// Has_Pet
-source: has_pet is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pets_1/pets_1.sqlite', 'Has_Pet')
-""") extend {
-  dimension:
-    stu_i_d is StuID
-    pet_i_d is PetID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: student_val on stu_i_d = student_val.stu_i_d
-  join_one: pets on pet_i_d = pets.pet_i_d
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: has_pet is has_pet_base on stu_i_d = has_pet.stu_i_d
+}
 
-  measure:
-    row_count is count()
-    total_stu_i_d is sum(stu_i_d)
-    avg_stu_i_d is avg(stu_i_d)
-    max_stu_i_d is max(stu_i_d)
-    min_stu_i_d is min(stu_i_d)
-    total_pet_i_d is sum(pet_i_d)
-    avg_pet_i_d is avg(pet_i_d)
-    max_pet_i_d is max(pet_i_d)
-    min_pet_i_d is min(pet_i_d)
+// Has_Pet (with joins)
+source: has_pet is has_pet_base extend {
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+  join_one: pets is pets_base on pet_i_d = pets.pet_i_d
+}
+
+// Pets (with joins)
+source: pets is pets_base extend {
+  join_many: has_pet is has_pet_base on pet_i_d = has_pet.pet_i_d
 }

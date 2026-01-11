@@ -1,9 +1,13 @@
 // Malloy semantic layer for: manufacturer
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // manufacturer
-source: manufacturer is duckdb.sql("""
+source: manufacturer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite', 'manufacturer')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: manufacturer is duckdb.sql("""
 }
 
 // furniture
-source: furniture is duckdb.sql("""
+source: furniture_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite', 'furniture')
 """) extend {
   dimension:
@@ -59,7 +63,7 @@ source: furniture is duckdb.sql("""
 }
 
 // furniture_manufacte
-source: furniture_manufacte is duckdb.sql("""
+source: furniture_manufacte_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufacturer/manufacturer.sqlite', 'furniture_manufacte')
 """) extend {
   dimension:
@@ -67,9 +71,6 @@ source: furniture_manufacte is duckdb.sql("""
     furniture_i_d is Furniture_ID
 
   primary_key: manufacturer_i_d
-
-  join_one: furniture on furniture_i_d = furniture.furniture_i_d
-  join_one: manufacturer on manufacturer_i_d = manufacturer.manufacturer_i_d
 
   measure:
     row_count is count()
@@ -85,4 +86,24 @@ source: furniture_manufacte is duckdb.sql("""
     avg_price_in_dollar is avg(Price_in_Dollar)
     max_price_in_dollar is max(Price_in_Dollar)
     min_price_in_dollar is min(Price_in_Dollar)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// manufacturer (with joins)
+source: manufacturer is manufacturer_base extend {
+  join_many: furniture_manufacte is furniture_manufacte_base on manufacturer_i_d = furniture_manufacte.manufacturer_i_d
+}
+
+// furniture (with joins)
+source: furniture is furniture_base extend {
+  join_many: furniture_manufacte is furniture_manufacte_base on furniture_i_d = furniture_manufacte.furniture_i_d
+}
+
+// furniture_manufacte (with joins)
+source: furniture_manufacte is furniture_manufacte_base extend {
+  join_one: furniture is furniture_base on furniture_i_d = furniture.furniture_i_d
+  join_one: manufacturer is manufacturer_base on manufacturer_i_d = manufacturer.manufacturer_i_d
 }

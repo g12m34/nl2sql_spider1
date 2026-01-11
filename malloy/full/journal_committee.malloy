@@ -1,9 +1,13 @@
 // Malloy semantic layer for: journal_committee
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // journal
-source: journal is duckdb.sql("""
+source: journal_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite', 'journal')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: journal is duckdb.sql("""
 }
 
 // editor
-source: editor is duckdb.sql("""
+source: editor_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite', 'editor')
 """) extend {
   dimension:
@@ -47,7 +51,7 @@ source: editor is duckdb.sql("""
 }
 
 // journal_committee
-source: journal_committee is duckdb.sql("""
+source: journal_committee_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite', 'journal_committee')
 """) extend {
   dimension:
@@ -55,9 +59,6 @@ source: journal_committee is duckdb.sql("""
     journal_i_d is Journal_ID
 
   primary_key: editor_i_d
-
-  join_one: journal on journal_i_d = journal.journal_i_d
-  join_one: editor on editor_i_d = editor.editor_i_d
 
   measure:
     row_count is count()
@@ -69,4 +70,24 @@ source: journal_committee is duckdb.sql("""
     avg_journal_i_d is avg(journal_i_d)
     max_journal_i_d is max(journal_i_d)
     min_journal_i_d is min(journal_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// journal (with joins)
+source: journal is journal_base extend {
+  join_many: journal_committee is journal_committee_base on journal_i_d = journal_committee.journal_i_d
+}
+
+// editor (with joins)
+source: editor is editor_base extend {
+  join_many: journal_committee is journal_committee_base on editor_i_d = journal_committee.editor_i_d
+}
+
+// journal_committee (with joins)
+source: journal_committee is journal_committee_base extend {
+  join_one: journal is journal_base on journal_i_d = journal.journal_i_d
+  join_one: editor is editor_base on editor_i_d = editor.editor_i_d
 }

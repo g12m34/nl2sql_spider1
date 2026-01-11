@@ -1,9 +1,13 @@
 // Malloy semantic layer for: coffee_shop
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // shop
-source: shop is duckdb.sql("""
+source: shop_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'shop')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: shop is duckdb.sql("""
 }
 
 // member
-source: member is duckdb.sql("""
+source: member_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'member')
 """) extend {
   dimension:
@@ -54,7 +58,7 @@ source: member is duckdb.sql("""
 }
 
 // happy_hour
-source: happy_hour is duckdb.sql("""
+source: happy_hour_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'happy_hour')
 """) extend {
   dimension:
@@ -63,8 +67,6 @@ source: happy_hour is duckdb.sql("""
     month_val is `Month`
 
   primary_key: h_h_i_d
-
-  join_one: shop on shop_i_d = shop.shop_i_d
 
   measure:
     row_count is count()
@@ -83,7 +85,7 @@ source: happy_hour is duckdb.sql("""
 }
 
 // happy_hour_member
-source: happy_hour_member is duckdb.sql("""
+source: happy_hour_member_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'happy_hour_member')
 """) extend {
   dimension:
@@ -91,8 +93,6 @@ source: happy_hour_member is duckdb.sql("""
     member_i_d is Member_ID
 
   primary_key: h_h_i_d
-
-  join_one: member on member_i_d = member.member_i_d
 
   measure:
     row_count is count()
@@ -108,4 +108,28 @@ source: happy_hour_member is duckdb.sql("""
     avg_total_amount is avg(Total_amount)
     max_total_amount is max(Total_amount)
     min_total_amount is min(Total_amount)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// shop (with joins)
+source: shop is shop_base extend {
+  join_many: happy_hour is happy_hour_base on shop_i_d = happy_hour.shop_i_d
+}
+
+// member (with joins)
+source: member is member_base extend {
+  join_many: happy_hour_member is happy_hour_member_base on member_i_d = happy_hour_member.member_i_d
+}
+
+// happy_hour (with joins)
+source: happy_hour is happy_hour_base extend {
+  join_one: shop is shop_base on shop_i_d = shop.shop_i_d
+}
+
+// happy_hour_member (with joins)
+source: happy_hour_member is happy_hour_member_base extend {
+  join_one: member is member_base on member_i_d = member.member_i_d
 }

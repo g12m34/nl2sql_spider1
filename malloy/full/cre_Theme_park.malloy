@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cre_Theme_park
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Hotel_Star_Ratings
-source: ref_hotel_star_ratings is duckdb.sql("""
+source: ref_hotel_star_ratings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Ref_Hotel_Star_Ratings')
 """) extend {
   primary_key: star_rating_code
@@ -13,7 +17,7 @@ source: ref_hotel_star_ratings is duckdb.sql("""
 }
 
 // Locations
-source: locations is duckdb.sql("""
+source: locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Locations')
 """) extend {
   dimension:
@@ -30,7 +34,7 @@ source: locations is duckdb.sql("""
 }
 
 // Ref_Attraction_Types
-source: ref_attraction_types is duckdb.sql("""
+source: ref_attraction_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Ref_Attraction_Types')
 """) extend {
   primary_key: Attraction_Type_Code
@@ -40,7 +44,7 @@ source: ref_attraction_types is duckdb.sql("""
 }
 
 // Visitors
-source: visitors is duckdb.sql("""
+source: visitors_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Visitors')
 """) extend {
   dimension:
@@ -57,7 +61,7 @@ source: visitors is duckdb.sql("""
 }
 
 // Features
-source: features is duckdb.sql("""
+source: features_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Features')
 """) extend {
   dimension:
@@ -74,12 +78,10 @@ source: features is duckdb.sql("""
 }
 
 // Hotels
-source: hotels is duckdb.sql("""
+source: hotels_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Hotels')
 """) extend {
   primary_key: hotel_id
-
-  join_one: ref_hotel_star_ratings on star_rating_code = ref_hotel_star_ratings.star_rating_code
 
   measure:
     row_count is count()
@@ -94,7 +96,7 @@ source: hotels is duckdb.sql("""
 }
 
 // Tourist_Attractions
-source: tourist_attractions is duckdb.sql("""
+source: tourist_attractions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Tourist_Attractions')
 """) extend {
   dimension:
@@ -103,9 +105,6 @@ source: tourist_attractions is duckdb.sql("""
     name_val is `Name`
 
   primary_key: tourist_attraction_i_d
-
-  join_one: ref_attraction_types on Attraction_Type_Code = ref_attraction_types.Attraction_Type_Code
-  join_one: locations on location_i_d = locations.location_i_d
 
   measure:
     row_count is count()
@@ -120,15 +119,13 @@ source: tourist_attractions is duckdb.sql("""
 }
 
 // Street_Markets
-source: street_markets is duckdb.sql("""
+source: street_markets_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Street_Markets')
 """) extend {
   dimension:
     market_i_d is Market_ID
 
   primary_key: market_i_d
-
-  join_one: tourist_attractions on market_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -139,15 +136,13 @@ source: street_markets is duckdb.sql("""
 }
 
 // Shops
-source: shops is duckdb.sql("""
+source: shops_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Shops')
 """) extend {
   dimension:
     shop_i_d is Shop_ID
 
   primary_key: shop_i_d
-
-  join_one: tourist_attractions on shop_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -158,15 +153,13 @@ source: shops is duckdb.sql("""
 }
 
 // Museums
-source: museums is duckdb.sql("""
+source: museums_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Museums')
 """) extend {
   dimension:
     museum_i_d is Museum_ID
 
   primary_key: museum_i_d
-
-  join_one: tourist_attractions on museum_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -177,15 +170,13 @@ source: museums is duckdb.sql("""
 }
 
 // Royal_Family
-source: royal_family is duckdb.sql("""
+source: royal_family_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Royal_Family')
 """) extend {
   dimension:
     royal_family_i_d is Royal_Family_ID
 
   primary_key: royal_family_i_d
-
-  join_one: tourist_attractions on royal_family_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -196,15 +187,13 @@ source: royal_family is duckdb.sql("""
 }
 
 // Theme_Parks
-source: theme_parks is duckdb.sql("""
+source: theme_parks_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Theme_Parks')
 """) extend {
   dimension:
     theme_park_i_d is Theme_Park_ID
 
   primary_key: theme_park_i_d
-
-  join_one: tourist_attractions on theme_park_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -215,7 +204,7 @@ source: theme_parks is duckdb.sql("""
 }
 
 // Visits
-source: visits is duckdb.sql("""
+source: visits_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Visits')
 """) extend {
   dimension:
@@ -224,9 +213,6 @@ source: visits is duckdb.sql("""
     tourist_i_d is Tourist_ID
 
   primary_key: visit_i_d
-
-  join_one: visitors on tourist_i_d = visitors.tourist_i_d
-  join_one: tourist_attractions on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -245,7 +231,7 @@ source: visits is duckdb.sql("""
 }
 
 // Photos
-source: photos is duckdb.sql("""
+source: photos_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Photos')
 """) extend {
   dimension:
@@ -254,8 +240,6 @@ source: photos is duckdb.sql("""
     name_val is `Name`
 
   primary_key: photo_i_d
-
-  join_one: tourist_attractions on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -270,7 +254,7 @@ source: photos is duckdb.sql("""
 }
 
 // Staff
-source: staff_val is duckdb.sql("""
+source: staff_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Staff')
 """) extend {
   dimension:
@@ -279,8 +263,6 @@ source: staff_val is duckdb.sql("""
     name_val is `Name`
 
   primary_key: staff_i_d
-
-  join_one: tourist_attractions on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -295,7 +277,7 @@ source: staff_val is duckdb.sql("""
 }
 
 // Tourist_Attraction_Features
-source: tourist_attraction_features is duckdb.sql("""
+source: tourist_attraction_features_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Theme_park/cre_Theme_park.sqlite', 'Tourist_Attraction_Features')
 """) extend {
   dimension:
@@ -303,9 +285,6 @@ source: tourist_attraction_features is duckdb.sql("""
     feature_i_d is Feature_ID
 
   primary_key: tourist_attraction_i_d
-
-  join_one: features on feature_i_d = features.feature_i_d
-  join_one: tourist_attractions on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
 
   measure:
     row_count is count()
@@ -317,4 +296,100 @@ source: tourist_attraction_features is duckdb.sql("""
     avg_feature_i_d is avg(feature_i_d)
     max_feature_i_d is max(feature_i_d)
     min_feature_i_d is min(feature_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Hotel_Star_Ratings (with joins)
+source: ref_hotel_star_ratings is ref_hotel_star_ratings_base extend {
+  join_many: hotels is hotels_base on star_rating_code = hotels.star_rating_code
+}
+
+// Locations (with joins)
+source: locations is locations_base extend {
+  join_many: tourist_attractions is tourist_attractions_base on location_i_d = tourist_attractions.location_i_d
+}
+
+// Ref_Attraction_Types (with joins)
+source: ref_attraction_types is ref_attraction_types_base extend {
+  join_many: tourist_attractions is tourist_attractions_base on Attraction_Type_Code = tourist_attractions.Attraction_Type_Code
+}
+
+// Visitors (with joins)
+source: visitors is visitors_base extend {
+  join_many: visits is visits_base on tourist_i_d = visits.tourist_i_d
+}
+
+// Features (with joins)
+source: features is features_base extend {
+  join_many: tourist_attraction_features is tourist_attraction_features_base on feature_i_d = tourist_attraction_features.feature_i_d
+}
+
+// Hotels (with joins)
+source: hotels is hotels_base extend {
+  join_one: ref_hotel_star_ratings is ref_hotel_star_ratings_base on star_rating_code = ref_hotel_star_ratings.star_rating_code
+}
+
+// Tourist_Attractions (with joins)
+source: tourist_attractions is tourist_attractions_base extend {
+  join_one: ref_attraction_types is ref_attraction_types_base on Attraction_Type_Code = ref_attraction_types.Attraction_Type_Code
+  join_one: locations is locations_base on location_i_d = locations.location_i_d
+  join_many: street_markets is street_markets_base on tourist_attraction_i_d = street_markets.market_i_d
+  join_many: shops is shops_base on tourist_attraction_i_d = shops.shop_i_d
+  join_many: museums is museums_base on tourist_attraction_i_d = museums.museum_i_d
+  join_many: royal_family is royal_family_base on tourist_attraction_i_d = royal_family.royal_family_i_d
+  join_many: theme_parks is theme_parks_base on tourist_attraction_i_d = theme_parks.theme_park_i_d
+  join_many: visits is visits_base on tourist_attraction_i_d = visits.tourist_attraction_i_d
+  join_many: photos is photos_base on tourist_attraction_i_d = photos.tourist_attraction_i_d
+  join_many: staff_val is staff_val_base on tourist_attraction_i_d = staff_val.tourist_attraction_i_d
+  join_many: tourist_attraction_features is tourist_attraction_features_base on tourist_attraction_i_d = tourist_attraction_features.tourist_attraction_i_d
+}
+
+// Street_Markets (with joins)
+source: street_markets is street_markets_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on market_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Shops (with joins)
+source: shops is shops_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on shop_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Museums (with joins)
+source: museums is museums_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on museum_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Royal_Family (with joins)
+source: royal_family is royal_family_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on royal_family_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Theme_Parks (with joins)
+source: theme_parks is theme_parks_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on theme_park_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Visits (with joins)
+source: visits is visits_base extend {
+  join_one: visitors is visitors_base on tourist_i_d = visitors.tourist_i_d
+  join_one: tourist_attractions is tourist_attractions_base on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Photos (with joins)
+source: photos is photos_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Staff (with joins)
+source: staff_val is staff_val_base extend {
+  join_one: tourist_attractions is tourist_attractions_base on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
+}
+
+// Tourist_Attraction_Features (with joins)
+source: tourist_attraction_features is tourist_attraction_features_base extend {
+  join_one: features is features_base on feature_i_d = features.feature_i_d
+  join_one: tourist_attractions is tourist_attractions_base on tourist_attraction_i_d = tourist_attractions.tourist_attraction_i_d
 }

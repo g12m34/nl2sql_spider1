@@ -1,9 +1,13 @@
 // Malloy semantic layer for: products_for_hire
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Discount_Coupons
-source: discount_coupons is duckdb.sql("""
+source: discount_coupons_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Discount_Coupons')
 """) extend {
   primary_key: coupon_id
@@ -20,31 +24,11 @@ source: discount_coupons is duckdb.sql("""
     min_coupon_amount is min(coupon_amount)
 }
 
-// Products_for_Hire
-source: products_for_hire is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Products_for_Hire')
-""") extend {
-  primary_key: product_id
-
-  measure:
-    row_count is count()
-    total_product_id is sum(product_id)
-    avg_product_id is avg(product_id)
-    max_product_id is max(product_id)
-    min_product_id is min(product_id)
-    total_daily_hire_cost is sum(daily_hire_cost)
-    avg_daily_hire_cost is avg(daily_hire_cost)
-    max_daily_hire_cost is max(daily_hire_cost)
-    min_daily_hire_cost is min(daily_hire_cost)
-}
-
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
-
-  join_one: discount_coupons on coupon_id = discount_coupons.coupon_id
 
   measure:
     row_count is count()
@@ -59,12 +43,10 @@ source: customers is duckdb.sql("""
 }
 
 // Bookings
-source: bookings is duckdb.sql("""
+source: bookings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Bookings')
 """) extend {
   primary_key: booking_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -94,14 +76,29 @@ source: bookings is duckdb.sql("""
     min_amount_of_refund is min(amount_of_refund)
 }
 
+// Products_for_Hire
+source: products_for_hire_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Products_for_Hire')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_daily_hire_cost is sum(daily_hire_cost)
+    avg_daily_hire_cost is avg(daily_hire_cost)
+    max_daily_hire_cost is max(daily_hire_cost)
+    min_daily_hire_cost is min(daily_hire_cost)
+}
+
 // Payments
-source: payments is duckdb.sql("""
+source: payments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Payments')
 """) extend {
   primary_key: payment_id
-
-  join_one: customers on customer_id = customers.customer_id
-  join_one: bookings on booking_id = bookings.booking_id
 
   measure:
     row_count is count()
@@ -128,13 +125,10 @@ source: payments is duckdb.sql("""
 }
 
 // Products_Booked
-source: products_booked is duckdb.sql("""
+source: products_booked_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'Products_Booked')
 """) extend {
   primary_key: booking_id
-
-  join_one: products_for_hire on product_id = products_for_hire.product_id
-  join_one: bookings on booking_id = bookings.booking_id
 
   measure:
     row_count is count()
@@ -157,13 +151,10 @@ source: products_booked is duckdb.sql("""
 }
 
 // View_Product_Availability
-source: view_product_availability is duckdb.sql("""
+source: view_product_availability_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_for_hire/products_for_hire.sqlite', 'View_Product_Availability')
 """) extend {
   primary_key: status_date
-
-  join_one: products_for_hire on product_id = products_for_hire.product_id
-  join_one: bookings on booking_id = bookings.booking_id
 
   measure:
     row_count is count()
@@ -175,4 +166,52 @@ source: view_product_availability is duckdb.sql("""
     avg_booking_id is avg(booking_id)
     max_booking_id is max(booking_id)
     min_booking_id is min(booking_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Discount_Coupons (with joins)
+source: discount_coupons is discount_coupons_base extend {
+  join_many: customers is customers_base on coupon_id = customers.coupon_id
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_one: discount_coupons is discount_coupons_base on coupon_id = discount_coupons.coupon_id
+  join_many: bookings is bookings_base on customer_id = bookings.customer_id
+  join_many: payments is payments_base on customer_id = payments.customer_id
+}
+
+// Bookings (with joins)
+source: bookings is bookings_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: payments is payments_base on booking_id = payments.booking_id
+  join_many: products_booked is products_booked_base on booking_id = products_booked.booking_id
+  join_many: view_product_availability is view_product_availability_base on booking_id = view_product_availability.booking_id
+}
+
+// Products_for_Hire (with joins)
+source: products_for_hire is products_for_hire_base extend {
+  join_many: products_booked is products_booked_base on product_id = products_booked.product_id
+  join_many: view_product_availability is view_product_availability_base on product_id = view_product_availability.product_id
+}
+
+// Payments (with joins)
+source: payments is payments_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: bookings is bookings_base on booking_id = bookings.booking_id
+}
+
+// Products_Booked (with joins)
+source: products_booked is products_booked_base extend {
+  join_one: products_for_hire is products_for_hire_base on product_id = products_for_hire.product_id
+  join_one: bookings is bookings_base on booking_id = bookings.booking_id
+}
+
+// View_Product_Availability (with joins)
+source: view_product_availability is view_product_availability_base extend {
+  join_one: products_for_hire is products_for_hire_base on product_id = products_for_hire.product_id
+  join_one: bookings is bookings_base on booking_id = bookings.booking_id
 }

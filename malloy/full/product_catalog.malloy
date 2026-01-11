@@ -1,9 +1,13 @@
 // Malloy semantic layer for: product_catalog
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Attribute_Definitions
-source: attribute_definitions is duckdb.sql("""
+source: attribute_definitions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Attribute_Definitions')
 """) extend {
   primary_key: attribute_id
@@ -17,7 +21,7 @@ source: attribute_definitions is duckdb.sql("""
 }
 
 // Catalogs
-source: catalogs is duckdb.sql("""
+source: catalogs_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalogs')
 """) extend {
   primary_key: catalog_id
@@ -31,12 +35,10 @@ source: catalogs is duckdb.sql("""
 }
 
 // Catalog_Structure
-source: catalog_structure is duckdb.sql("""
+source: catalog_structure_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalog_Structure')
 """) extend {
   primary_key: catalog_level_number
-
-  join_one: catalogs on catalog_id = catalogs.catalog_id
 
   measure:
     row_count is count()
@@ -51,12 +53,10 @@ source: catalog_structure is duckdb.sql("""
 }
 
 // Catalog_Contents
-source: catalog_contents is duckdb.sql("""
+source: catalog_contents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalog_Contents')
 """) extend {
   primary_key: catalog_entry_id
-
-  join_one: catalog_structure on catalog_level_number = catalog_structure.catalog_level_number
 
   measure:
     row_count is count()
@@ -95,12 +95,9 @@ source: catalog_contents is duckdb.sql("""
 }
 
 // Catalog_Contents_Additional_Attributes
-source: catalog_contents_additional_attributes is duckdb.sql("""
+source: catalog_contents_additional_attributes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/product_catalog/product_catalog.sqlite', 'Catalog_Contents_Additional_Attributes')
 """) extend {
-  join_one: catalog_structure on catalog_level_number = catalog_structure.catalog_level_number
-  join_one: catalog_contents on catalog_entry_id = catalog_contents.catalog_entry_id
-
   measure:
     row_count is count()
     total_catalog_entry_id is sum(catalog_entry_id)
@@ -115,4 +112,35 @@ source: catalog_contents_additional_attributes is duckdb.sql("""
     avg_attribute_id is avg(attribute_id)
     max_attribute_id is max(attribute_id)
     min_attribute_id is min(attribute_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Attribute_Definitions (with joins)
+source: attribute_definitions is attribute_definitions_base
+
+// Catalogs (with joins)
+source: catalogs is catalogs_base extend {
+  join_many: catalog_structure is catalog_structure_base on catalog_id = catalog_structure.catalog_id
+}
+
+// Catalog_Structure (with joins)
+source: catalog_structure is catalog_structure_base extend {
+  join_one: catalogs is catalogs_base on catalog_id = catalogs.catalog_id
+  join_many: catalog_contents is catalog_contents_base on catalog_level_number = catalog_contents.catalog_level_number
+  join_many: catalog_contents_additional_attributes is catalog_contents_additional_attributes_base on catalog_level_number = catalog_contents_additional_attributes.catalog_level_number
+}
+
+// Catalog_Contents (with joins)
+source: catalog_contents is catalog_contents_base extend {
+  join_one: catalog_structure is catalog_structure_base on catalog_level_number = catalog_structure.catalog_level_number
+  join_many: catalog_contents_additional_attributes is catalog_contents_additional_attributes_base on catalog_entry_id = catalog_contents_additional_attributes.catalog_entry_id
+}
+
+// Catalog_Contents_Additional_Attributes (with joins)
+source: catalog_contents_additional_attributes is catalog_contents_additional_attributes_base extend {
+  join_one: catalog_structure is catalog_structure_base on catalog_level_number = catalog_structure.catalog_level_number
+  join_one: catalog_contents is catalog_contents_base on catalog_entry_id = catalog_contents.catalog_entry_id
 }

@@ -1,56 +1,16 @@
 // Malloy semantic layer for: flight_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/flight_1/flight_1.sqlite
 
-// aircraft
-source: aircraft is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'aircraft')
-""") extend {
-  dimension:
-    name_val is `name`
-
-  primary_key: aid
-
-  measure:
-    row_count is count()
-    total_aid is sum(aid)
-    avg_aid is avg(aid)
-    max_aid is max(aid)
-    min_aid is min(aid)
-    total_distance is sum(distance)
-    avg_distance is avg(distance)
-    max_distance is max(distance)
-    min_distance is min(distance)
-}
-
-// employee
-source: employee is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'employee')
-""") extend {
-  dimension:
-    name_val is `name`
-
-  primary_key: eid
-
-  measure:
-    row_count is count()
-    total_eid is sum(eid)
-    avg_eid is avg(eid)
-    max_eid is max(eid)
-    min_eid is min(eid)
-    total_salary is sum(salary)
-    avg_salary is avg(salary)
-    max_salary is max(salary)
-    min_salary is min(salary)
-}
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
 
 // flight
-source: flight is duckdb.sql("""
+source: flight_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'flight')
 """) extend {
   primary_key: flno
-
-  join_one: aircraft on aid = aircraft.aid
 
   measure:
     row_count is count()
@@ -72,14 +32,53 @@ source: flight is duckdb.sql("""
     min_aid is min(aid)
 }
 
+// aircraft
+source: aircraft_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'aircraft')
+""") extend {
+  dimension:
+    name_val is `name`
+
+  primary_key: aid
+
+  measure:
+    row_count is count()
+    total_aid is sum(aid)
+    avg_aid is avg(aid)
+    max_aid is max(aid)
+    min_aid is min(aid)
+    total_distance is sum(distance)
+    avg_distance is avg(distance)
+    max_distance is max(distance)
+    min_distance is min(distance)
+}
+
+// employee
+source: employee_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'employee')
+""") extend {
+  dimension:
+    name_val is `name`
+
+  primary_key: eid
+
+  measure:
+    row_count is count()
+    total_eid is sum(eid)
+    avg_eid is avg(eid)
+    max_eid is max(eid)
+    min_eid is min(eid)
+    total_salary is sum(salary)
+    avg_salary is avg(salary)
+    max_salary is max(salary)
+    min_salary is min(salary)
+}
+
 // certificate
-source: certificate is duckdb.sql("""
+source: certificate_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'certificate')
 """) extend {
   primary_key: eid
-
-  join_one: aircraft on aid = aircraft.aid
-  join_one: employee on eid = employee.eid
 
   measure:
     row_count is count()
@@ -91,4 +90,30 @@ source: certificate is duckdb.sql("""
     avg_aid is avg(aid)
     max_aid is max(aid)
     min_aid is min(aid)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// flight (with joins)
+source: flight is flight_base extend {
+  join_one: aircraft is aircraft_base on aid = aircraft.aid
+}
+
+// aircraft (with joins)
+source: aircraft is aircraft_base extend {
+  join_many: flight is flight_base on aid = flight.aid
+  join_many: certificate is certificate_base on aid = certificate.aid
+}
+
+// employee (with joins)
+source: employee is employee_base extend {
+  join_many: certificate is certificate_base on eid = certificate.eid
+}
+
+// certificate (with joins)
+source: certificate is certificate_base extend {
+  join_one: aircraft is aircraft_base on aid = aircraft.aid
+  join_one: employee is employee_base on eid = employee.eid
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: election
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/election/election.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // county
-source: county is duckdb.sql("""
+source: county_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'county')
 """) extend {
   primary_key: County_Id
@@ -21,7 +25,7 @@ source: county is duckdb.sql("""
 }
 
 // party
-source: party is duckdb.sql("""
+source: party_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'party')
 """) extend {
   dimension:
@@ -44,16 +48,13 @@ source: party is duckdb.sql("""
 }
 
 // election
-source: election is duckdb.sql("""
+source: election_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'election')
 """) extend {
   dimension:
     election_i_d is Election_ID
 
   primary_key: election_i_d
-
-  join_one: county on District = county.County_Id
-  join_one: ref_party is party on Party = ref_party.party_i_d
 
   measure:
     row_count is count()
@@ -73,4 +74,24 @@ source: election is duckdb.sql("""
     avg_first_elected is avg(First_Elected)
     max_first_elected is max(First_Elected)
     min_first_elected is min(First_Elected)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// county (with joins)
+source: county is county_base extend {
+  join_many: election is election_base on County_Id = election.District
+}
+
+// party (with joins)
+source: party is party_base extend {
+  join_many: election is election_base on party_i_d = election.Party
+}
+
+// election (with joins)
+source: election is election_base extend {
+  join_one: county is county_base on District = county.County_Id
+  join_one: ref_party is party_base on Party = ref_party.party_i_d
 }

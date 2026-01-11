@@ -1,9 +1,13 @@
 // Malloy semantic layer for: loan_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/loan_1/loan_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // bank
-source: bank is duckdb.sql("""
+source: bank_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'bank')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: bank is duckdb.sql("""
 }
 
 // customer
-source: customer is duckdb.sql("""
+source: customer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'customer')
 """) extend {
   dimension:
@@ -34,8 +38,6 @@ source: customer is duckdb.sql("""
     state_val is `state`
 
   primary_key: cust_i_d
-
-  join_one: bank on branch_i_d = bank.branch_i_d
 
   measure:
     row_count is count()
@@ -58,7 +60,7 @@ source: customer is duckdb.sql("""
 }
 
 // loan
-source: loan is duckdb.sql("""
+source: loan_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'loan')
 """) extend {
   dimension:
@@ -68,12 +70,30 @@ source: loan is duckdb.sql("""
 
   primary_key: loan_i_d
 
-  join_one: bank on branch_i_d = bank.branch_i_d
-
   measure:
     row_count is count()
     total_amount is sum(amount)
     avg_amount is avg(amount)
     max_amount is max(amount)
     min_amount is min(amount)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// bank (with joins)
+source: bank is bank_base extend {
+  join_many: customer is customer_base on branch_i_d = customer.branch_i_d
+  join_many: loan is loan_base on branch_i_d = loan.branch_i_d
+}
+
+// customer (with joins)
+source: customer is customer_base extend {
+  join_one: bank is bank_base on branch_i_d = bank.branch_i_d
+}
+
+// loan (with joins)
+source: loan is loan_base extend {
+  join_one: bank is bank_base on branch_i_d = bank.branch_i_d
 }

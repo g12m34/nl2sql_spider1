@@ -1,9 +1,13 @@
 // Malloy semantic layer for: wedding
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/wedding/wedding.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // people
-source: people_val is duckdb.sql("""
+source: people_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wedding/wedding.sqlite', 'people')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: people_val is duckdb.sql("""
 }
 
 // church
-source: church is duckdb.sql("""
+source: church_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wedding/wedding.sqlite', 'church')
 """) extend {
   dimension:
@@ -47,7 +51,7 @@ source: church is duckdb.sql("""
 }
 
 // wedding
-source: wedding is duckdb.sql("""
+source: wedding_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wedding/wedding.sqlite', 'wedding')
 """) extend {
   dimension:
@@ -57,10 +61,6 @@ source: wedding is duckdb.sql("""
     year_val is `Year`
 
   primary_key: church_i_d
-
-  join_one: female_i_d_people_val is people_val on female_i_d = female_i_d_people_val.people_i_d
-  join_one: male_i_d_people_val is people_val on male_i_d = male_i_d_people_val.people_i_d
-  join_one: church on church_i_d = church.church_i_d
 
   measure:
     row_count is count()
@@ -80,4 +80,26 @@ source: wedding is duckdb.sql("""
     avg_year_val is avg(year_val)
     max_year_val is max(year_val)
     min_year_val is min(year_val)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: wedding_female_i_d is wedding_base on people_i_d = wedding_female_i_d.female_i_d
+  join_many: wedding_male_i_d is wedding_base on people_i_d = wedding_male_i_d.male_i_d
+}
+
+// church (with joins)
+source: church is church_base extend {
+  join_many: wedding is wedding_base on church_i_d = wedding.church_i_d
+}
+
+// wedding (with joins)
+source: wedding is wedding_base extend {
+  join_one: female_i_d_people_val is people_val_base on female_i_d = female_i_d_people_val.people_i_d
+  join_one: male_i_d_people_val is people_val_base on male_i_d = male_i_d_people_val.people_i_d
+  join_one: church is church_base on church_i_d = church.church_i_d
 }

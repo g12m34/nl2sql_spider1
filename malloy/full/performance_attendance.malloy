@@ -1,9 +1,13 @@
 // Malloy semantic layer for: performance_attendance
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // member
-source: member is duckdb.sql("""
+source: member_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'member')
 """) extend {
   dimension:
@@ -17,7 +21,7 @@ source: member is duckdb.sql("""
 }
 
 // performance
-source: performance is duckdb.sql("""
+source: performance_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'performance')
 """) extend {
   dimension:
@@ -39,7 +43,7 @@ source: performance is duckdb.sql("""
 }
 
 // member_attendance
-source: member_attendance is duckdb.sql("""
+source: member_attendance_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'member_attendance')
 """) extend {
   dimension:
@@ -47,9 +51,6 @@ source: member_attendance is duckdb.sql("""
     performance_i_d is Performance_ID
 
   primary_key: member_i_d
-
-  join_one: performance on performance_i_d = performance.performance_i_d
-  join_one: member on member_i_d = member.member_i_d
 
   measure:
     row_count is count()
@@ -65,4 +66,24 @@ source: member_attendance is duckdb.sql("""
     avg_num_of_pieces is avg(Num_of_Pieces)
     max_num_of_pieces is max(Num_of_Pieces)
     min_num_of_pieces is min(Num_of_Pieces)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// member (with joins)
+source: member is member_base extend {
+  join_many: member_attendance is member_attendance_base on member_i_d = member_attendance.member_i_d
+}
+
+// performance (with joins)
+source: performance is performance_base extend {
+  join_many: member_attendance is member_attendance_base on performance_i_d = member_attendance.performance_i_d
+}
+
+// member_attendance (with joins)
+source: member_attendance is member_attendance_base extend {
+  join_one: performance is performance_base on performance_i_d = performance.performance_i_d
+  join_one: member is member_base on member_i_d = member.member_i_d
 }

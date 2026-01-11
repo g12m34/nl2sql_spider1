@@ -1,9 +1,13 @@
 // Malloy semantic layer for: culture_company
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/culture_company/culture_company.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // book_club
-source: book_club is duckdb.sql("""
+source: book_club_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/culture_company/culture_company.sqlite', 'book_club')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: book_club is duckdb.sql("""
 }
 
 // movie
-source: movie is duckdb.sql("""
+source: movie_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/culture_company/culture_company.sqlite', 'movie')
 """) extend {
   dimension:
@@ -54,7 +58,7 @@ source: movie is duckdb.sql("""
 }
 
 // culture_company
-source: culture_company is duckdb.sql("""
+source: culture_company_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/culture_company/culture_company.sqlite', 'culture_company')
 """) extend {
   dimension:
@@ -62,13 +66,30 @@ source: culture_company is duckdb.sql("""
 
   primary_key: Company_name
 
-  join_one: movie on movie_id = movie.movie_id
-  join_one: book_club on book_club_id = book_club.book_club_id
-
   measure:
     row_count is count()
     total_group_equity_shareholding is sum(Group_Equity_Shareholding)
     avg_group_equity_shareholding is avg(Group_Equity_Shareholding)
     max_group_equity_shareholding is max(Group_Equity_Shareholding)
     min_group_equity_shareholding is min(Group_Equity_Shareholding)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// book_club (with joins)
+source: book_club is book_club_base extend {
+  join_many: culture_company is culture_company_base on book_club_id = culture_company.book_club_id
+}
+
+// movie (with joins)
+source: movie is movie_base extend {
+  join_many: culture_company is culture_company_base on movie_id = culture_company.movie_id
+}
+
+// culture_company (with joins)
+source: culture_company is culture_company_base extend {
+  join_one: movie is movie_base on movie_id = movie.movie_id
+  join_one: book_club is book_club_base on book_club_id = book_club.book_club_id
 }

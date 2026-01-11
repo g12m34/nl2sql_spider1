@@ -1,9 +1,13 @@
 // Malloy semantic layer for: farm
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/farm/farm.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // city
-source: city is duckdb.sql("""
+source: city_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'city')
 """) extend {
   dimension:
@@ -28,7 +32,7 @@ source: city is duckdb.sql("""
 }
 
 // farm
-source: farm is duckdb.sql("""
+source: farm_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'farm')
 """) extend {
   dimension:
@@ -82,7 +86,7 @@ source: farm is duckdb.sql("""
 }
 
 // farm_competition
-source: farm_competition is duckdb.sql("""
+source: farm_competition_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'farm_competition')
 """) extend {
   dimension:
@@ -91,8 +95,6 @@ source: farm_competition is duckdb.sql("""
     host_city_i_d is Host_city_ID
 
   primary_key: competition_i_d
-
-  join_one: city on host_city_i_d = city.city_i_d
 
   measure:
     row_count is count()
@@ -111,7 +113,7 @@ source: farm_competition is duckdb.sql("""
 }
 
 // competition_record
-source: competition_record is duckdb.sql("""
+source: competition_record_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/farm/farm.sqlite', 'competition_record')
 """) extend {
   dimension:
@@ -120,9 +122,6 @@ source: competition_record is duckdb.sql("""
     rank_val is `Rank`
 
   primary_key: competition_i_d
-
-  join_one: farm on farm_i_d = farm.farm_i_d
-  join_one: farm_competition on competition_i_d = farm_competition.competition_i_d
 
   measure:
     row_count is count()
@@ -138,4 +137,30 @@ source: competition_record is duckdb.sql("""
     avg_rank_val is avg(rank_val)
     max_rank_val is max(rank_val)
     min_rank_val is min(rank_val)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// city (with joins)
+source: city is city_base extend {
+  join_many: farm_competition is farm_competition_base on city_i_d = farm_competition.host_city_i_d
+}
+
+// farm (with joins)
+source: farm is farm_base extend {
+  join_many: competition_record is competition_record_base on farm_i_d = competition_record.farm_i_d
+}
+
+// farm_competition (with joins)
+source: farm_competition is farm_competition_base extend {
+  join_one: city is city_base on host_city_i_d = city.city_i_d
+  join_many: competition_record is competition_record_base on competition_i_d = competition_record.competition_i_d
+}
+
+// competition_record (with joins)
+source: competition_record is competition_record_base extend {
+  join_one: farm is farm_base on farm_i_d = farm.farm_i_d
+  join_one: farm_competition is farm_competition_base on competition_i_d = farm_competition.competition_i_d
 }

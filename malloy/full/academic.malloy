@@ -1,9 +1,13 @@
 // Malloy semantic layer for: academic
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/academic/academic.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // author
-source: author is duckdb.sql("""
+source: author_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'author')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: author is duckdb.sql("""
 }
 
 // conference
-source: conference is duckdb.sql("""
+source: conference_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'conference')
 """) extend {
   dimension:
@@ -41,7 +45,7 @@ source: conference is duckdb.sql("""
 }
 
 // domain
-source: domain is duckdb.sql("""
+source: domain_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain')
 """) extend {
   dimension:
@@ -57,8 +61,44 @@ source: domain is duckdb.sql("""
     min_did is min(did)
 }
 
+// domain_author
+source: domain_author_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_author')
+""") extend {
+  primary_key: did
+
+  measure:
+    row_count is count()
+    total_aid is sum(aid)
+    avg_aid is avg(aid)
+    max_aid is max(aid)
+    min_aid is min(aid)
+    total_did is sum(did)
+    avg_did is avg(did)
+    max_did is max(did)
+    min_did is min(did)
+}
+
+// domain_conference
+source: domain_conference_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_conference')
+""") extend {
+  primary_key: did
+
+  measure:
+    row_count is count()
+    total_cid is sum(cid)
+    avg_cid is avg(cid)
+    max_cid is max(cid)
+    min_cid is min(cid)
+    total_did is sum(did)
+    avg_did is avg(did)
+    max_did is max(did)
+    min_did is min(did)
+}
+
 // journal
-source: journal is duckdb.sql("""
+source: journal_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'journal')
 """) extend {
   dimension:
@@ -74,87 +114,11 @@ source: journal is duckdb.sql("""
     min_jid is min(jid)
 }
 
-// keyword
-source: keyword is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'keyword')
-""") extend {
-  primary_key: kid
-
-  measure:
-    row_count is count()
-    total_kid is sum(kid)
-    avg_kid is avg(kid)
-    max_kid is max(kid)
-    min_kid is min(kid)
-}
-
-// organization
-source: organization is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'organization')
-""") extend {
-  dimension:
-    name_val is `name`
-
-  primary_key: oid
-
-  measure:
-    row_count is count()
-    total_oid is sum(oid)
-    avg_oid is avg(oid)
-    max_oid is max(oid)
-    min_oid is min(oid)
-}
-
-// domain_author
-source: domain_author is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_author')
-""") extend {
-  primary_key: did
-
-  join_one: domain on did = domain.did
-  join_one: author on aid = author.aid
-
-  measure:
-    row_count is count()
-    total_aid is sum(aid)
-    avg_aid is avg(aid)
-    max_aid is max(aid)
-    min_aid is min(aid)
-    total_did is sum(did)
-    avg_did is avg(did)
-    max_did is max(did)
-    min_did is min(did)
-}
-
-// domain_conference
-source: domain_conference is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_conference')
-""") extend {
-  primary_key: did
-
-  join_one: domain on did = domain.did
-  join_one: conference on cid = conference.cid
-
-  measure:
-    row_count is count()
-    total_cid is sum(cid)
-    avg_cid is avg(cid)
-    max_cid is max(cid)
-    min_cid is min(cid)
-    total_did is sum(did)
-    avg_did is avg(did)
-    max_did is max(did)
-    min_did is min(did)
-}
-
 // domain_journal
-source: domain_journal is duckdb.sql("""
+source: domain_journal_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_journal')
 """) extend {
   primary_key: did
-
-  join_one: domain on did = domain.did
-  join_one: journal on jid = journal.jid
 
   measure:
     row_count is count()
@@ -168,17 +132,46 @@ source: domain_journal is duckdb.sql("""
     min_jid is min(jid)
 }
 
+// keyword
+source: keyword_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'keyword')
+""") extend {
+  primary_key: kid
+
+  measure:
+    row_count is count()
+    total_kid is sum(kid)
+    avg_kid is avg(kid)
+    max_kid is max(kid)
+    min_kid is min(kid)
+}
+
+// domain_keyword
+source: domain_keyword_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_keyword')
+""") extend {
+  primary_key: did
+
+  measure:
+    row_count is count()
+    total_did is sum(did)
+    avg_did is avg(did)
+    max_did is max(did)
+    min_did is min(did)
+    total_kid is sum(kid)
+    avg_kid is avg(kid)
+    max_kid is max(kid)
+    min_kid is min(kid)
+}
+
 // publication
-source: publication is duckdb.sql("""
+source: publication_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'publication')
 """) extend {
   dimension:
     year_val is `year`
 
   primary_key: pid
-
-  join_one: conference on cid = conference.cid
-  join_one: journal on jid = journal.jid
 
   measure:
     row_count is count()
@@ -204,35 +197,11 @@ source: publication is duckdb.sql("""
     min_year_val is min(year_val)
 }
 
-// domain_keyword
-source: domain_keyword is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_keyword')
-""") extend {
-  primary_key: did
-
-  join_one: domain on did = domain.did
-  join_one: keyword on kid = keyword.kid
-
-  measure:
-    row_count is count()
-    total_did is sum(did)
-    avg_did is avg(did)
-    max_did is max(did)
-    min_did is min(did)
-    total_kid is sum(kid)
-    avg_kid is avg(kid)
-    max_kid is max(kid)
-    min_kid is min(kid)
-}
-
 // domain_publication
-source: domain_publication is duckdb.sql("""
+source: domain_publication_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'domain_publication')
 """) extend {
   primary_key: did
-
-  join_one: domain on did = domain.did
-  join_one: publication on pid = publication.pid
 
   measure:
     row_count is count()
@@ -246,14 +215,28 @@ source: domain_publication is duckdb.sql("""
     min_pid is min(pid)
 }
 
+// organization
+source: organization_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'organization')
+""") extend {
+  dimension:
+    name_val is `name`
+
+  primary_key: oid
+
+  measure:
+    row_count is count()
+    total_oid is sum(oid)
+    avg_oid is avg(oid)
+    max_oid is max(oid)
+    min_oid is min(oid)
+}
+
 // publication_keyword
-source: publication_keyword is duckdb.sql("""
+source: publication_keyword_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'publication_keyword')
 """) extend {
   primary_key: kid
-
-  join_one: keyword on kid = keyword.kid
-  join_one: publication on pid = publication.pid
 
   measure:
     row_count is count()
@@ -268,13 +251,10 @@ source: publication_keyword is duckdb.sql("""
 }
 
 // writes
-source: writes is duckdb.sql("""
+source: writes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'writes')
 """) extend {
   primary_key: aid
-
-  join_one: author on aid = author.aid
-  join_one: publication on pid = publication.pid
 
   measure:
     row_count is count()
@@ -289,12 +269,9 @@ source: writes is duckdb.sql("""
 }
 
 // cite
-source: cite is duckdb.sql("""
+source: cite_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/academic/academic.sqlite', 'cite')
 """) extend {
-  join_one: citing_publication is publication on citing = citing_publication.pid
-  join_one: cited_publication is publication on cited = cited_publication.pid
-
   measure:
     row_count is count()
     total_cited is sum(cited)
@@ -305,4 +282,103 @@ source: cite is duckdb.sql("""
     avg_citing is avg(citing)
     max_citing is max(citing)
     min_citing is min(citing)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// author (with joins)
+source: author is author_base extend {
+  join_many: domain_author is domain_author_base on aid = domain_author.aid
+  join_many: writes is writes_base on aid = writes.aid
+}
+
+// conference (with joins)
+source: conference is conference_base extend {
+  join_many: domain_conference is domain_conference_base on cid = domain_conference.cid
+  join_many: publication is publication_base on cid = publication.cid
+}
+
+// domain (with joins)
+source: domain is domain_base extend {
+  join_many: domain_author is domain_author_base on did = domain_author.did
+  join_many: domain_conference is domain_conference_base on did = domain_conference.did
+  join_many: domain_journal is domain_journal_base on did = domain_journal.did
+  join_many: domain_keyword is domain_keyword_base on did = domain_keyword.did
+  join_many: domain_publication is domain_publication_base on did = domain_publication.did
+}
+
+// domain_author (with joins)
+source: domain_author is domain_author_base extend {
+  join_one: domain is domain_base on did = domain.did
+  join_one: author is author_base on aid = author.aid
+}
+
+// domain_conference (with joins)
+source: domain_conference is domain_conference_base extend {
+  join_one: domain is domain_base on did = domain.did
+  join_one: conference is conference_base on cid = conference.cid
+}
+
+// journal (with joins)
+source: journal is journal_base extend {
+  join_many: domain_journal is domain_journal_base on jid = domain_journal.jid
+  join_many: publication is publication_base on jid = publication.jid
+}
+
+// domain_journal (with joins)
+source: domain_journal is domain_journal_base extend {
+  join_one: domain is domain_base on did = domain.did
+  join_one: journal is journal_base on jid = journal.jid
+}
+
+// keyword (with joins)
+source: keyword is keyword_base extend {
+  join_many: domain_keyword is domain_keyword_base on kid = domain_keyword.kid
+  join_many: publication_keyword is publication_keyword_base on kid = publication_keyword.kid
+}
+
+// domain_keyword (with joins)
+source: domain_keyword is domain_keyword_base extend {
+  join_one: domain is domain_base on did = domain.did
+  join_one: keyword is keyword_base on kid = keyword.kid
+}
+
+// publication (with joins)
+source: publication is publication_base extend {
+  join_one: conference is conference_base on cid = conference.cid
+  join_one: journal is journal_base on jid = journal.jid
+  join_many: domain_publication is domain_publication_base on pid = domain_publication.pid
+  join_many: publication_keyword is publication_keyword_base on pid = publication_keyword.pid
+  join_many: writes is writes_base on pid = writes.pid
+  join_many: cite_citing is cite_base on pid = cite_citing.citing
+  join_many: cite_cited is cite_base on pid = cite_cited.cited
+}
+
+// domain_publication (with joins)
+source: domain_publication is domain_publication_base extend {
+  join_one: domain is domain_base on did = domain.did
+  join_one: publication is publication_base on pid = publication.pid
+}
+
+// organization (with joins)
+source: organization is organization_base
+
+// publication_keyword (with joins)
+source: publication_keyword is publication_keyword_base extend {
+  join_one: keyword is keyword_base on kid = keyword.kid
+  join_one: publication is publication_base on pid = publication.pid
+}
+
+// writes (with joins)
+source: writes is writes_base extend {
+  join_one: author is author_base on aid = author.aid
+  join_one: publication is publication_base on pid = publication.pid
+}
+
+// cite (with joins)
+source: cite is cite_base extend {
+  join_one: citing_publication is publication_base on citing = citing_publication.pid
+  join_one: cited_publication is publication_base on cited = cited_publication.pid
 }

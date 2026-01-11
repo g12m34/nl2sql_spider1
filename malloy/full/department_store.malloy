@@ -1,9 +1,13 @@
 // Malloy semantic layer for: department_store
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/department_store/department_store.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Addresses')
 """) extend {
   primary_key: address_id
@@ -17,7 +21,7 @@ source: addresses is duckdb.sql("""
 }
 
 // Staff
-source: staff_val is duckdb.sql("""
+source: staff_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Staff')
 """) extend {
   primary_key: staff_id
@@ -31,7 +35,7 @@ source: staff_val is duckdb.sql("""
 }
 
 // Suppliers
-source: suppliers is duckdb.sql("""
+source: suppliers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Suppliers')
 """) extend {
   primary_key: supplier_id
@@ -45,7 +49,7 @@ source: suppliers is duckdb.sql("""
 }
 
 // Department_Store_Chain
-source: department_store_chain is duckdb.sql("""
+source: department_store_chain_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Department_Store_Chain')
 """) extend {
   primary_key: dept_store_chain_id
@@ -59,7 +63,7 @@ source: department_store_chain is duckdb.sql("""
 }
 
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -73,7 +77,7 @@ source: customers is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Products')
 """) extend {
   primary_key: product_id
@@ -91,13 +95,10 @@ source: products is duckdb.sql("""
 }
 
 // Supplier_Addresses
-source: supplier_addresses is duckdb.sql("""
+source: supplier_addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Supplier_Addresses')
 """) extend {
   primary_key: supplier_id
-
-  join_one: suppliers on supplier_id = suppliers.supplier_id
-  join_one: addresses on address_id = addresses.address_id
 
   measure:
     row_count is count()
@@ -111,34 +112,11 @@ source: supplier_addresses is duckdb.sql("""
     min_address_id is min(address_id)
 }
 
-// Department_Stores
-source: department_stores is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Department_Stores')
-""") extend {
-  primary_key: dept_store_id
-
-  join_one: department_store_chain on dept_store_chain_id = department_store_chain.dept_store_chain_id
-
-  measure:
-    row_count is count()
-    total_dept_store_id is sum(dept_store_id)
-    avg_dept_store_id is avg(dept_store_id)
-    max_dept_store_id is max(dept_store_id)
-    min_dept_store_id is min(dept_store_id)
-    total_dept_store_chain_id is sum(dept_store_chain_id)
-    avg_dept_store_chain_id is avg(dept_store_chain_id)
-    max_dept_store_chain_id is max(dept_store_chain_id)
-    min_dept_store_chain_id is min(dept_store_chain_id)
-}
-
 // Customer_Addresses
-source: customer_addresses is duckdb.sql("""
+source: customer_addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Customer_Addresses')
 """) extend {
   primary_key: customer_id
-
-  join_one: customers on customer_id = customers.customer_id
-  join_one: addresses on address_id = addresses.address_id
 
   measure:
     row_count is count()
@@ -153,12 +131,10 @@ source: customer_addresses is duckdb.sql("""
 }
 
 // Customer_Orders
-source: customer_orders is duckdb.sql("""
+source: customer_orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Customer_Orders')
 """) extend {
   primary_key: order_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -172,38 +148,29 @@ source: customer_orders is duckdb.sql("""
     min_customer_id is min(customer_id)
 }
 
-// Product_Suppliers
-source: product_suppliers is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Product_Suppliers')
+// Department_Stores
+source: department_stores_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Department_Stores')
 """) extend {
-  primary_key: product_id
-
-  join_one: products on product_id = products.product_id
-  join_one: suppliers on supplier_id = suppliers.supplier_id
+  primary_key: dept_store_id
 
   measure:
     row_count is count()
-    total_product_id is sum(product_id)
-    avg_product_id is avg(product_id)
-    max_product_id is max(product_id)
-    min_product_id is min(product_id)
-    total_supplier_id is sum(supplier_id)
-    avg_supplier_id is avg(supplier_id)
-    max_supplier_id is max(supplier_id)
-    min_supplier_id is min(supplier_id)
-    total_total_value_purchased is sum(total_value_purchased)
-    avg_total_value_purchased is avg(total_value_purchased)
-    max_total_value_purchased is max(total_value_purchased)
-    min_total_value_purchased is min(total_value_purchased)
+    total_dept_store_id is sum(dept_store_id)
+    avg_dept_store_id is avg(dept_store_id)
+    max_dept_store_id is max(dept_store_id)
+    min_dept_store_id is min(dept_store_id)
+    total_dept_store_chain_id is sum(dept_store_chain_id)
+    avg_dept_store_chain_id is avg(dept_store_chain_id)
+    max_dept_store_chain_id is max(dept_store_chain_id)
+    min_dept_store_chain_id is min(dept_store_chain_id)
 }
 
 // Departments
-source: departments is duckdb.sql("""
+source: departments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Departments')
 """) extend {
   primary_key: department_id
-
-  join_one: department_stores on dept_store_id = department_stores.dept_store_id
 
   measure:
     row_count is count()
@@ -218,13 +185,10 @@ source: departments is duckdb.sql("""
 }
 
 // Order_Items
-source: order_items is duckdb.sql("""
+source: order_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Order_Items')
 """) extend {
   primary_key: order_item_id
-
-  join_one: products on product_id = products.product_id
-  join_one: customer_orders on order_id = customer_orders.order_id
 
   measure:
     row_count is count()
@@ -242,14 +206,33 @@ source: order_items is duckdb.sql("""
     min_product_id is min(product_id)
 }
 
+// Product_Suppliers
+source: product_suppliers_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Product_Suppliers')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+    total_supplier_id is sum(supplier_id)
+    avg_supplier_id is avg(supplier_id)
+    max_supplier_id is max(supplier_id)
+    min_supplier_id is min(supplier_id)
+    total_total_value_purchased is sum(total_value_purchased)
+    avg_total_value_purchased is avg(total_value_purchased)
+    max_total_value_purchased is max(total_value_purchased)
+    min_total_value_purchased is min(total_value_purchased)
+}
+
 // Staff_Department_Assignments
-source: staff_department_assignments is duckdb.sql("""
+source: staff_department_assignments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_store/department_store.sqlite', 'Staff_Department_Assignments')
 """) extend {
   primary_key: staff_id
-
-  join_one: staff_val on staff_id = staff_val.staff_id
-  join_one: departments on department_id = departments.department_id
 
   measure:
     row_count is count()
@@ -261,4 +244,90 @@ source: staff_department_assignments is duckdb.sql("""
     avg_department_id is avg(department_id)
     max_department_id is max(department_id)
     min_department_id is min(department_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: supplier_addresses is supplier_addresses_base on address_id = supplier_addresses.address_id
+  join_many: customer_addresses is customer_addresses_base on address_id = customer_addresses.address_id
+}
+
+// Staff (with joins)
+source: staff_val is staff_val_base extend {
+  join_many: staff_department_assignments is staff_department_assignments_base on staff_id = staff_department_assignments.staff_id
+}
+
+// Suppliers (with joins)
+source: suppliers is suppliers_base extend {
+  join_many: supplier_addresses is supplier_addresses_base on supplier_id = supplier_addresses.supplier_id
+  join_many: product_suppliers is product_suppliers_base on supplier_id = product_suppliers.supplier_id
+}
+
+// Department_Store_Chain (with joins)
+source: department_store_chain is department_store_chain_base extend {
+  join_many: department_stores is department_stores_base on dept_store_chain_id = department_stores.dept_store_chain_id
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: customer_addresses is customer_addresses_base on customer_id = customer_addresses.customer_id
+  join_many: customer_orders is customer_orders_base on customer_id = customer_orders.customer_id
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: order_items is order_items_base on product_id = order_items.product_id
+  join_many: product_suppliers is product_suppliers_base on product_id = product_suppliers.product_id
+}
+
+// Supplier_Addresses (with joins)
+source: supplier_addresses is supplier_addresses_base extend {
+  join_one: suppliers is suppliers_base on supplier_id = suppliers.supplier_id
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+}
+
+// Customer_Addresses (with joins)
+source: customer_addresses is customer_addresses_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+}
+
+// Customer_Orders (with joins)
+source: customer_orders is customer_orders_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: order_items is order_items_base on order_id = order_items.order_id
+}
+
+// Department_Stores (with joins)
+source: department_stores is department_stores_base extend {
+  join_one: department_store_chain is department_store_chain_base on dept_store_chain_id = department_store_chain.dept_store_chain_id
+  join_many: departments is departments_base on dept_store_id = departments.dept_store_id
+}
+
+// Departments (with joins)
+source: departments is departments_base extend {
+  join_one: department_stores is department_stores_base on dept_store_id = department_stores.dept_store_id
+  join_many: staff_department_assignments is staff_department_assignments_base on department_id = staff_department_assignments.department_id
+}
+
+// Order_Items (with joins)
+source: order_items is order_items_base extend {
+  join_one: products is products_base on product_id = products.product_id
+  join_one: customer_orders is customer_orders_base on order_id = customer_orders.order_id
+}
+
+// Product_Suppliers (with joins)
+source: product_suppliers is product_suppliers_base extend {
+  join_one: products is products_base on product_id = products.product_id
+  join_one: suppliers is suppliers_base on supplier_id = suppliers.supplier_id
+}
+
+// Staff_Department_Assignments (with joins)
+source: staff_department_assignments is staff_department_assignments_base extend {
+  join_one: staff_val is staff_val_base on staff_id = staff_val.staff_id
+  join_one: departments is departments_base on department_id = departments.department_id
 }

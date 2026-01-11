@@ -1,0 +1,128 @@
+// ============================================================
+// FIELD METADATA (Auto-generated from database profiling)
+// ============================================================
+//
+// Table: Movie
+//   mID: Primary key identifier for Movie
+//     Sample values: '101', '102', '103'
+//   title: Values include: 'Titanic', 'The Sound of Music', 'Star Wars'
+//     Sample values: 'Titanic', 'The Sound of Music', 'Star Wars'
+//   year: Date/time field ranging from 1937 to 2009
+//     Sample values: '2009', '1997', '1982'
+//   director: Values include: 'Steven Spielberg', 'James Cameron', 'Victor Fleming'. (12% NULL)
+//     Sample values: 'Steven Spielberg', 'James Cameron', 'Victor Fleming'
+//
+// Table: Reviewer
+//   rID: Primary key identifier for Reviewer
+//     Sample values: '201', '202', '203'
+//   name: Unique name identifier
+//     Sample values: 'Sarah Martinez', 'Mike Anderson', 'James Cameron'
+//
+// Table: Rating
+//   rID: Foreign key reference
+//     Sample values: '205', '203', '206'
+//   mID: Foreign key reference
+//     Sample values: '108', '101', '107'
+//   stars: Categorical field: '4', '3', '2', '5'
+//     Sample values: '4', '3', '2'
+//   ratingDate: Categorical field: '2011-01-27', '2011-01-22', '2011-01-20', '2011-01-30', '2011-01-19'. (14% NULL)
+//     Sample values: '2011-01-27', '2011-01-22', '2011-01-20'
+//
+
+// Malloy semantic layer for: movie_1
+// Full layer with ALL columns, primary keys, and bidirectional joins
+// Database: /workspace/spider_db/spider/database/movie_1/movie_1.sqlite
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// Movie
+source: movie_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Movie')
+""") extend {
+  dimension:
+    // Primary key identifier for Movie
+    m_i_d is mID
+    year_val is `year`
+
+  primary_key: m_i_d
+
+  measure:
+    row_count is count()
+    total_m_i_d is sum(m_i_d)
+    avg_m_i_d is avg(m_i_d)
+    max_m_i_d is max(m_i_d)
+    min_m_i_d is min(m_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+}
+
+// Reviewer
+source: reviewer_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Reviewer')
+""") extend {
+  dimension:
+    // Primary key identifier for Reviewer
+    r_i_d is rID
+    name_val is `name`
+
+  primary_key: r_i_d
+
+  measure:
+    row_count is count()
+    total_r_i_d is sum(r_i_d)
+    avg_r_i_d is avg(r_i_d)
+    max_r_i_d is max(r_i_d)
+    min_r_i_d is min(r_i_d)
+}
+
+// Rating
+source: rating_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Rating')
+""") extend {
+  dimension:
+    // Foreign key reference
+    r_i_d is rID
+    // Foreign key reference
+    m_i_d is mID
+    // Categorical field: '2011-01-27', '2011-01-22', '2011-01-20', '2011-01-30', '2011-01-19'. (14% NULL)
+    rating_date is ratingDate
+
+  measure:
+    row_count is count()
+    total_r_i_d is sum(r_i_d)
+    avg_r_i_d is avg(r_i_d)
+    max_r_i_d is max(r_i_d)
+    min_r_i_d is min(r_i_d)
+    total_m_i_d is sum(m_i_d)
+    avg_m_i_d is avg(m_i_d)
+    max_m_i_d is max(m_i_d)
+    min_m_i_d is min(m_i_d)
+    total_stars is sum(stars)
+    avg_stars is avg(stars)
+    max_stars is max(stars)
+    min_stars is min(stars)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Movie (with joins)
+source: movie is movie_base extend {
+  join_many: rating is rating_base on m_i_d = rating.m_i_d
+}
+
+// Reviewer (with joins)
+source: reviewer is reviewer_base extend {
+  join_many: rating is rating_base on r_i_d = rating.r_i_d
+}
+
+// Rating (with joins)
+source: rating is rating_base extend {
+  join_one: reviewer is reviewer_base on r_i_d = reviewer.r_i_d
+  join_one: movie is movie_base on m_i_d = movie.m_i_d
+}

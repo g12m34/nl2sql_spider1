@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cinema
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cinema/cinema.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // film
-source: film is duckdb.sql("""
+source: film_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'film')
 """) extend {
   dimension:
@@ -28,7 +32,7 @@ source: film is duckdb.sql("""
 }
 
 // cinema
-source: cinema is duckdb.sql("""
+source: cinema_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'cinema')
 """) extend {
   dimension:
@@ -54,7 +58,7 @@ source: cinema is duckdb.sql("""
 }
 
 // schedule
-source: schedule is duckdb.sql("""
+source: schedule_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'schedule')
 """) extend {
   dimension:
@@ -63,9 +67,6 @@ source: schedule is duckdb.sql("""
     date_val is `Date`
 
   primary_key: cinema_i_d
-
-  join_one: cinema on cinema_i_d = cinema.cinema_i_d
-  join_one: film on film_i_d = film.film_i_d
 
   measure:
     row_count is count()
@@ -85,4 +86,24 @@ source: schedule is duckdb.sql("""
     avg_price is avg(Price)
     max_price is max(Price)
     min_price is min(Price)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// film (with joins)
+source: film is film_base extend {
+  join_many: schedule is schedule_base on film_i_d = schedule.film_i_d
+}
+
+// cinema (with joins)
+source: cinema is cinema_base extend {
+  join_many: schedule is schedule_base on cinema_i_d = schedule.cinema_i_d
+}
+
+// schedule (with joins)
+source: schedule is schedule_base extend {
+  join_one: cinema is cinema_base on cinema_i_d = cinema.cinema_i_d
+  join_one: film is film_base on film_i_d = film.film_i_d
 }

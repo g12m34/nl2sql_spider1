@@ -1,9 +1,13 @@
 // Malloy semantic layer for: music_4
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/music_4/music_4.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // artist
-source: artist is duckdb.sql("""
+source: artist_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_4/music_4.sqlite', 'artist')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: artist is duckdb.sql("""
 }
 
 // volume
-source: volume is duckdb.sql("""
+source: volume_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_4/music_4.sqlite', 'volume')
 """) extend {
   dimension:
@@ -32,8 +36,6 @@ source: volume is duckdb.sql("""
     artist_i_d is Artist_ID
 
   primary_key: volume_i_d
-
-  join_one: artist on artist_i_d = artist.artist_i_d
 
   measure:
     row_count is count()
@@ -52,7 +54,7 @@ source: volume is duckdb.sql("""
 }
 
 // music_festival
-source: music_festival is duckdb.sql("""
+source: music_festival_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_4/music_4.sqlite', 'music_festival')
 """) extend {
   dimension:
@@ -60,8 +62,6 @@ source: music_festival is duckdb.sql("""
     result_val is `Result`
 
   primary_key: i_d
-
-  join_one: ref_volume is volume on Volume = ref_volume.volume_i_d
 
   measure:
     row_count is count()
@@ -73,4 +73,24 @@ source: music_festival is duckdb.sql("""
     avg_volume is avg(Volume)
     max_volume is max(Volume)
     min_volume is min(Volume)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// artist (with joins)
+source: artist is artist_base extend {
+  join_many: volume is volume_base on artist_i_d = volume.artist_i_d
+}
+
+// volume (with joins)
+source: volume is volume_base extend {
+  join_one: artist is artist_base on artist_i_d = artist.artist_i_d
+  join_many: music_festival is music_festival_base on volume_i_d = music_festival.Volume
+}
+
+// music_festival (with joins)
+source: music_festival is music_festival_base extend {
+  join_one: ref_volume is volume_base on Volume = ref_volume.volume_i_d
 }

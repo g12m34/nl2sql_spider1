@@ -1,9 +1,13 @@
 // Malloy semantic layer for: device
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/device/device.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // device
-source: device is duckdb.sql("""
+source: device_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/device/device.sqlite', 'device')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: device is duckdb.sql("""
 }
 
 // shop
-source: shop is duckdb.sql("""
+source: shop_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/device/device.sqlite', 'shop')
 """) extend {
   dimension:
@@ -41,7 +45,7 @@ source: shop is duckdb.sql("""
 }
 
 // stock
-source: stock is duckdb.sql("""
+source: stock_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/device/device.sqlite', 'stock')
 """) extend {
   dimension:
@@ -49,9 +53,6 @@ source: stock is duckdb.sql("""
     device_i_d is Device_ID
 
   primary_key: shop_i_d
-
-  join_one: device on device_i_d = device.device_i_d
-  join_one: shop on shop_i_d = shop.shop_i_d
 
   measure:
     row_count is count()
@@ -67,4 +68,24 @@ source: stock is duckdb.sql("""
     avg_quantity is avg(Quantity)
     max_quantity is max(Quantity)
     min_quantity is min(Quantity)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// device (with joins)
+source: device is device_base extend {
+  join_many: stock is stock_base on device_i_d = stock.device_i_d
+}
+
+// shop (with joins)
+source: shop is shop_base extend {
+  join_many: stock is stock_base on shop_i_d = stock.shop_i_d
+}
+
+// stock (with joins)
+source: stock is stock_base extend {
+  join_one: device is device_base on device_i_d = device.device_i_d
+  join_one: shop is shop_base on shop_i_d = shop.shop_i_d
 }

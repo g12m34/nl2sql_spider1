@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cre_Docs_and_Epenses
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Document_Types
-source: ref_document_types is duckdb.sql("""
+source: ref_document_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Ref_Document_Types')
 """) extend {
   primary_key: Document_Type_Code
@@ -13,7 +17,7 @@ source: ref_document_types is duckdb.sql("""
 }
 
 // Ref_Budget_Codes
-source: ref_budget_codes is duckdb.sql("""
+source: ref_budget_codes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Ref_Budget_Codes')
 """) extend {
   primary_key: Budget_Type_Code
@@ -23,7 +27,7 @@ source: ref_budget_codes is duckdb.sql("""
 }
 
 // Projects
-source: projects is duckdb.sql("""
+source: projects_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Projects')
 """) extend {
   dimension:
@@ -40,7 +44,7 @@ source: projects is duckdb.sql("""
 }
 
 // Documents
-source: documents is duckdb.sql("""
+source: documents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Documents')
 """) extend {
   dimension:
@@ -48,9 +52,6 @@ source: documents is duckdb.sql("""
     project_i_d is Project_ID
 
   primary_key: document_i_d
-
-  join_one: projects on project_i_d = projects.project_i_d
-  join_one: ref_document_types on Document_Type_Code = ref_document_types.Document_Type_Code
 
   measure:
     row_count is count()
@@ -65,15 +66,13 @@ source: documents is duckdb.sql("""
 }
 
 // Statements
-source: statements is duckdb.sql("""
+source: statements_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Statements')
 """) extend {
   dimension:
     statement_i_d is Statement_ID
 
   primary_key: statement_i_d
-
-  join_one: documents on statement_i_d = documents.document_i_d
 
   measure:
     row_count is count()
@@ -84,16 +83,13 @@ source: statements is duckdb.sql("""
 }
 
 // Documents_with_Expenses
-source: documents_with_expenses is duckdb.sql("""
+source: documents_with_expenses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Documents_with_Expenses')
 """) extend {
   dimension:
     document_i_d is Document_ID
 
   primary_key: document_i_d
-
-  join_one: documents on document_i_d = documents.document_i_d
-  join_one: ref_budget_codes on Budget_Type_Code = ref_budget_codes.Budget_Type_Code
 
   measure:
     row_count is count()
@@ -104,7 +100,7 @@ source: documents_with_expenses is duckdb.sql("""
 }
 
 // Accounts
-source: accounts is duckdb.sql("""
+source: accounts_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Docs_and_Epenses/cre_Docs_and_Epenses.sqlite', 'Accounts')
 """) extend {
   dimension:
@@ -112,8 +108,6 @@ source: accounts is duckdb.sql("""
     statement_i_d is Statement_ID
 
   primary_key: account_i_d
-
-  join_one: statements on statement_i_d = statements.statement_i_d
 
   measure:
     row_count is count()
@@ -125,4 +119,48 @@ source: accounts is duckdb.sql("""
     avg_statement_i_d is avg(statement_i_d)
     max_statement_i_d is max(statement_i_d)
     min_statement_i_d is min(statement_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Document_Types (with joins)
+source: ref_document_types is ref_document_types_base extend {
+  join_many: documents is documents_base on Document_Type_Code = documents.Document_Type_Code
+}
+
+// Ref_Budget_Codes (with joins)
+source: ref_budget_codes is ref_budget_codes_base extend {
+  join_many: documents_with_expenses is documents_with_expenses_base on Budget_Type_Code = documents_with_expenses.Budget_Type_Code
+}
+
+// Projects (with joins)
+source: projects is projects_base extend {
+  join_many: documents is documents_base on project_i_d = documents.project_i_d
+}
+
+// Documents (with joins)
+source: documents is documents_base extend {
+  join_one: projects is projects_base on project_i_d = projects.project_i_d
+  join_one: ref_document_types is ref_document_types_base on Document_Type_Code = ref_document_types.Document_Type_Code
+  join_many: statements is statements_base on document_i_d = statements.statement_i_d
+  join_many: documents_with_expenses is documents_with_expenses_base on document_i_d = documents_with_expenses.document_i_d
+}
+
+// Statements (with joins)
+source: statements is statements_base extend {
+  join_one: documents is documents_base on statement_i_d = documents.document_i_d
+  join_many: accounts is accounts_base on statement_i_d = accounts.statement_i_d
+}
+
+// Documents_with_Expenses (with joins)
+source: documents_with_expenses is documents_with_expenses_base extend {
+  join_one: documents is documents_base on document_i_d = documents.document_i_d
+  join_one: ref_budget_codes is ref_budget_codes_base on Budget_Type_Code = ref_budget_codes.Budget_Type_Code
+}
+
+// Accounts (with joins)
+source: accounts is accounts_base extend {
+  join_one: statements is statements_base on statement_i_d = statements.statement_i_d
 }

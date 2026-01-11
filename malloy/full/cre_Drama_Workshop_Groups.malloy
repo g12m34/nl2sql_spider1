@@ -1,9 +1,13 @@
 // Malloy semantic layer for: cre_Drama_Workshop_Groups
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Payment_Methods
-source: ref_payment_methods is duckdb.sql("""
+source: ref_payment_methods_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Ref_Payment_Methods')
 """) extend {
   primary_key: payment_method_code
@@ -13,7 +17,7 @@ source: ref_payment_methods is duckdb.sql("""
 }
 
 // Ref_Service_Types
-source: ref_service_types is duckdb.sql("""
+source: ref_service_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Ref_Service_Types')
 """) extend {
   primary_key: Service_Type_Code
@@ -23,7 +27,7 @@ source: ref_service_types is duckdb.sql("""
 }
 
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Addresses')
 """) extend {
   dimension:
@@ -36,7 +40,7 @@ source: addresses is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Products')
 """) extend {
   dimension:
@@ -53,7 +57,7 @@ source: products is duckdb.sql("""
 }
 
 // Marketing_Regions
-source: marketing_regions is duckdb.sql("""
+source: marketing_regions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Marketing_Regions')
 """) extend {
   primary_key: Marketing_Region_Code
@@ -63,7 +67,7 @@ source: marketing_regions is duckdb.sql("""
 }
 
 // Clients
-source: clients is duckdb.sql("""
+source: clients_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Clients')
 """) extend {
   dimension:
@@ -71,8 +75,6 @@ source: clients is duckdb.sql("""
     address_i_d is Address_ID
 
   primary_key: client_i_d
-
-  join_one: addresses on address_i_d = addresses.address_i_d
 
   measure:
     row_count is count()
@@ -87,7 +89,7 @@ source: clients is duckdb.sql("""
 }
 
 // Drama_Workshop_Groups
-source: drama_workshop_groups is duckdb.sql("""
+source: drama_workshop_groups_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Drama_Workshop_Groups')
 """) extend {
   dimension:
@@ -95,8 +97,6 @@ source: drama_workshop_groups is duckdb.sql("""
     address_i_d is Address_ID
 
   primary_key: workshop_group_i_d
-
-  join_one: addresses on address_i_d = addresses.address_i_d
 
   measure:
     row_count is count()
@@ -111,7 +111,7 @@ source: drama_workshop_groups is duckdb.sql("""
 }
 
 // Performers
-source: performers is duckdb.sql("""
+source: performers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Performers')
 """) extend {
   dimension:
@@ -119,8 +119,6 @@ source: performers is duckdb.sql("""
     address_i_d is Address_ID
 
   primary_key: performer_i_d
-
-  join_one: addresses on address_i_d = addresses.address_i_d
 
   measure:
     row_count is count()
@@ -135,7 +133,7 @@ source: performers is duckdb.sql("""
 }
 
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Customers')
 """) extend {
   dimension:
@@ -143,8 +141,6 @@ source: customers is duckdb.sql("""
     address_i_d is Address_ID
 
   primary_key: customer_i_d
-
-  join_one: addresses on address_i_d = addresses.address_i_d
 
   measure:
     row_count is count()
@@ -155,7 +151,7 @@ source: customers is duckdb.sql("""
 }
 
 // Stores
-source: stores is duckdb.sql("""
+source: stores_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Stores')
 """) extend {
   dimension:
@@ -163,9 +159,6 @@ source: stores is duckdb.sql("""
     address_i_d is Address_ID
 
   primary_key: store_i_d
-
-  join_one: marketing_regions on Marketing_Region_Code = marketing_regions.Marketing_Region_Code
-  join_one: addresses on address_i_d = addresses.address_i_d
 
   measure:
     row_count is count()
@@ -176,7 +169,7 @@ source: stores is duckdb.sql("""
 }
 
 // Bookings
-source: bookings is duckdb.sql("""
+source: bookings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Bookings')
 """) extend {
   dimension:
@@ -186,9 +179,6 @@ source: bookings is duckdb.sql("""
     store_i_d is Store_ID
 
   primary_key: booking_i_d
-
-  join_one: drama_workshop_groups on workshop_group_i_d = drama_workshop_groups.workshop_group_i_d
-  join_one: clients on customer_i_d = clients.client_i_d
 
   measure:
     row_count is count()
@@ -206,37 +196,30 @@ source: bookings is duckdb.sql("""
     min_store_i_d is min(store_i_d)
 }
 
-// Services
-source: services is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Services')
+// Performers_in_Bookings
+source: performers_in_bookings_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Performers_in_Bookings')
 """) extend {
   dimension:
-    service_i_d is Service_ID
-    workshop_group_i_d is Workshop_Group_ID
+    order_i_d is Order_ID
+    performer_i_d is Performer_ID
 
-  primary_key: service_i_d
-
-  join_one: ref_service_types on Service_Type_Code = ref_service_types.Service_Type_Code
-  join_one: drama_workshop_groups on workshop_group_i_d = drama_workshop_groups.workshop_group_i_d
+  primary_key: order_i_d
 
   measure:
     row_count is count()
-    total_service_i_d is sum(service_i_d)
-    avg_service_i_d is avg(service_i_d)
-    max_service_i_d is max(service_i_d)
-    min_service_i_d is min(service_i_d)
-    total_workshop_group_i_d is sum(workshop_group_i_d)
-    avg_workshop_group_i_d is avg(workshop_group_i_d)
-    max_workshop_group_i_d is max(workshop_group_i_d)
-    min_workshop_group_i_d is min(workshop_group_i_d)
-    total_product_price is sum(Product_Price)
-    avg_product_price is avg(Product_Price)
-    max_product_price is max(Product_Price)
-    min_product_price is min(Product_Price)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_performer_i_d is sum(performer_i_d)
+    avg_performer_i_d is avg(performer_i_d)
+    max_performer_i_d is max(performer_i_d)
+    min_performer_i_d is min(performer_i_d)
 }
 
 // Customer_Orders
-source: customer_orders is duckdb.sql("""
+source: customer_orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Customer_Orders')
 """) extend {
   dimension:
@@ -245,9 +228,6 @@ source: customer_orders is duckdb.sql("""
     store_i_d is Store_ID
 
   primary_key: order_i_d
-
-  join_one: stores on store_i_d = stores.store_i_d
-  join_one: customers on customer_i_d = customers.customer_i_d
 
   measure:
     row_count is count()
@@ -265,58 +245,8 @@ source: customer_orders is duckdb.sql("""
     min_store_i_d is min(store_i_d)
 }
 
-// Performers_in_Bookings
-source: performers_in_bookings is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Performers_in_Bookings')
-""") extend {
-  dimension:
-    order_i_d is Order_ID
-    performer_i_d is Performer_ID
-
-  primary_key: order_i_d
-
-  join_one: bookings on order_i_d = bookings.booking_i_d
-  join_one: performers on performer_i_d = performers.performer_i_d
-
-  measure:
-    row_count is count()
-    total_order_i_d is sum(order_i_d)
-    avg_order_i_d is avg(order_i_d)
-    max_order_i_d is max(order_i_d)
-    min_order_i_d is min(order_i_d)
-    total_performer_i_d is sum(performer_i_d)
-    avg_performer_i_d is avg(performer_i_d)
-    max_performer_i_d is max(performer_i_d)
-    min_performer_i_d is min(performer_i_d)
-}
-
-// Bookings_Services
-source: bookings_services is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Bookings_Services')
-""") extend {
-  dimension:
-    order_i_d is Order_ID
-    product_i_d is Product_ID
-
-  primary_key: order_i_d
-
-  join_one: services on product_i_d = services.service_i_d
-  join_one: bookings on order_i_d = bookings.booking_i_d
-
-  measure:
-    row_count is count()
-    total_order_i_d is sum(order_i_d)
-    avg_order_i_d is avg(order_i_d)
-    max_order_i_d is max(order_i_d)
-    min_order_i_d is min(order_i_d)
-    total_product_i_d is sum(product_i_d)
-    avg_product_i_d is avg(product_i_d)
-    max_product_i_d is max(product_i_d)
-    min_product_i_d is min(product_i_d)
-}
-
 // Order_Items
-source: order_items is duckdb.sql("""
+source: order_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Order_Items')
 """) extend {
   dimension:
@@ -325,9 +255,6 @@ source: order_items is duckdb.sql("""
     product_i_d is Product_ID
 
   primary_key: order_item_i_d
-
-  join_one: products on product_i_d = products.product_i_d
-  join_one: customer_orders on order_i_d = customer_orders.order_i_d
 
   measure:
     row_count is count()
@@ -346,7 +273,7 @@ source: order_items is duckdb.sql("""
 }
 
 // Invoices
-source: invoices is duckdb.sql("""
+source: invoices_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Invoices')
 """) extend {
   dimension:
@@ -356,10 +283,6 @@ source: invoices is duckdb.sql("""
     order_item_i_d is Order_Item_ID
 
   primary_key: invoice_i_d
-
-  join_one: ref_payment_methods on payment_method_code = ref_payment_methods.payment_method_code
-  join_one: bookings on order_i_d = bookings.booking_i_d
-  join_one: customer_orders on order_i_d = customer_orders.order_i_d
 
   measure:
     row_count is count()
@@ -381,8 +304,56 @@ source: invoices is duckdb.sql("""
     min_order_item_i_d is min(order_item_i_d)
 }
 
+// Services
+source: services_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Services')
+""") extend {
+  dimension:
+    service_i_d is Service_ID
+    workshop_group_i_d is Workshop_Group_ID
+
+  primary_key: service_i_d
+
+  measure:
+    row_count is count()
+    total_service_i_d is sum(service_i_d)
+    avg_service_i_d is avg(service_i_d)
+    max_service_i_d is max(service_i_d)
+    min_service_i_d is min(service_i_d)
+    total_workshop_group_i_d is sum(workshop_group_i_d)
+    avg_workshop_group_i_d is avg(workshop_group_i_d)
+    max_workshop_group_i_d is max(workshop_group_i_d)
+    min_workshop_group_i_d is min(workshop_group_i_d)
+    total_product_price is sum(Product_Price)
+    avg_product_price is avg(Product_Price)
+    max_product_price is max(Product_Price)
+    min_product_price is min(Product_Price)
+}
+
+// Bookings_Services
+source: bookings_services_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Bookings_Services')
+""") extend {
+  dimension:
+    order_i_d is Order_ID
+    product_i_d is Product_ID
+
+  primary_key: order_i_d
+
+  measure:
+    row_count is count()
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
+}
+
 // Invoice_Items
-source: invoice_items is duckdb.sql("""
+source: invoice_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Invoice_Items')
 """) extend {
   dimension:
@@ -393,11 +364,6 @@ source: invoice_items is duckdb.sql("""
     product_i_d is Product_ID
 
   primary_key: invoice_item_i_d
-
-  join_one: order_i_d_bookings_services is bookings_services on order_i_d = order_i_d_bookings_services.order_i_d
-  join_one: product_i_d_bookings_services is bookings_services on product_i_d = product_i_d_bookings_services.product_i_d
-  join_one: invoices on invoice_i_d = invoices.invoice_i_d
-  join_one: order_items on order_item_i_d = order_items.order_item_i_d
 
   measure:
     row_count is count()
@@ -425,4 +391,130 @@ source: invoice_items is duckdb.sql("""
     avg_order_quantity is avg(Order_Quantity)
     max_order_quantity is max(Order_Quantity)
     min_order_quantity is min(Order_Quantity)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Payment_Methods (with joins)
+source: ref_payment_methods is ref_payment_methods_base extend {
+  join_many: invoices is invoices_base on payment_method_code = invoices.payment_method_code
+}
+
+// Ref_Service_Types (with joins)
+source: ref_service_types is ref_service_types_base extend {
+  join_many: services is services_base on Service_Type_Code = services.Service_Type_Code
+}
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: clients is clients_base on address_i_d = clients.address_i_d
+  join_many: drama_workshop_groups is drama_workshop_groups_base on address_i_d = drama_workshop_groups.address_i_d
+  join_many: performers is performers_base on address_i_d = performers.address_i_d
+  join_many: customers is customers_base on address_i_d = customers.address_i_d
+  join_many: stores is stores_base on address_i_d = stores.address_i_d
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: order_items is order_items_base on product_i_d = order_items.product_i_d
+}
+
+// Marketing_Regions (with joins)
+source: marketing_regions is marketing_regions_base extend {
+  join_many: stores is stores_base on Marketing_Region_Code = stores.Marketing_Region_Code
+}
+
+// Clients (with joins)
+source: clients is clients_base extend {
+  join_one: addresses is addresses_base on address_i_d = addresses.address_i_d
+  join_many: bookings is bookings_base on client_i_d = bookings.customer_i_d
+}
+
+// Drama_Workshop_Groups (with joins)
+source: drama_workshop_groups is drama_workshop_groups_base extend {
+  join_one: addresses is addresses_base on address_i_d = addresses.address_i_d
+  join_many: bookings is bookings_base on workshop_group_i_d = bookings.workshop_group_i_d
+  join_many: services is services_base on workshop_group_i_d = services.workshop_group_i_d
+}
+
+// Performers (with joins)
+source: performers is performers_base extend {
+  join_one: addresses is addresses_base on address_i_d = addresses.address_i_d
+  join_many: performers_in_bookings is performers_in_bookings_base on performer_i_d = performers_in_bookings.performer_i_d
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_one: addresses is addresses_base on address_i_d = addresses.address_i_d
+  join_many: customer_orders is customer_orders_base on customer_i_d = customer_orders.customer_i_d
+}
+
+// Stores (with joins)
+source: stores is stores_base extend {
+  join_one: marketing_regions is marketing_regions_base on Marketing_Region_Code = marketing_regions.Marketing_Region_Code
+  join_one: addresses is addresses_base on address_i_d = addresses.address_i_d
+  join_many: customer_orders is customer_orders_base on store_i_d = customer_orders.store_i_d
+}
+
+// Bookings (with joins)
+source: bookings is bookings_base extend {
+  join_one: drama_workshop_groups is drama_workshop_groups_base on workshop_group_i_d = drama_workshop_groups.workshop_group_i_d
+  join_one: clients is clients_base on customer_i_d = clients.client_i_d
+  join_many: performers_in_bookings is performers_in_bookings_base on booking_i_d = performers_in_bookings.order_i_d
+  join_many: invoices is invoices_base on booking_i_d = invoices.order_i_d
+  join_many: bookings_services is bookings_services_base on booking_i_d = bookings_services.order_i_d
+}
+
+// Performers_in_Bookings (with joins)
+source: performers_in_bookings is performers_in_bookings_base extend {
+  join_one: bookings is bookings_base on order_i_d = bookings.booking_i_d
+  join_one: performers is performers_base on performer_i_d = performers.performer_i_d
+}
+
+// Customer_Orders (with joins)
+source: customer_orders is customer_orders_base extend {
+  join_one: stores is stores_base on store_i_d = stores.store_i_d
+  join_one: customers is customers_base on customer_i_d = customers.customer_i_d
+  join_many: order_items is order_items_base on order_i_d = order_items.order_i_d
+  join_many: invoices is invoices_base on order_i_d = invoices.order_i_d
+}
+
+// Order_Items (with joins)
+source: order_items is order_items_base extend {
+  join_one: products is products_base on product_i_d = products.product_i_d
+  join_one: customer_orders is customer_orders_base on order_i_d = customer_orders.order_i_d
+  join_many: invoice_items is invoice_items_base on order_item_i_d = invoice_items.order_item_i_d
+}
+
+// Invoices (with joins)
+source: invoices is invoices_base extend {
+  join_one: ref_payment_methods is ref_payment_methods_base on payment_method_code = ref_payment_methods.payment_method_code
+  join_one: bookings is bookings_base on order_i_d = bookings.booking_i_d
+  join_one: customer_orders is customer_orders_base on order_i_d = customer_orders.order_i_d
+  join_many: invoice_items is invoice_items_base on invoice_i_d = invoice_items.invoice_i_d
+}
+
+// Services (with joins)
+source: services is services_base extend {
+  join_one: ref_service_types is ref_service_types_base on Service_Type_Code = ref_service_types.Service_Type_Code
+  join_one: drama_workshop_groups is drama_workshop_groups_base on workshop_group_i_d = drama_workshop_groups.workshop_group_i_d
+  join_many: bookings_services is bookings_services_base on service_i_d = bookings_services.product_i_d
+}
+
+// Bookings_Services (with joins)
+source: bookings_services is bookings_services_base extend {
+  join_one: services is services_base on product_i_d = services.service_i_d
+  join_one: bookings is bookings_base on order_i_d = bookings.booking_i_d
+  join_many: invoice_items_order_i_d is invoice_items_base on order_i_d = invoice_items_order_i_d.order_i_d
+  join_many: invoice_items_product_i_d is invoice_items_base on product_i_d = invoice_items_product_i_d.product_i_d
+}
+
+// Invoice_Items (with joins)
+source: invoice_items is invoice_items_base extend {
+  join_one: order_i_d_bookings_services is bookings_services_base on order_i_d = order_i_d_bookings_services.order_i_d
+  join_one: product_i_d_bookings_services is bookings_services_base on product_i_d = product_i_d_bookings_services.product_i_d
+  join_one: invoices is invoices_base on invoice_i_d = invoices.invoice_i_d
+  join_one: order_items is order_items_base on order_item_i_d = order_items.order_item_i_d
 }

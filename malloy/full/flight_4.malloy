@@ -1,9 +1,39 @@
 // Malloy semantic layer for: flight_4
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/flight_4/flight_4.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// routes
+source: routes_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'routes')
+""") extend {
+  primary_key: rid
+
+  measure:
+    row_count is count()
+    total_rid is sum(rid)
+    avg_rid is avg(rid)
+    max_rid is max(rid)
+    min_rid is min(rid)
+    total_dst_apid is sum(dst_apid)
+    avg_dst_apid is avg(dst_apid)
+    max_dst_apid is max(dst_apid)
+    min_dst_apid is min(dst_apid)
+    total_src_apid is sum(src_apid)
+    avg_src_apid is avg(src_apid)
+    max_src_apid is max(src_apid)
+    min_src_apid is min(src_apid)
+    total_alid is sum(alid)
+    avg_alid is avg(alid)
+    max_alid is max(alid)
+    min_alid is min(alid)
+}
+
 // airports
-source: airports is duckdb.sql("""
+source: airports_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'airports')
 """) extend {
   dimension:
@@ -32,7 +62,7 @@ source: airports is duckdb.sql("""
 }
 
 // airlines
-source: airlines is duckdb.sql("""
+source: airlines_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'airlines')
 """) extend {
   dimension:
@@ -48,32 +78,24 @@ source: airlines is duckdb.sql("""
     min_alid is min(alid)
 }
 
-// routes
-source: routes is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_4/flight_4.sqlite', 'routes')
-""") extend {
-  primary_key: rid
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: airlines on alid = airlines.alid
-  join_one: src_apid_airports is airports on src_apid = src_apid_airports.apid
-  join_one: dst_apid_airports is airports on dst_apid = dst_apid_airports.apid
+// routes (with joins)
+source: routes is routes_base extend {
+  join_one: airlines is airlines_base on alid = airlines.alid
+  join_one: src_apid_airports is airports_base on src_apid = src_apid_airports.apid
+  join_one: dst_apid_airports is airports_base on dst_apid = dst_apid_airports.apid
+}
 
-  measure:
-    row_count is count()
-    total_rid is sum(rid)
-    avg_rid is avg(rid)
-    max_rid is max(rid)
-    min_rid is min(rid)
-    total_dst_apid is sum(dst_apid)
-    avg_dst_apid is avg(dst_apid)
-    max_dst_apid is max(dst_apid)
-    min_dst_apid is min(dst_apid)
-    total_src_apid is sum(src_apid)
-    avg_src_apid is avg(src_apid)
-    max_src_apid is max(src_apid)
-    min_src_apid is min(src_apid)
-    total_alid is sum(alid)
-    avg_alid is avg(alid)
-    max_alid is max(alid)
-    min_alid is min(alid)
+// airports (with joins)
+source: airports is airports_base extend {
+  join_many: routes_src_apid is routes_base on apid = routes_src_apid.src_apid
+  join_many: routes_dst_apid is routes_base on apid = routes_dst_apid.dst_apid
+}
+
+// airlines (with joins)
+source: airlines is airlines_base extend {
+  join_many: routes is routes_base on alid = routes.alid
 }

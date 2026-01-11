@@ -1,9 +1,13 @@
 // Malloy semantic layer for: pilot_record
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // aircraft
-source: aircraft is duckdb.sql("""
+source: aircraft_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite', 'aircraft')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: aircraft is duckdb.sql("""
 }
 
 // pilot
-source: pilot is duckdb.sql("""
+source: pilot_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite', 'pilot')
 """) extend {
   dimension:
@@ -55,7 +59,7 @@ source: pilot is duckdb.sql("""
 }
 
 // pilot_record
-source: pilot_record is duckdb.sql("""
+source: pilot_record_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/pilot_record/pilot_record.sqlite', 'pilot_record')
 """) extend {
   dimension:
@@ -65,9 +69,6 @@ source: pilot_record is duckdb.sql("""
     date_val is `Date`
 
   primary_key: pilot_i_d
-
-  join_one: aircraft on aircraft_i_d = aircraft.aircraft_i_d
-  join_one: pilot on pilot_i_d = pilot.pilot_i_d
 
   measure:
     row_count is count()
@@ -83,4 +84,24 @@ source: pilot_record is duckdb.sql("""
     avg_aircraft_i_d is avg(aircraft_i_d)
     max_aircraft_i_d is max(aircraft_i_d)
     min_aircraft_i_d is min(aircraft_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// aircraft (with joins)
+source: aircraft is aircraft_base extend {
+  join_many: pilot_record is pilot_record_base on aircraft_i_d = pilot_record.aircraft_i_d
+}
+
+// pilot (with joins)
+source: pilot is pilot_base extend {
+  join_many: pilot_record is pilot_record_base on pilot_i_d = pilot_record.pilot_i_d
+}
+
+// pilot_record (with joins)
+source: pilot_record is pilot_record_base extend {
+  join_one: aircraft is aircraft_base on aircraft_i_d = aircraft.aircraft_i_d
+  join_one: pilot is pilot_base on pilot_i_d = pilot.pilot_i_d
 }

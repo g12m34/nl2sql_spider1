@@ -1,9 +1,13 @@
 // Malloy semantic layer for: school_bus
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/school_bus/school_bus.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // driver
-source: driver is duckdb.sql("""
+source: driver_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'driver')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: driver is duckdb.sql("""
 }
 
 // school
-source: school is duckdb.sql("""
+source: school_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'school')
 """) extend {
   dimension:
@@ -43,7 +47,7 @@ source: school is duckdb.sql("""
 }
 
 // school_bus
-source: school_bus is duckdb.sql("""
+source: school_bus_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'school_bus')
 """) extend {
   dimension:
@@ -51,9 +55,6 @@ source: school_bus is duckdb.sql("""
     driver_i_d is Driver_ID
 
   primary_key: school_i_d
-
-  join_one: driver on driver_i_d = driver.driver_i_d
-  join_one: school on school_i_d = school.school_i_d
 
   measure:
     row_count is count()
@@ -69,4 +70,24 @@ source: school_bus is duckdb.sql("""
     avg_years_working is avg(Years_Working)
     max_years_working is max(Years_Working)
     min_years_working is min(Years_Working)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// driver (with joins)
+source: driver is driver_base extend {
+  join_many: school_bus is school_bus_base on driver_i_d = school_bus.driver_i_d
+}
+
+// school (with joins)
+source: school is school_base extend {
+  join_many: school_bus is school_bus_base on school_i_d = school_bus.school_i_d
+}
+
+// school_bus (with joins)
+source: school_bus is school_bus_base extend {
+  join_one: driver is driver_base on driver_i_d = driver.driver_i_d
+  join_one: school is school_base on school_i_d = school.school_i_d
 }

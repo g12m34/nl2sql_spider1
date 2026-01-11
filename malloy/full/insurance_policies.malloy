@@ -1,9 +1,13 @@
 // Malloy semantic layer for: insurance_policies
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Customers')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: customers is duckdb.sql("""
 }
 
 // Customer_Policies
-source: customer_policies is duckdb.sql("""
+source: customer_policies_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Customer_Policies')
 """) extend {
   dimension:
@@ -28,8 +32,6 @@ source: customer_policies is duckdb.sql("""
     customer_i_d is Customer_ID
 
   primary_key: policy_i_d
-
-  join_one: customers on customer_i_d = customers.customer_i_d
 
   measure:
     row_count is count()
@@ -44,7 +46,7 @@ source: customer_policies is duckdb.sql("""
 }
 
 // Claims
-source: claims is duckdb.sql("""
+source: claims_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Claims')
 """) extend {
   dimension:
@@ -52,8 +54,6 @@ source: claims is duckdb.sql("""
     policy_i_d is Policy_ID
 
   primary_key: claim_i_d
-
-  join_one: customer_policies on policy_i_d = customer_policies.policy_i_d
 
   measure:
     row_count is count()
@@ -76,7 +76,7 @@ source: claims is duckdb.sql("""
 }
 
 // Settlements
-source: settlements is duckdb.sql("""
+source: settlements_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Settlements')
 """) extend {
   dimension:
@@ -85,8 +85,6 @@ source: settlements is duckdb.sql("""
     customer_policy_i_d is Customer_Policy_ID
 
   primary_key: settlement_i_d
-
-  join_one: claims on claim_i_d = claims.claim_i_d
 
   measure:
     row_count is count()
@@ -113,7 +111,7 @@ source: settlements is duckdb.sql("""
 }
 
 // Payments
-source: payments is duckdb.sql("""
+source: payments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_policies/insurance_policies.sqlite', 'Payments')
 """) extend {
   dimension:
@@ -121,8 +119,6 @@ source: payments is duckdb.sql("""
     settlement_i_d is Settlement_ID
 
   primary_key: payment_i_d
-
-  join_one: settlements on settlement_i_d = settlements.settlement_i_d
 
   measure:
     row_count is count()
@@ -138,4 +134,36 @@ source: payments is duckdb.sql("""
     avg_amount_payment is avg(Amount_Payment)
     max_amount_payment is max(Amount_Payment)
     min_amount_payment is min(Amount_Payment)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: customer_policies is customer_policies_base on customer_i_d = customer_policies.customer_i_d
+}
+
+// Customer_Policies (with joins)
+source: customer_policies is customer_policies_base extend {
+  join_one: customers is customers_base on customer_i_d = customers.customer_i_d
+  join_many: claims is claims_base on policy_i_d = claims.policy_i_d
+}
+
+// Claims (with joins)
+source: claims is claims_base extend {
+  join_one: customer_policies is customer_policies_base on policy_i_d = customer_policies.policy_i_d
+  join_many: settlements is settlements_base on claim_i_d = settlements.claim_i_d
+}
+
+// Settlements (with joins)
+source: settlements is settlements_base extend {
+  join_one: claims is claims_base on claim_i_d = claims.claim_i_d
+  join_many: payments is payments_base on settlement_i_d = payments.settlement_i_d
+}
+
+// Payments (with joins)
+source: payments is payments_base extend {
+  join_one: settlements is settlements_base on settlement_i_d = settlements.settlement_i_d
 }

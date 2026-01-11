@@ -1,9 +1,13 @@
 // Malloy semantic layer for: insurance_and_eClaims
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Customers')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: customers is duckdb.sql("""
 }
 
 // Staff
-source: staff_val is duckdb.sql("""
+source: staff_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Staff')
 """) extend {
   dimension:
@@ -36,30 +40,8 @@ source: staff_val is duckdb.sql("""
     min_staff_i_d is min(staff_i_d)
 }
 
-// Claims_Processing_Stages
-source: claims_processing_stages is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Processing_Stages')
-""") extend {
-  dimension:
-    claim_stage_i_d is Claim_Stage_ID
-    next_claim_stage_i_d is Next_Claim_Stage_ID
-
-  primary_key: claim_stage_i_d
-
-  measure:
-    row_count is count()
-    total_claim_stage_i_d is sum(claim_stage_i_d)
-    avg_claim_stage_i_d is avg(claim_stage_i_d)
-    max_claim_stage_i_d is max(claim_stage_i_d)
-    min_claim_stage_i_d is min(claim_stage_i_d)
-    total_next_claim_stage_i_d is sum(next_claim_stage_i_d)
-    avg_next_claim_stage_i_d is avg(next_claim_stage_i_d)
-    max_next_claim_stage_i_d is max(next_claim_stage_i_d)
-    min_next_claim_stage_i_d is min(next_claim_stage_i_d)
-}
-
 // Policies
-source: policies is duckdb.sql("""
+source: policies_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Policies')
 """) extend {
   dimension:
@@ -67,8 +49,6 @@ source: policies is duckdb.sql("""
     customer_i_d is Customer_ID
 
   primary_key: policy_i_d
-
-  join_one: customers on customer_i_d = customers.customer_i_d
 
   measure:
     row_count is count()
@@ -83,7 +63,7 @@ source: policies is duckdb.sql("""
 }
 
 // Claim_Headers
-source: claim_headers is duckdb.sql("""
+source: claim_headers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claim_Headers')
 """) extend {
   dimension:
@@ -91,8 +71,6 @@ source: claim_headers is duckdb.sql("""
     policy_i_d is Policy_ID
 
   primary_key: claim_header_i_d
-
-  join_one: policies on policy_i_d = policies.policy_i_d
 
   measure:
     row_count is count()
@@ -115,7 +93,7 @@ source: claim_headers is duckdb.sql("""
 }
 
 // Claims_Documents
-source: claims_documents is duckdb.sql("""
+source: claims_documents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Documents')
 """) extend {
   dimension:
@@ -123,9 +101,6 @@ source: claims_documents is duckdb.sql("""
     created_by_staff_i_d is Created_by_Staff_ID
 
   primary_key: claim_i_d
-
-  join_one: staff_val on created_by_staff_i_d = staff_val.staff_i_d
-  join_one: claim_headers on claim_i_d = claim_headers.claim_header_i_d
 
   measure:
     row_count is count()
@@ -143,8 +118,30 @@ source: claims_documents is duckdb.sql("""
     min_created_date is min(Created_Date)
 }
 
+// Claims_Processing_Stages
+source: claims_processing_stages_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Processing_Stages')
+""") extend {
+  dimension:
+    claim_stage_i_d is Claim_Stage_ID
+    next_claim_stage_i_d is Next_Claim_Stage_ID
+
+  primary_key: claim_stage_i_d
+
+  measure:
+    row_count is count()
+    total_claim_stage_i_d is sum(claim_stage_i_d)
+    avg_claim_stage_i_d is avg(claim_stage_i_d)
+    max_claim_stage_i_d is max(claim_stage_i_d)
+    min_claim_stage_i_d is min(claim_stage_i_d)
+    total_next_claim_stage_i_d is sum(next_claim_stage_i_d)
+    avg_next_claim_stage_i_d is avg(next_claim_stage_i_d)
+    max_next_claim_stage_i_d is max(next_claim_stage_i_d)
+    min_next_claim_stage_i_d is min(next_claim_stage_i_d)
+}
+
 // Claims_Processing
-source: claims_processing is duckdb.sql("""
+source: claims_processing_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_and_eClaims/insurance_and_eClaims.sqlite', 'Claims_Processing')
 """) extend {
   dimension:
@@ -154,9 +151,6 @@ source: claims_processing is duckdb.sql("""
     staff_i_d is Staff_ID
 
   primary_key: claim_processing_i_d
-
-  join_one: staff_val on staff_i_d = staff_val.staff_i_d
-  join_one: claim_headers on claim_i_d = claim_headers.claim_header_i_d
 
   measure:
     row_count is count()
@@ -176,4 +170,47 @@ source: claims_processing is duckdb.sql("""
     avg_staff_i_d is avg(staff_i_d)
     max_staff_i_d is max(staff_i_d)
     min_staff_i_d is min(staff_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: policies is policies_base on customer_i_d = policies.customer_i_d
+}
+
+// Staff (with joins)
+source: staff_val is staff_val_base extend {
+  join_many: claims_documents is claims_documents_base on staff_i_d = claims_documents.created_by_staff_i_d
+  join_many: claims_processing is claims_processing_base on staff_i_d = claims_processing.staff_i_d
+}
+
+// Policies (with joins)
+source: policies is policies_base extend {
+  join_one: customers is customers_base on customer_i_d = customers.customer_i_d
+  join_many: claim_headers is claim_headers_base on policy_i_d = claim_headers.policy_i_d
+}
+
+// Claim_Headers (with joins)
+source: claim_headers is claim_headers_base extend {
+  join_one: policies is policies_base on policy_i_d = policies.policy_i_d
+  join_many: claims_documents is claims_documents_base on claim_header_i_d = claims_documents.claim_i_d
+  join_many: claims_processing is claims_processing_base on claim_header_i_d = claims_processing.claim_i_d
+}
+
+// Claims_Documents (with joins)
+source: claims_documents is claims_documents_base extend {
+  join_one: staff_val is staff_val_base on created_by_staff_i_d = staff_val.staff_i_d
+  join_one: claim_headers is claim_headers_base on claim_i_d = claim_headers.claim_header_i_d
+}
+
+// Claims_Processing_Stages (with joins)
+source: claims_processing_stages is claims_processing_stages_base
+
+// Claims_Processing (with joins)
+source: claims_processing is claims_processing_base extend {
+  join_one: staff_val is staff_val_base on staff_i_d = staff_val.staff_i_d
+  join_one: claim_headers is claim_headers_base on claim_i_d = claim_headers.claim_header_i_d
 }

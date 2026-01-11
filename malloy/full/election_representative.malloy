@@ -1,28 +1,13 @@
 // Malloy semantic layer for: election_representative
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/election_representative/election_representative.sqlite
 
-// representative
-source: representative is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election_representative/election_representative.sqlite', 'representative')
-""") extend {
-  dimension:
-    representative_i_d is Representative_ID
-    name_val is `Name`
-    state_val is `State`
-
-  primary_key: representative_i_d
-
-  measure:
-    row_count is count()
-    total_representative_i_d is sum(representative_i_d)
-    avg_representative_i_d is avg(representative_i_d)
-    max_representative_i_d is max(representative_i_d)
-    min_representative_i_d is min(representative_i_d)
-}
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
 
 // election
-source: election is duckdb.sql("""
+source: election_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election_representative/election_representative.sqlite', 'election')
 """) extend {
   dimension:
@@ -31,8 +16,6 @@ source: election is duckdb.sql("""
     date_val is `Date`
 
   primary_key: election_i_d
-
-  join_one: representative on representative_i_d = representative.representative_i_d
 
   measure:
     row_count is count()
@@ -60,4 +43,37 @@ source: election is duckdb.sql("""
     avg_place is avg(Place)
     max_place is max(Place)
     min_place is min(Place)
+}
+
+// representative
+source: representative_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election_representative/election_representative.sqlite', 'representative')
+""") extend {
+  dimension:
+    representative_i_d is Representative_ID
+    name_val is `Name`
+    state_val is `State`
+
+  primary_key: representative_i_d
+
+  measure:
+    row_count is count()
+    total_representative_i_d is sum(representative_i_d)
+    avg_representative_i_d is avg(representative_i_d)
+    max_representative_i_d is max(representative_i_d)
+    min_representative_i_d is min(representative_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// election (with joins)
+source: election is election_base extend {
+  join_one: representative is representative_base on representative_i_d = representative.representative_i_d
+}
+
+// representative (with joins)
+source: representative is representative_base extend {
+  join_many: election is election_base on representative_i_d = election.representative_i_d
 }

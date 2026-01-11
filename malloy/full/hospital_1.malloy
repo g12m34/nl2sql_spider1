@@ -1,9 +1,13 @@
 // Malloy semantic layer for: hospital_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Physician
-source: physician is duckdb.sql("""
+source: physician_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Physician')
 """) extend {
   dimension:
@@ -26,8 +30,51 @@ source: physician is duckdb.sql("""
     min_s_s_n is min(s_s_n)
 }
 
+// Department
+source: department_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Department')
+""") extend {
+  dimension:
+    department_i_d is DepartmentID
+    name_val is `Name`
+
+  primary_key: department_i_d
+
+  measure:
+    row_count is count()
+    total_department_i_d is sum(department_i_d)
+    avg_department_i_d is avg(department_i_d)
+    max_department_i_d is max(department_i_d)
+    min_department_i_d is min(department_i_d)
+    total_head is sum(Head)
+    avg_head is avg(Head)
+    max_head is max(Head)
+    min_head is min(Head)
+}
+
+// Affiliated_With
+source: affiliated_with_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Affiliated_With')
+""") extend {
+  dimension:
+    primary_affiliation is PrimaryAffiliation
+
+  primary_key: Physician
+
+  measure:
+    row_count is count()
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+    total_department is sum(Department)
+    avg_department is avg(Department)
+    max_department is max(Department)
+    min_department is min(Department)
+}
+
 // Procedures
-source: procedures is duckdb.sql("""
+source: procedures_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Procedures')
 """) extend {
   dimension:
@@ -48,8 +95,58 @@ source: procedures is duckdb.sql("""
     min_cost is min(Cost)
 }
 
+// Trained_In
+source: trained_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Trained_In')
+""") extend {
+  dimension:
+    certification_date is CertificationDate
+    certification_expires is CertificationExpires
+
+  primary_key: Physician
+
+  measure:
+    row_count is count()
+    total_physician is sum(Physician)
+    avg_physician is avg(Physician)
+    max_physician is max(Physician)
+    min_physician is min(Physician)
+    total_treatment is sum(Treatment)
+    avg_treatment is avg(Treatment)
+    max_treatment is max(Treatment)
+    min_treatment is min(Treatment)
+}
+
+// Patient
+source: patient_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Patient')
+""") extend {
+  dimension:
+    s_s_n is SSN
+    name_val is `Name`
+    insurance_i_d is InsuranceID
+    p_c_p is PCP
+
+  primary_key: s_s_n
+
+  measure:
+    row_count is count()
+    total_s_s_n is sum(s_s_n)
+    avg_s_s_n is avg(s_s_n)
+    max_s_s_n is max(s_s_n)
+    min_s_s_n is min(s_s_n)
+    total_insurance_i_d is sum(insurance_i_d)
+    avg_insurance_i_d is avg(insurance_i_d)
+    max_insurance_i_d is max(insurance_i_d)
+    min_insurance_i_d is min(insurance_i_d)
+    total_p_c_p is sum(p_c_p)
+    avg_p_c_p is avg(p_c_p)
+    max_p_c_p is max(p_c_p)
+    min_p_c_p is min(p_c_p)
+}
+
 // Nurse
-source: nurse is duckdb.sql("""
+source: nurse_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Nurse')
 """) extend {
   dimension:
@@ -72,214 +169,8 @@ source: nurse is duckdb.sql("""
     min_s_s_n is min(s_s_n)
 }
 
-// Medication
-source: medication is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Medication')
-""") extend {
-  dimension:
-    code_val is `Code`
-    name_val is `Name`
-
-  primary_key: code_val
-
-  measure:
-    row_count is count()
-    total_code_val is sum(code_val)
-    avg_code_val is avg(code_val)
-    max_code_val is max(code_val)
-    min_code_val is min(code_val)
-}
-
-// Block
-source: block_val is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Block')
-""") extend {
-  dimension:
-    block_floor is BlockFloor
-    block_code is BlockCode
-
-  primary_key: block_floor
-
-  measure:
-    row_count is count()
-    total_block_floor is sum(block_floor)
-    avg_block_floor is avg(block_floor)
-    max_block_floor is max(block_floor)
-    min_block_floor is min(block_floor)
-    total_block_code is sum(block_code)
-    avg_block_code is avg(block_code)
-    max_block_code is max(block_code)
-    min_block_code is min(block_code)
-}
-
-// Department
-source: department is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Department')
-""") extend {
-  dimension:
-    department_i_d is DepartmentID
-    name_val is `Name`
-
-  primary_key: department_i_d
-
-  join_one: physician on Head = physician.employee_i_d
-
-  measure:
-    row_count is count()
-    total_department_i_d is sum(department_i_d)
-    avg_department_i_d is avg(department_i_d)
-    max_department_i_d is max(department_i_d)
-    min_department_i_d is min(department_i_d)
-    total_head is sum(Head)
-    avg_head is avg(Head)
-    max_head is max(Head)
-    min_head is min(Head)
-}
-
-// Patient
-source: patient is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Patient')
-""") extend {
-  dimension:
-    s_s_n is SSN
-    name_val is `Name`
-    insurance_i_d is InsuranceID
-    p_c_p is PCP
-
-  primary_key: s_s_n
-
-  join_one: physician on p_c_p = physician.employee_i_d
-
-  measure:
-    row_count is count()
-    total_s_s_n is sum(s_s_n)
-    avg_s_s_n is avg(s_s_n)
-    max_s_s_n is max(s_s_n)
-    min_s_s_n is min(s_s_n)
-    total_insurance_i_d is sum(insurance_i_d)
-    avg_insurance_i_d is avg(insurance_i_d)
-    max_insurance_i_d is max(insurance_i_d)
-    min_insurance_i_d is min(insurance_i_d)
-    total_p_c_p is sum(p_c_p)
-    avg_p_c_p is avg(p_c_p)
-    max_p_c_p is max(p_c_p)
-    min_p_c_p is min(p_c_p)
-}
-
-// Trained_In
-source: trained_in is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Trained_In')
-""") extend {
-  dimension:
-    certification_date is CertificationDate
-    certification_expires is CertificationExpires
-
-  primary_key: Physician
-
-  join_one: procedures on Treatment = procedures.code_val
-  join_one: ref_physician is physician on Physician = ref_physician.employee_i_d
-
-  measure:
-    row_count is count()
-    total_physician is sum(Physician)
-    avg_physician is avg(Physician)
-    max_physician is max(Physician)
-    min_physician is min(Physician)
-    total_treatment is sum(Treatment)
-    avg_treatment is avg(Treatment)
-    max_treatment is max(Treatment)
-    min_treatment is min(Treatment)
-}
-
-// Room
-source: room is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Room')
-""") extend {
-  dimension:
-    room_number is RoomNumber
-    room_type is RoomType
-    block_floor is BlockFloor
-    block_code is BlockCode
-
-  primary_key: room_number
-
-  join_one: block_floor_block_val is block_val on block_floor = block_floor_block_val.block_floor
-  join_one: block_code_block_val is block_val on block_code = block_code_block_val.block_code
-
-  measure:
-    row_count is count()
-    total_room_number is sum(room_number)
-    avg_room_number is avg(room_number)
-    max_room_number is max(room_number)
-    min_room_number is min(room_number)
-    total_block_floor is sum(block_floor)
-    avg_block_floor is avg(block_floor)
-    max_block_floor is max(block_floor)
-    min_block_floor is min(block_floor)
-    total_block_code is sum(block_code)
-    avg_block_code is avg(block_code)
-    max_block_code is max(block_code)
-    min_block_code is min(block_code)
-}
-
-// On_Call
-source: on_call is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'On_Call')
-""") extend {
-  dimension:
-    block_floor is BlockFloor
-    block_code is BlockCode
-    on_call_start is OnCallStart
-    on_call_end is OnCallEnd
-
-  primary_key: Nurse
-
-  join_one: block_floor_block_val is block_val on block_floor = block_floor_block_val.block_floor
-  join_one: block_code_block_val is block_val on block_code = block_code_block_val.block_code
-  join_one: ref_nurse is nurse on Nurse = ref_nurse.employee_i_d
-
-  measure:
-    row_count is count()
-    total_nurse is sum(Nurse)
-    avg_nurse is avg(Nurse)
-    max_nurse is max(Nurse)
-    min_nurse is min(Nurse)
-    total_block_floor is sum(block_floor)
-    avg_block_floor is avg(block_floor)
-    max_block_floor is max(block_floor)
-    min_block_floor is min(block_floor)
-    total_block_code is sum(block_code)
-    avg_block_code is avg(block_code)
-    max_block_code is max(block_code)
-    min_block_code is min(block_code)
-}
-
-// Affiliated_With
-source: affiliated_with is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Affiliated_With')
-""") extend {
-  dimension:
-    primary_affiliation is PrimaryAffiliation
-
-  primary_key: Physician
-
-  join_one: ref_department is department on Department = ref_department.department_i_d
-  join_one: ref_physician is physician on Physician = ref_physician.employee_i_d
-
-  measure:
-    row_count is count()
-    total_physician is sum(Physician)
-    avg_physician is avg(Physician)
-    max_physician is max(Physician)
-    min_physician is min(Physician)
-    total_department is sum(Department)
-    avg_department is avg(Department)
-    max_department is max(Department)
-    min_department is min(Department)
-}
-
 // Appointment
-source: appointment is duckdb.sql("""
+source: appointment_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Appointment')
 """) extend {
   dimension:
@@ -289,10 +180,6 @@ source: appointment is duckdb.sql("""
     examination_room is ExaminationRoom
 
   primary_key: appointment_i_d
-
-  join_one: ref_physician is physician on Physician = ref_physician.employee_i_d
-  join_one: nurse on prep_nurse = nurse.employee_i_d
-  join_one: ref_patient is patient on Patient = ref_patient.s_s_n
 
   measure:
     row_count is count()
@@ -314,49 +201,32 @@ source: appointment is duckdb.sql("""
     min_physician is min(Physician)
 }
 
-// Stay
-source: stay is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Stay')
+// Medication
+source: medication_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Medication')
 """) extend {
   dimension:
-    stay_i_d is StayID
-    stay_start is StayStart
-    stay_end is StayEnd
+    code_val is `Code`
+    name_val is `Name`
 
-  primary_key: stay_i_d
-
-  join_one: ref_room is room on Room = ref_room.room_number
-  join_one: ref_patient is patient on Patient = ref_patient.s_s_n
+  primary_key: code_val
 
   measure:
     row_count is count()
-    total_stay_i_d is sum(stay_i_d)
-    avg_stay_i_d is avg(stay_i_d)
-    max_stay_i_d is max(stay_i_d)
-    min_stay_i_d is min(stay_i_d)
-    total_patient is sum(Patient)
-    avg_patient is avg(Patient)
-    max_patient is max(Patient)
-    min_patient is min(Patient)
-    total_room is sum(Room)
-    avg_room is avg(Room)
-    max_room is max(Room)
-    min_room is min(Room)
+    total_code_val is sum(code_val)
+    avg_code_val is avg(code_val)
+    max_code_val is max(code_val)
+    min_code_val is min(code_val)
 }
 
 // Prescribes
-source: prescribes is duckdb.sql("""
+source: prescribes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Prescribes')
 """) extend {
   dimension:
     date_val is `Date`
 
   primary_key: Physician
-
-  join_one: ref_appointment is appointment on Appointment = ref_appointment.appointment_i_d
-  join_one: ref_medication is medication on Medication = ref_medication.code_val
-  join_one: ref_patient is patient on Patient = ref_patient.s_s_n
-  join_one: ref_physician is physician on Physician = ref_physician.employee_i_d
 
   measure:
     row_count is count()
@@ -378,8 +248,113 @@ source: prescribes is duckdb.sql("""
     min_appointment is min(Appointment)
 }
 
+// Block
+source: block_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Block')
+""") extend {
+  dimension:
+    block_floor is BlockFloor
+    block_code is BlockCode
+
+  primary_key: block_floor
+
+  measure:
+    row_count is count()
+    total_block_floor is sum(block_floor)
+    avg_block_floor is avg(block_floor)
+    max_block_floor is max(block_floor)
+    min_block_floor is min(block_floor)
+    total_block_code is sum(block_code)
+    avg_block_code is avg(block_code)
+    max_block_code is max(block_code)
+    min_block_code is min(block_code)
+}
+
+// Room
+source: room_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Room')
+""") extend {
+  dimension:
+    room_number is RoomNumber
+    room_type is RoomType
+    block_floor is BlockFloor
+    block_code is BlockCode
+
+  primary_key: room_number
+
+  measure:
+    row_count is count()
+    total_room_number is sum(room_number)
+    avg_room_number is avg(room_number)
+    max_room_number is max(room_number)
+    min_room_number is min(room_number)
+    total_block_floor is sum(block_floor)
+    avg_block_floor is avg(block_floor)
+    max_block_floor is max(block_floor)
+    min_block_floor is min(block_floor)
+    total_block_code is sum(block_code)
+    avg_block_code is avg(block_code)
+    max_block_code is max(block_code)
+    min_block_code is min(block_code)
+}
+
+// On_Call
+source: on_call_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'On_Call')
+""") extend {
+  dimension:
+    block_floor is BlockFloor
+    block_code is BlockCode
+    on_call_start is OnCallStart
+    on_call_end is OnCallEnd
+
+  primary_key: Nurse
+
+  measure:
+    row_count is count()
+    total_nurse is sum(Nurse)
+    avg_nurse is avg(Nurse)
+    max_nurse is max(Nurse)
+    min_nurse is min(Nurse)
+    total_block_floor is sum(block_floor)
+    avg_block_floor is avg(block_floor)
+    max_block_floor is max(block_floor)
+    min_block_floor is min(block_floor)
+    total_block_code is sum(block_code)
+    avg_block_code is avg(block_code)
+    max_block_code is max(block_code)
+    min_block_code is min(block_code)
+}
+
+// Stay
+source: stay_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Stay')
+""") extend {
+  dimension:
+    stay_i_d is StayID
+    stay_start is StayStart
+    stay_end is StayEnd
+
+  primary_key: stay_i_d
+
+  measure:
+    row_count is count()
+    total_stay_i_d is sum(stay_i_d)
+    avg_stay_i_d is avg(stay_i_d)
+    max_stay_i_d is max(stay_i_d)
+    min_stay_i_d is min(stay_i_d)
+    total_patient is sum(Patient)
+    avg_patient is avg(Patient)
+    max_patient is max(Patient)
+    min_patient is min(Patient)
+    total_room is sum(Room)
+    avg_room is avg(Room)
+    max_room is max(Room)
+    min_room is min(Room)
+}
+
 // Undergoes
-source: undergoes is duckdb.sql("""
+source: undergoes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hospital_1/hospital_1.sqlite', 'Undergoes')
 """) extend {
   dimension:
@@ -387,12 +362,6 @@ source: undergoes is duckdb.sql("""
     assisting_nurse is AssistingNurse
 
   primary_key: Patient
-
-  join_one: nurse on assisting_nurse = nurse.employee_i_d
-  join_one: ref_physician is physician on Physician = ref_physician.employee_i_d
-  join_one: ref_stay is stay on Stay = ref_stay.stay_i_d
-  join_one: ref_procedures is procedures on Procedures = ref_procedures.code_val
-  join_one: ref_patient is patient on Patient = ref_patient.s_s_n
 
   measure:
     row_count is count()
@@ -416,4 +385,118 @@ source: undergoes is duckdb.sql("""
     avg_assisting_nurse is avg(assisting_nurse)
     max_assisting_nurse is max(assisting_nurse)
     min_assisting_nurse is min(assisting_nurse)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Physician (with joins)
+source: physician is physician_base extend {
+  join_many: department is department_base on employee_i_d = department.Head
+  join_many: affiliated_with is affiliated_with_base on employee_i_d = affiliated_with.Physician
+  join_many: trained_in is trained_in_base on employee_i_d = trained_in.Physician
+  join_many: patient is patient_base on employee_i_d = patient.p_c_p
+  join_many: appointment is appointment_base on employee_i_d = appointment.Physician
+  join_many: prescribes is prescribes_base on employee_i_d = prescribes.Physician
+  join_many: undergoes is undergoes_base on employee_i_d = undergoes.Physician
+}
+
+// Department (with joins)
+source: department is department_base extend {
+  join_one: physician is physician_base on Head = physician.employee_i_d
+  join_many: affiliated_with is affiliated_with_base on department_i_d = affiliated_with.Department
+}
+
+// Affiliated_With (with joins)
+source: affiliated_with is affiliated_with_base extend {
+  join_one: ref_department is department_base on Department = ref_department.department_i_d
+  join_one: ref_physician is physician_base on Physician = ref_physician.employee_i_d
+}
+
+// Procedures (with joins)
+source: procedures is procedures_base extend {
+  join_many: trained_in is trained_in_base on code_val = trained_in.Treatment
+  join_many: undergoes is undergoes_base on code_val = undergoes.Procedures
+}
+
+// Trained_In (with joins)
+source: trained_in is trained_in_base extend {
+  join_one: procedures is procedures_base on Treatment = procedures.code_val
+  join_one: ref_physician is physician_base on Physician = ref_physician.employee_i_d
+}
+
+// Patient (with joins)
+source: patient is patient_base extend {
+  join_one: physician is physician_base on p_c_p = physician.employee_i_d
+  join_many: appointment is appointment_base on s_s_n = appointment.Patient
+  join_many: prescribes is prescribes_base on s_s_n = prescribes.Patient
+  join_many: stay is stay_base on s_s_n = stay.Patient
+  join_many: undergoes is undergoes_base on s_s_n = undergoes.Patient
+}
+
+// Nurse (with joins)
+source: nurse is nurse_base extend {
+  join_many: appointment is appointment_base on employee_i_d = appointment.prep_nurse
+  join_many: on_call is on_call_base on employee_i_d = on_call.Nurse
+  join_many: undergoes is undergoes_base on employee_i_d = undergoes.assisting_nurse
+}
+
+// Appointment (with joins)
+source: appointment is appointment_base extend {
+  join_one: ref_physician is physician_base on Physician = ref_physician.employee_i_d
+  join_one: nurse is nurse_base on prep_nurse = nurse.employee_i_d
+  join_one: ref_patient is patient_base on Patient = ref_patient.s_s_n
+  join_many: prescribes is prescribes_base on appointment_i_d = prescribes.Appointment
+}
+
+// Medication (with joins)
+source: medication is medication_base extend {
+  join_many: prescribes is prescribes_base on code_val = prescribes.Medication
+}
+
+// Prescribes (with joins)
+source: prescribes is prescribes_base extend {
+  join_one: ref_appointment is appointment_base on Appointment = ref_appointment.appointment_i_d
+  join_one: ref_medication is medication_base on Medication = ref_medication.code_val
+  join_one: ref_patient is patient_base on Patient = ref_patient.s_s_n
+  join_one: ref_physician is physician_base on Physician = ref_physician.employee_i_d
+}
+
+// Block (with joins)
+source: block_val is block_val_base extend {
+  join_many: room_block_floor is room_base on block_floor = room_block_floor.block_floor
+  join_many: room_block_code is room_base on block_code = room_block_code.block_code
+  join_many: on_call_block_floor is on_call_base on block_floor = on_call_block_floor.block_floor
+  join_many: on_call_block_code is on_call_base on block_code = on_call_block_code.block_code
+}
+
+// Room (with joins)
+source: room is room_base extend {
+  join_one: block_floor_block_val is block_val_base on block_floor = block_floor_block_val.block_floor
+  join_one: block_code_block_val is block_val_base on block_code = block_code_block_val.block_code
+  join_many: stay is stay_base on room_number = stay.Room
+}
+
+// On_Call (with joins)
+source: on_call is on_call_base extend {
+  join_one: block_floor_block_val is block_val_base on block_floor = block_floor_block_val.block_floor
+  join_one: block_code_block_val is block_val_base on block_code = block_code_block_val.block_code
+  join_one: ref_nurse is nurse_base on Nurse = ref_nurse.employee_i_d
+}
+
+// Stay (with joins)
+source: stay is stay_base extend {
+  join_one: ref_room is room_base on Room = ref_room.room_number
+  join_one: ref_patient is patient_base on Patient = ref_patient.s_s_n
+  join_many: undergoes is undergoes_base on stay_i_d = undergoes.Stay
+}
+
+// Undergoes (with joins)
+source: undergoes is undergoes_base extend {
+  join_one: nurse is nurse_base on assisting_nurse = nurse.employee_i_d
+  join_one: ref_physician is physician_base on Physician = ref_physician.employee_i_d
+  join_one: ref_stay is stay_base on Stay = ref_stay.stay_i_d
+  join_one: ref_procedures is procedures_base on Procedures = ref_procedures.code_val
+  join_one: ref_patient is patient_base on Patient = ref_patient.s_s_n
 }

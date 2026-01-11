@@ -1,9 +1,13 @@
 // Malloy semantic layer for: geo
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/geo/geo.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // state
-source: state_val is duckdb.sql("""
+source: state_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'state')
 """) extend {
   primary_key: state_name
@@ -24,25 +28,11 @@ source: state_val is duckdb.sql("""
     min_density is min(density)
 }
 
-// lake
-source: lake is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'lake')
-""") extend {
-  measure:
-    row_count is count()
-    total_area is sum(area)
-    avg_area is avg(area)
-    max_area is max(area)
-    min_area is min(area)
-}
-
 // city
-source: city is duckdb.sql("""
+source: city_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'city')
 """) extend {
   primary_key: city_name
-
-  join_one: state_val on state_name = state_val.state_name
 
   measure:
     row_count is count()
@@ -53,37 +43,42 @@ source: city is duckdb.sql("""
 }
 
 // border_info
-source: border_info is duckdb.sql("""
+source: border_info_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'border_info')
 """) extend {
   primary_key: border
-
-  join_one: border_state_val is state_val on border = border_state_val.state_name
-  join_one: state_name_state_val is state_val on state_name = state_name_state_val.state_name
 
   measure:
     row_count is count()
 }
 
 // highlow
-source: highlow is duckdb.sql("""
+source: highlow_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'highlow')
 """) extend {
   primary_key: state_name
-
-  join_one: state_val on state_name = state_val.state_name
 
   measure:
     row_count is count()
 }
 
+// lake
+source: lake_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'lake')
+""") extend {
+  measure:
+    row_count is count()
+    total_area is sum(area)
+    avg_area is avg(area)
+    max_area is max(area)
+    min_area is min(area)
+}
+
 // mountain
-source: mountain is duckdb.sql("""
+source: mountain_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'mountain')
 """) extend {
   primary_key: mountain_name
-
-  join_one: state_val on state_name = state_val.state_name
 
   measure:
     row_count is count()
@@ -94,12 +89,10 @@ source: mountain is duckdb.sql("""
 }
 
 // river
-source: river is duckdb.sql("""
+source: river_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'river')
 """) extend {
   primary_key: river_name
-
-  join_one: state_val on traverse = state_val.state_name
 
   measure:
     row_count is count()
@@ -107,4 +100,47 @@ source: river is duckdb.sql("""
     avg_length is avg(length)
     max_length is max(length)
     min_length is min(length)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// state (with joins)
+source: state_val is state_val_base extend {
+  join_many: city is city_base on state_name = city.state_name
+  join_many: border_info_border is border_info_base on state_name = border_info_border.border
+  join_many: border_info_state_name is border_info_base on state_name = border_info_state_name.state_name
+  join_many: highlow is highlow_base on state_name = highlow.state_name
+  join_many: mountain is mountain_base on state_name = mountain.state_name
+  join_many: river is river_base on state_name = river.traverse
+}
+
+// city (with joins)
+source: city is city_base extend {
+  join_one: state_val is state_val_base on state_name = state_val.state_name
+}
+
+// border_info (with joins)
+source: border_info is border_info_base extend {
+  join_one: border_state_val is state_val_base on border = border_state_val.state_name
+  join_one: state_name_state_val is state_val_base on state_name = state_name_state_val.state_name
+}
+
+// highlow (with joins)
+source: highlow is highlow_base extend {
+  join_one: state_val is state_val_base on state_name = state_val.state_name
+}
+
+// lake (with joins)
+source: lake is lake_base
+
+// mountain (with joins)
+source: mountain is mountain_base extend {
+  join_one: state_val is state_val_base on state_name = state_val.state_name
+}
+
+// river (with joins)
+source: river is river_base extend {
+  join_one: state_val is state_val_base on traverse = state_val.state_name
 }

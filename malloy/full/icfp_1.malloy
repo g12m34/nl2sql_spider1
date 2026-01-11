@@ -1,9 +1,13 @@
 // Malloy semantic layer for: icfp_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Inst
-source: inst is duckdb.sql("""
+source: inst_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Inst')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: inst is duckdb.sql("""
 }
 
 // Authors
-source: authors is duckdb.sql("""
+source: authors_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Authors')
 """) extend {
   dimension:
@@ -38,7 +42,7 @@ source: authors is duckdb.sql("""
 }
 
 // Papers
-source: papers is duckdb.sql("""
+source: papers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Papers')
 """) extend {
   dimension:
@@ -55,7 +59,7 @@ source: papers is duckdb.sql("""
 }
 
 // Authorship
-source: authorship is duckdb.sql("""
+source: authorship_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Authorship')
 """) extend {
   dimension:
@@ -65,10 +69,6 @@ source: authorship is duckdb.sql("""
     auth_order is authOrder
 
   primary_key: auth_i_d
-
-  join_one: papers on paper_i_d = papers.paper_i_d
-  join_one: inst on inst_i_d = inst.inst_i_d
-  join_one: authors on auth_i_d = authors.auth_i_d
 
   measure:
     row_count is count()
@@ -88,4 +88,30 @@ source: authorship is duckdb.sql("""
     avg_auth_order is avg(auth_order)
     max_auth_order is max(auth_order)
     min_auth_order is min(auth_order)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Inst (with joins)
+source: inst is inst_base extend {
+  join_many: authorship is authorship_base on inst_i_d = authorship.inst_i_d
+}
+
+// Authors (with joins)
+source: authors is authors_base extend {
+  join_many: authorship is authorship_base on auth_i_d = authorship.auth_i_d
+}
+
+// Papers (with joins)
+source: papers is papers_base extend {
+  join_many: authorship is authorship_base on paper_i_d = authorship.paper_i_d
+}
+
+// Authorship (with joins)
+source: authorship is authorship_base extend {
+  join_one: papers is papers_base on paper_i_d = papers.paper_i_d
+  join_one: inst is inst_base on inst_i_d = inst.inst_i_d
+  join_one: authors is authors_base on auth_i_d = authors.auth_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: wrestler
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/wrestler/wrestler.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // wrestler
-source: wrestler is duckdb.sql("""
+source: wrestler_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wrestler/wrestler.sqlite', 'wrestler')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: wrestler is duckdb.sql("""
 }
 
 // Elimination
-source: elimination is duckdb.sql("""
+source: elimination_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wrestler/wrestler.sqlite', 'Elimination')
 """) extend {
   dimension:
@@ -31,8 +35,20 @@ source: elimination is duckdb.sql("""
 
   primary_key: elimination_i_d
 
-  join_one: wrestler on wrestler_i_d = wrestler.wrestler_i_d
-
   measure:
     row_count is count()
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// wrestler (with joins)
+source: wrestler is wrestler_base extend {
+  join_many: elimination is elimination_base on wrestler_i_d = elimination.wrestler_i_d
+}
+
+// Elimination (with joins)
+source: elimination is elimination_base extend {
+  join_one: wrestler is wrestler_base on wrestler_i_d = wrestler.wrestler_i_d
 }

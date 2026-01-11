@@ -1,9 +1,13 @@
 // Malloy semantic layer for: phone_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/phone_1/phone_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // chip_model
-source: chip_model is duckdb.sql("""
+source: chip_model_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'chip_model')
 """) extend {
   dimension:
@@ -30,7 +34,7 @@ source: chip_model is duckdb.sql("""
 }
 
 // screen_mode
-source: screen_mode is duckdb.sql("""
+source: screen_mode_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'screen_mode')
 """) extend {
   dimension:
@@ -55,7 +59,7 @@ source: screen_mode is duckdb.sql("""
 }
 
 // phone
-source: phone is duckdb.sql("""
+source: phone_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'phone')
 """) extend {
   dimension:
@@ -63,9 +67,26 @@ source: phone is duckdb.sql("""
 
   primary_key: Hardware_Model_name
 
-  join_one: ref_chip_model is chip_model on chip_model = ref_chip_model.Model_name
-  join_one: ref_screen_mode is screen_mode on screen_mode = ref_screen_mode.Graphics_mode
-
   measure:
     row_count is count()
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// chip_model (with joins)
+source: chip_model is chip_model_base extend {
+  join_many: phone is phone_base on Model_name = phone.chip_model
+}
+
+// screen_mode (with joins)
+source: screen_mode is screen_mode_base extend {
+  join_many: phone is phone_base on Graphics_mode = phone.screen_mode
+}
+
+// phone (with joins)
+source: phone is phone_base extend {
+  join_one: ref_chip_model is chip_model_base on chip_model = ref_chip_model.Model_name
+  join_one: ref_screen_mode is screen_mode_base on screen_mode = ref_screen_mode.Graphics_mode
 }

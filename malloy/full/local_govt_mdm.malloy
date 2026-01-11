@@ -1,9 +1,13 @@
 // Malloy semantic layer for: local_govt_mdm
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customer_Master_Index
-source: customer_master_index is duckdb.sql("""
+source: customer_master_index_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Customer_Master_Index')
 """) extend {
   primary_key: master_customer_id
@@ -17,12 +21,10 @@ source: customer_master_index is duckdb.sql("""
 }
 
 // CMI_Cross_References
-source: c_m_i_cross_references is duckdb.sql("""
+source: c_m_i_cross_references_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'CMI_Cross_References')
 """) extend {
   primary_key: cmi_cross_ref_id
-
-  join_one: customer_master_index on master_customer_id = customer_master_index.master_customer_id
 
   measure:
     row_count is count()
@@ -37,12 +39,10 @@ source: c_m_i_cross_references is duckdb.sql("""
 }
 
 // Council_Tax
-source: council_tax is duckdb.sql("""
+source: council_tax_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Council_Tax')
 """) extend {
   primary_key: council_tax_id
-
-  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 
   measure:
     row_count is count()
@@ -57,12 +57,10 @@ source: council_tax is duckdb.sql("""
 }
 
 // Business_Rates
-source: business_rates is duckdb.sql("""
+source: business_rates_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Business_Rates')
 """) extend {
   primary_key: business_rates_id
-
-  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 
   measure:
     row_count is count()
@@ -77,12 +75,10 @@ source: business_rates is duckdb.sql("""
 }
 
 // Benefits_Overpayments
-source: benefits_overpayments is duckdb.sql("""
+source: benefits_overpayments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Benefits_Overpayments')
 """) extend {
   primary_key: council_tax_id
-
-  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 
   measure:
     row_count is count()
@@ -97,12 +93,10 @@ source: benefits_overpayments is duckdb.sql("""
 }
 
 // Parking_Fines
-source: parking_fines is duckdb.sql("""
+source: parking_fines_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Parking_Fines')
 """) extend {
   primary_key: council_tax_id
-
-  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 
   measure:
     row_count is count()
@@ -117,12 +111,10 @@ source: parking_fines is duckdb.sql("""
 }
 
 // Rent_Arrears
-source: rent_arrears is duckdb.sql("""
+source: rent_arrears_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Rent_Arrears')
 """) extend {
   primary_key: council_tax_id
-
-  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 
   measure:
     row_count is count()
@@ -137,12 +129,10 @@ source: rent_arrears is duckdb.sql("""
 }
 
 // Electoral_Register
-source: electoral_register is duckdb.sql("""
+source: electoral_register_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_mdm/local_govt_mdm.sqlite', 'Electoral_Register')
 """) extend {
   primary_key: electoral_register_id
-
-  join_one: c_m_i_cross_references on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 
   measure:
     row_count is count()
@@ -154,4 +144,54 @@ source: electoral_register is duckdb.sql("""
     avg_cmi_cross_ref_id is avg(cmi_cross_ref_id)
     max_cmi_cross_ref_id is max(cmi_cross_ref_id)
     min_cmi_cross_ref_id is min(cmi_cross_ref_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customer_Master_Index (with joins)
+source: customer_master_index is customer_master_index_base extend {
+  join_many: c_m_i_cross_references is c_m_i_cross_references_base on master_customer_id = c_m_i_cross_references.master_customer_id
+}
+
+// CMI_Cross_References (with joins)
+source: c_m_i_cross_references is c_m_i_cross_references_base extend {
+  join_one: customer_master_index is customer_master_index_base on master_customer_id = customer_master_index.master_customer_id
+  join_many: council_tax is council_tax_base on cmi_cross_ref_id = council_tax.cmi_cross_ref_id
+  join_many: business_rates is business_rates_base on cmi_cross_ref_id = business_rates.cmi_cross_ref_id
+  join_many: benefits_overpayments is benefits_overpayments_base on cmi_cross_ref_id = benefits_overpayments.cmi_cross_ref_id
+  join_many: parking_fines is parking_fines_base on cmi_cross_ref_id = parking_fines.cmi_cross_ref_id
+  join_many: rent_arrears is rent_arrears_base on cmi_cross_ref_id = rent_arrears.cmi_cross_ref_id
+  join_many: electoral_register is electoral_register_base on cmi_cross_ref_id = electoral_register.cmi_cross_ref_id
+}
+
+// Council_Tax (with joins)
+source: council_tax is council_tax_base extend {
+  join_one: c_m_i_cross_references is c_m_i_cross_references_base on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+}
+
+// Business_Rates (with joins)
+source: business_rates is business_rates_base extend {
+  join_one: c_m_i_cross_references is c_m_i_cross_references_base on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+}
+
+// Benefits_Overpayments (with joins)
+source: benefits_overpayments is benefits_overpayments_base extend {
+  join_one: c_m_i_cross_references is c_m_i_cross_references_base on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+}
+
+// Parking_Fines (with joins)
+source: parking_fines is parking_fines_base extend {
+  join_one: c_m_i_cross_references is c_m_i_cross_references_base on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+}
+
+// Rent_Arrears (with joins)
+source: rent_arrears is rent_arrears_base extend {
+  join_one: c_m_i_cross_references is c_m_i_cross_references_base on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
+}
+
+// Electoral_Register (with joins)
+source: electoral_register is electoral_register_base extend {
+  join_one: c_m_i_cross_references is c_m_i_cross_references_base on cmi_cross_ref_id = c_m_i_cross_references.cmi_cross_ref_id
 }

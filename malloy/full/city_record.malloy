@@ -1,9 +1,13 @@
 // Malloy semantic layer for: city_record
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/city_record/city_record.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // city
-source: city is duckdb.sql("""
+source: city_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'city')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: city is duckdb.sql("""
 }
 
 // match
-source: match_val is duckdb.sql("""
+source: match_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'match')
 """) extend {
   dimension:
@@ -48,15 +52,13 @@ source: match_val is duckdb.sql("""
 }
 
 // temperature
-source: temperature is duckdb.sql("""
+source: temperature_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'temperature')
 """) extend {
   dimension:
     city_i_d is City_ID
 
   primary_key: city_i_d
-
-  join_one: city on city_i_d = city.city_i_d
 
   measure:
     row_count is count()
@@ -111,7 +113,7 @@ source: temperature is duckdb.sql("""
 }
 
 // hosting_city
-source: hosting_city is duckdb.sql("""
+source: hosting_city_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'hosting_city')
 """) extend {
   dimension:
@@ -119,9 +121,6 @@ source: hosting_city is duckdb.sql("""
     match_i_d is Match_ID
 
   primary_key: year_val
-
-  join_one: match_val on match_i_d = match_val.match_i_d
-  join_one: city on Host_City = city.city_i_d
 
   measure:
     row_count is count()
@@ -133,4 +132,30 @@ source: hosting_city is duckdb.sql("""
     avg_match_i_d is avg(match_i_d)
     max_match_i_d is max(match_i_d)
     min_match_i_d is min(match_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// city (with joins)
+source: city is city_base extend {
+  join_many: temperature is temperature_base on city_i_d = temperature.city_i_d
+  join_many: hosting_city is hosting_city_base on city_i_d = hosting_city.Host_City
+}
+
+// match (with joins)
+source: match_val is match_val_base extend {
+  join_many: hosting_city is hosting_city_base on match_i_d = hosting_city.match_i_d
+}
+
+// temperature (with joins)
+source: temperature is temperature_base extend {
+  join_one: city is city_base on city_i_d = city.city_i_d
+}
+
+// hosting_city (with joins)
+source: hosting_city is hosting_city_base extend {
+  join_one: match_val is match_val_base on match_i_d = match_val.match_i_d
+  join_one: city is city_base on Host_City = city.city_i_d
 }

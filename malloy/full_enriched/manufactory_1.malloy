@@ -1,0 +1,96 @@
+// ============================================================
+// FIELD METADATA (Auto-generated from database profiling)
+// ============================================================
+//
+// Table: Manufacturers
+//   Code: Numeric field ranging from 1 to 6
+//     Sample values: '1', '2', '3'
+//   Name: Unique name identifier
+//     Sample values: 'Winchester', 'Sony', 'Iomega'
+//   Headquarter: Values include: 'Tokyo', 'Taiwan', 'Paris'
+//     Sample values: 'Tokyo', 'Taiwan', 'Paris'
+//   Founder: Values include: 'Robert', 'Owen', 'Mary'
+//     Sample values: 'Robert', 'Owen', 'Mary'
+//   Revenue: Numeric field ranging from 30.0 to 200.0
+//     Sample values: '200.0', '130.0', '120.0'
+//
+// Table: Products
+//   Code: Numeric field ranging from 1 to 11
+//     Sample values: '1', '2', '3'
+//   Name: Name field with 10 distinct values
+//     Sample values: 'DVD drive', 'ZIP drive', 'Toner cartridge'
+//   Price: Categorical field: '240', '180', '150', '270', '120'
+//     Sample values: '240', '180', '150'
+//   Manufacturer: Categorical field: '3', '2', '6', '5', '4'
+//     Sample values: '3', '2', '6'
+//
+
+// Malloy semantic layer for: manufactory_1
+// Full layer with ALL columns, primary keys, and bidirectional joins
+// Database: /workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// Manufacturers
+source: manufacturers_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Manufacturers')
+""") extend {
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+
+  primary_key: code_val
+
+  measure:
+    row_count is count()
+    total_code_val is sum(code_val)
+    avg_code_val is avg(code_val)
+    max_code_val is max(code_val)
+    min_code_val is min(code_val)
+    total_revenue is sum(Revenue)
+    avg_revenue is avg(Revenue)
+    max_revenue is max(Revenue)
+    min_revenue is min(Revenue)
+}
+
+// Products
+source: products_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Products')
+""") extend {
+  dimension:
+    code_val is `Code`
+    name_val is `Name`
+
+  primary_key: code_val
+
+  measure:
+    row_count is count()
+    total_code_val is sum(code_val)
+    avg_code_val is avg(code_val)
+    max_code_val is max(code_val)
+    min_code_val is min(code_val)
+    total_price is sum(Price)
+    avg_price is avg(Price)
+    max_price is max(Price)
+    min_price is min(Price)
+    total_manufacturer is sum(Manufacturer)
+    avg_manufacturer is avg(Manufacturer)
+    max_manufacturer is max(Manufacturer)
+    min_manufacturer is min(Manufacturer)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Manufacturers (with joins)
+source: manufacturers is manufacturers_base extend {
+  join_many: products is products_base on code_val = products.Manufacturer
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_one: manufacturers is manufacturers_base on Manufacturer = manufacturers.code_val
+}

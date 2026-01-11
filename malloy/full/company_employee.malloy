@@ -1,9 +1,13 @@
 // Malloy semantic layer for: company_employee
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/company_employee/company_employee.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // people
-source: people_val is duckdb.sql("""
+source: people_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'people')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: people_val is duckdb.sql("""
 }
 
 // company
-source: company is duckdb.sql("""
+source: company_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'company')
 """) extend {
   dimension:
@@ -59,7 +63,7 @@ source: company is duckdb.sql("""
 }
 
 // employment
-source: employment is duckdb.sql("""
+source: employment_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'employment')
 """) extend {
   dimension:
@@ -67,9 +71,6 @@ source: employment is duckdb.sql("""
     people_i_d is People_ID
 
   primary_key: company_i_d
-
-  join_one: people_val on people_i_d = people_val.people_i_d
-  join_one: company on company_i_d = company.company_i_d
 
   measure:
     row_count is count()
@@ -85,4 +86,24 @@ source: employment is duckdb.sql("""
     avg_year_working is avg(Year_working)
     max_year_working is max(Year_working)
     min_year_working is min(Year_working)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: employment is employment_base on people_i_d = employment.people_i_d
+}
+
+// company (with joins)
+source: company is company_base extend {
+  join_many: employment is employment_base on company_i_d = employment.company_i_d
+}
+
+// employment (with joins)
+source: employment is employment_base extend {
+  join_one: people_val is people_val_base on people_i_d = people_val.people_i_d
+  join_one: company is company_base on company_i_d = company.company_i_d
 }

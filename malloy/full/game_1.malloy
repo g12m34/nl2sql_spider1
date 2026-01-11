@@ -1,9 +1,13 @@
 // Malloy semantic layer for: game_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/game_1/game_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: student_val is duckdb.sql("""
 }
 
 // Video_Games
-source: video_games is duckdb.sql("""
+source: video_games_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Video_Games')
 """) extend {
   dimension:
@@ -51,8 +55,32 @@ source: video_games is duckdb.sql("""
     min_game_i_d is min(game_i_d)
 }
 
+// Plays_Games
+source: plays_games_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Plays_Games')
+""") extend {
+  dimension:
+    stu_i_d is StuID
+    game_i_d is GameID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_game_i_d is sum(game_i_d)
+    avg_game_i_d is avg(game_i_d)
+    max_game_i_d is max(game_i_d)
+    min_game_i_d is min(game_i_d)
+    total_hours_played is sum(Hours_Played)
+    avg_hours_played is avg(Hours_Played)
+    max_hours_played is max(Hours_Played)
+    min_hours_played is min(Hours_Played)
+}
+
 // SportsInfo
-source: sports_info is duckdb.sql("""
+source: sports_info_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'SportsInfo')
 """) extend {
   dimension:
@@ -61,8 +89,6 @@ source: sports_info is duckdb.sql("""
     hours_per_week is HoursPerWeek
     games_played is GamesPlayed
     on_scholarship is OnScholarship
-
-  join_one: student_val on stu_i_d = student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -80,29 +106,28 @@ source: sports_info is duckdb.sql("""
     min_games_played is min(games_played)
 }
 
-// Plays_Games
-source: plays_games is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Plays_Games')
-""") extend {
-  dimension:
-    stu_i_d is StuID
-    game_i_d is GameID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: student_val on stu_i_d = student_val.stu_i_d
-  join_one: video_games on game_i_d = video_games.game_i_d
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: plays_games is plays_games_base on stu_i_d = plays_games.stu_i_d
+  join_many: sports_info is sports_info_base on stu_i_d = sports_info.stu_i_d
+}
 
-  measure:
-    row_count is count()
-    total_stu_i_d is sum(stu_i_d)
-    avg_stu_i_d is avg(stu_i_d)
-    max_stu_i_d is max(stu_i_d)
-    min_stu_i_d is min(stu_i_d)
-    total_game_i_d is sum(game_i_d)
-    avg_game_i_d is avg(game_i_d)
-    max_game_i_d is max(game_i_d)
-    min_game_i_d is min(game_i_d)
-    total_hours_played is sum(Hours_Played)
-    avg_hours_played is avg(Hours_Played)
-    max_hours_played is max(Hours_Played)
-    min_hours_played is min(Hours_Played)
+// Video_Games (with joins)
+source: video_games is video_games_base extend {
+  join_many: plays_games is plays_games_base on game_i_d = plays_games.game_i_d
+}
+
+// Plays_Games (with joins)
+source: plays_games is plays_games_base extend {
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+  join_one: video_games is video_games_base on game_i_d = video_games.game_i_d
+}
+
+// SportsInfo (with joins)
+source: sports_info is sports_info_base extend {
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
 }

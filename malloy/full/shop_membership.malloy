@@ -1,9 +1,13 @@
 // Malloy semantic layer for: shop_membership
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // member
-source: member is duckdb.sql("""
+source: member_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'member')
 """) extend {
   dimension:
@@ -26,7 +30,7 @@ source: member is duckdb.sql("""
 }
 
 // branch
-source: branch is duckdb.sql("""
+source: branch_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'branch')
 """) extend {
   dimension:
@@ -44,7 +48,7 @@ source: branch is duckdb.sql("""
 }
 
 // membership_register_branch
-source: membership_register_branch is duckdb.sql("""
+source: membership_register_branch_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'membership_register_branch')
 """) extend {
   dimension:
@@ -52,9 +56,6 @@ source: membership_register_branch is duckdb.sql("""
     branch_i_d is Branch_ID
 
   primary_key: member_i_d
-
-  join_one: branch on branch_i_d = branch.branch_i_d
-  join_one: member on member_i_d = member.member_i_d
 
   measure:
     row_count is count()
@@ -65,7 +66,7 @@ source: membership_register_branch is duckdb.sql("""
 }
 
 // purchase
-source: purchase is duckdb.sql("""
+source: purchase_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'purchase')
 """) extend {
   dimension:
@@ -74,9 +75,6 @@ source: purchase is duckdb.sql("""
     year_val is `Year`
 
   primary_key: member_i_d
-
-  join_one: branch on branch_i_d = branch.branch_i_d
-  join_one: member on member_i_d = member.member_i_d
 
   measure:
     row_count is count()
@@ -88,4 +86,32 @@ source: purchase is duckdb.sql("""
     avg_total_pounds is avg(Total_pounds)
     max_total_pounds is max(Total_pounds)
     min_total_pounds is min(Total_pounds)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// member (with joins)
+source: member is member_base extend {
+  join_many: membership_register_branch is membership_register_branch_base on member_i_d = membership_register_branch.member_i_d
+  join_many: purchase is purchase_base on member_i_d = purchase.member_i_d
+}
+
+// branch (with joins)
+source: branch is branch_base extend {
+  join_many: membership_register_branch is membership_register_branch_base on branch_i_d = membership_register_branch.branch_i_d
+  join_many: purchase is purchase_base on branch_i_d = purchase.branch_i_d
+}
+
+// membership_register_branch (with joins)
+source: membership_register_branch is membership_register_branch_base extend {
+  join_one: branch is branch_base on branch_i_d = branch.branch_i_d
+  join_one: member is member_base on member_i_d = member.member_i_d
+}
+
+// purchase (with joins)
+source: purchase is purchase_base extend {
+  join_one: branch is branch_base on branch_i_d = branch.branch_i_d
+  join_one: member is member_base on member_i_d = member.member_i_d
 }

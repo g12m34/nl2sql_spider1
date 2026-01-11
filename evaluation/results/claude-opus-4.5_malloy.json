@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "provider": "anthropic/claude-opus-4-5-20251101",
+    "timestamp": "2026-01-11T08:42:13.405817",
+    "total": 10,
+    "correct": 3,
+    "errors": 5,
+    "accuracy": 0.3,
+    "evaluation_type": "malloy"
+  },
+  "results": [
+    {
+      "question_id": 0,
+      "db_id": "game_1",
+      "question": "What are the ids of all students who played video games and sports?",
+      "gold_sql": "SELECT StuID FROM Sportsinfo INTERSECT SELECT StuID FROM Plays_games",
+      "predicted_malloy": "run: student_val -> {\n  group_by: stu_i_d\n  aggregate: games_count is plays_games.count(), sports_count is sports_info.count()\n} -> {\n  where: games_count > 0 and sports_count > 0\n  select: stu_i_d\n}",
+      "predicted_sql": "WITH __stage0 AS (\n  SELECT \n     base.\"StuID\" as \"stu_i_d\",\n     COUNT(DISTINCT plays_games_0.\"__distinct_key\") as \"games_count\",\n     COUNT(DISTINCT sports_info_0.\"__distinct_key\") as \"sports_count\"\n  FROM (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Student')\n  ) as base\n   LEFT JOIN (SELECT GEN_RANDOM_UUID() as \"__distinct_key\", x.*  FROM (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Plays_Games')\n  ) as x) AS plays_games_0\n    ON (base.\"StuID\")=(plays_games_0.\"StuID\")\n   LEFT JOIN (SELECT GEN_RANDOM_UUID() as \"__distinct_key\", x.*  FROM (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'SportsInfo')\n  ) as x) AS sports_info_0\n    ON (base.\"StuID\")=(sports_info_0.\"StuID\")\n  GROUP BY 1\n)\nSELECT \n   base.\"stu_i_d\" as \"stu_i_d\"\nFROM __stage0 as base\nWHERE (base.\"games_count\">0)and(base.\"sports_count\">0)\n",
+      "match": true,
+      "error": null,
+      "latency_ms": 3048.806667327881,
+      "raw_response": "run: student_val -> {\n  group_by: stu_i_d\n  aggregate: games_count is plays_games.count(), sports_count is sports_info.count()\n} -> {\n  where: games_count > 0 and sports_count > 0\n  select: stu_i_d\n}",
+      "pred_row_count": 1,
+      "gold_row_count": 1
+    },
+    {
+      "question_id": 1,
+      "db_id": "scholar",
+      "question": "who published the most at chi",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"chi\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t2.paperid ) DESC;",
+      "predicted_malloy": "run: paper -> {\n  where: venue.venue_name ~ r'chi'\n  group_by: writes.author.author_name\n  aggregate: paper_count is count()\n  order_by: paper_count desc\n  limit: 1\n}",
+      "predicted_sql": "",
+      "match": false,
+      "error": "Malloy compile error: error: 'author' is not defined at line 3",
+      "latency_ms": 3483.4675788879395,
+      "raw_response": "run: paper -> {\n  where: venue.venue_name ~ r'chi'\n  group_by: writes.author.author_name\n  aggregate: paper_count is count()\n  order_by: paper_count desc\n  limit: 1\n}"
+    },
+    {
+      "question_id": 2,
+      "db_id": "movie_1",
+      "question": "What are the titles and directors of the movies whose star is greater than the average stars of the movies directed by James Cameron?",
+      "gold_sql": "SELECT T2.title ,  T2.director FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T1.stars  >  (SELECT avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.director  =  \"James Cameron\")",
+      "predicted_malloy": "run: rating -> {\n  group_by: movie.title, movie.director\n  aggregate: avg_stars\n} -> {\n  where: avg_stars > (\n    rating -> {\n      where: movie.director = 'James Cameron'\n      aggregate: avg_stars\n    }\n  )\n  select: title, director\n}",
+      "predicted_sql": "",
+      "match": false,
+      "error": "Malloy compile error: error: mismatched input '->' expecting {AND, DAY, FOR, HOUR, MINUTE, MONTH, OR, QUARTER, SECOND, TO, WEEK, YEAR, '&', ')', '{', '::', ':::', '.', '<', '>', '=', '!=', '<=', '>=', '+', '-', '*', '/', '|', '!~', '~', '%', '??', '?'} at line 6",
+      "latency_ms": -4.907131195068359,
+      "raw_response": "run: rating -> {\n  group_by: movie.title, movie.director\n  aggregate: avg_stars\n} -> {\n  where: avg_stars > (\n    rating -> {\n      where: movie.director = 'James Cameron'\n      aggregate: avg_stars\n    }\n  )\n  select: title, director\n}"
+    },
+    {
+      "question_id": 3,
+      "db_id": "manufactory_1",
+      "question": "Find the name of product that is produced by both companies Creative Labs and Sony.",
+      "gold_sql": "SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Creative Labs' INTERSECT SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Sony'",
+      "predicted_malloy": "run: products -> {\n  group_by: name_val\n  aggregate: \n    creative_labs_count is products_base { where: manufacturers.name_val = 'Creative Labs' }.count(),\n    sony_count is products_base { where: manufacturers.name_val = 'Sony' }.count()\n} -> {\n  where: creative_labs_count > 0 and sony_count > 0\n  select: name_val\n}",
+      "predicted_sql": "",
+      "match": false,
+      "error": "Malloy compile error: error: missing {DAY, HOUR, MINUTE, MONTH, QUARTER, SECOND, WEEK, YEAR} at 'count' at line 4",
+      "latency_ms": 3169.2910194396973,
+      "raw_response": "run: products -> {\n  group_by: name_val\n  aggregate: \n    creative_labs_count is products_base { where: manufacturers.name_val = 'Creative Labs' }.count(),\n    sony_count is products_base { where: manufacturers.name_val = 'Sony' }.count()\n} -> {\n  where: creative_labs_count > 0 and sony_count > 0\n  select: name_val\n}"
+    },
+    {
+      "question_id": 4,
+      "db_id": "ship_1",
+      "question": "What are the ranks of captains that are both in the Cutter and Armed schooner classes?",
+      "gold_sql": "SELECT rank FROM captain WHERE CLASS  =  'Cutter' INTERSECT SELECT rank FROM captain WHERE CLASS  =  'Armed schooner'",
+      "predicted_malloy": "run: captain -> {\n  group_by: rank_val\n  aggregate: cutter_count is count() { where: ship.type_val = 'Cutter' }, schooner_count is count() { where: ship.type_val = 'Armed schooner' }\n} -> {\n  where: cutter_count > 0 and schooner_count > 0\n  select: rank_val\n}",
+      "predicted_sql": "WITH __stage0 AS (\n  SELECT \n     base.\"Rank\" as \"rank_val\",\n     COUNT(CASE WHEN (ship_0.\"Type\")='Cutter' THEN 1 END) as \"cutter_count\",\n     COUNT(CASE WHEN (ship_0.\"Type\")='Armed schooner' THEN 1 END) as \"schooner_count\"\n  FROM (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'captain')\n  ) as base\n   LEFT JOIN (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'Ship')\n  ) AS ship_0\n    ON (base.\"Ship_ID\")=(ship_0.\"Ship_ID\")\n  GROUP BY 1\n)\nSELECT \n   base.\"rank_val\" as \"rank_val\"\nFROM __stage0 as base\nWHERE (base.\"cutter_count\">0)and(base.\"schooner_count\">0)\n",
+      "match": false,
+      "error": null,
+      "latency_ms": 3063.586473464966,
+      "raw_response": "run: captain -> {\n  group_by: rank_val\n  aggregate: cutter_count is count() { where: ship.type_val = 'Cutter' }, schooner_count is count() { where: ship.type_val = 'Armed schooner' }\n} -> {\n  where: cutter_count > 0 and schooner_count > 0\n  select: rank_val\n}",
+      "pred_row_count": 0,
+      "gold_row_count": 1
+    },
+    {
+      "question_id": 5,
+      "db_id": "gas_company",
+      "question": "Show all headquarters without a company in banking industry.",
+      "gold_sql": "SELECT headquarters FROM company EXCEPT SELECT headquarters FROM company WHERE main_industry  =  'Banking'",
+      "predicted_malloy": "run: company -> {\n  where: Industry != 'Banking' or Industry = null\n  select: Headquarters\n}",
+      "predicted_sql": "",
+      "match": false,
+      "error": "Malloy compile error: error: 'Industry' is not defined at line 2",
+      "latency_ms": 2467.5838947296143,
+      "raw_response": "run: company -> {\n  where: Industry != 'Banking' or Industry = null\n  select: Headquarters\n}"
+    },
+    {
+      "question_id": 6,
+      "db_id": "activity_1",
+      "question": "Which students participate in both Canoeing and Kayaking as their activities? Tell me their student ids.",
+      "gold_sql": "SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Canoeing' INTERSECT SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Kayaking'",
+      "predicted_malloy": "run: participates_in -> {\n  group_by: stuid\n  aggregate: \n    canoeing_count is count() { where: activity.activity_name = 'Canoeing' },\n    kayaking_count is count() { where: activity.activity_name = 'Kayaking' }\n} -> {\n  where: canoeing_count > 0 and kayaking_count > 0\n  select: stuid\n}",
+      "predicted_sql": "WITH __stage0 AS (\n  SELECT \n     base.\"stuid\" as \"stuid\",\n     COUNT(CASE WHEN activity_0.\"activity_name\"='Canoeing' THEN 1 END) as \"canoeing_count\",\n     COUNT(CASE WHEN activity_0.\"activity_name\"='Kayaking' THEN 1 END) as \"kayaking_count\"\n  FROM (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Participates_in')\n  ) as base\n   LEFT JOIN (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Activity')\n  ) AS activity_0\n    ON base.\"actid\"=activity_0.\"actid\"\n  GROUP BY 1\n)\nSELECT \n   base.\"stuid\" as \"stuid\"\nFROM __stage0 as base\nWHERE (base.\"canoeing_count\">0)and(base.\"kayaking_count\">0)\n",
+      "match": false,
+      "error": null,
+      "latency_ms": 3103.339195251465,
+      "raw_response": "run: participates_in -> {\n  group_by: stuid\n  aggregate: \n    canoeing_count is count() { where: activity.activity_name = 'Canoeing' },\n    kayaking_count is count() { where: activity.activity_name = 'Kayaking' }\n} -> {\n  where: canoeing_count > 0 and kayaking_count > 0\n  select: stuid\n}",
+      "pred_row_count": 2,
+      "gold_row_count": 30
+    },
+    {
+      "question_id": 7,
+      "db_id": "geo",
+      "question": "which is the longest river in usa",
+      "gold_sql": "SELECT river_name FROM river WHERE LENGTH  =  ( SELECT MAX ( LENGTH ) FROM river );",
+      "predicted_malloy": "run: river -> { select: river_name, length; order_by: length desc; limit: 1 }",
+      "predicted_sql": "SELECT \n   base.\"river_name\" as \"river_name\",\n   base.\"length\" as \"length\"\nFROM (\n  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/geo/geo.sqlite', 'river')\n) as base\nORDER BY 2 desc NULLS LAST\nLIMIT 1\n",
+      "match": true,
+      "error": null,
+      "latency_ms": 3079.3240070343018,
+      "raw_response": "run: river -> { select: river_name, length; order_by: length desc; limit: 1 }",
+      "pred_row_count": 0,
+      "gold_row_count": 0
+    },
+    {
+      "question_id": 8,
+      "db_id": "customers_and_products_contacts",
+      "question": "Show the names of customers who have both an order in completed status and an order in part status.",
+      "gold_sql": "SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  'Completed' INTERSECT SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  'Part'",
+      "predicted_malloy": "run: customers -> {\n  group_by: customer_name\n  aggregate: \n    completed_count is customer_orders.count() { where: customer_orders.order_status = 'Completed' },\n    part_count is customer_orders.count() { where: customer_orders.order_status = 'Part' }\n} -> {\n  where: completed_count > 0 and part_count > 0\n  select: customer_name\n}",
+      "predicted_sql": "",
+      "match": false,
+      "error": "Malloy compile error: error: 'order_status' is not defined at line 4",
+      "latency_ms": 3985.1362705230713,
+      "raw_response": "run: customers -> {\n  group_by: customer_name\n  aggregate: \n    completed_count is customer_orders.count() { where: customer_orders.order_status = 'Completed' },\n    part_count is customer_orders.count() { where: customer_orders.order_status = 'Part' }\n} -> {\n  where: completed_count > 0 and part_count > 0\n  select: customer_name\n}"
+    },
+    {
+      "question_id": 9,
+      "db_id": "behavior_monitoring",
+      "question": "What are the line 1 of addresses shared by some students and some teachers?",
+      "gold_sql": "SELECT T1.line_1 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.address_id INTERSECT SELECT T1.line_1 FROM Addresses AS T1 JOIN Teachers AS T2 ON T1.address_id  =  T2.address_id",
+      "predicted_malloy": "run: addresses -> {\n  group_by: line_1\n  aggregate: student_count is students.count(), teacher_count is teachers.count()\n} -> {\n  where: student_count > 0 and teacher_count > 0\n  select: line_1\n}",
+      "predicted_sql": "WITH __stage0 AS (\n  SELECT \n     base.\"line_1\" as \"line_1\",\n     COUNT(DISTINCT students_0.\"student_id\") as \"student_count\",\n     COUNT(DISTINCT teachers_0.\"teacher_id\") as \"teacher_count\"\n  FROM (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Addresses')\n  ) as base\n   LEFT JOIN (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Students')\n  ) AS students_0\n    ON base.\"address_id\"=students_0.\"address_id\"\n   LEFT JOIN (\n    SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Teachers')\n  ) AS teachers_0\n    ON base.\"address_id\"=teachers_0.\"address_id\"\n  GROUP BY 1\n)\nSELECT \n   base.\"line_1\" as \"line_1\"\nFROM __stage0 as base\nWHERE (base.\"student_count\">0)and(base.\"teacher_count\">0)\n",
+      "match": true,
+      "error": null,
+      "latency_ms": 3685.1446628570557,
+      "raw_response": "run: addresses -> {\n  group_by: line_1\n  aggregate: student_count is students.count(), teacher_count is teachers.count()\n} -> {\n  where: student_count > 0 and teacher_count > 0\n  select: line_1\n}",
+      "pred_row_count": 7,
+      "gold_row_count": 7
+    }
+  ]
+}

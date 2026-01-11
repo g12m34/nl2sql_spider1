@@ -1,9 +1,13 @@
 // Malloy semantic layer for: musical
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/musical/musical.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // musical
-source: musical is duckdb.sql("""
+source: musical_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/musical/musical.sqlite', 'musical')
 """) extend {
   dimension:
@@ -27,7 +31,7 @@ source: musical is duckdb.sql("""
 }
 
 // actor
-source: actor_val is duckdb.sql("""
+source: actor_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/musical/musical.sqlite', 'actor')
 """) extend {
   dimension:
@@ -36,7 +40,6 @@ source: actor_val is duckdb.sql("""
     musical_i_d is Musical_ID
 
   primary_key: actor_i_d
-
 
   measure:
     row_count is count()
@@ -53,3 +56,13 @@ source: actor_val is duckdb.sql("""
     max_age is max(age)
     min_age is min(age)
 }
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// musical (with joins)
+source: musical is musical_base
+
+// actor (with joins)
+source: actor_val is actor_val_base

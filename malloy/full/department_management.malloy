@@ -1,9 +1,13 @@
 // Malloy semantic layer for: department_management
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/department_management/department_management.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // department
-source: department is duckdb.sql("""
+source: department_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'department')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: department is duckdb.sql("""
 }
 
 // head
-source: head is duckdb.sql("""
+source: head_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'head')
 """) extend {
   dimension:
@@ -55,7 +59,7 @@ source: head is duckdb.sql("""
 }
 
 // management
-source: management is duckdb.sql("""
+source: management_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'management')
 """) extend {
   dimension:
@@ -63,9 +67,6 @@ source: management is duckdb.sql("""
     head_i_d is head_ID
 
   primary_key: department_i_d
-
-  join_one: head on head_i_d = head.head_i_d
-  join_one: department on department_i_d = department.department_i_d
 
   measure:
     row_count is count()
@@ -77,4 +78,24 @@ source: management is duckdb.sql("""
     avg_head_i_d is avg(head_i_d)
     max_head_i_d is max(head_i_d)
     min_head_i_d is min(head_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// department (with joins)
+source: department is department_base extend {
+  join_many: management is management_base on department_i_d = management.department_i_d
+}
+
+// head (with joins)
+source: head is head_base extend {
+  join_many: management is management_base on head_i_d = management.head_i_d
+}
+
+// management (with joins)
+source: management is management_base extend {
+  join_one: head is head_base on head_i_d = head.head_i_d
+  join_one: department is department_base on department_i_d = department.department_i_d
 }

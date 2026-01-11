@@ -1,9 +1,13 @@
 // Malloy semantic layer for: student_transcripts_tracking
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Addresses')
 """) extend {
   primary_key: address_id
@@ -17,7 +21,7 @@ source: addresses is duckdb.sql("""
 }
 
 // Courses
-source: courses is duckdb.sql("""
+source: courses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Courses')
 """) extend {
   primary_key: course_id
@@ -31,7 +35,7 @@ source: courses is duckdb.sql("""
 }
 
 // Departments
-source: departments is duckdb.sql("""
+source: departments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Departments')
 """) extend {
   primary_key: department_id
@@ -44,8 +48,44 @@ source: departments is duckdb.sql("""
     min_department_id is min(department_id)
 }
 
+// Degree_Programs
+source: degree_programs_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Degree_Programs')
+""") extend {
+  primary_key: degree_program_id
+
+  measure:
+    row_count is count()
+    total_degree_program_id is sum(degree_program_id)
+    avg_degree_program_id is avg(degree_program_id)
+    max_degree_program_id is max(degree_program_id)
+    min_degree_program_id is min(degree_program_id)
+    total_department_id is sum(department_id)
+    avg_department_id is avg(department_id)
+    max_department_id is max(department_id)
+    min_department_id is min(department_id)
+}
+
+// Sections
+source: sections_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Sections')
+""") extend {
+  primary_key: section_id
+
+  measure:
+    row_count is count()
+    total_section_id is sum(section_id)
+    avg_section_id is avg(section_id)
+    max_section_id is max(section_id)
+    min_section_id is min(section_id)
+    total_course_id is sum(course_id)
+    avg_course_id is avg(course_id)
+    max_course_id is max(course_id)
+    min_course_id is min(course_id)
+}
+
 // Semesters
-source: semesters is duckdb.sql("""
+source: semesters_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Semesters')
 """) extend {
   primary_key: semester_id
@@ -58,28 +98,11 @@ source: semesters is duckdb.sql("""
     min_semester_id is min(semester_id)
 }
 
-// Transcripts
-source: transcripts is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Transcripts')
-""") extend {
-  primary_key: transcript_id
-
-  measure:
-    row_count is count()
-    total_transcript_id is sum(transcript_id)
-    avg_transcript_id is avg(transcript_id)
-    max_transcript_id is max(transcript_id)
-    min_transcript_id is min(transcript_id)
-}
-
 // Students
-source: students is duckdb.sql("""
+source: students_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Students')
 """) extend {
   primary_key: student_id
-
-  join_one: permanent_address_addresses is addresses on permanent_address_id = permanent_address_addresses.address_id
-  join_one: current_address_addresses is addresses on current_address_id = current_address_addresses.address_id
 
   measure:
     row_count is count()
@@ -97,55 +120,11 @@ source: students is duckdb.sql("""
     min_permanent_address_id is min(permanent_address_id)
 }
 
-// Sections
-source: sections is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Sections')
-""") extend {
-  primary_key: section_id
-
-  join_one: courses on course_id = courses.course_id
-
-  measure:
-    row_count is count()
-    total_section_id is sum(section_id)
-    avg_section_id is avg(section_id)
-    max_section_id is max(section_id)
-    min_section_id is min(section_id)
-    total_course_id is sum(course_id)
-    avg_course_id is avg(course_id)
-    max_course_id is max(course_id)
-    min_course_id is min(course_id)
-}
-
-// Degree_Programs
-source: degree_programs is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Degree_Programs')
-""") extend {
-  primary_key: degree_program_id
-
-  join_one: departments on department_id = departments.department_id
-
-  measure:
-    row_count is count()
-    total_degree_program_id is sum(degree_program_id)
-    avg_degree_program_id is avg(degree_program_id)
-    max_degree_program_id is max(degree_program_id)
-    min_degree_program_id is min(degree_program_id)
-    total_department_id is sum(department_id)
-    avg_department_id is avg(department_id)
-    max_department_id is max(department_id)
-    min_department_id is min(department_id)
-}
-
 // Student_Enrolment
-source: student_enrolment is duckdb.sql("""
+source: student_enrolment_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Student_Enrolment')
 """) extend {
   primary_key: student_enrolment_id
-
-  join_one: students on student_id = students.student_id
-  join_one: semesters on semester_id = semesters.semester_id
-  join_one: degree_programs on degree_program_id = degree_programs.degree_program_id
 
   measure:
     row_count is count()
@@ -168,13 +147,10 @@ source: student_enrolment is duckdb.sql("""
 }
 
 // Student_Enrolment_Courses
-source: student_enrolment_courses is duckdb.sql("""
+source: student_enrolment_courses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Student_Enrolment_Courses')
 """) extend {
   primary_key: student_course_id
-
-  join_one: student_enrolment on student_enrolment_id = student_enrolment.student_enrolment_id
-  join_one: courses on course_id = courses.course_id
 
   measure:
     row_count is count()
@@ -192,13 +168,24 @@ source: student_enrolment_courses is duckdb.sql("""
     min_student_enrolment_id is min(student_enrolment_id)
 }
 
+// Transcripts
+source: transcripts_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Transcripts')
+""") extend {
+  primary_key: transcript_id
+
+  measure:
+    row_count is count()
+    total_transcript_id is sum(transcript_id)
+    avg_transcript_id is avg(transcript_id)
+    max_transcript_id is max(transcript_id)
+    min_transcript_id is min(transcript_id)
+}
+
 // Transcript_Contents
-source: transcript_contents is duckdb.sql("""
+source: transcript_contents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_transcripts_tracking/student_transcripts_tracking.sqlite', 'Transcript_Contents')
 """) extend {
-  join_one: transcripts on transcript_id = transcripts.transcript_id
-  join_one: student_enrolment_courses on student_course_id = student_enrolment_courses.student_course_id
-
   measure:
     row_count is count()
     total_student_course_id is sum(student_course_id)
@@ -209,4 +196,74 @@ source: transcript_contents is duckdb.sql("""
     avg_transcript_id is avg(transcript_id)
     max_transcript_id is max(transcript_id)
     min_transcript_id is min(transcript_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: students_permanent_address is students_base on address_id = students_permanent_address.permanent_address_id
+  join_many: students_current_address is students_base on address_id = students_current_address.current_address_id
+}
+
+// Courses (with joins)
+source: courses is courses_base extend {
+  join_many: sections is sections_base on course_id = sections.course_id
+  join_many: student_enrolment_courses is student_enrolment_courses_base on course_id = student_enrolment_courses.course_id
+}
+
+// Departments (with joins)
+source: departments is departments_base extend {
+  join_many: degree_programs is degree_programs_base on department_id = degree_programs.department_id
+}
+
+// Degree_Programs (with joins)
+source: degree_programs is degree_programs_base extend {
+  join_one: departments is departments_base on department_id = departments.department_id
+  join_many: student_enrolment is student_enrolment_base on degree_program_id = student_enrolment.degree_program_id
+}
+
+// Sections (with joins)
+source: sections is sections_base extend {
+  join_one: courses is courses_base on course_id = courses.course_id
+}
+
+// Semesters (with joins)
+source: semesters is semesters_base extend {
+  join_many: student_enrolment is student_enrolment_base on semester_id = student_enrolment.semester_id
+}
+
+// Students (with joins)
+source: students is students_base extend {
+  join_one: permanent_address_addresses is addresses_base on permanent_address_id = permanent_address_addresses.address_id
+  join_one: current_address_addresses is addresses_base on current_address_id = current_address_addresses.address_id
+  join_many: student_enrolment is student_enrolment_base on student_id = student_enrolment.student_id
+}
+
+// Student_Enrolment (with joins)
+source: student_enrolment is student_enrolment_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: semesters is semesters_base on semester_id = semesters.semester_id
+  join_one: degree_programs is degree_programs_base on degree_program_id = degree_programs.degree_program_id
+  join_many: student_enrolment_courses is student_enrolment_courses_base on student_enrolment_id = student_enrolment_courses.student_enrolment_id
+}
+
+// Student_Enrolment_Courses (with joins)
+source: student_enrolment_courses is student_enrolment_courses_base extend {
+  join_one: student_enrolment is student_enrolment_base on student_enrolment_id = student_enrolment.student_enrolment_id
+  join_one: courses is courses_base on course_id = courses.course_id
+  join_many: transcript_contents is transcript_contents_base on student_course_id = transcript_contents.student_course_id
+}
+
+// Transcripts (with joins)
+source: transcripts is transcripts_base extend {
+  join_many: transcript_contents is transcript_contents_base on transcript_id = transcript_contents.transcript_id
+}
+
+// Transcript_Contents (with joins)
+source: transcript_contents is transcript_contents_base extend {
+  join_one: transcripts is transcripts_base on transcript_id = transcripts.transcript_id
+  join_one: student_enrolment_courses is student_enrolment_courses_base on student_course_id = student_enrolment_courses.student_course_id
 }

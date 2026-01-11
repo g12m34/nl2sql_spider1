@@ -1,0 +1,115 @@
+// =============================================================================
+// MOVIE_1 DATABASE - Movie Rating System
+// =============================================================================
+// This database tracks movies and their ratings by reviewers:
+// - Movie: catalog of movies with title, year, and director
+// - Reviewer: people who rate movies
+// - Rating: individual ratings (stars) given by reviewers to movies
+//
+// KEY RELATIONSHIPS:
+// - A Reviewer can rate multiple Movies (via Rating table)
+// - A Movie can have multiple Ratings from different Reviewers
+// - Rating is a junction table connecting Reviewers to Movies with stars
+// =============================================================================
+
+// =============================================================================
+// BASE SOURCES
+// =============================================================================
+
+// MOVIE TABLE
+// Catalog of movies available for rating
+source: movie_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Movie')
+""") extend {
+  dimension:
+    // Unique movie identifier (primary key)
+    // Values: 101-108
+    m_id is mID
+
+    // Title of the movie
+    // Examples: 'Gone with the Wind', 'Star Wars', 'The Sound of Music', 'Titanic'
+    movie_title is title
+
+    // Year the movie was released
+    // Range: 1937-2009
+    release_year is `year`
+
+    // Name of the movie's director
+    // Examples: 'Victor Fleming', 'George Lucas', 'Robert Wise', 'James Cameron', 'Steven Spielberg'
+    directed_by is director
+
+  primary_key: m_id
+
+  measure:
+    movie_count is count()
+    avg_year is avg(`year`)
+}
+
+// REVIEWER TABLE
+// People who review and rate movies
+source: reviewer_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Reviewer')
+""") extend {
+  dimension:
+    // Unique reviewer identifier (primary key)
+    // Values: 201-208
+    r_id is rID
+
+    // Name of the reviewer
+    // Examples: 'Sarah Martinez', 'Daniel Lewis', 'Brittany Harris', 'Chris Jackson'
+    reviewer_name is `name`
+
+  primary_key: r_id
+
+  measure:
+    reviewer_count is count()
+}
+
+// RATING TABLE
+// Individual movie ratings - connects reviewers to movies
+// Each row is one rating: one reviewer rating one movie with stars
+source: rating_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Rating')
+""") extend {
+  dimension:
+    // Reviewer ID - who gave the rating
+    r_id is rID
+
+    // Movie ID - which movie was rated
+    m_id is mID
+
+    // Star rating given (1-5 scale)
+    // Values: 2, 3, 4, 5 (higher is better)
+    star_rating is stars
+
+    // Date the rating was given
+    // Format: 'YYYY-MM-DD', may be NULL
+    rating_date is ratingDate
+
+  measure:
+    rating_count is count()
+    total_stars is sum(stars)
+    avg_stars is avg(stars)
+    max_stars is max(stars)
+    min_stars is min(stars)
+}
+
+// =============================================================================
+// FULL SOURCES WITH RELATIONSHIPS
+// =============================================================================
+
+// Movie with ratings
+source: movie is movie_base extend {
+  join_many: rating is rating_base on m_id = rating.m_id
+}
+
+// Reviewer with ratings
+source: reviewer is reviewer_base extend {
+  join_many: rating is rating_base on r_id = rating.r_id
+}
+
+// Rating with full movie and reviewer details
+source: rating is rating_base extend {
+  join_one: movie is movie_base on m_id = movie.m_id
+  join_one: reviewer is reviewer_base on r_id = reviewer.r_id
+}

@@ -1,0 +1,161 @@
+// =============================================================================
+// ACTIVITY_1 DATABASE - University Activities System
+// =============================================================================
+// This database tracks students, faculty, and their participation in activities:
+// - Student: university students with demographic info
+// - Faculty: university faculty members
+// - Activity: extracurricular activities offered
+// - Participates_in: which students do which activities
+// - Faculty_Participates_in: which faculty supervise/participate in activities
+//
+// KEY FIELD: Activity.activity_name contains activity names like 'Canoeing', 'Kayaking', etc.
+// =============================================================================
+
+// ACTIVITY TABLE
+// List of activities students and faculty can participate in
+source: activity_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Activity')
+""") extend {
+  dimension:
+    // Unique activity identifier
+    act_id is actid
+
+    // Name of the activity
+    // Values: 'Mountain Climbing', 'Canoeing', 'Kayaking', 'Spelunking',
+    //         'Soccer', 'Baseball', 'Football', 'Volleyball', 'Chess', etc.
+    name is activity_name
+
+  primary_key: act_id
+
+  measure:
+    activity_count is count()
+}
+
+// STUDENT TABLE
+source: student_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Student')
+""") extend {
+  dimension:
+    // Unique student identifier
+    stu_id is StuID
+
+    // Student's last name
+    last_name is LName
+
+    // Student's first name
+    first_name is Fname
+
+    // Student's age
+    age is Age
+
+    // Sex: 'M' or 'F'
+    sex is Sex
+
+    // Academic major code
+    major is Major
+
+    // Faculty advisor ID
+    advisor is Advisor
+
+    // City code
+    student_city is city_code
+
+  primary_key: stu_id
+
+  measure:
+    student_count is count()
+}
+
+// FACULTY TABLE
+source: faculty_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty')
+""") extend {
+  dimension:
+    // Unique faculty identifier
+    fac_id is FacID
+
+    // Faculty last name
+    last_name is Lname
+
+    // Faculty first name
+    first_name is Fname
+
+    // Academic rank
+    // Values: 'Professor', 'AsstProf', 'Instructor', 'AssocProf'
+    rank is Rank
+
+    // Sex: 'M' or 'F'
+    sex is Sex
+
+    // Phone number
+    phone is Phone
+
+    // Room number
+    room is Room
+
+    // Building name
+    building is Building
+
+  primary_key: fac_id
+
+  measure:
+    faculty_count is count()
+}
+
+// PARTICIPATES_IN TABLE (Junction)
+// Links students to their activities
+source: participates_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Participates_in')
+""") extend {
+  dimension:
+    stu_id is stuid
+    act_id is actid
+
+  measure:
+    participation_count is count()
+}
+
+// FACULTY_PARTICIPATES_IN TABLE (Junction)
+// Links faculty to activities they supervise/participate in
+source: faculty_participates_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty_Participates_in')
+""") extend {
+  dimension:
+    fac_id is FacID
+    act_id is actid
+
+  measure:
+    faculty_participation_count is count()
+}
+
+// =============================================================================
+// FULL SOURCES WITH RELATIONSHIPS
+// =============================================================================
+
+// Activity with participants
+source: activity is activity_base extend {
+  join_many: participates_in is participates_in_base on act_id = participates_in.act_id
+  join_many: faculty_participates_in is faculty_participates_in_base on act_id = faculty_participates_in.act_id
+}
+
+// Student with their activities
+source: student is student_base extend {
+  join_many: participates_in is participates_in_base on stu_id = participates_in.stu_id
+}
+
+// Faculty with their activities
+source: faculty is faculty_base extend {
+  join_many: faculty_participates_in is faculty_participates_in_base on fac_id = faculty_participates_in.fac_id
+}
+
+// Participation with full details
+source: participates_in is participates_in_base extend {
+  join_one: student is student_base on stu_id = student.stu_id
+  join_one: activity is activity_base on act_id = activity.act_id
+}
+
+// Faculty participation with full details
+source: faculty_participates_in is faculty_participates_in_base extend {
+  join_one: faculty is faculty_base on fac_id = faculty.fac_id
+  join_one: activity is activity_base on act_id = activity.act_id
+}

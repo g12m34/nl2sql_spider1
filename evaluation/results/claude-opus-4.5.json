@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "provider": "anthropic/claude-opus-4-5-20251101",
+    "timestamp": "2026-01-11T08:07:37.668976",
+    "total": 5,
+    "correct": 5,
+    "errors": 0,
+    "accuracy": 1.0
+  },
+  "results": [
+    {
+      "question_id": 0,
+      "db_id": "game_1",
+      "question": "What are the ids of all students who played video games and sports?",
+      "gold_sql": "SELECT StuID FROM Sportsinfo INTERSECT SELECT StuID FROM Plays_games",
+      "predicted_sql": "SELECT StuID FROM Plays_Games INTERSECT SELECT StuID FROM SportsInfo",
+      "match": true,
+      "error": null,
+      "latency_ms": 2711.961030960083,
+      "raw_response": "SELECT StuID FROM Plays_Games INTERSECT SELECT StuID FROM SportsInfo"
+    },
+    {
+      "question_id": 1,
+      "db_id": "scholar",
+      "question": "who published the most at chi",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"chi\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t2.paperid ) DESC;",
+      "predicted_sql": "SELECT a.authorName\nFROM author a\nJOIN writes w ON a.authorId = w.authorId\nJOIN paper p ON w.paperId = p.paperId\nJOIN venue v ON p.venueId = v.venueId\nWHERE v.venueName = 'chi'\nGROUP BY a.authorId, a.authorName\nORDER BY COUNT(*) DESC\nLIMIT 1",
+      "match": true,
+      "error": null,
+      "latency_ms": 3331.22181892395,
+      "raw_response": "SELECT a.authorName\nFROM author a\nJOIN writes w ON a.authorId = w.authorId\nJOIN paper p ON w.paperId = p.paperId\nJOIN venue v ON p.venueId = v.venueId\nWHERE v.venueName = 'chi'\nGROUP BY a.authorId, a.authorName\nORDER BY COUNT(*) DESC\nLIMIT 1"
+    },
+    {
+      "question_id": 2,
+      "db_id": "movie_1",
+      "question": "What are the titles and directors of the movies whose star is greater than the average stars of the movies directed by James Cameron?",
+      "gold_sql": "SELECT T2.title ,  T2.director FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T1.stars  >  (SELECT avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.director  =  \"James Cameron\")",
+      "predicted_sql": "SELECT title, director FROM Movie WHERE mID IN (SELECT mID FROM Rating WHERE stars > (SELECT AVG(stars) FROM Rating WHERE mID IN (SELECT mID FROM Movie WHERE director = 'James Cameron')))",
+      "match": true,
+      "error": null,
+      "latency_ms": -1012.0129585266113,
+      "raw_response": "SELECT title, director FROM Movie WHERE mID IN (SELECT mID FROM Rating WHERE stars > (SELECT AVG(stars) FROM Rating WHERE mID IN (SELECT mID FROM Movie WHERE director = 'James Cameron')))"
+    },
+    {
+      "question_id": 3,
+      "db_id": "manufactory_1",
+      "question": "Find the name of product that is produced by both companies Creative Labs and Sony.",
+      "gold_sql": "SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Creative Labs' INTERSECT SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Sony'",
+      "predicted_sql": "SELECT T1.Name\nFROM Products T1\nJOIN Manufacturers T2 ON T1.Manufacturer = T2.Code\nWHERE T2.Name = 'Creative Labs'\nINTERSECT\nSELECT T1.Name\nFROM Products T1\nJOIN Manufacturers T2 ON T1.Manufacturer = T2.Code\nWHERE T2.Name = 'Sony'",
+      "match": true,
+      "error": null,
+      "latency_ms": 2596.9531536102295,
+      "raw_response": "SELECT T1.Name\nFROM Products T1\nJOIN Manufacturers T2 ON T1.Manufacturer = T2.Code\nWHERE T2.Name = 'Creative Labs'\nINTERSECT\nSELECT T1.Name\nFROM Products T1\nJOIN Manufacturers T2 ON T1.Manufacturer = T2.Code\nWHERE T2.Name = 'Sony'"
+    },
+    {
+      "question_id": 4,
+      "db_id": "ship_1",
+      "question": "What are the ranks of captains that are both in the Cutter and Armed schooner classes?",
+      "gold_sql": "SELECT rank FROM captain WHERE CLASS  =  'Cutter' INTERSECT SELECT rank FROM captain WHERE CLASS  =  'Armed schooner'",
+      "predicted_sql": "SELECT Rank FROM captain WHERE Class = 'Cutter' INTERSECT SELECT Rank FROM captain WHERE Class = 'Armed schooner'",
+      "match": true,
+      "error": null,
+      "latency_ms": 2971.8666076660156,
+      "raw_response": "SELECT Rank FROM captain WHERE Class = 'Cutter' INTERSECT SELECT Rank FROM captain WHERE Class = 'Armed schooner'"
+    }
+  ]
+}

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: medicine_enzyme_interaction
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // medicine
-source: medicine is duckdb.sql("""
+source: medicine_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'medicine')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: medicine is duckdb.sql("""
 }
 
 // enzyme
-source: enzyme is duckdb.sql("""
+source: enzyme_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'enzyme')
 """) extend {
   dimension:
@@ -43,13 +47,10 @@ source: enzyme is duckdb.sql("""
 }
 
 // medicine_enzyme_interaction
-source: medicine_enzyme_interaction is duckdb.sql("""
+source: medicine_enzyme_interaction_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'medicine_enzyme_interaction')
 """) extend {
   primary_key: enzyme_id
-
-  join_one: medicine on medicine_id = medicine.id
-  join_one: enzyme on enzyme_id = enzyme.id
 
   measure:
     row_count is count()
@@ -61,4 +62,24 @@ source: medicine_enzyme_interaction is duckdb.sql("""
     avg_medicine_id is avg(medicine_id)
     max_medicine_id is max(medicine_id)
     min_medicine_id is min(medicine_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// medicine (with joins)
+source: medicine is medicine_base extend {
+  join_many: medicine_enzyme_interaction is medicine_enzyme_interaction_base on id = medicine_enzyme_interaction.medicine_id
+}
+
+// enzyme (with joins)
+source: enzyme is enzyme_base extend {
+  join_many: medicine_enzyme_interaction is medicine_enzyme_interaction_base on id = medicine_enzyme_interaction.enzyme_id
+}
+
+// medicine_enzyme_interaction (with joins)
+source: medicine_enzyme_interaction is medicine_enzyme_interaction_base extend {
+  join_one: medicine is medicine_base on medicine_id = medicine.id
+  join_one: enzyme is enzyme_base on enzyme_id = enzyme.id
 }

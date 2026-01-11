@@ -1,43 +1,19 @@
 // Malloy semantic layer for: gymnast
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/gymnast/gymnast.sqlite
 
-// people
-source: people_val is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'people')
-""") extend {
-  dimension:
-    people_i_d is People_ID
-    name_val is `Name`
-
-  primary_key: people_i_d
-
-  measure:
-    row_count is count()
-    total_people_i_d is sum(people_i_d)
-    avg_people_i_d is avg(people_i_d)
-    max_people_i_d is max(people_i_d)
-    min_people_i_d is min(people_i_d)
-    total_age is sum(Age)
-    avg_age is avg(Age)
-    max_age is max(Age)
-    min_age is min(Age)
-    total_height is sum(Height)
-    avg_height is avg(Height)
-    max_height is max(Height)
-    min_height is min(Height)
-}
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
 
 // gymnast
-source: gymnast is duckdb.sql("""
+source: gymnast_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'gymnast')
 """) extend {
   dimension:
     gymnast_i_d is Gymnast_ID
 
   primary_key: gymnast_i_d
-
-  join_one: people_val on gymnast_i_d = people_val.people_i_d
 
   measure:
     row_count is count()
@@ -73,4 +49,44 @@ source: gymnast is duckdb.sql("""
     avg_total_points is avg(Total_Points)
     max_total_points is max(Total_Points)
     min_total_points is min(Total_Points)
+}
+
+// people
+source: people_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'people')
+""") extend {
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  primary_key: people_i_d
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// gymnast (with joins)
+source: gymnast is gymnast_base extend {
+  join_one: people_val is people_val_base on gymnast_i_d = people_val.people_i_d
+}
+
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: gymnast is gymnast_base on people_i_d = gymnast.gymnast_i_d
 }

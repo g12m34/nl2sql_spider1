@@ -1,9 +1,13 @@
 // Malloy semantic layer for: store_product
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/store_product/store_product.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // product
-source: product is duckdb.sql("""
+source: product_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'product')
 """) extend {
   primary_key: product_id
@@ -25,7 +29,7 @@ source: product is duckdb.sql("""
 }
 
 // store
-source: store is duckdb.sql("""
+source: store_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'store')
 """) extend {
   dimension:
@@ -55,7 +59,7 @@ source: store is duckdb.sql("""
 }
 
 // district
-source: district is duckdb.sql("""
+source: district_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'district')
 """) extend {
   dimension:
@@ -80,7 +84,7 @@ source: district is duckdb.sql("""
 }
 
 // store_product
-source: store_product is duckdb.sql("""
+source: store_product_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'store_product')
 """) extend {
   dimension:
@@ -88,8 +92,6 @@ source: store_product is duckdb.sql("""
     product_i_d is Product_ID
 
   primary_key: store_i_d
-
-  join_one: store on store_i_d = store.store_i_d
 
   measure:
     row_count is count()
@@ -104,7 +106,7 @@ source: store_product is duckdb.sql("""
 }
 
 // store_district
-source: store_district is duckdb.sql("""
+source: store_district_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_product/store_product.sqlite', 'store_district')
 """) extend {
   dimension:
@@ -112,9 +114,6 @@ source: store_district is duckdb.sql("""
     district_i_d is District_ID
 
   primary_key: store_i_d
-
-  join_one: district on district_i_d = district.district_i_d
-  join_one: store on store_i_d = store.store_i_d
 
   measure:
     row_count is count()
@@ -126,4 +125,33 @@ source: store_district is duckdb.sql("""
     avg_district_i_d is avg(district_i_d)
     max_district_i_d is max(district_i_d)
     min_district_i_d is min(district_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// product (with joins)
+source: product is product_base
+
+// store (with joins)
+source: store is store_base extend {
+  join_many: store_product is store_product_base on store_i_d = store_product.store_i_d
+  join_many: store_district is store_district_base on store_i_d = store_district.store_i_d
+}
+
+// district (with joins)
+source: district is district_base extend {
+  join_many: store_district is store_district_base on district_i_d = store_district.district_i_d
+}
+
+// store_product (with joins)
+source: store_product is store_product_base extend {
+  join_one: store is store_base on store_i_d = store.store_i_d
+}
+
+// store_district (with joins)
+source: store_district is store_district_base extend {
+  join_one: district is district_base on district_i_d = district.district_i_d
+  join_one: store is store_base on store_i_d = store.store_i_d
 }

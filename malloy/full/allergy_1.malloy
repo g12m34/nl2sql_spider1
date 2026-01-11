@@ -1,9 +1,13 @@
 // Malloy semantic layer for: allergy_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Allergy_Type
-source: allergy_type is duckdb.sql("""
+source: allergy_type_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Allergy_Type')
 """) extend {
   dimension:
@@ -15,8 +19,23 @@ source: allergy_type is duckdb.sql("""
     row_count is count()
 }
 
+// Has_Allergy
+source: has_allergy_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Has_Allergy')
+""") extend {
+  dimension:
+    stu_i_d is StuID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+}
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -45,20 +64,22 @@ source: student_val is duckdb.sql("""
     min_advisor is min(Advisor)
 }
 
-// Has_Allergy
-source: has_allergy is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Has_Allergy')
-""") extend {
-  dimension:
-    stu_i_d is StuID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: allergy_type on Allergy = allergy_type.Allergy
-  join_one: student_val on stu_i_d = student_val.stu_i_d
+// Allergy_Type (with joins)
+source: allergy_type is allergy_type_base extend {
+  join_many: has_allergy is has_allergy_base on Allergy = has_allergy.Allergy
+}
 
-  measure:
-    row_count is count()
-    total_stu_i_d is sum(stu_i_d)
-    avg_stu_i_d is avg(stu_i_d)
-    max_stu_i_d is max(stu_i_d)
-    min_stu_i_d is min(stu_i_d)
+// Has_Allergy (with joins)
+source: has_allergy is has_allergy_base extend {
+  join_one: allergy_type is allergy_type_base on Allergy = allergy_type.Allergy
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+}
+
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: has_allergy is has_allergy_base on stu_i_d = has_allergy.stu_i_d
 }

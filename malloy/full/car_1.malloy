@@ -1,9 +1,13 @@
 // Malloy semantic layer for: car_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/car_1/car_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // continents
-source: continents is duckdb.sql("""
+source: continents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'continents')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: continents is duckdb.sql("""
 }
 
 // countries
-source: countries is duckdb.sql("""
+source: countries_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'countries')
 """) extend {
   dimension:
@@ -28,8 +32,6 @@ source: countries is duckdb.sql("""
     country_name is CountryName
 
   primary_key: country_id
-
-  join_one: continents on Continent = continents.cont_id
 
   measure:
     row_count is count()
@@ -44,15 +46,13 @@ source: countries is duckdb.sql("""
 }
 
 // car_makers
-source: car_makers is duckdb.sql("""
+source: car_makers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'car_makers')
 """) extend {
   dimension:
     full_name is FullName
 
   primary_key: Id
-
-  join_one: countries on Country = countries.country_id
 
   measure:
     row_count is count()
@@ -63,15 +63,13 @@ source: car_makers is duckdb.sql("""
 }
 
 // model_list
-source: model_list is duckdb.sql("""
+source: model_list_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'model_list')
 """) extend {
   dimension:
     model_id is ModelId
 
   primary_key: model_id
-
-  join_one: car_makers on Maker = car_makers.Id
 
   measure:
     row_count is count()
@@ -86,15 +84,13 @@ source: model_list is duckdb.sql("""
 }
 
 // car_names
-source: car_names is duckdb.sql("""
+source: car_names_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'car_names')
 """) extend {
   dimension:
     make_id is MakeId
 
   primary_key: make_id
-
-  join_one: model_list on Model = model_list.Model
 
   measure:
     row_count is count()
@@ -105,7 +101,7 @@ source: car_names is duckdb.sql("""
 }
 
 // cars_data
-source: cars_data is duckdb.sql("""
+source: cars_data_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'cars_data')
 """) extend {
   dimension:
@@ -113,8 +109,6 @@ source: cars_data is duckdb.sql("""
     year_val is `Year`
 
   primary_key: Id
-
-  join_one: car_names on Id = car_names.make_id
 
   measure:
     row_count is count()
@@ -142,4 +136,42 @@ source: cars_data is duckdb.sql("""
     avg_year_val is avg(year_val)
     max_year_val is max(year_val)
     min_year_val is min(year_val)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// continents (with joins)
+source: continents is continents_base extend {
+  join_many: countries is countries_base on cont_id = countries.Continent
+}
+
+// countries (with joins)
+source: countries is countries_base extend {
+  join_one: continents is continents_base on Continent = continents.cont_id
+  join_many: car_makers is car_makers_base on country_id = car_makers.Country
+}
+
+// car_makers (with joins)
+source: car_makers is car_makers_base extend {
+  join_one: countries is countries_base on Country = countries.country_id
+  join_many: model_list is model_list_base on Id = model_list.Maker
+}
+
+// model_list (with joins)
+source: model_list is model_list_base extend {
+  join_one: car_makers is car_makers_base on Maker = car_makers.Id
+  join_many: car_names is car_names_base on Model = car_names.Model
+}
+
+// car_names (with joins)
+source: car_names is car_names_base extend {
+  join_one: model_list is model_list_base on Model = model_list.Model
+  join_many: cars_data is cars_data_base on make_id = cars_data.Id
+}
+
+// cars_data (with joins)
+source: cars_data is cars_data_base extend {
+  join_one: car_names is car_names_base on Id = car_names.make_id
 }

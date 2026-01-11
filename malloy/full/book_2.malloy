@@ -1,9 +1,39 @@
 // Malloy semantic layer for: book_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/book_2/book_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// publication
+source: publication_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/book_2/book_2.sqlite', 'publication')
+""") extend {
+  dimension:
+    publication_i_d is Publication_ID
+    book_i_d is Book_ID
+
+  primary_key: publication_i_d
+
+  measure:
+    row_count is count()
+    total_publication_i_d is sum(publication_i_d)
+    avg_publication_i_d is avg(publication_i_d)
+    max_publication_i_d is max(publication_i_d)
+    min_publication_i_d is min(publication_i_d)
+    total_book_i_d is sum(book_i_d)
+    avg_book_i_d is avg(book_i_d)
+    max_book_i_d is max(book_i_d)
+    min_book_i_d is min(book_i_d)
+    total_price is sum(Price)
+    avg_price is avg(Price)
+    max_price is max(Price)
+    min_price is min(Price)
+}
+
 // book
-source: book is duckdb.sql("""
+source: book_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/book_2/book_2.sqlite', 'book')
 """) extend {
   dimension:
@@ -23,30 +53,16 @@ source: book is duckdb.sql("""
     min_issues is min(Issues)
 }
 
-// publication
-source: publication is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/book_2/book_2.sqlite', 'publication')
-""") extend {
-  dimension:
-    publication_i_d is Publication_ID
-    book_i_d is Book_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: publication_i_d
+// publication (with joins)
+source: publication is publication_base extend {
+  join_one: book is book_base on book_i_d = book.book_i_d
+}
 
-  join_one: book on book_i_d = book.book_i_d
-
-  measure:
-    row_count is count()
-    total_publication_i_d is sum(publication_i_d)
-    avg_publication_i_d is avg(publication_i_d)
-    max_publication_i_d is max(publication_i_d)
-    min_publication_i_d is min(publication_i_d)
-    total_book_i_d is sum(book_i_d)
-    avg_book_i_d is avg(book_i_d)
-    max_book_i_d is max(book_i_d)
-    min_book_i_d is min(book_i_d)
-    total_price is sum(Price)
-    avg_price is avg(Price)
-    max_price is max(Price)
-    min_price is min(Price)
+// book (with joins)
+source: book is book_base extend {
+  join_many: publication is publication_base on book_i_d = publication.book_i_d
 }

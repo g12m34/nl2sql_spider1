@@ -1,0 +1,184 @@
+// =============================================================================
+// GAME_1 DATABASE - Student Activities Tracking System
+// =============================================================================
+// This database tracks university students and their extracurricular activities:
+// - Students: demographic information about university students
+// - Video_Games: catalog of video games students can play
+// - Plays_Games: records of which students play which video games (many-to-many)
+// - SportsInfo: records of students' sports participation
+//
+// KEY RELATIONSHIPS:
+// - A Student can play multiple Video_Games (via Plays_Games junction table)
+// - A Student can participate in multiple Sports (via SportsInfo)
+// - To find students in BOTH video games AND sports, check both relationships
+// =============================================================================
+
+// =============================================================================
+// BASE SOURCES (without joins - enables forward references)
+// =============================================================================
+
+// STUDENT TABLE
+// Contains demographic information about university students
+// Primary entity - other tables reference students via StuID
+source: student_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Student')
+""") extend {
+  dimension:
+    // Unique student identifier (primary key)
+    // Values are 4-digit integers like 1001, 1002, etc.
+    stu_id is StuID
+
+    // Student's last name / family name / surname
+    // Examples: 'Smith', 'Kim', 'Jones', 'Kumar'
+    last_name is LName
+
+    // Student's first name / given name
+    // Examples: 'Linda', 'Tracy', 'Shiela', 'Dinesh'
+    first_name is Fname
+
+    // Student's age in years
+    // Range: typically 17-26 for university students
+    age is Age
+
+    // Student's sex/gender: 'M' for male, 'F' for female
+    sex is Sex
+
+    // Academic major code (numeric identifier)
+    // Common values: 50, 520, 540, 550, 600
+    major is Major
+
+    // Faculty advisor ID (references a faculty member)
+    advisor is Advisor
+
+    // Three-letter city code where student is from
+    // Examples: 'BAL' (Baltimore), 'CHI' (Chicago), 'HKG' (Hong Kong), 'WAS' (Washington)
+    student_city_code is city_code
+
+  primary_key: stu_id
+
+  measure:
+    // Count of students
+    student_count is count()
+    // Average age of students
+    average_age is avg(age)
+}
+
+// VIDEO GAMES TABLE
+// Catalog of video games that students can play
+source: video_games_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Video_Games')
+""") extend {
+  dimension:
+    // Unique game identifier (primary key)
+    // Values: 1, 2, 3, 4, 5, 6
+    game_id is GameID
+
+    // Name of the video game
+    // Examples: 'RNG Stone', 'The Vanishing of Eric Calder', 'Grand Term Assignment'
+    game_name is GName
+
+    // Type/genre of the video game
+    // Values: 'Collectible card game', 'Walking Simulator', 'Role-playing game',
+    //         'Grand strategy', 'First-person shooter', 'Massively multiplayer online game'
+    game_type is GType
+
+  primary_key: game_id
+
+  measure:
+    // Count of games
+    game_count is count()
+}
+
+// PLAYS_GAMES TABLE (Junction table)
+// Records which students play which video games and how much
+// Each row represents one student playing one game
+source: plays_games_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Plays_Games')
+""") extend {
+  dimension:
+    // Student ID - references Student table
+    stu_id is StuID
+
+    // Game ID - references Video_Games table
+    game_id is GameID
+
+    // Number of hours the student has played this game
+    // Range: 1 to 1337 hours
+    hours_played is Hours_Played
+
+  measure:
+    // Count of play records (student-game combinations)
+    play_count is count()
+    // Total hours played across all records
+    total_hours is sum(hours_played)
+    // Average hours played per game
+    avg_hours is avg(hours_played)
+}
+
+// SPORTS INFO TABLE
+// Records students' participation in sports activities
+// A student can play multiple sports
+source: sports_info_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'SportsInfo')
+""") extend {
+  dimension:
+    // Student ID - references Student table
+    stu_id is StuID
+
+    // Name of the sport
+    // Values: 'Athletics', 'Football', 'Lacrosse', 'Tennis', 'Swimming', etc.
+    sport_name is SportName
+
+    // Hours per week spent on this sport
+    // Range: 1 to 50 hours
+    hours_per_week is HoursPerWeek
+
+    // Number of games/matches played in this sport
+    games_played is GamesPlayed
+
+    // Whether student has athletic scholarship for this sport
+    // 'Y' = Yes (on scholarship), 'N' = No (not on scholarship)
+    on_scholarship is OnScholarship
+
+  measure:
+    // Count of sports records
+    sports_count is count()
+    // Total hours per week across all sports
+    total_hours_per_week is sum(hours_per_week)
+    // Total games played across all sports
+    total_games_played is sum(games_played)
+}
+
+// =============================================================================
+// FULL SOURCES WITH RELATIONSHIPS (use these for queries)
+// =============================================================================
+
+// Student with all relationships
+// Use this source to query students and their activities
+source: student is student_base extend {
+  // Join to video game records - a student can play many games
+  join_many: plays_games is plays_games_base on stu_id = plays_games.stu_id
+
+  // Join to sports records - a student can play many sports
+  join_many: sports_info is sports_info_base on stu_id = sports_info.stu_id
+}
+
+// Video Games with play records
+source: video_games is video_games_base extend {
+  // Join to play records - a game can be played by many students
+  join_many: plays_games is plays_games_base on game_id = plays_games.game_id
+}
+
+// Plays_Games with full entity details
+source: plays_games is plays_games_base extend {
+  // Join to student details
+  join_one: student is student_base on stu_id = student.stu_id
+  // Join to game details
+  join_one: video_games is video_games_base on game_id = video_games.game_id
+}
+
+// Sports Info with student details
+source: sports_info is sports_info_base extend {
+  // Join to student details
+  join_one: student is student_base on stu_id = student.stu_id
+}

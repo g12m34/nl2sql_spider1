@@ -1,9 +1,13 @@
 // Malloy semantic layer for: school_finance
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/school_finance/school_finance.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // School
-source: school is duckdb.sql("""
+source: school_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'School')
 """) extend {
   dimension:
@@ -21,15 +25,13 @@ source: school is duckdb.sql("""
 }
 
 // budget
-source: budget is duckdb.sql("""
+source: budget_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'budget')
 """) extend {
   dimension:
     year_val is `Year`
 
   primary_key: School_id
-
-  join_one: school on School_id = school.School_id
 
   measure:
     row_count is count()
@@ -60,12 +62,10 @@ source: budget is duckdb.sql("""
 }
 
 // endowment
-source: endowment is duckdb.sql("""
+source: endowment_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'endowment')
 """) extend {
   primary_key: endowment_id
-
-  join_one: school on School_id = school.School_id
 
   measure:
     row_count is count()
@@ -81,4 +81,24 @@ source: endowment is duckdb.sql("""
     avg_amount is avg(amount)
     max_amount is max(amount)
     min_amount is min(amount)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// School (with joins)
+source: school is school_base extend {
+  join_many: budget is budget_base on School_id = budget.School_id
+  join_many: endowment is endowment_base on School_id = endowment.School_id
+}
+
+// budget (with joins)
+source: budget is budget_base extend {
+  join_one: school is school_base on School_id = school.School_id
+}
+
+// endowment (with joins)
+source: endowment is endowment_base extend {
+  join_one: school is school_base on School_id = school.School_id
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: mountain_photos
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // mountain
-source: mountain is duckdb.sql("""
+source: mountain_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite', 'mountain')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: mountain is duckdb.sql("""
 }
 
 // camera_lens
-source: camera_lens is duckdb.sql("""
+source: camera_lens_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite', 'camera_lens')
 """) extend {
   dimension:
@@ -54,16 +58,13 @@ source: camera_lens is duckdb.sql("""
 }
 
 // photos
-source: photos is duckdb.sql("""
+source: photos_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/mountain_photos/mountain_photos.sqlite', 'photos')
 """) extend {
   dimension:
     name_val is `name`
 
   primary_key: id
-
-  join_one: mountain on mountain_id = mountain.id
-  join_one: camera_lens on camera_lens_id = camera_lens.id
 
   measure:
     row_count is count()
@@ -79,4 +80,24 @@ source: photos is duckdb.sql("""
     avg_mountain_id is avg(mountain_id)
     max_mountain_id is max(mountain_id)
     min_mountain_id is min(mountain_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// mountain (with joins)
+source: mountain is mountain_base extend {
+  join_many: photos is photos_base on id = photos.mountain_id
+}
+
+// camera_lens (with joins)
+source: camera_lens is camera_lens_base extend {
+  join_many: photos is photos_base on id = photos.camera_lens_id
+}
+
+// photos (with joins)
+source: photos is photos_base extend {
+  join_one: mountain is mountain_base on mountain_id = mountain.id
+  join_one: camera_lens is camera_lens_base on camera_lens_id = camera_lens.id
 }

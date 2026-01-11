@@ -1,9 +1,13 @@
 // Malloy semantic layer for: climbing
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/climbing/climbing.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // mountain
-source: mountain is duckdb.sql("""
+source: mountain_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/climbing/climbing.sqlite', 'mountain')
 """) extend {
   dimension:
@@ -30,7 +34,7 @@ source: mountain is duckdb.sql("""
 }
 
 // climber
-source: climber is duckdb.sql("""
+source: climber_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/climbing/climbing.sqlite', 'climber')
 """) extend {
   dimension:
@@ -40,8 +44,6 @@ source: climber is duckdb.sql("""
     mountain_i_d is Mountain_ID
 
   primary_key: climber_i_d
-
-  join_one: mountain on mountain_i_d = mountain.mountain_i_d
 
   measure:
     row_count is count()
@@ -57,4 +59,18 @@ source: climber is duckdb.sql("""
     avg_mountain_i_d is avg(mountain_i_d)
     max_mountain_i_d is max(mountain_i_d)
     min_mountain_i_d is min(mountain_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// mountain (with joins)
+source: mountain is mountain_base extend {
+  join_many: climber is climber_base on mountain_i_d = climber.mountain_i_d
+}
+
+// climber (with joins)
+source: climber is climber_base extend {
+  join_one: mountain is mountain_base on mountain_i_d = mountain.mountain_i_d
 }

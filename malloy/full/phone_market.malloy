@@ -1,9 +1,13 @@
 // Malloy semantic layer for: phone_market
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/phone_market/phone_market.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // phone
-source: phone is duckdb.sql("""
+source: phone_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_market/phone_market.sqlite', 'phone')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: phone is duckdb.sql("""
 }
 
 // market
-source: market is duckdb.sql("""
+source: market_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_market/phone_market.sqlite', 'market')
 """) extend {
   dimension:
@@ -58,7 +62,7 @@ source: market is duckdb.sql("""
 }
 
 // phone_market
-source: phone_market is duckdb.sql("""
+source: phone_market_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_market/phone_market.sqlite', 'phone_market')
 """) extend {
   dimension:
@@ -66,9 +70,6 @@ source: phone_market is duckdb.sql("""
     phone_i_d is Phone_ID
 
   primary_key: market_i_d
-
-  join_one: phone on phone_i_d = phone.phone_i_d
-  join_one: market on market_i_d = market.market_i_d
 
   measure:
     row_count is count()
@@ -80,4 +81,24 @@ source: phone_market is duckdb.sql("""
     avg_num_of_stock is avg(Num_of_stock)
     max_num_of_stock is max(Num_of_stock)
     min_num_of_stock is min(Num_of_stock)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// phone (with joins)
+source: phone is phone_base extend {
+  join_many: phone_market is phone_market_base on phone_i_d = phone_market.phone_i_d
+}
+
+// market (with joins)
+source: market is market_base extend {
+  join_many: phone_market is phone_market_base on market_i_d = phone_market.market_i_d
+}
+
+// phone_market (with joins)
+source: phone_market is phone_market_base extend {
+  join_one: phone is phone_base on phone_i_d = phone.phone_i_d
+  join_one: market is market_base on market_i_d = market.market_i_d
 }

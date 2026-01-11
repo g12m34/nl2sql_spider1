@@ -1,9 +1,13 @@
 // Malloy semantic layer for: film_rank
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/film_rank/film_rank.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // film
-source: film is duckdb.sql("""
+source: film_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/film_rank/film_rank.sqlite', 'film')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: film is duckdb.sql("""
 }
 
 // market
-source: market is duckdb.sql("""
+source: market_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/film_rank/film_rank.sqlite', 'market')
 """) extend {
   dimension:
@@ -45,7 +49,7 @@ source: market is duckdb.sql("""
 }
 
 // film_market_estimation
-source: film_market_estimation is duckdb.sql("""
+source: film_market_estimation_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/film_rank/film_rank.sqlite', 'film_market_estimation')
 """) extend {
   dimension:
@@ -56,9 +60,6 @@ source: film_market_estimation is duckdb.sql("""
     year_val is `Year`
 
   primary_key: estimation_i_d
-
-  join_one: market on market_i_d = market.market_i_d
-  join_one: film on film_i_d = film.film_i_d
 
   measure:
     row_count is count()
@@ -86,4 +87,24 @@ source: film_market_estimation is duckdb.sql("""
     avg_year_val is avg(year_val)
     max_year_val is max(year_val)
     min_year_val is min(year_val)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// film (with joins)
+source: film is film_base extend {
+  join_many: film_market_estimation is film_market_estimation_base on film_i_d = film_market_estimation.film_i_d
+}
+
+// market (with joins)
+source: market is market_base extend {
+  join_many: film_market_estimation is film_market_estimation_base on market_i_d = film_market_estimation.market_i_d
+}
+
+// film_market_estimation (with joins)
+source: film_market_estimation is film_market_estimation_base extend {
+  join_one: market is market_base on market_i_d = market.market_i_d
+  join_one: film is film_base on film_i_d = film.film_i_d
 }

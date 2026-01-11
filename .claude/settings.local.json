@@ -15,7 +15,11 @@
       "Bash(python3:*)",
       "Bash(find:*)",
       "WebFetch(domain:yale-lily.github.io)",
-      "Bash(pip3 install:*)"
+      "Bash(pip3 install:*)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "Bash(git commit:*)",
+      "Bash(sudo chown:*)"
     ]
   }
 }

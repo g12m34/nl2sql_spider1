@@ -1,9 +1,13 @@
 // Malloy semantic layer for: wine_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/wine_1/wine_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // grapes
-source: grapes is duckdb.sql("""
+source: grapes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wine_1/wine_1.sqlite', 'grapes')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: grapes is duckdb.sql("""
 }
 
 // appellations
-source: appellations is duckdb.sql("""
+source: appellations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wine_1/wine_1.sqlite', 'appellations')
 """) extend {
   dimension:
@@ -38,16 +42,13 @@ source: appellations is duckdb.sql("""
 }
 
 // wine
-source: wine is duckdb.sql("""
+source: wine_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wine_1/wine_1.sqlite', 'wine')
 """) extend {
   dimension:
     state_val is `State`
     name_val is `Name`
     year_val is `Year`
-
-  join_one: appellations on Appelation = appellations.Appelation
-  join_one: grapes on Grape = grapes.Grape
 
   measure:
     row_count is count()
@@ -71,4 +72,24 @@ source: wine is duckdb.sql("""
     avg_cases is avg(Cases)
     max_cases is max(Cases)
     min_cases is min(Cases)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// grapes (with joins)
+source: grapes is grapes_base extend {
+  join_many: wine is wine_base on Grape = wine.Grape
+}
+
+// appellations (with joins)
+source: appellations is appellations_base extend {
+  join_many: wine is wine_base on Appelation = wine.Appelation
+}
+
+// wine (with joins)
+source: wine is wine_base extend {
+  join_one: appellations is appellations_base on Appelation = appellations.Appelation
+  join_one: grapes is grapes_base on Grape = grapes.Grape
 }

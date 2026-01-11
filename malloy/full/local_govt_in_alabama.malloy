@@ -1,9 +1,13 @@
 // Malloy semantic layer for: local_govt_in_alabama
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Services
-source: services is duckdb.sql("""
+source: services_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Services')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: services is duckdb.sql("""
 }
 
 // Participants
-source: participants is duckdb.sql("""
+source: participants_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Participants')
 """) extend {
   dimension:
@@ -37,7 +41,7 @@ source: participants is duckdb.sql("""
 }
 
 // Events
-source: events_val is duckdb.sql("""
+source: events_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Events')
 """) extend {
   dimension:
@@ -45,8 +49,6 @@ source: events_val is duckdb.sql("""
     service_i_d is Service_ID
 
   primary_key: event_i_d
-
-  join_one: services on service_i_d = services.service_i_d
 
   measure:
     row_count is count()
@@ -61,7 +63,7 @@ source: events_val is duckdb.sql("""
 }
 
 // Participants_in_Events
-source: participants_in_events is duckdb.sql("""
+source: participants_in_events_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Participants_in_Events')
 """) extend {
   dimension:
@@ -69,9 +71,6 @@ source: participants_in_events is duckdb.sql("""
     participant_i_d is Participant_ID
 
   primary_key: event_i_d
-
-  join_one: events_val on event_i_d = events_val.event_i_d
-  join_one: participants on participant_i_d = participants.participant_i_d
 
   measure:
     row_count is count()
@@ -83,4 +82,30 @@ source: participants_in_events is duckdb.sql("""
     avg_participant_i_d is avg(participant_i_d)
     max_participant_i_d is max(participant_i_d)
     min_participant_i_d is min(participant_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Services (with joins)
+source: services is services_base extend {
+  join_many: events_val is events_val_base on service_i_d = events_val.service_i_d
+}
+
+// Participants (with joins)
+source: participants is participants_base extend {
+  join_many: participants_in_events is participants_in_events_base on participant_i_d = participants_in_events.participant_i_d
+}
+
+// Events (with joins)
+source: events_val is events_val_base extend {
+  join_one: services is services_base on service_i_d = services.service_i_d
+  join_many: participants_in_events is participants_in_events_base on event_i_d = participants_in_events.event_i_d
+}
+
+// Participants_in_Events (with joins)
+source: participants_in_events is participants_in_events_base extend {
+  join_one: events_val is events_val_base on event_i_d = events_val.event_i_d
+  join_one: participants is participants_base on participant_i_d = participants.participant_i_d
 }

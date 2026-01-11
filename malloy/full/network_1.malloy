@@ -1,9 +1,13 @@
 // Malloy semantic layer for: network_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/network_1/network_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Highschooler
-source: highschooler is duckdb.sql("""
+source: highschooler_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_1/network_1.sqlite', 'Highschooler')
 """) extend {
   dimension:
@@ -25,13 +29,10 @@ source: highschooler is duckdb.sql("""
 }
 
 // Friend
-source: friend is duckdb.sql("""
+source: friend_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_1/network_1.sqlite', 'Friend')
 """) extend {
   primary_key: student_id
-
-  join_one: friend_highschooler is highschooler on friend_id = friend_highschooler.i_d
-  join_one: student_highschooler is highschooler on student_id = student_highschooler.i_d
 
   measure:
     row_count is count()
@@ -46,13 +47,10 @@ source: friend is duckdb.sql("""
 }
 
 // Likes
-source: likes is duckdb.sql("""
+source: likes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_1/network_1.sqlite', 'Likes')
 """) extend {
   primary_key: student_id
-
-  join_one: student_highschooler is highschooler on student_id = student_highschooler.i_d
-  join_one: liked_highschooler is highschooler on liked_id = liked_highschooler.i_d
 
   measure:
     row_count is count()
@@ -64,4 +62,28 @@ source: likes is duckdb.sql("""
     avg_liked_id is avg(liked_id)
     max_liked_id is max(liked_id)
     min_liked_id is min(liked_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Highschooler (with joins)
+source: highschooler is highschooler_base extend {
+  join_many: friend_child is friend_base on i_d = friend_child.friend_id
+  join_many: friend_student is friend_base on i_d = friend_student.student_id
+  join_many: likes_student is likes_base on i_d = likes_student.student_id
+  join_many: likes_liked is likes_base on i_d = likes_liked.liked_id
+}
+
+// Friend (with joins)
+source: friend is friend_base extend {
+  join_one: friend_highschooler is highschooler_base on friend_id = friend_highschooler.i_d
+  join_one: student_highschooler is highschooler_base on student_id = student_highschooler.i_d
+}
+
+// Likes (with joins)
+source: likes is likes_base extend {
+  join_one: student_highschooler is highschooler_base on student_id = student_highschooler.i_d
+  join_one: liked_highschooler is highschooler_base on liked_id = liked_highschooler.i_d
 }

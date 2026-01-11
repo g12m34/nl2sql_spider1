@@ -1,9 +1,13 @@
 // Malloy semantic layer for: orchestra
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/orchestra/orchestra.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // conductor
-source: conductor is duckdb.sql("""
+source: conductor_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'conductor')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: conductor is duckdb.sql("""
 }
 
 // orchestra
-source: orchestra is duckdb.sql("""
+source: orchestra_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'orchestra')
 """) extend {
   dimension:
@@ -37,8 +41,6 @@ source: orchestra is duckdb.sql("""
     conductor_i_d is Conductor_ID
 
   primary_key: orchestra_i_d
-
-  join_one: conductor on conductor_i_d = conductor.conductor_i_d
 
   measure:
     row_count is count()
@@ -57,7 +59,7 @@ source: orchestra is duckdb.sql("""
 }
 
 // performance
-source: performance is duckdb.sql("""
+source: performance_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'performance')
 """) extend {
   dimension:
@@ -68,8 +70,6 @@ source: performance is duckdb.sql("""
     official_ratings is `Official_ratings_(millions)`
 
   primary_key: performance_i_d
-
-  join_one: orchestra on orchestra_i_d = orchestra.orchestra_i_d
 
   measure:
     row_count is count()
@@ -88,15 +88,13 @@ source: performance is duckdb.sql("""
 }
 
 // show
-source: show is duckdb.sql("""
+source: show_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'show')
 """) extend {
   dimension:
     show_i_d is Show_ID
     performance_i_d is Performance_ID
     result_val is `Result`
-
-  join_one: performance on performance_i_d = performance.performance_i_d
 
   measure:
     row_count is count()
@@ -112,4 +110,30 @@ source: show is duckdb.sql("""
     avg_attendance is avg(Attendance)
     max_attendance is max(Attendance)
     min_attendance is min(Attendance)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// conductor (with joins)
+source: conductor is conductor_base extend {
+  join_many: orchestra is orchestra_base on conductor_i_d = orchestra.conductor_i_d
+}
+
+// orchestra (with joins)
+source: orchestra is orchestra_base extend {
+  join_one: conductor is conductor_base on conductor_i_d = conductor.conductor_i_d
+  join_many: performance is performance_base on orchestra_i_d = performance.orchestra_i_d
+}
+
+// performance (with joins)
+source: performance is performance_base extend {
+  join_one: orchestra is orchestra_base on orchestra_i_d = orchestra.orchestra_i_d
+  join_many: show is show_base on performance_i_d = show.performance_i_d
+}
+
+// show (with joins)
+source: show is show_base extend {
+  join_one: performance is performance_base on performance_i_d = performance.performance_i_d
 }

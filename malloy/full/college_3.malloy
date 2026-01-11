@@ -1,9 +1,13 @@
 // Malloy semantic layer for: college_3
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/college_3/college_3.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Student')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: student_val is duckdb.sql("""
 }
 
 // Faculty
-source: faculty is duckdb.sql("""
+source: faculty_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Faculty')
 """) extend {
   dimension:
@@ -55,7 +59,7 @@ source: faculty is duckdb.sql("""
 }
 
 // Department
-source: department is duckdb.sql("""
+source: department_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Department')
 """) extend {
   dimension:
@@ -77,30 +81,13 @@ source: department is duckdb.sql("""
     min_d_phone is min(d_phone)
 }
 
-// Gradeconversion
-source: gradeconversion is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Gradeconversion')
-""") extend {
-  primary_key: lettergrade
-
-  measure:
-    row_count is count()
-    total_gradepoint is sum(gradepoint)
-    avg_gradepoint is avg(gradepoint)
-    max_gradepoint is max(gradepoint)
-    min_gradepoint is min(gradepoint)
-}
-
 // Member_of
-source: member_of is duckdb.sql("""
+source: member_of_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Member_of')
 """) extend {
   dimension:
     fac_i_d is FacID
     d_n_o is DNO
-
-  join_one: department on d_n_o = department.d_n_o
-  join_one: faculty on fac_i_d = faculty.fac_i_d
 
   measure:
     row_count is count()
@@ -115,7 +102,7 @@ source: member_of is duckdb.sql("""
 }
 
 // Course
-source: course is duckdb.sql("""
+source: course_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Course')
 """) extend {
   dimension:
@@ -125,9 +112,6 @@ source: course is duckdb.sql("""
     d_n_o is DNO
 
   primary_key: c_i_d
-
-  join_one: department on d_n_o = department.d_n_o
-  join_one: faculty on Instructor = faculty.fac_i_d
 
   measure:
     row_count is count()
@@ -146,15 +130,12 @@ source: course is duckdb.sql("""
 }
 
 // Minor_in
-source: minor_in is duckdb.sql("""
+source: minor_in_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Minor_in')
 """) extend {
   dimension:
     stu_i_d is StuID
     d_n_o is DNO
-
-  join_one: department on d_n_o = department.d_n_o
-  join_one: student_val on stu_i_d = student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -169,16 +150,12 @@ source: minor_in is duckdb.sql("""
 }
 
 // Enrolled_in
-source: enrolled_in is duckdb.sql("""
+source: enrolled_in_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Enrolled_in')
 """) extend {
   dimension:
     stu_i_d is StuID
     c_i_d is CID
-
-  join_one: gradeconversion on Grade = gradeconversion.lettergrade
-  join_one: course on c_i_d = course.c_i_d
-  join_one: student_val on stu_i_d = student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -186,4 +163,72 @@ source: enrolled_in is duckdb.sql("""
     avg_stu_i_d is avg(stu_i_d)
     max_stu_i_d is max(stu_i_d)
     min_stu_i_d is min(stu_i_d)
+}
+
+// Gradeconversion
+source: gradeconversion_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_3/college_3.sqlite', 'Gradeconversion')
+""") extend {
+  primary_key: lettergrade
+
+  measure:
+    row_count is count()
+    total_gradepoint is sum(gradepoint)
+    avg_gradepoint is avg(gradepoint)
+    max_gradepoint is max(gradepoint)
+    min_gradepoint is min(gradepoint)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: minor_in is minor_in_base on stu_i_d = minor_in.stu_i_d
+  join_many: enrolled_in is enrolled_in_base on stu_i_d = enrolled_in.stu_i_d
+}
+
+// Faculty (with joins)
+source: faculty is faculty_base extend {
+  join_many: member_of is member_of_base on fac_i_d = member_of.fac_i_d
+  join_many: course is course_base on fac_i_d = course.Instructor
+}
+
+// Department (with joins)
+source: department is department_base extend {
+  join_many: member_of is member_of_base on d_n_o = member_of.d_n_o
+  join_many: course is course_base on d_n_o = course.d_n_o
+  join_many: minor_in is minor_in_base on d_n_o = minor_in.d_n_o
+}
+
+// Member_of (with joins)
+source: member_of is member_of_base extend {
+  join_one: department is department_base on d_n_o = department.d_n_o
+  join_one: faculty is faculty_base on fac_i_d = faculty.fac_i_d
+}
+
+// Course (with joins)
+source: course is course_base extend {
+  join_one: department is department_base on d_n_o = department.d_n_o
+  join_one: faculty is faculty_base on Instructor = faculty.fac_i_d
+  join_many: enrolled_in is enrolled_in_base on c_i_d = enrolled_in.c_i_d
+}
+
+// Minor_in (with joins)
+source: minor_in is minor_in_base extend {
+  join_one: department is department_base on d_n_o = department.d_n_o
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+}
+
+// Enrolled_in (with joins)
+source: enrolled_in is enrolled_in_base extend {
+  join_one: gradeconversion is gradeconversion_base on Grade = gradeconversion.lettergrade
+  join_one: course is course_base on c_i_d = course.c_i_d
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+}
+
+// Gradeconversion (with joins)
+source: gradeconversion is gradeconversion_base extend {
+  join_many: enrolled_in is enrolled_in_base on lettergrade = enrolled_in.Grade
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: music_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/music_1/music_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // genre
-source: genre is duckdb.sql("""
+source: genre_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'genre')
 """) extend {
   primary_key: g_name
@@ -13,24 +17,20 @@ source: genre is duckdb.sql("""
 }
 
 // artist
-source: artist is duckdb.sql("""
+source: artist_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'artist')
 """) extend {
   primary_key: artist_name
-
-  join_one: genre on preferred_genre = genre.g_name
 
   measure:
     row_count is count()
 }
 
 // files
-source: files is duckdb.sql("""
+source: files_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'files')
 """) extend {
   primary_key: f_id
-
-  join_one: artist on artist_name = artist.artist_name
 
   measure:
     row_count is count()
@@ -41,14 +41,10 @@ source: files is duckdb.sql("""
 }
 
 // song
-source: song is duckdb.sql("""
+source: song_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_1/music_1.sqlite', 'song')
 """) extend {
   primary_key: song_name
-
-  join_one: genre on genre_is = genre.g_name
-  join_one: files on f_id = files.f_id
-  join_one: artist on artist_name = artist.artist_name
 
   measure:
     row_count is count()
@@ -64,4 +60,34 @@ source: song is duckdb.sql("""
     avg_resolution is avg(resolution)
     max_resolution is max(resolution)
     min_resolution is min(resolution)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// genre (with joins)
+source: genre is genre_base extend {
+  join_many: artist is artist_base on g_name = artist.preferred_genre
+  join_many: song is song_base on g_name = song.genre_is
+}
+
+// artist (with joins)
+source: artist is artist_base extend {
+  join_one: genre is genre_base on preferred_genre = genre.g_name
+  join_many: files is files_base on artist_name = files.artist_name
+  join_many: song is song_base on artist_name = song.artist_name
+}
+
+// files (with joins)
+source: files is files_base extend {
+  join_one: artist is artist_base on artist_name = artist.artist_name
+  join_many: song is song_base on f_id = song.f_id
+}
+
+// song (with joins)
+source: song is song_base extend {
+  join_one: genre is genre_base on genre_is = genre.g_name
+  join_one: files is files_base on f_id = files.f_id
+  join_one: artist is artist_base on artist_name = artist.artist_name
 }

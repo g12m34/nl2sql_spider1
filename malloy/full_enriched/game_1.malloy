@@ -1,0 +1,196 @@
+// ============================================================
+// FIELD METADATA (Auto-generated from database profiling)
+// ============================================================
+//
+// Table: Student
+//   StuID: Primary key identifier for Student
+//     Sample values: '1001', '1002', '1003'
+//   LName: Name field with 31 distinct values
+//     Sample values: 'Smith', 'Pang', 'Lee'
+//   Fname: Name field with 24 distinct values
+//     Sample values: 'Eric', 'Sarah', 'Paul'
+//   Age: Categorical field: '18', '20', '19', '17', '26'
+//     Sample values: '18', '20', '19'
+//   Sex: Categorical field: 'M', 'F'
+//     Sample values: 'M', 'F'
+//   Major: Categorical field: '600', '520', '550', '540', '50'
+//     Sample values: '600', '520', '550'
+//   Advisor: Numeric field ranging from 1121 to 9172
+//     Sample values: '2192', '8772', '8722'
+//   city_code: Values include: 'PIT', 'BAL', 'WAS'
+//     Sample values: 'PIT', 'BAL', 'WAS'
+//
+// Table: Video_Games
+//   GameID: Primary key identifier for Video_Games
+//     Sample values: '1', '2', '3'
+//   GName: Unique name identifier
+//     Sample values: 'Works of Widenius', 'The Vanishing of Eric Calder', 'RNG Stone'
+//   GType: Values include: 'Walking Simulator', 'Role-playing game', 'Massively multiplayer online 
+//     Sample values: 'Walking Simulator', 'Role-playing game', 'Massively multiplayer online 
+//
+// Table: Plays_Games
+//   StuID: Foreign key reference
+//     Sample values: '1032', '1001', '1008'
+//   GameID: Foreign key reference
+//     Sample values: '5', '3', '2'
+//   Hours_Played: Numeric field ranging from 1 to 1337
+//     Sample values: '50', '1337', '1000'
+//
+// Table: SportsInfo
+//   StuID: Foreign key reference
+//     Sample values: '1023', '1019', '1035'
+//   SportName: Name field with 10 distinct values
+//     Sample values: 'Lacrosse', 'Tennis', 'Football'
+//   HoursPerWeek: Numeric field ranging from 1 to 50
+//     Sample values: '45', '50', '39'
+//   GamesPlayed: Numeric field ranging from 5 to 94
+//     Sample values: '16', '94', '62'
+//   OnScholarship: Categorical field: 'Y', 'N'
+//     Sample values: 'Y', 'N'
+//
+
+// Malloy semantic layer for: game_1
+// Full layer with ALL columns, primary keys, and bidirectional joins
+// Database: /workspace/spider_db/spider/database/game_1/game_1.sqlite
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// Student
+source: student_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Student')
+""") extend {
+  dimension:
+    // Primary key identifier for Student
+    stu_i_d is StuID
+    // Name field with 31 distinct values
+    l_name is LName
+
+  primary_key: stu_i_d
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Video_Games
+source: video_games_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Video_Games')
+""") extend {
+  dimension:
+    // Primary key identifier for Video_Games
+    game_i_d is GameID
+    // Unique name identifier
+    g_name is GName
+    // Values include: 'Walking Simulator', 'Role-playing game', 'Massively multiplayer online 
+    g_type is GType
+
+  primary_key: game_i_d
+
+  measure:
+    row_count is count()
+    total_game_i_d is sum(game_i_d)
+    avg_game_i_d is avg(game_i_d)
+    max_game_i_d is max(game_i_d)
+    min_game_i_d is min(game_i_d)
+}
+
+// Plays_Games
+source: plays_games_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'Plays_Games')
+""") extend {
+  dimension:
+    // Foreign key reference
+    stu_i_d is StuID
+    // Foreign key reference
+    game_i_d is GameID
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_game_i_d is sum(game_i_d)
+    avg_game_i_d is avg(game_i_d)
+    max_game_i_d is max(game_i_d)
+    min_game_i_d is min(game_i_d)
+    total_hours_played is sum(Hours_Played)
+    avg_hours_played is avg(Hours_Played)
+    max_hours_played is max(Hours_Played)
+    min_hours_played is min(Hours_Played)
+}
+
+// SportsInfo
+source: sports_info_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_1/game_1.sqlite', 'SportsInfo')
+""") extend {
+  dimension:
+    // Foreign key reference
+    stu_i_d is StuID
+    // Name field with 10 distinct values
+    sport_name is SportName
+    // Numeric field ranging from 1 to 50
+    hours_per_week is HoursPerWeek
+    // Numeric field ranging from 5 to 94
+    games_played is GamesPlayed
+    // Categorical field: 'Y', 'N'
+    on_scholarship is OnScholarship
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_hours_per_week is sum(hours_per_week)
+    avg_hours_per_week is avg(hours_per_week)
+    max_hours_per_week is max(hours_per_week)
+    min_hours_per_week is min(hours_per_week)
+    total_games_played is sum(games_played)
+    avg_games_played is avg(games_played)
+    max_games_played is max(games_played)
+    min_games_played is min(games_played)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: plays_games is plays_games_base on stu_i_d = plays_games.stu_i_d
+  join_many: sports_info is sports_info_base on stu_i_d = sports_info.stu_i_d
+}
+
+// Video_Games (with joins)
+source: video_games is video_games_base extend {
+  join_many: plays_games is plays_games_base on game_i_d = plays_games.game_i_d
+}
+
+// Plays_Games (with joins)
+source: plays_games is plays_games_base extend {
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+  join_one: video_games is video_games_base on game_i_d = video_games.game_i_d
+}
+
+// SportsInfo (with joins)
+source: sports_info is sports_info_base extend {
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
+}

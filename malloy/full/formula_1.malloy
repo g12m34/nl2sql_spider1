@@ -1,10 +1,13 @@
 // Malloy semantic layer for: formula_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/formula_1/formula_1.sqlite
-// Note: Some columns marked as 'number' in Spider metadata are actually strings
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
 
 // circuits
-source: circuits is duckdb.sql("""
+source: circuits_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'circuits')
 """) extend {
   dimension:
@@ -28,83 +31,14 @@ source: circuits is duckdb.sql("""
     avg_lng is avg(lng)
     max_lng is max(lng)
     min_lng is min(lng)
-}
-
-// drivers
-source: drivers is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'drivers')
-""") extend {
-  dimension:
-    driver_id is driverId
-    driver_ref is driverRef
-    number_val is `number`
-    code_val is `code`
-
-  primary_key: driver_id
-
-  measure:
-    row_count is count()
-    total_driver_id is sum(driver_id)
-    avg_driver_id is avg(driver_id)
-    max_driver_id is max(driver_id)
-    min_driver_id is min(driver_id)
-}
-
-// status
-source: status is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'status')
-""") extend {
-  dimension:
-    status_id is statusId
-
-  primary_key: status_id
-
-  measure:
-    row_count is count()
-    total_status_id is sum(status_id)
-    avg_status_id is avg(status_id)
-    max_status_id is max(status_id)
-    min_status_id is min(status_id)
-}
-
-// seasons
-source: seasons is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'seasons')
-""") extend {
-  dimension:
-    year_val is `year`
-
-  primary_key: year_val
-
-  measure:
-    row_count is count()
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
-}
-
-// constructors
-source: constructors is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructors')
-""") extend {
-  dimension:
-    constructor_id is constructorId
-    constructor_ref is constructorRef
-    name_val is `name`
-
-  primary_key: constructor_id
-
-  measure:
-    row_count is count()
-    total_constructor_id is sum(constructor_id)
-    avg_constructor_id is avg(constructor_id)
-    max_constructor_id is max(constructor_id)
-    min_constructor_id is min(constructor_id)
+    total_alt is sum(alt)
+    avg_alt is avg(alt)
+    max_alt is max(alt)
+    min_alt is min(alt)
 }
 
 // races
-source: races is duckdb.sql("""
+source: races_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'races')
 """) extend {
   dimension:
@@ -117,8 +51,6 @@ source: races is duckdb.sql("""
     time_val is `time`
 
   primary_key: race_id
-
-  join_one: circuits on circuit_id = circuits.circuit_id
 
   measure:
     row_count is count()
@@ -140,8 +72,85 @@ source: races is duckdb.sql("""
     min_circuit_id is min(circuit_id)
 }
 
+// drivers
+source: drivers_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'drivers')
+""") extend {
+  dimension:
+    driver_id is driverId
+    driver_ref is driverRef
+    number_val is `number`
+    code_val is `code`
+
+  primary_key: driver_id
+
+  measure:
+    row_count is count()
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
+    total_number_val is sum(number_val)
+    avg_number_val is avg(number_val)
+    max_number_val is max(number_val)
+    min_number_val is min(number_val)
+}
+
+// status
+source: status_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'status')
+""") extend {
+  dimension:
+    status_id is statusId
+
+  primary_key: status_id
+
+  measure:
+    row_count is count()
+    total_status_id is sum(status_id)
+    avg_status_id is avg(status_id)
+    max_status_id is max(status_id)
+    min_status_id is min(status_id)
+}
+
+// seasons
+source: seasons_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'seasons')
+""") extend {
+  dimension:
+    year_val is `year`
+
+  primary_key: year_val
+
+  measure:
+    row_count is count()
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+}
+
+// constructors
+source: constructors_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructors')
+""") extend {
+  dimension:
+    constructor_id is constructorId
+    constructor_ref is constructorRef
+    name_val is `name`
+
+  primary_key: constructor_id
+
+  measure:
+    row_count is count()
+    total_constructor_id is sum(constructor_id)
+    avg_constructor_id is avg(constructor_id)
+    max_constructor_id is max(constructor_id)
+    min_constructor_id is min(constructor_id)
+}
+
 // constructorStandings
-source: constructor_standings is duckdb.sql("""
+source: constructor_standings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructorStandings')
 """) extend {
   dimension:
@@ -152,9 +161,6 @@ source: constructor_standings is duckdb.sql("""
     position_text is positionText
 
   primary_key: constructor_standings_id
-
-  join_one: races on race_id = races.race_id
-  join_one: constructors on constructor_id = constructors.constructor_id
 
   measure:
     row_count is count()
@@ -174,6 +180,10 @@ source: constructor_standings is duckdb.sql("""
     avg_points is avg(points)
     max_points is max(points)
     min_points is min(points)
+    total_position_val is sum(position_val)
+    avg_position_val is avg(position_val)
+    max_position_val is max(position_val)
+    min_position_val is min(position_val)
     total_wins is sum(wins)
     avg_wins is avg(wins)
     max_wins is max(wins)
@@ -181,7 +191,7 @@ source: constructor_standings is duckdb.sql("""
 }
 
 // results
-source: results is duckdb.sql("""
+source: results_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'results')
 """) extend {
   dimension:
@@ -202,10 +212,6 @@ source: results is duckdb.sql("""
 
   primary_key: result_id
 
-  join_one: drivers on driver_id = drivers.driver_id
-  join_one: races on race_id = races.race_id
-  join_one: constructors on constructor_id = constructors.constructor_id
-
   measure:
     row_count is count()
     total_result_id is sum(result_id)
@@ -224,10 +230,18 @@ source: results is duckdb.sql("""
     avg_constructor_id is avg(constructor_id)
     max_constructor_id is max(constructor_id)
     min_constructor_id is min(constructor_id)
+    total_number_val is sum(number_val)
+    avg_number_val is avg(number_val)
+    max_number_val is max(number_val)
+    min_number_val is min(number_val)
     total_grid is sum(grid)
     avg_grid is avg(grid)
     max_grid is max(grid)
     min_grid is min(grid)
+    total_position_val is sum(position_val)
+    avg_position_val is avg(position_val)
+    max_position_val is max(position_val)
+    min_position_val is min(position_val)
     total_position_order is sum(position_order)
     avg_position_order is avg(position_order)
     max_position_order is max(position_order)
@@ -236,6 +250,22 @@ source: results is duckdb.sql("""
     avg_points is avg(points)
     max_points is max(points)
     min_points is min(points)
+    total_laps is sum(laps)
+    avg_laps is avg(laps)
+    max_laps is max(laps)
+    min_laps is min(laps)
+    total_milliseconds is sum(milliseconds)
+    avg_milliseconds is avg(milliseconds)
+    max_milliseconds is max(milliseconds)
+    min_milliseconds is min(milliseconds)
+    total_fastest_lap is sum(fastest_lap)
+    avg_fastest_lap is avg(fastest_lap)
+    max_fastest_lap is max(fastest_lap)
+    min_fastest_lap is min(fastest_lap)
+    total_rank_val is sum(rank_val)
+    avg_rank_val is avg(rank_val)
+    max_rank_val is max(rank_val)
+    min_rank_val is min(rank_val)
     total_status_id is sum(status_id)
     avg_status_id is avg(status_id)
     max_status_id is max(status_id)
@@ -243,7 +273,7 @@ source: results is duckdb.sql("""
 }
 
 // driverStandings
-source: driver_standings is duckdb.sql("""
+source: driver_standings_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'driverStandings')
 """) extend {
   dimension:
@@ -254,9 +284,6 @@ source: driver_standings is duckdb.sql("""
     position_text is positionText
 
   primary_key: driver_standings_id
-
-  join_one: drivers on driver_id = drivers.driver_id
-  join_one: races on race_id = races.race_id
 
   measure:
     row_count is count()
@@ -276,6 +303,10 @@ source: driver_standings is duckdb.sql("""
     avg_points is avg(points)
     max_points is max(points)
     min_points is min(points)
+    total_position_val is sum(position_val)
+    avg_position_val is avg(position_val)
+    max_position_val is max(position_val)
+    min_position_val is min(position_val)
     total_wins is sum(wins)
     avg_wins is avg(wins)
     max_wins is max(wins)
@@ -283,7 +314,7 @@ source: driver_standings is duckdb.sql("""
 }
 
 // constructorResults
-source: constructor_results is duckdb.sql("""
+source: constructor_results_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructorResults')
 """) extend {
   dimension:
@@ -292,9 +323,6 @@ source: constructor_results is duckdb.sql("""
     constructor_id is constructorId
 
   primary_key: constructor_results_id
-
-  join_one: races on race_id = races.race_id
-  join_one: constructors on constructor_id = constructors.constructor_id
 
   measure:
     row_count is count()
@@ -314,10 +342,14 @@ source: constructor_results is duckdb.sql("""
     avg_points is avg(points)
     max_points is max(points)
     min_points is min(points)
+    total_status is sum(status)
+    avg_status is avg(status)
+    max_status is max(status)
+    min_status is min(status)
 }
 
 // qualifying
-source: qualifying is duckdb.sql("""
+source: qualifying_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'qualifying')
 """) extend {
   dimension:
@@ -329,10 +361,6 @@ source: qualifying is duckdb.sql("""
     position_val is `position`
 
   primary_key: qualify_id
-
-  join_one: drivers on driver_id = drivers.driver_id
-  join_one: races on race_id = races.race_id
-  join_one: constructors on constructor_id = constructors.constructor_id
 
   measure:
     row_count is count()
@@ -352,10 +380,18 @@ source: qualifying is duckdb.sql("""
     avg_constructor_id is avg(constructor_id)
     max_constructor_id is max(constructor_id)
     min_constructor_id is min(constructor_id)
+    total_number_val is sum(number_val)
+    avg_number_val is avg(number_val)
+    max_number_val is max(number_val)
+    min_number_val is min(number_val)
+    total_position_val is sum(position_val)
+    avg_position_val is avg(position_val)
+    max_position_val is max(position_val)
+    min_position_val is min(position_val)
 }
 
 // pitStops
-source: pit_stops is duckdb.sql("""
+source: pit_stops_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'pitStops')
 """) extend {
   dimension:
@@ -364,9 +400,6 @@ source: pit_stops is duckdb.sql("""
     time_val is `time`
 
   primary_key: race_id
-
-  join_one: drivers on driver_id = drivers.driver_id
-  join_one: races on race_id = races.race_id
 
   measure:
     row_count is count()
@@ -386,10 +419,14 @@ source: pit_stops is duckdb.sql("""
     avg_lap is avg(lap)
     max_lap is max(lap)
     min_lap is min(lap)
+    total_milliseconds is sum(milliseconds)
+    avg_milliseconds is avg(milliseconds)
+    max_milliseconds is max(milliseconds)
+    min_milliseconds is min(milliseconds)
 }
 
 // lapTimes
-source: lap_times is duckdb.sql("""
+source: lap_times_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'lapTimes')
 """) extend {
   dimension:
@@ -399,9 +436,6 @@ source: lap_times is duckdb.sql("""
     time_val is `time`
 
   primary_key: race_id
-
-  join_one: drivers on driver_id = drivers.driver_id
-  join_one: races on race_id = races.race_id
 
   measure:
     row_count is count()
@@ -417,4 +451,100 @@ source: lap_times is duckdb.sql("""
     avg_lap is avg(lap)
     max_lap is max(lap)
     min_lap is min(lap)
+    total_position_val is sum(position_val)
+    avg_position_val is avg(position_val)
+    max_position_val is max(position_val)
+    min_position_val is min(position_val)
+    total_milliseconds is sum(milliseconds)
+    avg_milliseconds is avg(milliseconds)
+    max_milliseconds is max(milliseconds)
+    min_milliseconds is min(milliseconds)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// circuits (with joins)
+source: circuits is circuits_base extend {
+  join_many: races is races_base on circuit_id = races.circuit_id
+}
+
+// races (with joins)
+source: races is races_base extend {
+  join_one: circuits is circuits_base on circuit_id = circuits.circuit_id
+  join_many: constructor_standings is constructor_standings_base on race_id = constructor_standings.race_id
+  join_many: results is results_base on race_id = results.race_id
+  join_many: driver_standings is driver_standings_base on race_id = driver_standings.race_id
+  join_many: constructor_results is constructor_results_base on race_id = constructor_results.race_id
+  join_many: qualifying is qualifying_base on race_id = qualifying.race_id
+  join_many: pit_stops is pit_stops_base on race_id = pit_stops.race_id
+  join_many: lap_times is lap_times_base on race_id = lap_times.race_id
+}
+
+// drivers (with joins)
+source: drivers is drivers_base extend {
+  join_many: results is results_base on driver_id = results.driver_id
+  join_many: driver_standings is driver_standings_base on driver_id = driver_standings.driver_id
+  join_many: qualifying is qualifying_base on driver_id = qualifying.driver_id
+  join_many: pit_stops is pit_stops_base on driver_id = pit_stops.driver_id
+  join_many: lap_times is lap_times_base on driver_id = lap_times.driver_id
+}
+
+// status (with joins)
+source: status is status_base
+
+// seasons (with joins)
+source: seasons is seasons_base
+
+// constructors (with joins)
+source: constructors is constructors_base extend {
+  join_many: constructor_standings is constructor_standings_base on constructor_id = constructor_standings.constructor_id
+  join_many: results is results_base on constructor_id = results.constructor_id
+  join_many: constructor_results is constructor_results_base on constructor_id = constructor_results.constructor_id
+  join_many: qualifying is qualifying_base on constructor_id = qualifying.constructor_id
+}
+
+// constructorStandings (with joins)
+source: constructor_standings is constructor_standings_base extend {
+  join_one: races is races_base on race_id = races.race_id
+  join_one: constructors is constructors_base on constructor_id = constructors.constructor_id
+}
+
+// results (with joins)
+source: results is results_base extend {
+  join_one: drivers is drivers_base on driver_id = drivers.driver_id
+  join_one: races is races_base on race_id = races.race_id
+  join_one: constructors is constructors_base on constructor_id = constructors.constructor_id
+}
+
+// driverStandings (with joins)
+source: driver_standings is driver_standings_base extend {
+  join_one: drivers is drivers_base on driver_id = drivers.driver_id
+  join_one: races is races_base on race_id = races.race_id
+}
+
+// constructorResults (with joins)
+source: constructor_results is constructor_results_base extend {
+  join_one: races is races_base on race_id = races.race_id
+  join_one: constructors is constructors_base on constructor_id = constructors.constructor_id
+}
+
+// qualifying (with joins)
+source: qualifying is qualifying_base extend {
+  join_one: drivers is drivers_base on driver_id = drivers.driver_id
+  join_one: races is races_base on race_id = races.race_id
+  join_one: constructors is constructors_base on constructor_id = constructors.constructor_id
+}
+
+// pitStops (with joins)
+source: pit_stops is pit_stops_base extend {
+  join_one: drivers is drivers_base on driver_id = drivers.driver_id
+  join_one: races is races_base on race_id = races.race_id
+}
+
+// lapTimes (with joins)
+source: lap_times is lap_times_base extend {
+  join_one: drivers is drivers_base on driver_id = drivers.driver_id
+  join_one: races is races_base on race_id = races.race_id
 }

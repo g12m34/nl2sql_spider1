@@ -1,9 +1,13 @@
 // Malloy semantic layer for: customers_and_invoices
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -16,27 +20,11 @@ source: customers is duckdb.sql("""
     min_customer_id is min(customer_id)
 }
 
-// Product_Categories
-source: product_categories is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Product_Categories')
-""") extend {
-  primary_key: production_type_code
-
-  measure:
-    row_count is count()
-    total_vat_rating is sum(vat_rating)
-    avg_vat_rating is avg(vat_rating)
-    max_vat_rating is max(vat_rating)
-    min_vat_rating is min(vat_rating)
-}
-
 // Orders
-source: orders is duckdb.sql("""
+source: orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Orders')
 """) extend {
   primary_key: order_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -50,13 +38,29 @@ source: orders is duckdb.sql("""
     min_customer_id is min(customer_id)
 }
 
+// Invoices
+source: invoices_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Invoices')
+""") extend {
+  primary_key: invoice_number
+
+  measure:
+    row_count is count()
+    total_invoice_number is sum(invoice_number)
+    avg_invoice_number is avg(invoice_number)
+    max_invoice_number is max(invoice_number)
+    min_invoice_number is min(invoice_number)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+}
+
 // Accounts
-source: accounts is duckdb.sql("""
+source: accounts_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Accounts')
 """) extend {
   primary_key: account_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -70,13 +74,25 @@ source: accounts is duckdb.sql("""
     min_customer_id is min(customer_id)
 }
 
+// Product_Categories
+source: product_categories_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Product_Categories')
+""") extend {
+  primary_key: production_type_code
+
+  measure:
+    row_count is count()
+    total_vat_rating is sum(vat_rating)
+    avg_vat_rating is avg(vat_rating)
+    max_vat_rating is max(vat_rating)
+    min_vat_rating is min(vat_rating)
+}
+
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Products')
 """) extend {
   primary_key: product_id
-
-  join_one: product_categories on production_type_code = product_categories.production_type_code
 
   measure:
     row_count is count()
@@ -94,58 +110,10 @@ source: products is duckdb.sql("""
     min_unit_price is min(unit_price)
 }
 
-// Invoices
-source: invoices is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Invoices')
-""") extend {
-  primary_key: invoice_number
-
-  join_one: orders on order_id = orders.order_id
-
-  measure:
-    row_count is count()
-    total_invoice_number is sum(invoice_number)
-    avg_invoice_number is avg(invoice_number)
-    max_invoice_number is max(invoice_number)
-    min_invoice_number is min(invoice_number)
-    total_order_id is sum(order_id)
-    avg_order_id is avg(order_id)
-    max_order_id is max(order_id)
-    min_order_id is min(order_id)
-}
-
-// Order_Items
-source: order_items is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Order_Items')
-""") extend {
-  primary_key: order_item_id
-
-  join_one: orders on order_id = orders.order_id
-  join_one: products on product_id = products.product_id
-
-  measure:
-    row_count is count()
-    total_order_item_id is sum(order_item_id)
-    avg_order_item_id is avg(order_item_id)
-    max_order_item_id is max(order_item_id)
-    min_order_item_id is min(order_item_id)
-    total_order_id is sum(order_id)
-    avg_order_id is avg(order_id)
-    max_order_id is max(order_id)
-    min_order_id is min(order_id)
-    total_product_id is sum(product_id)
-    avg_product_id is avg(product_id)
-    max_product_id is max(product_id)
-    min_product_id is min(product_id)
-}
-
 // Financial_Transactions
-source: financial_transactions is duckdb.sql("""
+source: financial_transactions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Financial_Transactions')
 """) extend {
-  join_one: accounts on account_id = accounts.account_id
-  join_one: invoices on invoice_number = invoices.invoice_number
-
   measure:
     row_count is count()
     total_transaction_id is sum(transaction_id)
@@ -166,14 +134,32 @@ source: financial_transactions is duckdb.sql("""
     min_transaction_amount is min(transaction_amount)
 }
 
+// Order_Items
+source: order_items_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Order_Items')
+""") extend {
+  primary_key: order_item_id
+
+  measure:
+    row_count is count()
+    total_order_item_id is sum(order_item_id)
+    avg_order_item_id is avg(order_item_id)
+    max_order_item_id is max(order_item_id)
+    min_order_item_id is min(order_item_id)
+    total_order_id is sum(order_id)
+    avg_order_id is avg(order_id)
+    max_order_id is max(order_id)
+    min_order_id is min(order_id)
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
 // Invoice_Line_Items
-source: invoice_line_items is duckdb.sql("""
+source: invoice_line_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_invoices/customers_and_invoices.sqlite', 'Invoice_Line_Items')
 """) extend {
-  join_one: products on product_id = products.product_id
-  join_one: invoices on invoice_number = invoices.invoice_number
-  join_one: order_items on order_item_id = order_items.order_item_id
-
   measure:
     row_count is count()
     total_order_item_id is sum(order_item_id)
@@ -204,4 +190,66 @@ source: invoice_line_items is duckdb.sql("""
     avg_derived_total_cost is avg(derived_total_cost)
     max_derived_total_cost is max(derived_total_cost)
     min_derived_total_cost is min(derived_total_cost)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: orders is orders_base on customer_id = orders.customer_id
+  join_many: accounts is accounts_base on customer_id = accounts.customer_id
+}
+
+// Orders (with joins)
+source: orders is orders_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: invoices is invoices_base on order_id = invoices.order_id
+  join_many: order_items is order_items_base on order_id = order_items.order_id
+}
+
+// Invoices (with joins)
+source: invoices is invoices_base extend {
+  join_one: orders is orders_base on order_id = orders.order_id
+  join_many: financial_transactions is financial_transactions_base on invoice_number = financial_transactions.invoice_number
+  join_many: invoice_line_items is invoice_line_items_base on invoice_number = invoice_line_items.invoice_number
+}
+
+// Accounts (with joins)
+source: accounts is accounts_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: financial_transactions is financial_transactions_base on account_id = financial_transactions.account_id
+}
+
+// Product_Categories (with joins)
+source: product_categories is product_categories_base extend {
+  join_many: products is products_base on production_type_code = products.production_type_code
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_one: product_categories is product_categories_base on production_type_code = product_categories.production_type_code
+  join_many: order_items is order_items_base on product_id = order_items.product_id
+  join_many: invoice_line_items is invoice_line_items_base on product_id = invoice_line_items.product_id
+}
+
+// Financial_Transactions (with joins)
+source: financial_transactions is financial_transactions_base extend {
+  join_one: accounts is accounts_base on account_id = accounts.account_id
+  join_one: invoices is invoices_base on invoice_number = invoices.invoice_number
+}
+
+// Order_Items (with joins)
+source: order_items is order_items_base extend {
+  join_one: orders is orders_base on order_id = orders.order_id
+  join_one: products is products_base on product_id = products.product_id
+  join_many: invoice_line_items is invoice_line_items_base on order_item_id = invoice_line_items.order_item_id
+}
+
+// Invoice_Line_Items (with joins)
+source: invoice_line_items is invoice_line_items_base extend {
+  join_one: products is products_base on product_id = products.product_id
+  join_one: invoices is invoices_base on invoice_number = invoices.invoice_number
+  join_one: order_items is order_items_base on order_item_id = order_items.order_item_id
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: restaurants
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/restaurants/restaurants.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // GEOGRAPHIC
-source: g_e_o_g_r_a_p_h_i_c is duckdb.sql("""
+source: g_e_o_g_r_a_p_h_i_c_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurants/restaurants.sqlite', 'GEOGRAPHIC')
 """) extend {
   dimension:
@@ -18,7 +22,7 @@ source: g_e_o_g_r_a_p_h_i_c is duckdb.sql("""
 }
 
 // RESTAURANT
-source: r_e_s_t_a_u_r_a_n_t is duckdb.sql("""
+source: r_e_s_t_a_u_r_a_n_t_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurants/restaurants.sqlite', 'RESTAURANT')
 """) extend {
   dimension:
@@ -29,8 +33,6 @@ source: r_e_s_t_a_u_r_a_n_t is duckdb.sql("""
     r_a_t_i_n_g is RATING
 
   primary_key: i_d
-
-  join_one: g_e_o_g_r_a_p_h_i_c on c_i_t_y_n_a_m_e = g_e_o_g_r_a_p_h_i_c.c_i_t_y_n_a_m_e
 
   measure:
     row_count is count()
@@ -45,7 +47,7 @@ source: r_e_s_t_a_u_r_a_n_t is duckdb.sql("""
 }
 
 // LOCATION
-source: l_o_c_a_t_i_o_n is duckdb.sql("""
+source: l_o_c_a_t_i_o_n_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurants/restaurants.sqlite', 'LOCATION')
 """) extend {
   dimension:
@@ -55,8 +57,6 @@ source: l_o_c_a_t_i_o_n is duckdb.sql("""
     c_i_t_y_n_a_m_e is CITY_NAME
 
   primary_key: r_e_s_t_a_u_r_a_n_t_i_d
-
-  join_one: g_e_o_g_r_a_p_h_i_c on c_i_t_y_n_a_m_e = g_e_o_g_r_a_p_h_i_c.c_i_t_y_n_a_m_e
 
   measure:
     row_count is count()
@@ -68,4 +68,24 @@ source: l_o_c_a_t_i_o_n is duckdb.sql("""
     avg_h_o_u_s_e_n_u_m_b_e_r is avg(h_o_u_s_e_n_u_m_b_e_r)
     max_h_o_u_s_e_n_u_m_b_e_r is max(h_o_u_s_e_n_u_m_b_e_r)
     min_h_o_u_s_e_n_u_m_b_e_r is min(h_o_u_s_e_n_u_m_b_e_r)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// GEOGRAPHIC (with joins)
+source: g_e_o_g_r_a_p_h_i_c is g_e_o_g_r_a_p_h_i_c_base extend {
+  join_many: r_e_s_t_a_u_r_a_n_t is r_e_s_t_a_u_r_a_n_t_base on c_i_t_y_n_a_m_e = r_e_s_t_a_u_r_a_n_t.c_i_t_y_n_a_m_e
+  join_many: l_o_c_a_t_i_o_n is l_o_c_a_t_i_o_n_base on c_i_t_y_n_a_m_e = l_o_c_a_t_i_o_n.c_i_t_y_n_a_m_e
+}
+
+// RESTAURANT (with joins)
+source: r_e_s_t_a_u_r_a_n_t is r_e_s_t_a_u_r_a_n_t_base extend {
+  join_one: g_e_o_g_r_a_p_h_i_c is g_e_o_g_r_a_p_h_i_c_base on c_i_t_y_n_a_m_e = g_e_o_g_r_a_p_h_i_c.c_i_t_y_n_a_m_e
+}
+
+// LOCATION (with joins)
+source: l_o_c_a_t_i_o_n is l_o_c_a_t_i_o_n_base extend {
+  join_one: g_e_o_g_r_a_p_h_i_c is g_e_o_g_r_a_p_h_i_c_base on c_i_t_y_n_a_m_e = g_e_o_g_r_a_p_h_i_c.c_i_t_y_n_a_m_e
 }

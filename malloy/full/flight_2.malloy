@@ -1,9 +1,13 @@
 // Malloy semantic layer for: flight_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/flight_2/flight_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // airlines
-source: airlines is duckdb.sql("""
+source: airlines_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'airlines')
 """) extend {
   primary_key: uid
@@ -17,7 +21,7 @@ source: airlines is duckdb.sql("""
 }
 
 // airports
-source: airports is duckdb.sql("""
+source: airports_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'airports')
 """) extend {
   dimension:
@@ -32,7 +36,7 @@ source: airports is duckdb.sql("""
 }
 
 // flights
-source: flights is duckdb.sql("""
+source: flights_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'flights')
 """) extend {
   dimension:
@@ -41,9 +45,6 @@ source: flights is duckdb.sql("""
     dest_airport is DestAirport
 
   primary_key: Airline
-
-  join_one: dest_airport_airports is airports on dest_airport = dest_airport_airports.airport_code
-  join_one: source_airport_airports is airports on source_airport = source_airport_airports.airport_code
 
   measure:
     row_count is count()
@@ -55,4 +56,23 @@ source: flights is duckdb.sql("""
     avg_flight_no is avg(flight_no)
     max_flight_no is max(flight_no)
     min_flight_no is min(flight_no)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// airlines (with joins)
+source: airlines is airlines_base
+
+// airports (with joins)
+source: airports is airports_base extend {
+  join_many: flights_dest_airport is flights_base on airport_code = flights_dest_airport.dest_airport
+  join_many: flights_source_airport is flights_base on airport_code = flights_source_airport.source_airport
+}
+
+// flights (with joins)
+source: flights is flights_base extend {
+  join_one: dest_airport_airports is airports_base on dest_airport = dest_airport_airports.airport_code
+  join_one: source_airport_airports is airports_base on source_airport = source_airport_airports.airport_code
 }

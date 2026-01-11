@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "provider": "minimax/MiniMax-Text-01",
+    "timestamp": "2026-01-11T08:12:04.511687",
+    "total": 5,
+    "correct": 2,
+    "errors": 0,
+    "accuracy": 0.4
+  },
+  "results": [
+    {
+      "question_id": 0,
+      "db_id": "game_1",
+      "question": "What are the ids of all students who played video games and sports?",
+      "gold_sql": "SELECT StuID FROM Sportsinfo INTERSECT SELECT StuID FROM Plays_games",
+      "predicted_sql": "",
+      "match": false,
+      "error": null,
+      "latency_ms": 1659.4033241271973,
+      "raw_response": ""
+    },
+    {
+      "question_id": 1,
+      "db_id": "scholar",
+      "question": "who published the most at chi",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"chi\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t2.paperid ) DESC;",
+      "predicted_sql": "",
+      "match": true,
+      "error": null,
+      "latency_ms": 1621.4897632598877,
+      "raw_response": ""
+    },
+    {
+      "question_id": 2,
+      "db_id": "movie_1",
+      "question": "What are the titles and directors of the movies whose star is greater than the average stars of the movies directed by James Cameron?",
+      "gold_sql": "SELECT T2.title ,  T2.director FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T1.stars  >  (SELECT avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.director  =  \"James Cameron\")",
+      "predicted_sql": "",
+      "match": false,
+      "error": null,
+      "latency_ms": 1523.843765258789,
+      "raw_response": ""
+    },
+    {
+      "question_id": 3,
+      "db_id": "manufactory_1",
+      "question": "Find the name of product that is produced by both companies Creative Labs and Sony.",
+      "gold_sql": "SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Creative Labs' INTERSECT SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Sony'",
+      "predicted_sql": "",
+      "match": true,
+      "error": null,
+      "latency_ms": 1840.3847217559814,
+      "raw_response": ""
+    },
+    {
+      "question_id": 4,
+      "db_id": "ship_1",
+      "question": "What are the ranks of captains that are both in the Cutter and Armed schooner classes?",
+      "gold_sql": "SELECT rank FROM captain WHERE CLASS  =  'Cutter' INTERSECT SELECT rank FROM captain WHERE CLASS  =  'Armed schooner'",
+      "predicted_sql": "",
+      "match": false,
+      "error": null,
+      "latency_ms": 1934.5824718475342,
+      "raw_response": ""
+    }
+  ]
+}

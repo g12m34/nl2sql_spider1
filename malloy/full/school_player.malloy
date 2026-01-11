@@ -1,9 +1,13 @@
 // Malloy semantic layer for: school_player
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/school_player/school_player.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // school
-source: school is duckdb.sql("""
+source: school_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'school')
 """) extend {
   dimension:
@@ -32,15 +36,13 @@ source: school is duckdb.sql("""
 }
 
 // school_details
-source: school_details is duckdb.sql("""
+source: school_details_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'school_details')
 """) extend {
   dimension:
     school_i_d is School_ID
 
   primary_key: school_i_d
-
-  join_one: school on school_i_d = school.school_i_d
 
   measure:
     row_count is count()
@@ -51,15 +53,13 @@ source: school_details is duckdb.sql("""
 }
 
 // school_performance
-source: school_performance is duckdb.sql("""
+source: school_performance_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'school_performance')
 """) extend {
   dimension:
     class_a_a is Class_AA
 
   primary_key: School_Id
-
-  join_one: school on School_Id = school.school_i_d
 
   measure:
     row_count is count()
@@ -70,7 +70,7 @@ source: school_performance is duckdb.sql("""
 }
 
 // player
-source: player is duckdb.sql("""
+source: player_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_player/school_player.sqlite', 'player')
 """) extend {
   dimension:
@@ -79,8 +79,6 @@ source: player is duckdb.sql("""
     school_i_d is School_ID
 
   primary_key: player_i_d
-
-  join_one: school on school_i_d = school.school_i_d
 
   measure:
     row_count is count()
@@ -96,4 +94,30 @@ source: player is duckdb.sql("""
     avg_school_i_d is avg(school_i_d)
     max_school_i_d is max(school_i_d)
     min_school_i_d is min(school_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// school (with joins)
+source: school is school_base extend {
+  join_many: school_details is school_details_base on school_i_d = school_details.school_i_d
+  join_many: school_performance is school_performance_base on school_i_d = school_performance.School_Id
+  join_many: player is player_base on school_i_d = player.school_i_d
+}
+
+// school_details (with joins)
+source: school_details is school_details_base extend {
+  join_one: school is school_base on school_i_d = school.school_i_d
+}
+
+// school_performance (with joins)
+source: school_performance is school_performance_base extend {
+  join_one: school is school_base on School_Id = school.school_i_d
+}
+
+// player (with joins)
+source: player is player_base extend {
+  join_one: school is school_base on school_i_d = school.school_i_d
 }

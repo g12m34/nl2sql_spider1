@@ -1,9 +1,13 @@
 // Malloy semantic layer for: match_season
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/match_season/match_season.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // country
-source: country is duckdb.sql("""
+source: country_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'country')
 """) extend {
   primary_key: Country_id
@@ -17,7 +21,7 @@ source: country is duckdb.sql("""
 }
 
 // team
-source: team is duckdb.sql("""
+source: team_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'team')
 """) extend {
   dimension:
@@ -34,16 +38,13 @@ source: team is duckdb.sql("""
 }
 
 // match_season
-source: match_season is duckdb.sql("""
+source: match_season_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'match_season')
 """) extend {
   dimension:
     position_val is `Position`
 
   primary_key: Season
-
-  join_one: ref_team is team on Team = ref_team.Team_id
-  join_one: ref_country is country on Country = ref_country.Country_id
 
   measure:
     row_count is count()
@@ -66,7 +67,7 @@ source: match_season is duckdb.sql("""
 }
 
 // player
-source: player is duckdb.sql("""
+source: player_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'player')
 """) extend {
   dimension:
@@ -76,8 +77,6 @@ source: player is duckdb.sql("""
     doubles_w_l is Doubles_WL
 
   primary_key: player_i_d
-
-  join_one: ref_team is team on Team = ref_team.Team_id
 
   measure:
     row_count is count()
@@ -89,4 +88,30 @@ source: player is duckdb.sql("""
     avg_team is avg(Team)
     max_team is max(Team)
     min_team is min(Team)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// country (with joins)
+source: country is country_base extend {
+  join_many: match_season is match_season_base on Country_id = match_season.Country
+}
+
+// team (with joins)
+source: team is team_base extend {
+  join_many: match_season is match_season_base on Team_id = match_season.Team
+  join_many: player is player_base on Team_id = player.Team
+}
+
+// match_season (with joins)
+source: match_season is match_season_base extend {
+  join_one: ref_team is team_base on Team = ref_team.Team_id
+  join_one: ref_country is country_base on Country = ref_country.Country_id
+}
+
+// player (with joins)
+source: player is player_base extend {
+  join_one: ref_team is team_base on Team = ref_team.Team_id
 }

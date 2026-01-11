@@ -6,7 +6,8 @@ This script creates complete semantic layers with:
 - ALL columns as dimensions
 - Appropriate measures for numeric columns
 - Primary key declarations
-- Join definitions based on foreign keys
+- Bidirectional join definitions (join_one and join_many)
+- Two-pass generation to avoid forward reference issues
 - Proper handling of reserved words
 """
 
@@ -186,63 +187,30 @@ def analyze_schema(schema):
     return tables
 
 
-def topological_sort(tables):
-    """Sort tables so that referenced tables come before referencing tables."""
-    # Build dependency graph
-    table_indices = list(tables.keys())
-    deps = {idx: set() for idx in table_indices}
-
-    for idx, info in tables.items():
-        for fk in info['foreign_keys']:
-            ref_idx = fk['ref_table_idx']
-            # Skip self-references (table referencing itself)
-            if ref_idx != idx and ref_idx in tables:
-                deps[idx].add(ref_idx)
-
-    # Kahn's algorithm for topological sort
-    in_degree = {idx: len(deps[idx]) for idx in table_indices}
-
-    # Start with tables that have no dependencies
-    queue = [idx for idx, deg in in_degree.items() if deg == 0]
-    result = []
-
-    while queue:
-        node = queue.pop(0)
-        result.append(node)
-        # Update dependencies
-        for idx in table_indices:
-            if node in deps[idx]:
-                deps[idx].remove(node)
-                in_degree[idx] -= 1
-                if in_degree[idx] == 0 and idx not in result and idx not in queue:
-                    queue.append(idx)
-
-    # Add any remaining (cyclic deps) at the end
-    for idx in table_indices:
-        if idx not in result:
-            result.append(idx)
-
-    return result
-
-
 def generate_malloy_source(db_id, tables):
-    """Generate complete Malloy source code with all lowercase snake_case."""
+    """
+    Generate complete Malloy source code with bidirectional joins.
+
+    Uses a two-pass approach to avoid forward reference issues:
+    1. First pass: Define base sources with dimensions, PKs, measures (no joins)
+    2. Second pass: Extend base sources with all joins (can reference any base source)
+    """
     db_path = get_db_path(db_id)
     lines = []
 
     lines.append(f"// Malloy semantic layer for: {db_id}")
-    lines.append(f"// Full layer with ALL columns, primary keys, and joins")
+    lines.append(f"// Full layer with ALL columns, primary keys, and bidirectional joins")
     lines.append(f"// Database: {db_path}")
     lines.append("")
-
-    # Sort tables for proper dependency order
-    sorted_indices = topological_sort(tables)
+    lines.append("// ============================================================")
+    lines.append("// BASE SOURCES (no joins - enables forward references)")
+    lines.append("// ============================================================")
+    lines.append("")
 
     # Build table_idx -> source_name mapping
     source_names = {idx: get_source_name(tables[idx]['name']) for idx in tables}
 
     # Build column name -> snake_case mapping for each table
-    # We'll define ALL columns as dimensions with snake_case names
     table_col_maps = {}
     for idx, info in tables.items():
         col_map = {}
@@ -250,19 +218,36 @@ def generate_malloy_source(db_id, tables):
             col_map[col['name']] = to_snake_case(col['name'])
         table_col_maps[idx] = col_map
 
-    for table_idx in sorted_indices:
+    # Build reverse join mapping: parent_table_idx -> [(child info), ...]
+    reverse_joins = defaultdict(list)
+    for table_idx, table_info in tables.items():
+        for fk in table_info['foreign_keys']:
+            ref_table_idx = fk['ref_table_idx']
+            # Skip self-references
+            if ref_table_idx != table_idx and ref_table_idx in tables:
+                reverse_joins[ref_table_idx].append({
+                    'child_table_idx': table_idx,
+                    'child_column': fk['column'],
+                    'parent_column': fk['ref_column']
+                })
+
+    # Track which columns have dimension definitions for each table
+    table_has_dimension = {}
+
+    # PASS 1: Generate base sources (no joins)
+    for table_idx in sorted(tables.keys()):
         table_info = tables[table_idx]
         table_name = table_info['name']
         source_name = source_names[table_idx]
+        base_source_name = f"{source_name}_base"
         col_map = table_col_maps[table_idx]
 
         lines.append(f"// {table_name}")
-        lines.append(f'source: {source_name} is duckdb.sql("""')
+        lines.append(f'source: {base_source_name} is duckdb.sql("""')
         lines.append(f"  SELECT * FROM sqlite_scan('{db_path}', '{table_name}')")
         lines.append('""") extend {')
 
         # Dimensions - define columns that need renaming to snake_case
-        # Track which columns have dimensions defined
         has_dimension = set()
         dim_definitions = []
         for col in table_info['columns']:
@@ -280,7 +265,9 @@ def generate_malloy_source(db_id, tables):
             lines.extend(dim_definitions)
             lines.append("")
 
-        # Primary key - use dimension name if defined, else original column name
+        table_has_dimension[table_idx] = has_dimension
+
+        # Primary key
         if table_info['primary_key']:
             pk_orig = table_info['primary_key']
             if pk_orig in has_dimension:
@@ -290,85 +277,12 @@ def generate_malloy_source(db_id, tables):
             lines.append(f"  primary_key: {pk_ref}")
             lines.append("")
 
-        # Joins - use dimension names if defined, else original column names
-        if table_info['foreign_keys']:
-            # Count how many times each target table is joined (excluding self-joins)
-            join_counts = defaultdict(int)
-            for fk in table_info['foreign_keys']:
-                if fk['ref_table_idx'] in tables and fk['ref_table_idx'] != table_idx:
-                    join_counts[fk['ref_table_idx']] += 1
-
-            # Get all column names in this table (to detect conflicts)
-            col_names = set(col_map.values())
-
-            # Build has_dimension set for referenced tables
-            ref_has_dimension = {}
-            for ref_idx in tables:
-                ref_has_dim = set()
-                for c in tables[ref_idx]['columns']:
-                    c_snake = to_snake_case(c['name'])
-                    if c_snake.lower() != c['name'].lower() or needs_quoting(c['name']):
-                        ref_has_dim.add(c['name'])
-                ref_has_dimension[ref_idx] = ref_has_dim
-
-            # Track used join names within this source
-            used_join_names = set()
-            for fk in table_info['foreign_keys']:
-                # Skip self-joins (table referencing itself)
-                if fk['ref_table_idx'] == table_idx:
-                    continue
-                ref_table = tables.get(fk['ref_table_idx'])
-                if ref_table:
-                    ref_source_name = source_names[fk['ref_table_idx']]
-                    ref_col_map = table_col_maps[fk['ref_table_idx']]
-
-                    # Use dimension name if defined, else quoted original
-                    fk_col_snake = col_map.get(fk['column'], to_snake_case(fk['column']))
-                    if fk['column'] in has_dimension:
-                        fk_col_ref = fk_col_snake
-                    else:
-                        fk_col_ref = quote_if_reserved(fk['column'])
-
-                    ref_col_snake = ref_col_map.get(fk['ref_column'], to_snake_case(fk['ref_column']))
-                    if fk['ref_column'] in ref_has_dimension.get(fk['ref_table_idx'], set()):
-                        ref_col_ref = ref_col_snake
-                    else:
-                        ref_col_ref = quote_if_reserved(fk['ref_column'])
-
-                    # Need alias if: multiple joins to same table, or source name already used,
-                    # or source name conflicts with a column name
-                    needs_alias = (
-                        join_counts[fk['ref_table_idx']] > 1 or
-                        ref_source_name in used_join_names or
-                        ref_source_name in col_names
-                    )
-
-                    if needs_alias:
-                        # Use FK column name to create alias
-                        alias_base = fk_col_snake.replace('_id', '').replace('_val', '')
-                        if not alias_base or alias_base == ref_source_name:
-                            alias_base = 'ref'
-                        alias = f"{alias_base}_{ref_source_name}"
-                        # Ensure unique
-                        counter = 2
-                        orig_alias = alias
-                        while alias in used_join_names or alias in col_names:
-                            alias = f"{orig_alias}_{counter}"
-                            counter += 1
-                        lines.append(f"  join_one: {alias} is {ref_source_name} on {fk_col_ref} = {alias}.{ref_col_ref}")
-                        used_join_names.add(alias)
-                    else:
-                        lines.append(f"  join_one: {ref_source_name} on {fk_col_ref} = {ref_source_name}.{ref_col_ref}")
-                        used_join_names.add(ref_source_name)
-            lines.append("")
-
-        # Measures - use dimension name if defined, else original column name
+        # Measures
         numeric_cols = [c for c in table_info['columns'] if c['type'] == 'number']
         lines.append("  measure:")
         lines.append("    row_count is count()")
         for col in numeric_cols:
             dim_name = col_map[col['name']]
-            # Use dimension name if we created one, else use quoted original
             if col['name'] in has_dimension:
                 ref_name = dim_name
             else:
@@ -379,6 +293,147 @@ def generate_malloy_source(db_id, tables):
             lines.append(f"    min_{dim_name} is min({ref_name})")
 
         lines.append("}")
+        lines.append("")
+
+    # PASS 2: Generate full sources with joins (extend base sources)
+    lines.append("// ============================================================")
+    lines.append("// FULL SOURCES (with joins - use these for queries)")
+    lines.append("// ============================================================")
+    lines.append("")
+
+    for table_idx in sorted(tables.keys()):
+        table_info = tables[table_idx]
+        table_name = table_info['name']
+        source_name = source_names[table_idx]
+        base_source_name = f"{source_name}_base"
+        col_map = table_col_maps[table_idx]
+        has_dimension = table_has_dimension[table_idx]
+
+        # Get all column names in this table (to detect conflicts with join names)
+        col_names = set(col_map.values())
+
+        # Track used join names within this source
+        used_join_names = set()
+
+        # Collect all join declarations
+        join_lines = []
+
+        # Forward joins (join_one) - child to parent
+        if table_info['foreign_keys']:
+            # Count how many times each target table is joined
+            join_counts = defaultdict(int)
+            for fk in table_info['foreign_keys']:
+                if fk['ref_table_idx'] in tables and fk['ref_table_idx'] != table_idx:
+                    join_counts[fk['ref_table_idx']] += 1
+
+            for fk in table_info['foreign_keys']:
+                # Skip self-joins
+                if fk['ref_table_idx'] == table_idx:
+                    continue
+                if fk['ref_table_idx'] not in tables:
+                    continue
+
+                ref_source_name = source_names[fk['ref_table_idx']]
+                ref_base_name = f"{ref_source_name}_base"
+                ref_col_map = table_col_maps[fk['ref_table_idx']]
+                ref_has_dimension = table_has_dimension[fk['ref_table_idx']]
+
+                # Get local column reference
+                fk_col_snake = col_map.get(fk['column'], to_snake_case(fk['column']))
+                if fk['column'] in has_dimension:
+                    fk_col_ref = fk_col_snake
+                else:
+                    fk_col_ref = quote_if_reserved(fk['column'])
+
+                # Get remote column reference
+                ref_col_snake = ref_col_map.get(fk['ref_column'], to_snake_case(fk['ref_column']))
+                if fk['ref_column'] in ref_has_dimension:
+                    ref_col_ref = ref_col_snake
+                else:
+                    ref_col_ref = quote_if_reserved(fk['ref_column'])
+
+                # Determine alias for the join
+                needs_alias = (
+                    join_counts[fk['ref_table_idx']] > 1 or
+                    ref_source_name in used_join_names or
+                    ref_source_name in col_names
+                )
+
+                if needs_alias:
+                    alias_base = fk_col_snake.replace('_id', '').replace('_val', '')
+                    if not alias_base or alias_base == ref_source_name:
+                        alias_base = 'ref'
+                    alias = f"{alias_base}_{ref_source_name}"
+                    counter = 2
+                    orig_alias = alias
+                    while alias in used_join_names or alias in col_names:
+                        alias = f"{orig_alias}_{counter}"
+                        counter += 1
+                    join_lines.append(f"  join_one: {alias} is {ref_base_name} on {fk_col_ref} = {alias}.{ref_col_ref}")
+                    used_join_names.add(alias)
+                else:
+                    join_lines.append(f"  join_one: {ref_source_name} is {ref_base_name} on {fk_col_ref} = {ref_source_name}.{ref_col_ref}")
+                    used_join_names.add(ref_source_name)
+
+        # Reverse joins (join_many) - parent to children
+        if table_idx in reverse_joins:
+            # Count children per table for aliasing
+            child_table_counts = defaultdict(int)
+            for rj in reverse_joins[table_idx]:
+                child_table_counts[rj['child_table_idx']] += 1
+
+            for rj in reverse_joins[table_idx]:
+                child_table_idx = rj['child_table_idx']
+                child_source_name = source_names[child_table_idx]
+                child_base_name = f"{child_source_name}_base"
+                child_col_map = table_col_maps[child_table_idx]
+                child_has_dimension = table_has_dimension[child_table_idx]
+
+                # Get parent column reference (this table's column)
+                parent_col_snake = col_map.get(rj['parent_column'], to_snake_case(rj['parent_column']))
+                if rj['parent_column'] in has_dimension:
+                    parent_col_ref = parent_col_snake
+                else:
+                    parent_col_ref = quote_if_reserved(rj['parent_column'])
+
+                # Get child column reference
+                child_col_snake = child_col_map.get(rj['child_column'], to_snake_case(rj['child_column']))
+                if rj['child_column'] in child_has_dimension:
+                    child_col_ref = child_col_snake
+                else:
+                    child_col_ref = quote_if_reserved(rj['child_column'])
+
+                # Determine alias for the join
+                needs_alias = (
+                    child_table_counts[child_table_idx] > 1 or
+                    child_source_name in used_join_names or
+                    child_source_name in col_names
+                )
+
+                if needs_alias:
+                    alias_base = child_col_snake.replace('_id', '').replace('_val', '')
+                    if not alias_base or alias_base == child_source_name:
+                        alias_base = 'child'
+                    alias = f"{child_source_name}_{alias_base}"
+                    counter = 2
+                    orig_alias = alias
+                    while alias in used_join_names or alias in col_names:
+                        alias = f"{orig_alias}_{counter}"
+                        counter += 1
+                    join_lines.append(f"  join_many: {alias} is {child_base_name} on {parent_col_ref} = {alias}.{child_col_ref}")
+                    used_join_names.add(alias)
+                else:
+                    join_lines.append(f"  join_many: {child_source_name} is {child_base_name} on {parent_col_ref} = {child_source_name}.{child_col_ref}")
+                    used_join_names.add(child_source_name)
+
+        # Generate the full source
+        lines.append(f"// {table_name} (with joins)")
+        if join_lines:
+            lines.append(f"source: {source_name} is {base_source_name} extend {{")
+            lines.extend(join_lines)
+            lines.append("}")
+        else:
+            lines.append(f"source: {source_name} is {base_source_name}")
         lines.append("")
 
     return '\n'.join(lines)

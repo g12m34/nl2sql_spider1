@@ -1,0 +1,120 @@
+// =============================================================================
+// GAS_COMPANY DATABASE - Energy Companies and Gas Stations
+// =============================================================================
+// This database tracks major companies and their gas station networks:
+// - company: large corporations (oil companies, conglomerates, banks)
+// - gas_station: individual gas station locations
+// - station_company: which companies own which gas stations (junction)
+//
+// KEY FIELD: Main_Industry identifies the company's business sector
+// Values: 'Oil and gas', 'Banking', 'Conglomerate'
+// =============================================================================
+
+// COMPANY TABLE
+// Large corporations and their financial data
+source: company_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'company')
+""") extend {
+  dimension:
+    // Unique company identifier
+    company_id is Company_ID
+
+    // Company's ranking (by revenue/size)
+    company_rank is Rank
+
+    // Company name
+    // Examples: 'ExxonMobil', 'General Electric', 'Royal Dutch Shell', 'Wells Fargo'
+    company_name is Company
+
+    // Headquarters country/location
+    // Values: 'USA', 'UK', 'Netherlands', 'China'
+    headquarters is Headquarters
+
+    // Primary business sector/industry
+    // Values: 'Oil and gas', 'Banking', 'Conglomerate'
+    // Use this field to filter by industry type
+    main_industry is Main_Industry
+
+    // Annual sales in billions USD
+    sales_billion is Sales_billion
+
+    // Annual profits in billions USD
+    profits_billion is Profits_billion
+
+    // Total assets in billions USD
+    assets_billion is Assets_billion
+
+    // Market capitalization in billions USD
+    market_value is Market_Value
+
+  primary_key: company_id
+
+  measure:
+    company_count is count()
+    total_sales is sum(sales_billion)
+    avg_profits is avg(profits_billion)
+}
+
+// GAS STATION TABLE
+// Individual gas station locations
+source: gas_station_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'gas_station')
+""") extend {
+  dimension:
+    // Unique station identifier
+    station_id is Station_ID
+
+    // Year the station opened
+    open_year is Open_Year
+
+    // Station location/address
+    location is Location
+
+    // Name of the station manager
+    manager_name is Manager_Name
+
+    // Name of the vice manager
+    vice_manager_name is Vice_Manager_Name
+
+    // Name of the representative
+    representative_name is Representative_Name
+
+  primary_key: station_id
+
+  measure:
+    station_count is count()
+}
+
+// STATION_COMPANY TABLE (Junction)
+// Links gas stations to their parent companies
+source: station_company_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'station_company')
+""") extend {
+  dimension:
+    station_id is Station_ID
+    company_id is Company_ID
+    rank_of_the_year is Rank_of_the_Year
+
+  measure:
+    link_count is count()
+}
+
+// =============================================================================
+// FULL SOURCES WITH RELATIONSHIPS
+// =============================================================================
+
+// Company with its gas stations
+source: company is company_base extend {
+  join_many: station_company is station_company_base on company_id = station_company.company_id
+}
+
+// Gas station with company ownership
+source: gas_station is gas_station_base extend {
+  join_many: station_company is station_company_base on station_id = station_company.station_id
+}
+
+// Junction table with full details
+source: station_company is station_company_base extend {
+  join_one: company is company_base on company_id = company.company_id
+  join_one: gas_station is gas_station_base on station_id = gas_station.station_id
+}

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: csu_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/csu_1/csu_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Campuses
-source: campuses is duckdb.sql("""
+source: campuses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'Campuses')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: campuses is duckdb.sql("""
 }
 
 // csu_fees
-source: csu_fees is duckdb.sql("""
+source: csu_fees_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'csu_fees')
 """) extend {
   dimension:
@@ -32,8 +36,6 @@ source: csu_fees is duckdb.sql("""
     campus_fee is CampusFee
 
   primary_key: Campus
-
-  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -52,15 +54,13 @@ source: csu_fees is duckdb.sql("""
 }
 
 // degrees
-source: degrees is duckdb.sql("""
+source: degrees_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'degrees')
 """) extend {
   dimension:
     year_val is `Year`
 
   primary_key: year_val
-
-  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -79,15 +79,13 @@ source: degrees is duckdb.sql("""
 }
 
 // discipline_enrollments
-source: discipline_enrollments is duckdb.sql("""
+source: discipline_enrollments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'discipline_enrollments')
 """) extend {
   dimension:
     year_val is `Year`
 
   primary_key: Campus
-
-  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -114,7 +112,7 @@ source: discipline_enrollments is duckdb.sql("""
 }
 
 // enrollments
-source: enrollments is duckdb.sql("""
+source: enrollments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'enrollments')
 """) extend {
   dimension:
@@ -123,8 +121,6 @@ source: enrollments is duckdb.sql("""
     f_t_e_a_y is FTE_AY
 
   primary_key: Campus
-
-  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -147,13 +143,11 @@ source: enrollments is duckdb.sql("""
 }
 
 // faculty
-source: faculty is duckdb.sql("""
+source: faculty_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'faculty')
 """) extend {
   dimension:
     year_val is `Year`
-
-  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -169,4 +163,42 @@ source: faculty is duckdb.sql("""
     avg_faculty is avg(Faculty)
     max_faculty is max(Faculty)
     min_faculty is min(Faculty)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Campuses (with joins)
+source: campuses is campuses_base extend {
+  join_many: csu_fees is csu_fees_base on Id = csu_fees.Campus
+  join_many: degrees is degrees_base on Id = degrees.Campus
+  join_many: discipline_enrollments is discipline_enrollments_base on Id = discipline_enrollments.Campus
+  join_many: enrollments is enrollments_base on Id = enrollments.Campus
+  join_many: faculty is faculty_base on Id = faculty.Campus
+}
+
+// csu_fees (with joins)
+source: csu_fees is csu_fees_base extend {
+  join_one: campuses is campuses_base on Campus = campuses.Id
+}
+
+// degrees (with joins)
+source: degrees is degrees_base extend {
+  join_one: campuses is campuses_base on Campus = campuses.Id
+}
+
+// discipline_enrollments (with joins)
+source: discipline_enrollments is discipline_enrollments_base extend {
+  join_one: campuses is campuses_base on Campus = campuses.Id
+}
+
+// enrollments (with joins)
+source: enrollments is enrollments_base extend {
+  join_one: campuses is campuses_base on Campus = campuses.Id
+}
+
+// faculty (with joins)
+source: faculty is faculty_base extend {
+  join_one: campuses is campuses_base on Campus = campuses.Id
 }

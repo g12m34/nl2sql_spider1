@@ -1,0 +1,203 @@
+// ============================================================
+// FIELD METADATA (Auto-generated from database profiling)
+// ============================================================
+//
+// Table: Activity
+//   actid: Primary key identifier for Activity
+//     Sample values: '770', '771', '772'
+//   activity_name: Unique name identifier
+//     Sample values: 'Volleyball', 'Square Dancing', 'Spelunking'
+//
+// Table: Participates_in
+//   stuid: Foreign key reference
+//     Sample values: '1018', '1014', '1034'
+//   actid: Foreign key reference
+//     Sample values: '780', '777', '790'
+//
+// Table: Faculty_Participates_in
+//   FacID: Foreign key reference
+//     Sample values: '8918', '3457', '2192'
+//   actid: Foreign key reference
+//     Sample values: '790', '770', '785'
+//
+// Table: Student
+//   StuID: Primary key identifier for Student
+//     Sample values: '1001', '1002', '1003'
+//   LName: Name field with 31 distinct values
+//     Sample values: 'Smith', 'Pang', 'Lee'
+//   Fname: Name field with 24 distinct values
+//     Sample values: 'Eric', 'Sarah', 'Paul'
+//   Age: Categorical field: '18', '20', '19', '17', '26'
+//     Sample values: '18', '20', '19'
+//   Sex: Categorical field: 'M', 'F'
+//     Sample values: 'M', 'F'
+//   Major: Categorical field: '600', '520', '550', '540', '50'
+//     Sample values: '600', '520', '550'
+//   Advisor: Numeric field ranging from 1121 to 9172
+//     Sample values: '2192', '8772', '8722'
+//   city_code: Values include: 'PIT', 'BAL', 'WAS'
+//     Sample values: 'PIT', 'BAL', 'WAS'
+//
+// Table: Faculty
+//   FacID: Primary key identifier for Faculty
+//     Sample values: '1082', '1121', '1148'
+//   Lname: Unique name identifier
+//     Sample values: 'Yarowsky', 'Wu', 'Wolff'
+//   Fname: Name field with 53 distinct values
+//     Sample values: 'Michael', 'William', 'Robert'
+//   Rank: Categorical field: 'Professor', 'AsstProf', 'Instructor', 'AssocProf'
+//     Sample values: 'Professor', 'AsstProf', 'Instructor'
+//   Sex: Categorical field: 'M', 'F'
+//     Sample values: 'M', 'F'
+//   Phone: Numeric field ranging from 1035 to 9373
+//     Sample values: '9373', '8972', '8335'
+//   Room: Values include: '288', '119', '316'
+//     Sample values: '288', '119', '316'
+//   Building: Categorical field: 'Krieger', 'Barton', 'NEB'
+//     Sample values: 'Krieger', 'Barton', 'NEB'
+//
+
+// Malloy semantic layer for: activity_1
+// Full layer with ALL columns, primary keys, and bidirectional joins
+// Database: /workspace/spider_db/spider/database/activity_1/activity_1.sqlite
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// Activity
+source: activity_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Activity')
+""") extend {
+  primary_key: actid
+
+  measure:
+    row_count is count()
+    total_actid is sum(actid)
+    avg_actid is avg(actid)
+    max_actid is max(actid)
+    min_actid is min(actid)
+}
+
+// Participates_in
+source: participates_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Participates_in')
+""") extend {
+  measure:
+    row_count is count()
+    total_stuid is sum(stuid)
+    avg_stuid is avg(stuid)
+    max_stuid is max(stuid)
+    min_stuid is min(stuid)
+    total_actid is sum(actid)
+    avg_actid is avg(actid)
+    max_actid is max(actid)
+    min_actid is min(actid)
+}
+
+// Faculty_Participates_in
+source: faculty_participates_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty_Participates_in')
+""") extend {
+  dimension:
+    // Foreign key reference
+    fac_i_d is FacID
+
+  measure:
+    row_count is count()
+    total_fac_i_d is sum(fac_i_d)
+    avg_fac_i_d is avg(fac_i_d)
+    max_fac_i_d is max(fac_i_d)
+    min_fac_i_d is min(fac_i_d)
+    total_actid is sum(actid)
+    avg_actid is avg(actid)
+    max_actid is max(actid)
+    min_actid is min(actid)
+}
+
+// Student
+source: student_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Student')
+""") extend {
+  dimension:
+    // Primary key identifier for Student
+    stu_i_d is StuID
+    // Name field with 31 distinct values
+    l_name is LName
+
+  primary_key: stu_i_d
+
+  measure:
+    row_count is count()
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_age is sum(Age)
+    avg_age is avg(Age)
+    max_age is max(Age)
+    min_age is min(Age)
+    total_major is sum(Major)
+    avg_major is avg(Major)
+    max_major is max(Major)
+    min_major is min(Major)
+    total_advisor is sum(Advisor)
+    avg_advisor is avg(Advisor)
+    max_advisor is max(Advisor)
+    min_advisor is min(Advisor)
+}
+
+// Faculty
+source: faculty_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty')
+""") extend {
+  dimension:
+    // Primary key identifier for Faculty
+    fac_i_d is FacID
+    rank_val is `Rank`
+
+  primary_key: fac_i_d
+
+  measure:
+    row_count is count()
+    total_fac_i_d is sum(fac_i_d)
+    avg_fac_i_d is avg(fac_i_d)
+    max_fac_i_d is max(fac_i_d)
+    min_fac_i_d is min(fac_i_d)
+    total_phone is sum(Phone)
+    avg_phone is avg(Phone)
+    max_phone is max(Phone)
+    min_phone is min(Phone)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Activity (with joins)
+source: activity is activity_base extend {
+  join_many: participates_in is participates_in_base on actid = participates_in.actid
+  join_many: faculty_participates_in is faculty_participates_in_base on actid = faculty_participates_in.actid
+}
+
+// Participates_in (with joins)
+source: participates_in is participates_in_base extend {
+  join_one: activity is activity_base on actid = activity.actid
+  join_one: student_val is student_val_base on stuid = student_val.stu_i_d
+}
+
+// Faculty_Participates_in (with joins)
+source: faculty_participates_in is faculty_participates_in_base extend {
+  join_one: activity is activity_base on actid = activity.actid
+  join_one: faculty is faculty_base on fac_i_d = faculty.fac_i_d
+}
+
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: participates_in is participates_in_base on stu_i_d = participates_in.stuid
+}
+
+// Faculty (with joins)
+source: faculty is faculty_base extend {
+  join_many: faculty_participates_in is faculty_participates_in_base on fac_i_d = faculty_participates_in.fac_i_d
+}

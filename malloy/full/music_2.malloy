@@ -1,9 +1,13 @@
 // Malloy semantic layer for: music_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/music_2/music_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Songs
-source: songs is duckdb.sql("""
+source: songs_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Songs')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: songs is duckdb.sql("""
 }
 
 // Albums
-source: albums is duckdb.sql("""
+source: albums_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Albums')
 """) extend {
   dimension:
@@ -43,7 +47,7 @@ source: albums is duckdb.sql("""
 }
 
 // Band
-source: band is duckdb.sql("""
+source: band_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Band')
 """) extend {
   primary_key: Id
@@ -56,8 +60,52 @@ source: band is duckdb.sql("""
     min_id is min(Id)
 }
 
+// Instruments
+source: instruments_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Instruments')
+""") extend {
+  dimension:
+    song_id is SongId
+    bandmate_id is BandmateId
+
+  primary_key: song_id
+
+  measure:
+    row_count is count()
+    total_song_id is sum(song_id)
+    avg_song_id is avg(song_id)
+    max_song_id is max(song_id)
+    min_song_id is min(song_id)
+    total_bandmate_id is sum(bandmate_id)
+    avg_bandmate_id is avg(bandmate_id)
+    max_bandmate_id is max(bandmate_id)
+    min_bandmate_id is min(bandmate_id)
+}
+
+// Performance
+source: performance_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Performance')
+""") extend {
+  dimension:
+    song_id is SongId
+    stage_position is StagePosition
+
+  primary_key: song_id
+
+  measure:
+    row_count is count()
+    total_song_id is sum(song_id)
+    avg_song_id is avg(song_id)
+    max_song_id is max(song_id)
+    min_song_id is min(song_id)
+    total_bandmate is sum(Bandmate)
+    avg_bandmate is avg(Bandmate)
+    max_bandmate is max(Bandmate)
+    min_bandmate is min(Bandmate)
+}
+
 // Tracklists
-source: tracklists is duckdb.sql("""
+source: tracklists_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Tracklists')
 """) extend {
   dimension:
@@ -66,9 +114,6 @@ source: tracklists is duckdb.sql("""
     song_id is SongId
 
   primary_key: album_id
-
-  join_one: albums on album_id = albums.a_id
-  join_one: songs on song_id = songs.song_id
 
   measure:
     row_count is count()
@@ -86,58 +131,8 @@ source: tracklists is duckdb.sql("""
     min_song_id is min(song_id)
 }
 
-// Instruments
-source: instruments is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Instruments')
-""") extend {
-  dimension:
-    song_id is SongId
-    bandmate_id is BandmateId
-
-  primary_key: song_id
-
-  join_one: band on bandmate_id = band.Id
-  join_one: songs on song_id = songs.song_id
-
-  measure:
-    row_count is count()
-    total_song_id is sum(song_id)
-    avg_song_id is avg(song_id)
-    max_song_id is max(song_id)
-    min_song_id is min(song_id)
-    total_bandmate_id is sum(bandmate_id)
-    avg_bandmate_id is avg(bandmate_id)
-    max_bandmate_id is max(bandmate_id)
-    min_bandmate_id is min(bandmate_id)
-}
-
-// Performance
-source: performance is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Performance')
-""") extend {
-  dimension:
-    song_id is SongId
-    stage_position is StagePosition
-
-  primary_key: song_id
-
-  join_one: band on Bandmate = band.Id
-  join_one: songs on song_id = songs.song_id
-
-  measure:
-    row_count is count()
-    total_song_id is sum(song_id)
-    avg_song_id is avg(song_id)
-    max_song_id is max(song_id)
-    min_song_id is min(song_id)
-    total_bandmate is sum(Bandmate)
-    avg_bandmate is avg(Bandmate)
-    max_bandmate is max(Bandmate)
-    min_bandmate is min(Bandmate)
-}
-
 // Vocals
-source: vocals is duckdb.sql("""
+source: vocals_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/music_2/music_2.sqlite', 'Vocals')
 """) extend {
   dimension:
@@ -146,9 +141,6 @@ source: vocals is duckdb.sql("""
 
   primary_key: song_id
 
-  join_one: band on Bandmate = band.Id
-  join_one: songs on song_id = songs.song_id
-
   measure:
     row_count is count()
     total_song_id is sum(song_id)
@@ -159,4 +151,52 @@ source: vocals is duckdb.sql("""
     avg_bandmate is avg(Bandmate)
     max_bandmate is max(Bandmate)
     min_bandmate is min(Bandmate)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Songs (with joins)
+source: songs is songs_base extend {
+  join_many: instruments is instruments_base on song_id = instruments.song_id
+  join_many: performance is performance_base on song_id = performance.song_id
+  join_many: tracklists is tracklists_base on song_id = tracklists.song_id
+  join_many: vocals is vocals_base on song_id = vocals.song_id
+}
+
+// Albums (with joins)
+source: albums is albums_base extend {
+  join_many: tracklists is tracklists_base on a_id = tracklists.album_id
+}
+
+// Band (with joins)
+source: band is band_base extend {
+  join_many: instruments is instruments_base on Id = instruments.bandmate_id
+  join_many: performance is performance_base on Id = performance.Bandmate
+  join_many: vocals is vocals_base on Id = vocals.Bandmate
+}
+
+// Instruments (with joins)
+source: instruments is instruments_base extend {
+  join_one: band is band_base on bandmate_id = band.Id
+  join_one: songs is songs_base on song_id = songs.song_id
+}
+
+// Performance (with joins)
+source: performance is performance_base extend {
+  join_one: band is band_base on Bandmate = band.Id
+  join_one: songs is songs_base on song_id = songs.song_id
+}
+
+// Tracklists (with joins)
+source: tracklists is tracklists_base extend {
+  join_one: albums is albums_base on album_id = albums.a_id
+  join_one: songs is songs_base on song_id = songs.song_id
+}
+
+// Vocals (with joins)
+source: vocals is vocals_base extend {
+  join_one: band is band_base on Bandmate = band.Id
+  join_one: songs is songs_base on song_id = songs.song_id
 }

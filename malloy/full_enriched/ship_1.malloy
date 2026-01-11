@@ -1,0 +1,104 @@
+// ============================================================
+// FIELD METADATA (Auto-generated from database profiling)
+// ============================================================
+//
+// Table: captain
+//   Captain_ID: Primary key identifier for captain
+//     Sample values: '1', '2', '3'
+//   Name: Unique name identifier
+//     Sample values: 'Lieutenant Montagu Verling', 'Lieutenant Hugh Bolitho', 'Commander Richard Bolitho'
+//   Ship_ID: Foreign key reference
+//     Sample values: '3', '2', '5'
+//   age: Values include: '38', '60', '54'
+//     Sample values: '38', '60', '54'
+//   Class: Values include: 'Third-rate ship of the line', 'Sloop-of-war', 'Frigate'
+//     Sample values: 'Third-rate ship of the line', 'Sloop-of-war', 'Frigate'
+//   Rank: Values include: 'Midshipman', 'Lieutenant', 'Commander, junior captain'
+//     Sample values: 'Midshipman', 'Lieutenant', 'Commander, junior captain'
+//
+// Table: Ship
+//   Ship_ID: Primary key identifier for Ship
+//     Sample values: '1', '2', '3'
+//   Name: Unique name identifier
+//     Sample values: 'HMS Undine', 'HMS Trojan', 'HMS Phalarope'
+//   Type: Values include: 'Panamax'
+//     Sample values: 'Panamax'
+//   Built_Year: Date/time field ranging from 1997.0 to 1998.0
+//     Sample values: '1997.0', '1998.0'
+//   Class: Values include: 'KR', 'GL'
+//     Sample values: 'KR', 'GL'
+//   Flag: Values include: 'Panama', 'Malta'
+//     Sample values: 'Panama', 'Malta'
+//
+
+// Malloy semantic layer for: ship_1
+// Full layer with ALL columns, primary keys, and bidirectional joins
+// Database: /workspace/spider_db/spider/database/ship_1/ship_1.sqlite
+
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// captain
+source: captain_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'captain')
+""") extend {
+  dimension:
+    // Primary key identifier for captain
+    captain_i_d is Captain_ID
+    name_val is `Name`
+    // Foreign key reference
+    ship_i_d is Ship_ID
+    rank_val is `Rank`
+
+  primary_key: captain_i_d
+
+  measure:
+    row_count is count()
+    total_captain_i_d is sum(captain_i_d)
+    avg_captain_i_d is avg(captain_i_d)
+    max_captain_i_d is max(captain_i_d)
+    min_captain_i_d is min(captain_i_d)
+    total_ship_i_d is sum(ship_i_d)
+    avg_ship_i_d is avg(ship_i_d)
+    max_ship_i_d is max(ship_i_d)
+    min_ship_i_d is min(ship_i_d)
+}
+
+// Ship
+source: ship_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'Ship')
+""") extend {
+  dimension:
+    // Primary key identifier for Ship
+    ship_i_d is Ship_ID
+    name_val is `Name`
+    type_val is `Type`
+
+  primary_key: ship_i_d
+
+  measure:
+    row_count is count()
+    total_ship_i_d is sum(ship_i_d)
+    avg_ship_i_d is avg(ship_i_d)
+    max_ship_i_d is max(ship_i_d)
+    min_ship_i_d is min(ship_i_d)
+    total_built_year is sum(Built_Year)
+    avg_built_year is avg(Built_Year)
+    max_built_year is max(Built_Year)
+    min_built_year is min(Built_Year)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// captain (with joins)
+source: captain is captain_base extend {
+  join_one: ship is ship_base on ship_i_d = ship.ship_i_d
+}
+
+// Ship (with joins)
+source: ship is ship_base extend {
+  join_many: captain is captain_base on ship_i_d = captain.ship_i_d
+}

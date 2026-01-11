@@ -1,9 +1,44 @@
 // Malloy semantic layer for: ship_mission
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// mission
+source: mission_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'mission')
+""") extend {
+  dimension:
+    mission_i_d is Mission_ID
+    ship_i_d is Ship_ID
+    code_val is `Code`
+
+  primary_key: mission_i_d
+
+  measure:
+    row_count is count()
+    total_mission_i_d is sum(mission_i_d)
+    avg_mission_i_d is avg(mission_i_d)
+    max_mission_i_d is max(mission_i_d)
+    min_mission_i_d is min(mission_i_d)
+    total_ship_i_d is sum(ship_i_d)
+    avg_ship_i_d is avg(ship_i_d)
+    max_ship_i_d is max(ship_i_d)
+    min_ship_i_d is min(ship_i_d)
+    total_launched_year is sum(Launched_Year)
+    avg_launched_year is avg(Launched_Year)
+    max_launched_year is max(Launched_Year)
+    min_launched_year is min(Launched_Year)
+    total_speed_knots is sum(Speed_knots)
+    avg_speed_knots is avg(Speed_knots)
+    max_speed_knots is max(Speed_knots)
+    min_speed_knots is min(Speed_knots)
+}
+
 // ship
-source: ship is duckdb.sql("""
+source: ship_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'ship')
 """) extend {
   dimension:
@@ -25,35 +60,16 @@ source: ship is duckdb.sql("""
     min_tonnage is min(Tonnage)
 }
 
-// mission
-source: mission is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'mission')
-""") extend {
-  dimension:
-    mission_i_d is Mission_ID
-    ship_i_d is Ship_ID
-    code_val is `Code`
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: mission_i_d
+// mission (with joins)
+source: mission is mission_base extend {
+  join_one: ship is ship_base on ship_i_d = ship.ship_i_d
+}
 
-  join_one: ship on ship_i_d = ship.ship_i_d
-
-  measure:
-    row_count is count()
-    total_mission_i_d is sum(mission_i_d)
-    avg_mission_i_d is avg(mission_i_d)
-    max_mission_i_d is max(mission_i_d)
-    min_mission_i_d is min(mission_i_d)
-    total_ship_i_d is sum(ship_i_d)
-    avg_ship_i_d is avg(ship_i_d)
-    max_ship_i_d is max(ship_i_d)
-    min_ship_i_d is min(ship_i_d)
-    total_launched_year is sum(Launched_Year)
-    avg_launched_year is avg(Launched_Year)
-    max_launched_year is max(Launched_Year)
-    min_launched_year is min(Launched_Year)
-    total_speed_knots is sum(Speed_knots)
-    avg_speed_knots is avg(Speed_knots)
-    max_speed_knots is max(Speed_knots)
-    min_speed_knots is min(Speed_knots)
+// ship (with joins)
+source: ship is ship_base extend {
+  join_many: mission is mission_base on ship_i_d = mission.ship_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: real_estate_properties
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Feature_Types
-source: ref_feature_types is duckdb.sql("""
+source: ref_feature_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Ref_Feature_Types')
 """) extend {
   primary_key: feature_type_code
@@ -13,7 +17,7 @@ source: ref_feature_types is duckdb.sql("""
 }
 
 // Ref_Property_Types
-source: ref_property_types is duckdb.sql("""
+source: ref_property_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Ref_Property_Types')
 """) extend {
   primary_key: property_type_code
@@ -23,12 +27,10 @@ source: ref_property_types is duckdb.sql("""
 }
 
 // Other_Available_Features
-source: other_available_features is duckdb.sql("""
+source: other_available_features_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Other_Available_Features')
 """) extend {
   primary_key: feature_id
-
-  join_one: ref_feature_types on feature_type_code = ref_feature_types.feature_type_code
 
   measure:
     row_count is count()
@@ -39,12 +41,10 @@ source: other_available_features is duckdb.sql("""
 }
 
 // Properties
-source: properties is duckdb.sql("""
+source: properties_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Properties')
 """) extend {
   primary_key: property_id
-
-  join_one: ref_property_types on property_type_code = ref_property_types.property_type_code
 
   measure:
     row_count is count()
@@ -71,12 +71,9 @@ source: properties is duckdb.sql("""
 }
 
 // Other_Property_Features
-source: other_property_features is duckdb.sql("""
+source: other_property_features_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/real_estate_properties/real_estate_properties.sqlite', 'Other_Property_Features')
 """) extend {
-  join_one: properties on property_id = properties.property_id
-  join_one: other_available_features on feature_id = other_available_features.feature_id
-
   measure:
     row_count is count()
     total_property_id is sum(property_id)
@@ -87,4 +84,36 @@ source: other_property_features is duckdb.sql("""
     avg_feature_id is avg(feature_id)
     max_feature_id is max(feature_id)
     min_feature_id is min(feature_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Feature_Types (with joins)
+source: ref_feature_types is ref_feature_types_base extend {
+  join_many: other_available_features is other_available_features_base on feature_type_code = other_available_features.feature_type_code
+}
+
+// Ref_Property_Types (with joins)
+source: ref_property_types is ref_property_types_base extend {
+  join_many: properties is properties_base on property_type_code = properties.property_type_code
+}
+
+// Other_Available_Features (with joins)
+source: other_available_features is other_available_features_base extend {
+  join_one: ref_feature_types is ref_feature_types_base on feature_type_code = ref_feature_types.feature_type_code
+  join_many: other_property_features is other_property_features_base on feature_id = other_property_features.feature_id
+}
+
+// Properties (with joins)
+source: properties is properties_base extend {
+  join_one: ref_property_types is ref_property_types_base on property_type_code = ref_property_types.property_type_code
+  join_many: other_property_features is other_property_features_base on property_id = other_property_features.property_id
+}
+
+// Other_Property_Features (with joins)
+source: other_property_features is other_property_features_base extend {
+  join_one: properties is properties_base on property_id = properties.property_id
+  join_one: other_available_features is other_available_features_base on feature_id = other_available_features.feature_id
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: gas_company
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/gas_company/gas_company.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // company
-source: company is duckdb.sql("""
+source: company_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'company')
 """) extend {
   dimension:
@@ -41,7 +45,7 @@ source: company is duckdb.sql("""
 }
 
 // gas_station
-source: gas_station is duckdb.sql("""
+source: gas_station_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'gas_station')
 """) extend {
   dimension:
@@ -62,7 +66,7 @@ source: gas_station is duckdb.sql("""
 }
 
 // station_company
-source: station_company is duckdb.sql("""
+source: station_company_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'station_company')
 """) extend {
   dimension:
@@ -70,9 +74,6 @@ source: station_company is duckdb.sql("""
     company_i_d is Company_ID
 
   primary_key: station_i_d
-
-  join_one: company on company_i_d = company.company_i_d
-  join_one: gas_station on station_i_d = gas_station.station_i_d
 
   measure:
     row_count is count()
@@ -88,4 +89,24 @@ source: station_company is duckdb.sql("""
     avg_rank_of_the_year is avg(Rank_of_the_Year)
     max_rank_of_the_year is max(Rank_of_the_Year)
     min_rank_of_the_year is min(Rank_of_the_Year)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// company (with joins)
+source: company is company_base extend {
+  join_many: station_company is station_company_base on company_i_d = station_company.company_i_d
+}
+
+// gas_station (with joins)
+source: gas_station is gas_station_base extend {
+  join_many: station_company is station_company_base on station_i_d = station_company.station_i_d
+}
+
+// station_company (with joins)
+source: station_company is station_company_base extend {
+  join_one: company is company_base on company_i_d = company.company_i_d
+  join_one: gas_station is gas_station_base on station_i_d = gas_station.station_i_d
 }

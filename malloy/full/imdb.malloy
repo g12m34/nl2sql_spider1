@@ -1,9 +1,13 @@
 // Malloy semantic layer for: imdb
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/imdb/imdb.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // actor
-source: actor_val is duckdb.sql("""
+source: actor_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'actor')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: actor_val is duckdb.sql("""
 }
 
 // copyright
-source: copyright is duckdb.sql("""
+source: copyright_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'copyright')
 """) extend {
   primary_key: id
@@ -45,8 +49,34 @@ source: copyright is duckdb.sql("""
     min_cid is min(cid)
 }
 
+// cast
+source: cast_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'cast')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_msid is sum(msid)
+    avg_msid is avg(msid)
+    max_msid is max(msid)
+    min_msid is min(msid)
+    total_aid is sum(aid)
+    avg_aid is avg(aid)
+    max_aid is max(aid)
+    min_aid is min(aid)
+    total_role is sum(role)
+    avg_role is avg(role)
+    max_role is max(role)
+    min_role is min(role)
+}
+
 // genre
-source: genre is duckdb.sql("""
+source: genre_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'genre')
 """) extend {
   primary_key: gid
@@ -59,8 +89,30 @@ source: genre is duckdb.sql("""
     min_gid is min(gid)
 }
 
+// classification
+source: classification_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'classification')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_msid is sum(msid)
+    avg_msid is avg(msid)
+    max_msid is max(msid)
+    min_msid is min(msid)
+    total_gid is sum(gid)
+    avg_gid is avg(gid)
+    max_gid is max(gid)
+    min_gid is min(gid)
+}
+
 // company
-source: company is duckdb.sql("""
+source: company_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'company')
 """) extend {
   dimension:
@@ -77,7 +129,7 @@ source: company is duckdb.sql("""
 }
 
 // director
-source: director is duckdb.sql("""
+source: director_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'director')
 """) extend {
   dimension:
@@ -98,7 +150,7 @@ source: director is duckdb.sql("""
 }
 
 // producer
-source: producer is duckdb.sql("""
+source: producer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'producer')
 """) extend {
   dimension:
@@ -118,8 +170,30 @@ source: producer is duckdb.sql("""
     min_birth_year is min(birth_year)
 }
 
+// directed_by
+source: directed_by_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'directed_by')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_msid is sum(msid)
+    avg_msid is avg(msid)
+    max_msid is max(msid)
+    min_msid is min(msid)
+    total_did is sum(did)
+    avg_did is avg(did)
+    max_did is max(did)
+    min_did is min(did)
+}
+
 // keyword
-source: keyword is duckdb.sql("""
+source: keyword_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'keyword')
 """) extend {
   primary_key: id
@@ -132,8 +206,30 @@ source: keyword is duckdb.sql("""
     min_id is min(id)
 }
 
+// made_by
+source: made_by_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'made_by')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_msid is sum(msid)
+    avg_msid is avg(msid)
+    max_msid is max(msid)
+    min_msid is min(msid)
+    total_pid is sum(pid)
+    avg_pid is avg(pid)
+    max_pid is max(pid)
+    min_pid is min(pid)
+}
+
 // movie
-source: movie is duckdb.sql("""
+source: movie_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'movie')
 """) extend {
   primary_key: mid
@@ -150,8 +246,30 @@ source: movie is duckdb.sql("""
     min_release_year is min(release_year)
 }
 
+// tags
+source: tags_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'tags')
+""") extend {
+  primary_key: id
+
+  measure:
+    row_count is count()
+    total_id is sum(id)
+    avg_id is avg(id)
+    max_id is max(id)
+    min_id is min(id)
+    total_msid is sum(msid)
+    avg_msid is avg(msid)
+    max_msid is max(msid)
+    min_msid is min(msid)
+    total_kid is sum(kid)
+    avg_kid is avg(kid)
+    max_kid is max(kid)
+    min_kid is min(kid)
+}
+
 // tv_series
-source: tv_series is duckdb.sql("""
+source: tv_series_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'tv_series')
 """) extend {
   primary_key: sid
@@ -177,7 +295,7 @@ source: tv_series is duckdb.sql("""
 }
 
 // writer
-source: writer is duckdb.sql("""
+source: writer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'writer')
 """) extend {
   dimension:
@@ -209,141 +327,10 @@ source: writer is duckdb.sql("""
     min_birth_year is min(birth_year)
 }
 
-// cast
-source: cast_val is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'cast')
-""") extend {
-  primary_key: id
-
-  join_one: copyright on msid = copyright.msid
-  join_one: actor_val on aid = actor_val.aid
-
-  measure:
-    row_count is count()
-    total_id is sum(id)
-    avg_id is avg(id)
-    max_id is max(id)
-    min_id is min(id)
-    total_msid is sum(msid)
-    avg_msid is avg(msid)
-    max_msid is max(msid)
-    min_msid is min(msid)
-    total_aid is sum(aid)
-    avg_aid is avg(aid)
-    max_aid is max(aid)
-    min_aid is min(aid)
-    total_role is sum(role)
-    avg_role is avg(role)
-    max_role is max(role)
-    min_role is min(role)
-}
-
-// tags
-source: tags is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'tags')
-""") extend {
-  primary_key: id
-
-  join_one: copyright on msid = copyright.msid
-
-  measure:
-    row_count is count()
-    total_id is sum(id)
-    avg_id is avg(id)
-    max_id is max(id)
-    min_id is min(id)
-    total_msid is sum(msid)
-    avg_msid is avg(msid)
-    max_msid is max(msid)
-    min_msid is min(msid)
-    total_kid is sum(kid)
-    avg_kid is avg(kid)
-    max_kid is max(kid)
-    min_kid is min(kid)
-}
-
-// classification
-source: classification is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'classification')
-""") extend {
-  primary_key: id
-
-  join_one: copyright on msid = copyright.msid
-  join_one: genre on gid = genre.gid
-
-  measure:
-    row_count is count()
-    total_id is sum(id)
-    avg_id is avg(id)
-    max_id is max(id)
-    min_id is min(id)
-    total_msid is sum(msid)
-    avg_msid is avg(msid)
-    max_msid is max(msid)
-    min_msid is min(msid)
-    total_gid is sum(gid)
-    avg_gid is avg(gid)
-    max_gid is max(gid)
-    min_gid is min(gid)
-}
-
-// directed_by
-source: directed_by is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'directed_by')
-""") extend {
-  primary_key: id
-
-  join_one: director on did = director.did
-  join_one: copyright on msid = copyright.msid
-
-  measure:
-    row_count is count()
-    total_id is sum(id)
-    avg_id is avg(id)
-    max_id is max(id)
-    min_id is min(id)
-    total_msid is sum(msid)
-    avg_msid is avg(msid)
-    max_msid is max(msid)
-    min_msid is min(msid)
-    total_did is sum(did)
-    avg_did is avg(did)
-    max_did is max(did)
-    min_did is min(did)
-}
-
-// made_by
-source: made_by is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'made_by')
-""") extend {
-  primary_key: id
-
-  join_one: producer on pid = producer.pid
-  join_one: copyright on msid = copyright.msid
-
-  measure:
-    row_count is count()
-    total_id is sum(id)
-    avg_id is avg(id)
-    max_id is max(id)
-    min_id is min(id)
-    total_msid is sum(msid)
-    avg_msid is avg(msid)
-    max_msid is max(msid)
-    min_msid is min(msid)
-    total_pid is sum(pid)
-    avg_pid is avg(pid)
-    max_pid is max(pid)
-    min_pid is min(pid)
-}
-
 // written_by
-source: written_by is duckdb.sql("""
+source: written_by_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'written_by')
 """) extend {
-  join_one: writer on wid = writer.wid
-  join_one: copyright on msid = copyright.msid
-
   measure:
     row_count is count()
     total_id is sum(id)
@@ -358,4 +345,90 @@ source: written_by is duckdb.sql("""
     avg_wid is avg(wid)
     max_wid is max(wid)
     min_wid is min(wid)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// actor (with joins)
+source: actor_val is actor_val_base extend {
+  join_many: cast_val is cast_val_base on aid = cast_val.aid
+}
+
+// copyright (with joins)
+source: copyright is copyright_base extend {
+  join_many: cast_val is cast_val_base on msid = cast_val.msid
+  join_many: classification is classification_base on msid = classification.msid
+  join_many: directed_by is directed_by_base on msid = directed_by.msid
+  join_many: made_by is made_by_base on msid = made_by.msid
+  join_many: tags is tags_base on msid = tags.msid
+  join_many: written_by is written_by_base on msid = written_by.msid
+}
+
+// cast (with joins)
+source: cast_val is cast_val_base extend {
+  join_one: copyright is copyright_base on msid = copyright.msid
+  join_one: actor_val is actor_val_base on aid = actor_val.aid
+}
+
+// genre (with joins)
+source: genre is genre_base extend {
+  join_many: classification is classification_base on gid = classification.gid
+}
+
+// classification (with joins)
+source: classification is classification_base extend {
+  join_one: copyright is copyright_base on msid = copyright.msid
+  join_one: genre is genre_base on gid = genre.gid
+}
+
+// company (with joins)
+source: company is company_base
+
+// director (with joins)
+source: director is director_base extend {
+  join_many: directed_by is directed_by_base on did = directed_by.did
+}
+
+// producer (with joins)
+source: producer is producer_base extend {
+  join_many: made_by is made_by_base on pid = made_by.pid
+}
+
+// directed_by (with joins)
+source: directed_by is directed_by_base extend {
+  join_one: director is director_base on did = director.did
+  join_one: copyright is copyright_base on msid = copyright.msid
+}
+
+// keyword (with joins)
+source: keyword is keyword_base
+
+// made_by (with joins)
+source: made_by is made_by_base extend {
+  join_one: producer is producer_base on pid = producer.pid
+  join_one: copyright is copyright_base on msid = copyright.msid
+}
+
+// movie (with joins)
+source: movie is movie_base
+
+// tags (with joins)
+source: tags is tags_base extend {
+  join_one: copyright is copyright_base on msid = copyright.msid
+}
+
+// tv_series (with joins)
+source: tv_series is tv_series_base
+
+// writer (with joins)
+source: writer is writer_base extend {
+  join_many: written_by is written_by_base on wid = written_by.wid
+}
+
+// written_by (with joins)
+source: written_by is written_by_base extend {
+  join_one: writer is writer_base on wid = writer.wid
+  join_one: copyright is copyright_base on msid = copyright.msid
 }

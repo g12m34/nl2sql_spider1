@@ -1,9 +1,13 @@
 // Malloy semantic layer for: scientist_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Scientists
-source: scientists is duckdb.sql("""
+source: scientists_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'Scientists')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: scientists is duckdb.sql("""
 }
 
 // Projects
-source: projects is duckdb.sql("""
+source: projects_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'Projects')
 """) extend {
   dimension:
@@ -40,13 +44,10 @@ source: projects is duckdb.sql("""
 }
 
 // AssignedTo
-source: assigned_to is duckdb.sql("""
+source: assigned_to_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'AssignedTo')
 """) extend {
   primary_key: Scientist
-
-  join_one: projects on Project = projects.code_val
-  join_one: scientists on Scientist = scientists.s_s_n
 
   measure:
     row_count is count()
@@ -54,4 +55,24 @@ source: assigned_to is duckdb.sql("""
     avg_scientist is avg(Scientist)
     max_scientist is max(Scientist)
     min_scientist is min(Scientist)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Scientists (with joins)
+source: scientists is scientists_base extend {
+  join_many: assigned_to is assigned_to_base on s_s_n = assigned_to.Scientist
+}
+
+// Projects (with joins)
+source: projects is projects_base extend {
+  join_many: assigned_to is assigned_to_base on code_val = assigned_to.Project
+}
+
+// AssignedTo (with joins)
+source: assigned_to is assigned_to_base extend {
+  join_one: projects is projects_base on Project = projects.code_val
+  join_one: scientists is scientists_base on Scientist = scientists.s_s_n
 }

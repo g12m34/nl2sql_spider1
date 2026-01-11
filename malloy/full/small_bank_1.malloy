@@ -1,9 +1,13 @@
 // Malloy semantic layer for: small_bank_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // ACCOUNTS
-source: a_c_c_o_u_n_t_s is duckdb.sql("""
+source: a_c_c_o_u_n_t_s_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'ACCOUNTS')
 """) extend {
   dimension:
@@ -20,12 +24,10 @@ source: a_c_c_o_u_n_t_s is duckdb.sql("""
 }
 
 // SAVINGS
-source: s_a_v_i_n_g_s is duckdb.sql("""
+source: s_a_v_i_n_g_s_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'SAVINGS')
 """) extend {
   primary_key: custid
-
-  join_one: a_c_c_o_u_n_t_s on custid = a_c_c_o_u_n_t_s.custid
 
   measure:
     row_count is count()
@@ -40,12 +42,10 @@ source: s_a_v_i_n_g_s is duckdb.sql("""
 }
 
 // CHECKING
-source: c_h_e_c_k_i_n_g is duckdb.sql("""
+source: c_h_e_c_k_i_n_g_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'CHECKING')
 """) extend {
   primary_key: custid
-
-  join_one: a_c_c_o_u_n_t_s on custid = a_c_c_o_u_n_t_s.custid
 
   measure:
     row_count is count()
@@ -57,4 +57,24 @@ source: c_h_e_c_k_i_n_g is duckdb.sql("""
     avg_balance is avg(balance)
     max_balance is max(balance)
     min_balance is min(balance)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// ACCOUNTS (with joins)
+source: a_c_c_o_u_n_t_s is a_c_c_o_u_n_t_s_base extend {
+  join_many: s_a_v_i_n_g_s is s_a_v_i_n_g_s_base on custid = s_a_v_i_n_g_s.custid
+  join_many: c_h_e_c_k_i_n_g is c_h_e_c_k_i_n_g_base on custid = c_h_e_c_k_i_n_g.custid
+}
+
+// SAVINGS (with joins)
+source: s_a_v_i_n_g_s is s_a_v_i_n_g_s_base extend {
+  join_one: a_c_c_o_u_n_t_s is a_c_c_o_u_n_t_s_base on custid = a_c_c_o_u_n_t_s.custid
+}
+
+// CHECKING (with joins)
+source: c_h_e_c_k_i_n_g is c_h_e_c_k_i_n_g_base extend {
+  join_one: a_c_c_o_u_n_t_s is a_c_c_o_u_n_t_s_base on custid = a_c_c_o_u_n_t_s.custid
 }

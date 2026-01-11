@@ -1,9 +1,13 @@
 // Malloy semantic layer for: movie_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/movie_1/movie_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Movie
-source: movie is duckdb.sql("""
+source: movie_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Movie')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: movie is duckdb.sql("""
 }
 
 // Reviewer
-source: reviewer is duckdb.sql("""
+source: reviewer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Reviewer')
 """) extend {
   dimension:
@@ -43,16 +47,13 @@ source: reviewer is duckdb.sql("""
 }
 
 // Rating
-source: rating is duckdb.sql("""
+source: rating_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Rating')
 """) extend {
   dimension:
     r_i_d is rID
     m_i_d is mID
     rating_date is ratingDate
-
-  join_one: reviewer on r_i_d = reviewer.r_i_d
-  join_one: movie on m_i_d = movie.m_i_d
 
   measure:
     row_count is count()
@@ -68,4 +69,24 @@ source: rating is duckdb.sql("""
     avg_stars is avg(stars)
     max_stars is max(stars)
     min_stars is min(stars)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Movie (with joins)
+source: movie is movie_base extend {
+  join_many: rating is rating_base on m_i_d = rating.m_i_d
+}
+
+// Reviewer (with joins)
+source: reviewer is reviewer_base extend {
+  join_many: rating is rating_base on r_i_d = rating.r_i_d
+}
+
+// Rating (with joins)
+source: rating is rating_base extend {
+  join_one: reviewer is reviewer_base on r_i_d = reviewer.r_i_d
+  join_one: movie is movie_base on m_i_d = movie.m_i_d
 }

@@ -1,9 +1,47 @@
 // Malloy semantic layer for: body_builder
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/body_builder/body_builder.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// body_builder
+source: body_builder_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/body_builder/body_builder.sqlite', 'body_builder')
+""") extend {
+  dimension:
+    body_builder_i_d is Body_Builder_ID
+    people_i_d is People_ID
+
+  primary_key: body_builder_i_d
+
+  measure:
+    row_count is count()
+    total_body_builder_i_d is sum(body_builder_i_d)
+    avg_body_builder_i_d is avg(body_builder_i_d)
+    max_body_builder_i_d is max(body_builder_i_d)
+    min_body_builder_i_d is min(body_builder_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
+    total_snatch is sum(Snatch)
+    avg_snatch is avg(Snatch)
+    max_snatch is max(Snatch)
+    min_snatch is min(Snatch)
+    total_clean_jerk is sum(Clean_Jerk)
+    avg_clean_jerk is avg(Clean_Jerk)
+    max_clean_jerk is max(Clean_Jerk)
+    min_clean_jerk is min(Clean_Jerk)
+    total_total is sum(Total)
+    avg_total is avg(Total)
+    max_total is max(Total)
+    min_total is min(Total)
+}
+
 // people
-source: people_val is duckdb.sql("""
+source: people_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/body_builder/body_builder.sqlite', 'people')
 """) extend {
   dimension:
@@ -28,38 +66,16 @@ source: people_val is duckdb.sql("""
     min_weight is min(Weight)
 }
 
-// body_builder
-source: body_builder is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/body_builder/body_builder.sqlite', 'body_builder')
-""") extend {
-  dimension:
-    body_builder_i_d is Body_Builder_ID
-    people_i_d is People_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: body_builder_i_d
+// body_builder (with joins)
+source: body_builder is body_builder_base extend {
+  join_one: people_val is people_val_base on people_i_d = people_val.people_i_d
+}
 
-  join_one: people_val on people_i_d = people_val.people_i_d
-
-  measure:
-    row_count is count()
-    total_body_builder_i_d is sum(body_builder_i_d)
-    avg_body_builder_i_d is avg(body_builder_i_d)
-    max_body_builder_i_d is max(body_builder_i_d)
-    min_body_builder_i_d is min(body_builder_i_d)
-    total_people_i_d is sum(people_i_d)
-    avg_people_i_d is avg(people_i_d)
-    max_people_i_d is max(people_i_d)
-    min_people_i_d is min(people_i_d)
-    total_snatch is sum(Snatch)
-    avg_snatch is avg(Snatch)
-    max_snatch is max(Snatch)
-    min_snatch is min(Snatch)
-    total_clean_jerk is sum(Clean_Jerk)
-    avg_clean_jerk is avg(Clean_Jerk)
-    max_clean_jerk is max(Clean_Jerk)
-    min_clean_jerk is min(Clean_Jerk)
-    total_total is sum(Total)
-    avg_total is avg(Total)
-    max_total is max(Total)
-    min_total is min(Total)
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: body_builder is body_builder_base on people_i_d = body_builder.people_i_d
 }

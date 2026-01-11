@@ -1,9 +1,13 @@
 // Malloy semantic layer for: hr_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/hr_1/hr_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // regions
-source: regions is duckdb.sql("""
+source: regions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'regions')
 """) extend {
   dimension:
@@ -20,8 +24,27 @@ source: regions is duckdb.sql("""
     min_r_e_g_i_o_n_i_d is min(r_e_g_i_o_n_i_d)
 }
 
+// countries
+source: countries_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'countries')
+""") extend {
+  dimension:
+    c_o_u_n_t_r_y_i_d is COUNTRY_ID
+    c_o_u_n_t_r_y_n_a_m_e is COUNTRY_NAME
+    r_e_g_i_o_n_i_d is REGION_ID
+
+  primary_key: c_o_u_n_t_r_y_i_d
+
+  measure:
+    row_count is count()
+    total_r_e_g_i_o_n_i_d is sum(r_e_g_i_o_n_i_d)
+    avg_r_e_g_i_o_n_i_d is avg(r_e_g_i_o_n_i_d)
+    max_r_e_g_i_o_n_i_d is max(r_e_g_i_o_n_i_d)
+    min_r_e_g_i_o_n_i_d is min(r_e_g_i_o_n_i_d)
+}
+
 // departments
-source: departments is duckdb.sql("""
+source: departments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'departments')
 """) extend {
   dimension:
@@ -49,7 +72,7 @@ source: departments is duckdb.sql("""
 }
 
 // jobs
-source: jobs is duckdb.sql("""
+source: jobs_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'jobs')
 """) extend {
   dimension:
@@ -72,29 +95,8 @@ source: jobs is duckdb.sql("""
     min_m_a_x_s_a_l_a_r_y is min(m_a_x_s_a_l_a_r_y)
 }
 
-// countries
-source: countries is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'countries')
-""") extend {
-  dimension:
-    c_o_u_n_t_r_y_i_d is COUNTRY_ID
-    c_o_u_n_t_r_y_n_a_m_e is COUNTRY_NAME
-    r_e_g_i_o_n_i_d is REGION_ID
-
-  primary_key: c_o_u_n_t_r_y_i_d
-
-  join_one: regions on r_e_g_i_o_n_i_d = regions.r_e_g_i_o_n_i_d
-
-  measure:
-    row_count is count()
-    total_r_e_g_i_o_n_i_d is sum(r_e_g_i_o_n_i_d)
-    avg_r_e_g_i_o_n_i_d is avg(r_e_g_i_o_n_i_d)
-    max_r_e_g_i_o_n_i_d is max(r_e_g_i_o_n_i_d)
-    min_r_e_g_i_o_n_i_d is min(r_e_g_i_o_n_i_d)
-}
-
 // employees
-source: employees is duckdb.sql("""
+source: employees_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'employees')
 """) extend {
   dimension:
@@ -111,9 +113,6 @@ source: employees is duckdb.sql("""
     d_e_p_a_r_t_m_e_n_t_i_d is DEPARTMENT_ID
 
   primary_key: e_m_p_l_o_y_e_e_i_d
-
-  join_one: jobs on j_o_b_i_d = jobs.j_o_b_i_d
-  join_one: departments on d_e_p_a_r_t_m_e_n_t_i_d = departments.d_e_p_a_r_t_m_e_n_t_i_d
 
   measure:
     row_count is count()
@@ -139,8 +138,33 @@ source: employees is duckdb.sql("""
     min_d_e_p_a_r_t_m_e_n_t_i_d is min(d_e_p_a_r_t_m_e_n_t_i_d)
 }
 
+// job_history
+source: job_history_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'job_history')
+""") extend {
+  dimension:
+    e_m_p_l_o_y_e_e_i_d is EMPLOYEE_ID
+    s_t_a_r_t_d_a_t_e is START_DATE
+    e_n_d_d_a_t_e is END_DATE
+    j_o_b_i_d is JOB_ID
+    d_e_p_a_r_t_m_e_n_t_i_d is DEPARTMENT_ID
+
+  primary_key: e_m_p_l_o_y_e_e_i_d
+
+  measure:
+    row_count is count()
+    total_e_m_p_l_o_y_e_e_i_d is sum(e_m_p_l_o_y_e_e_i_d)
+    avg_e_m_p_l_o_y_e_e_i_d is avg(e_m_p_l_o_y_e_e_i_d)
+    max_e_m_p_l_o_y_e_e_i_d is max(e_m_p_l_o_y_e_e_i_d)
+    min_e_m_p_l_o_y_e_e_i_d is min(e_m_p_l_o_y_e_e_i_d)
+    total_d_e_p_a_r_t_m_e_n_t_i_d is sum(d_e_p_a_r_t_m_e_n_t_i_d)
+    avg_d_e_p_a_r_t_m_e_n_t_i_d is avg(d_e_p_a_r_t_m_e_n_t_i_d)
+    max_d_e_p_a_r_t_m_e_n_t_i_d is max(d_e_p_a_r_t_m_e_n_t_i_d)
+    min_d_e_p_a_r_t_m_e_n_t_i_d is min(d_e_p_a_r_t_m_e_n_t_i_d)
+}
+
 // locations
-source: locations is duckdb.sql("""
+source: locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'locations')
 """) extend {
   dimension:
@@ -153,8 +177,6 @@ source: locations is duckdb.sql("""
 
   primary_key: l_o_c_a_t_i_o_n_i_d
 
-  join_one: countries on c_o_u_n_t_r_y_i_d = countries.c_o_u_n_t_r_y_i_d
-
   measure:
     row_count is count()
     total_l_o_c_a_t_i_o_n_i_d is sum(l_o_c_a_t_i_o_n_i_d)
@@ -163,31 +185,48 @@ source: locations is duckdb.sql("""
     min_l_o_c_a_t_i_o_n_i_d is min(l_o_c_a_t_i_o_n_i_d)
 }
 
-// job_history
-source: job_history is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/hr_1/hr_1.sqlite', 'job_history')
-""") extend {
-  dimension:
-    e_m_p_l_o_y_e_e_i_d is EMPLOYEE_ID
-    s_t_a_r_t_d_a_t_e is START_DATE
-    e_n_d_d_a_t_e is END_DATE
-    j_o_b_i_d is JOB_ID
-    d_e_p_a_r_t_m_e_n_t_i_d is DEPARTMENT_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: e_m_p_l_o_y_e_e_i_d
+// regions (with joins)
+source: regions is regions_base extend {
+  join_many: countries is countries_base on r_e_g_i_o_n_i_d = countries.r_e_g_i_o_n_i_d
+}
 
-  join_one: jobs on j_o_b_i_d = jobs.j_o_b_i_d
-  join_one: departments on d_e_p_a_r_t_m_e_n_t_i_d = departments.d_e_p_a_r_t_m_e_n_t_i_d
-  join_one: employees on e_m_p_l_o_y_e_e_i_d = employees.e_m_p_l_o_y_e_e_i_d
+// countries (with joins)
+source: countries is countries_base extend {
+  join_one: regions is regions_base on r_e_g_i_o_n_i_d = regions.r_e_g_i_o_n_i_d
+  join_many: locations is locations_base on c_o_u_n_t_r_y_i_d = locations.c_o_u_n_t_r_y_i_d
+}
 
-  measure:
-    row_count is count()
-    total_e_m_p_l_o_y_e_e_i_d is sum(e_m_p_l_o_y_e_e_i_d)
-    avg_e_m_p_l_o_y_e_e_i_d is avg(e_m_p_l_o_y_e_e_i_d)
-    max_e_m_p_l_o_y_e_e_i_d is max(e_m_p_l_o_y_e_e_i_d)
-    min_e_m_p_l_o_y_e_e_i_d is min(e_m_p_l_o_y_e_e_i_d)
-    total_d_e_p_a_r_t_m_e_n_t_i_d is sum(d_e_p_a_r_t_m_e_n_t_i_d)
-    avg_d_e_p_a_r_t_m_e_n_t_i_d is avg(d_e_p_a_r_t_m_e_n_t_i_d)
-    max_d_e_p_a_r_t_m_e_n_t_i_d is max(d_e_p_a_r_t_m_e_n_t_i_d)
-    min_d_e_p_a_r_t_m_e_n_t_i_d is min(d_e_p_a_r_t_m_e_n_t_i_d)
+// departments (with joins)
+source: departments is departments_base extend {
+  join_many: employees is employees_base on d_e_p_a_r_t_m_e_n_t_i_d = employees.d_e_p_a_r_t_m_e_n_t_i_d
+  join_many: job_history is job_history_base on d_e_p_a_r_t_m_e_n_t_i_d = job_history.d_e_p_a_r_t_m_e_n_t_i_d
+}
+
+// jobs (with joins)
+source: jobs is jobs_base extend {
+  join_many: employees is employees_base on j_o_b_i_d = employees.j_o_b_i_d
+  join_many: job_history is job_history_base on j_o_b_i_d = job_history.j_o_b_i_d
+}
+
+// employees (with joins)
+source: employees is employees_base extend {
+  join_one: jobs is jobs_base on j_o_b_i_d = jobs.j_o_b_i_d
+  join_one: departments is departments_base on d_e_p_a_r_t_m_e_n_t_i_d = departments.d_e_p_a_r_t_m_e_n_t_i_d
+  join_many: job_history is job_history_base on e_m_p_l_o_y_e_e_i_d = job_history.e_m_p_l_o_y_e_e_i_d
+}
+
+// job_history (with joins)
+source: job_history is job_history_base extend {
+  join_one: jobs is jobs_base on j_o_b_i_d = jobs.j_o_b_i_d
+  join_one: departments is departments_base on d_e_p_a_r_t_m_e_n_t_i_d = departments.d_e_p_a_r_t_m_e_n_t_i_d
+  join_one: employees is employees_base on e_m_p_l_o_y_e_e_i_d = employees.e_m_p_l_o_y_e_e_i_d
+}
+
+// locations (with joins)
+source: locations is locations_base extend {
+  join_one: countries is countries_base on c_o_u_n_t_r_y_i_d = countries.c_o_u_n_t_r_y_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: swimming
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/swimming/swimming.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // swimmer
-source: swimmer is duckdb.sql("""
+source: swimmer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'swimmer')
 """) extend {
   dimension:
@@ -26,7 +30,7 @@ source: swimmer is duckdb.sql("""
 }
 
 // stadium
-source: stadium is duckdb.sql("""
+source: stadium_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'stadium')
 """) extend {
   dimension:
@@ -52,7 +56,7 @@ source: stadium is duckdb.sql("""
 }
 
 // event
-source: event is duckdb.sql("""
+source: event_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'event')
 """) extend {
   dimension:
@@ -62,8 +66,6 @@ source: event is duckdb.sql("""
     year_val is `Year`
 
   primary_key: i_d
-
-  join_one: stadium on stadium_i_d = stadium.i_d
 
   measure:
     row_count is count()
@@ -78,7 +80,7 @@ source: event is duckdb.sql("""
 }
 
 // record
-source: record is duckdb.sql("""
+source: record_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'record')
 """) extend {
   dimension:
@@ -88,9 +90,6 @@ source: record is duckdb.sql("""
     event_i_d is Event_ID
 
   primary_key: swimmer_i_d
-
-  join_one: swimmer on swimmer_i_d = swimmer.i_d
-  join_one: event on event_i_d = event.i_d
 
   measure:
     row_count is count()
@@ -106,4 +105,30 @@ source: record is duckdb.sql("""
     avg_event_i_d is avg(event_i_d)
     max_event_i_d is max(event_i_d)
     min_event_i_d is min(event_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// swimmer (with joins)
+source: swimmer is swimmer_base extend {
+  join_many: record is record_base on i_d = record.swimmer_i_d
+}
+
+// stadium (with joins)
+source: stadium is stadium_base extend {
+  join_many: event is event_base on i_d = event.stadium_i_d
+}
+
+// event (with joins)
+source: event is event_base extend {
+  join_one: stadium is stadium_base on stadium_i_d = stadium.i_d
+  join_many: record is record_base on i_d = record.event_i_d
+}
+
+// record (with joins)
+source: record is record_base extend {
+  join_one: swimmer is swimmer_base on swimmer_i_d = swimmer.i_d
+  join_one: event is event_base on event_i_d = event.i_d
 }

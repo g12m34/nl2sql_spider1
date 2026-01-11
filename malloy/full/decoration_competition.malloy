@@ -1,9 +1,13 @@
 // Malloy semantic layer for: decoration_competition
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // college
-source: college is duckdb.sql("""
+source: college_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite', 'college')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: college is duckdb.sql("""
 }
 
 // member
-source: member is duckdb.sql("""
+source: member_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite', 'member')
 """) extend {
   dimension:
@@ -30,8 +34,6 @@ source: member is duckdb.sql("""
     college_i_d is College_ID
 
   primary_key: member_i_d
-
-  join_one: college on college_i_d = college.college_i_d
 
   measure:
     row_count is count()
@@ -46,7 +48,7 @@ source: member is duckdb.sql("""
 }
 
 // round
-source: round_val is duckdb.sql("""
+source: round_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite', 'round')
 """) extend {
   dimension:
@@ -54,8 +56,6 @@ source: round_val is duckdb.sql("""
     member_i_d is Member_ID
 
   primary_key: member_i_d
-
-  join_one: member on member_i_d = member.member_i_d
 
   measure:
     row_count is count()
@@ -71,4 +71,24 @@ source: round_val is duckdb.sql("""
     avg_rank_in_round is avg(Rank_in_Round)
     max_rank_in_round is max(Rank_in_Round)
     min_rank_in_round is min(Rank_in_Round)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// college (with joins)
+source: college is college_base extend {
+  join_many: member is member_base on college_i_d = member.college_i_d
+}
+
+// member (with joins)
+source: member is member_base extend {
+  join_one: college is college_base on college_i_d = college.college_i_d
+  join_many: round_val is round_val_base on member_i_d = round_val.member_i_d
+}
+
+// round (with joins)
+source: round_val is round_val_base extend {
+  join_one: member is member_base on member_i_d = member.member_i_d
 }

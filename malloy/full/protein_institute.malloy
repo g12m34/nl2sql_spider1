@@ -1,9 +1,13 @@
 // Malloy semantic layer for: protein_institute
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // building
-source: building is duckdb.sql("""
+source: building_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'building')
 """) extend {
   dimension:
@@ -24,15 +28,13 @@ source: building is duckdb.sql("""
 }
 
 // Institution
-source: institution is duckdb.sql("""
+source: institution_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'Institution')
 """) extend {
   dimension:
     type_val is `Type`
 
   primary_key: Institution_id
-
-  join_one: building on building_id = building.building_id
 
   measure:
     row_count is count()
@@ -47,12 +49,10 @@ source: institution is duckdb.sql("""
 }
 
 // protein
-source: protein is duckdb.sql("""
+source: protein_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'protein')
 """) extend {
   primary_key: common_name
-
-  join_one: institution on Institution_id = institution.Institution_id
 
   measure:
     row_count is count()
@@ -64,4 +64,24 @@ source: protein is duckdb.sql("""
     avg_sequence_length is avg(sequence_length)
     max_sequence_length is max(sequence_length)
     min_sequence_length is min(sequence_length)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// building (with joins)
+source: building is building_base extend {
+  join_many: institution is institution_base on building_id = institution.building_id
+}
+
+// Institution (with joins)
+source: institution is institution_base extend {
+  join_one: building is building_base on building_id = building.building_id
+  join_many: protein is protein_base on Institution_id = protein.Institution_id
+}
+
+// protein (with joins)
+source: protein is protein_base extend {
+  join_one: institution is institution_base on Institution_id = institution.Institution_id
 }

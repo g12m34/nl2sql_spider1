@@ -1,9 +1,13 @@
 // Malloy semantic layer for: entertainment_awards
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // festival_detail
-source: festival_detail is duckdb.sql("""
+source: festival_detail_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite', 'festival_detail')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: festival_detail is duckdb.sql("""
 }
 
 // artwork
-source: artwork is duckdb.sql("""
+source: artwork_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite', 'artwork')
 """) extend {
   dimension:
@@ -48,7 +52,7 @@ source: artwork is duckdb.sql("""
 }
 
 // nomination
-source: nomination is duckdb.sql("""
+source: nomination_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite', 'nomination')
 """) extend {
   dimension:
@@ -57,9 +61,6 @@ source: nomination is duckdb.sql("""
     result_val is `Result`
 
   primary_key: artwork_i_d
-
-  join_one: festival_detail on festival_i_d = festival_detail.festival_i_d
-  join_one: artwork on artwork_i_d = artwork.artwork_i_d
 
   measure:
     row_count is count()
@@ -71,4 +72,24 @@ source: nomination is duckdb.sql("""
     avg_festival_i_d is avg(festival_i_d)
     max_festival_i_d is max(festival_i_d)
     min_festival_i_d is min(festival_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// festival_detail (with joins)
+source: festival_detail is festival_detail_base extend {
+  join_many: nomination is nomination_base on festival_i_d = nomination.festival_i_d
+}
+
+// artwork (with joins)
+source: artwork is artwork_base extend {
+  join_many: nomination is nomination_base on artwork_i_d = nomination.artwork_i_d
+}
+
+// nomination (with joins)
+source: nomination is nomination_base extend {
+  join_one: festival_detail is festival_detail_base on festival_i_d = festival_detail.festival_i_d
+  join_one: artwork is artwork_base on artwork_i_d = artwork.artwork_i_d
 }

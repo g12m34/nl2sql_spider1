@@ -1,9 +1,13 @@
 // Malloy semantic layer for: dorm_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: student_val is duckdb.sql("""
 }
 
 // Dorm
-source: dorm is duckdb.sql("""
+source: dorm_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Dorm')
 """) extend {
   measure:
@@ -49,7 +53,7 @@ source: dorm is duckdb.sql("""
 }
 
 // Dorm_amenity
-source: dorm_amenity is duckdb.sql("""
+source: dorm_amenity_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Dorm_amenity')
 """) extend {
   measure:
@@ -60,13 +64,26 @@ source: dorm_amenity is duckdb.sql("""
     min_amenid is min(amenid)
 }
 
+// Has_amenity
+source: has_amenity_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Has_amenity')
+""") extend {
+  measure:
+    row_count is count()
+    total_dormid is sum(dormid)
+    avg_dormid is avg(dormid)
+    max_dormid is max(dormid)
+    min_dormid is min(dormid)
+    total_amenid is sum(amenid)
+    avg_amenid is avg(amenid)
+    max_amenid is max(amenid)
+    min_amenid is min(amenid)
+}
+
 // Lives_in
-source: lives_in is duckdb.sql("""
+source: lives_in_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Lives_in')
 """) extend {
-  join_one: dorm on dormid = dorm.dormid
-  join_one: student_val on stuid = student_val.stu_i_d
-
   measure:
     row_count is count()
     total_stuid is sum(stuid)
@@ -83,21 +100,34 @@ source: lives_in is duckdb.sql("""
     min_room_number is min(room_number)
 }
 
-// Has_amenity
-source: has_amenity is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dorm_1/dorm_1.sqlite', 'Has_amenity')
-""") extend {
-  join_one: dorm_amenity on amenid = dorm_amenity.amenid
-  join_one: dorm on dormid = dorm.dormid
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  measure:
-    row_count is count()
-    total_dormid is sum(dormid)
-    avg_dormid is avg(dormid)
-    max_dormid is max(dormid)
-    min_dormid is min(dormid)
-    total_amenid is sum(amenid)
-    avg_amenid is avg(amenid)
-    max_amenid is max(amenid)
-    min_amenid is min(amenid)
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: lives_in is lives_in_base on stu_i_d = lives_in.stuid
+}
+
+// Dorm (with joins)
+source: dorm is dorm_base extend {
+  join_many: has_amenity is has_amenity_base on dormid = has_amenity.dormid
+  join_many: lives_in is lives_in_base on dormid = lives_in.dormid
+}
+
+// Dorm_amenity (with joins)
+source: dorm_amenity is dorm_amenity_base extend {
+  join_many: has_amenity is has_amenity_base on amenid = has_amenity.amenid
+}
+
+// Has_amenity (with joins)
+source: has_amenity is has_amenity_base extend {
+  join_one: dorm_amenity is dorm_amenity_base on amenid = dorm_amenity.amenid
+  join_one: dorm is dorm_base on dormid = dorm.dormid
+}
+
+// Lives_in (with joins)
+source: lives_in is lives_in_base extend {
+  join_one: dorm is dorm_base on dormid = dorm.dormid
+  join_one: student_val is student_val_base on stuid = student_val.stu_i_d
 }

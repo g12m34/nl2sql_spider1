@@ -1,9 +1,13 @@
 // Malloy semantic layer for: museum_visit
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // museum
-source: museum is duckdb.sql("""
+source: museum_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite', 'museum')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: museum is duckdb.sql("""
 }
 
 // visitor
-source: visitor is duckdb.sql("""
+source: visitor_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite', 'visitor')
 """) extend {
   dimension:
@@ -51,7 +55,7 @@ source: visitor is duckdb.sql("""
 }
 
 // visit
-source: visit is duckdb.sql("""
+source: visit_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/museum_visit/museum_visit.sqlite', 'visit')
 """) extend {
   dimension:
@@ -59,9 +63,6 @@ source: visit is duckdb.sql("""
     visitor_i_d is visitor_ID
 
   primary_key: museum_i_d
-
-  join_one: visitor on visitor_i_d = visitor.i_d
-  join_one: museum on museum_i_d = museum.museum_i_d
 
   measure:
     row_count is count()
@@ -77,4 +78,24 @@ source: visit is duckdb.sql("""
     avg_total_spent is avg(Total_spent)
     max_total_spent is max(Total_spent)
     min_total_spent is min(Total_spent)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// museum (with joins)
+source: museum is museum_base extend {
+  join_many: visit is visit_base on museum_i_d = visit.museum_i_d
+}
+
+// visitor (with joins)
+source: visitor is visitor_base extend {
+  join_many: visit is visit_base on i_d = visit.visitor_i_d
+}
+
+// visit (with joins)
+source: visit is visit_base extend {
+  join_one: visitor is visitor_base on visitor_i_d = visitor.i_d
+  join_one: museum is museum_base on museum_i_d = museum.museum_i_d
 }

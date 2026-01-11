@@ -1,9 +1,13 @@
 // Malloy semantic layer for: tracking_orders
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -17,7 +21,7 @@ source: customers is duckdb.sql("""
 }
 
 // Invoices
-source: invoices is duckdb.sql("""
+source: invoices_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Invoices')
 """) extend {
   primary_key: invoice_number
@@ -30,27 +34,11 @@ source: invoices is duckdb.sql("""
     min_invoice_number is min(invoice_number)
 }
 
-// Products
-source: products is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Products')
-""") extend {
-  primary_key: product_id
-
-  measure:
-    row_count is count()
-    total_product_id is sum(product_id)
-    avg_product_id is avg(product_id)
-    max_product_id is max(product_id)
-    min_product_id is min(product_id)
-}
-
 // Orders
-source: orders is duckdb.sql("""
+source: orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Orders')
 """) extend {
   primary_key: order_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -64,14 +52,25 @@ source: orders is duckdb.sql("""
     min_customer_id is min(customer_id)
 }
 
+// Products
+source: products_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Products')
+""") extend {
+  primary_key: product_id
+
+  measure:
+    row_count is count()
+    total_product_id is sum(product_id)
+    avg_product_id is avg(product_id)
+    max_product_id is max(product_id)
+    min_product_id is min(product_id)
+}
+
 // Order_Items
-source: order_items is duckdb.sql("""
+source: order_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Order_Items')
 """) extend {
   primary_key: order_item_id
-
-  join_one: products on product_id = products.product_id
-  join_one: orders on order_id = orders.order_id
 
   measure:
     row_count is count()
@@ -90,13 +89,10 @@ source: order_items is duckdb.sql("""
 }
 
 // Shipments
-source: shipments is duckdb.sql("""
+source: shipments_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Shipments')
 """) extend {
   primary_key: shipment_id
-
-  join_one: invoices on invoice_number = invoices.invoice_number
-  join_one: orders on order_id = orders.order_id
 
   measure:
     row_count is count()
@@ -115,12 +111,9 @@ source: shipments is duckdb.sql("""
 }
 
 // Shipment_Items
-source: shipment_items is duckdb.sql("""
+source: shipment_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_orders/tracking_orders.sqlite', 'Shipment_Items')
 """) extend {
-  join_one: shipments on shipment_id = shipments.shipment_id
-  join_one: order_items on order_item_id = order_items.order_item_id
-
   measure:
     row_count is count()
     total_shipment_id is sum(shipment_id)
@@ -131,4 +124,50 @@ source: shipment_items is duckdb.sql("""
     avg_order_item_id is avg(order_item_id)
     max_order_item_id is max(order_item_id)
     min_order_item_id is min(order_item_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: orders is orders_base on customer_id = orders.customer_id
+}
+
+// Invoices (with joins)
+source: invoices is invoices_base extend {
+  join_many: shipments is shipments_base on invoice_number = shipments.invoice_number
+}
+
+// Orders (with joins)
+source: orders is orders_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: order_items is order_items_base on order_id = order_items.order_id
+  join_many: shipments is shipments_base on order_id = shipments.order_id
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: order_items is order_items_base on product_id = order_items.product_id
+}
+
+// Order_Items (with joins)
+source: order_items is order_items_base extend {
+  join_one: products is products_base on product_id = products.product_id
+  join_one: orders is orders_base on order_id = orders.order_id
+  join_many: shipment_items is shipment_items_base on order_item_id = shipment_items.order_item_id
+}
+
+// Shipments (with joins)
+source: shipments is shipments_base extend {
+  join_one: invoices is invoices_base on invoice_number = invoices.invoice_number
+  join_one: orders is orders_base on order_id = orders.order_id
+  join_many: shipment_items is shipment_items_base on shipment_id = shipment_items.shipment_id
+}
+
+// Shipment_Items (with joins)
+source: shipment_items is shipment_items_base extend {
+  join_one: shipments is shipments_base on shipment_id = shipments.shipment_id
+  join_one: order_items is order_items_base on order_item_id = order_items.order_item_id
 }

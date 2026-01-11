@@ -1,9 +1,13 @@
 // Malloy semantic layer for: sports_competition
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // club
-source: club_val is duckdb.sql("""
+source: club_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'club')
 """) extend {
   dimension:
@@ -20,30 +24,8 @@ source: club_val is duckdb.sql("""
     min_club_i_d is min(club_i_d)
 }
 
-// competition
-source: competition is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'competition')
-""") extend {
-  dimension:
-    competition_i_d is Competition_ID
-    year_val is `Year`
-
-  primary_key: competition_i_d
-
-  measure:
-    row_count is count()
-    total_competition_i_d is sum(competition_i_d)
-    avg_competition_i_d is avg(competition_i_d)
-    max_competition_i_d is max(competition_i_d)
-    min_competition_i_d is min(competition_i_d)
-    total_year_val is sum(year_val)
-    avg_year_val is avg(year_val)
-    max_year_val is max(year_val)
-    min_year_val is min(year_val)
-}
-
 // club_rank
-source: club_rank is duckdb.sql("""
+source: club_rank_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'club_rank')
 """) extend {
   dimension:
@@ -51,8 +33,6 @@ source: club_rank is duckdb.sql("""
     club_i_d is Club_ID
 
   primary_key: rank_val
-
-  join_one: club_val on club_i_d = club_val.club_i_d
 
   measure:
     row_count is count()
@@ -83,7 +63,7 @@ source: club_rank is duckdb.sql("""
 }
 
 // player
-source: player is duckdb.sql("""
+source: player_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'player')
 """) extend {
   dimension:
@@ -93,8 +73,6 @@ source: player is duckdb.sql("""
     club_i_d is Club_ID
 
   primary_key: player_i_d
-
-  join_one: club_val on club_i_d = club_val.club_i_d
 
   measure:
     row_count is count()
@@ -120,8 +98,30 @@ source: player is duckdb.sql("""
     min_points is min(Points)
 }
 
+// competition
+source: competition_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'competition')
+""") extend {
+  dimension:
+    competition_i_d is Competition_ID
+    year_val is `Year`
+
+  primary_key: competition_i_d
+
+  measure:
+    row_count is count()
+    total_competition_i_d is sum(competition_i_d)
+    avg_competition_i_d is avg(competition_i_d)
+    max_competition_i_d is max(competition_i_d)
+    min_competition_i_d is min(competition_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+}
+
 // competition_result
-source: competition_result is duckdb.sql("""
+source: competition_result_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sports_competition/sports_competition.sqlite', 'competition_result')
 """) extend {
   dimension:
@@ -130,10 +130,6 @@ source: competition_result is duckdb.sql("""
     club_i_d_2 is Club_ID_2
 
   primary_key: competition_i_d
-
-  join_one: competition on competition_i_d = competition.competition_i_d
-  join_one: club_i_d_2_club_val is club_val on club_i_d_2 = club_i_d_2_club_val.club_i_d
-  join_one: club_i_d_1_club_val is club_val on club_i_d_1 = club_i_d_1_club_val.club_i_d
 
   measure:
     row_count is count()
@@ -149,4 +145,38 @@ source: competition_result is duckdb.sql("""
     avg_club_i_d_2 is avg(club_i_d_2)
     max_club_i_d_2 is max(club_i_d_2)
     min_club_i_d_2 is min(club_i_d_2)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// club (with joins)
+source: club_val is club_val_base extend {
+  join_many: club_rank is club_rank_base on club_i_d = club_rank.club_i_d
+  join_many: player is player_base on club_i_d = player.club_i_d
+  join_many: competition_result_club_i_d_2 is competition_result_base on club_i_d = competition_result_club_i_d_2.club_i_d_2
+  join_many: competition_result_club_i_d_1 is competition_result_base on club_i_d = competition_result_club_i_d_1.club_i_d_1
+}
+
+// club_rank (with joins)
+source: club_rank is club_rank_base extend {
+  join_one: club_val is club_val_base on club_i_d = club_val.club_i_d
+}
+
+// player (with joins)
+source: player is player_base extend {
+  join_one: club_val is club_val_base on club_i_d = club_val.club_i_d
+}
+
+// competition (with joins)
+source: competition is competition_base extend {
+  join_many: competition_result is competition_result_base on competition_i_d = competition_result.competition_i_d
+}
+
+// competition_result (with joins)
+source: competition_result is competition_result_base extend {
+  join_one: competition is competition_base on competition_i_d = competition.competition_i_d
+  join_one: club_i_d_2_club_val is club_val_base on club_i_d_2 = club_i_d_2_club_val.club_i_d
+  join_one: club_i_d_1_club_val is club_val_base on club_i_d_1 = club_i_d_1_club_val.club_i_d
 }

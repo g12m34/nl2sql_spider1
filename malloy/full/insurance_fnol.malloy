@@ -1,9 +1,13 @@
 // Malloy semantic layer for: insurance_fnol
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Customers')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: customers is duckdb.sql("""
 }
 
 // Services
-source: services is duckdb.sql("""
+source: services_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Services')
 """) extend {
   dimension:
@@ -37,7 +41,7 @@ source: services is duckdb.sql("""
 }
 
 // Available_Policies
-source: available_policies is duckdb.sql("""
+source: available_policies_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Available_Policies')
 """) extend {
   dimension:
@@ -54,7 +58,7 @@ source: available_policies is duckdb.sql("""
 }
 
 // Customers_Policies
-source: customers_policies is duckdb.sql("""
+source: customers_policies_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Customers_Policies')
 """) extend {
   dimension:
@@ -62,9 +66,6 @@ source: customers_policies is duckdb.sql("""
     policy_i_d is Policy_ID
 
   primary_key: customer_i_d
-
-  join_one: available_policies on policy_i_d = available_policies.policy_i_d
-  join_one: customers on customer_i_d = customers.customer_i_d
 
   measure:
     row_count is count()
@@ -79,7 +80,7 @@ source: customers_policies is duckdb.sql("""
 }
 
 // First_Notification_of_Loss
-source: first_notification_of_loss is duckdb.sql("""
+source: first_notification_of_loss_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'First_Notification_of_Loss')
 """) extend {
   dimension:
@@ -89,10 +90,6 @@ source: first_notification_of_loss is duckdb.sql("""
     service_i_d is Service_ID
 
   primary_key: f_n_o_l_i_d
-
-  join_one: customer_i_d_customers_policies is customers_policies on customer_i_d = customer_i_d_customers_policies.customer_i_d
-  join_one: policy_i_d_customers_policies is customers_policies on policy_i_d = policy_i_d_customers_policies.policy_i_d
-  join_one: services on service_i_d = services.service_i_d
 
   measure:
     row_count is count()
@@ -115,7 +112,7 @@ source: first_notification_of_loss is duckdb.sql("""
 }
 
 // Claims
-source: claims is duckdb.sql("""
+source: claims_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Claims')
 """) extend {
   dimension:
@@ -123,8 +120,6 @@ source: claims is duckdb.sql("""
     f_n_o_l_i_d is FNOL_ID
 
   primary_key: claim_i_d
-
-  join_one: first_notification_of_loss on f_n_o_l_i_d = first_notification_of_loss.f_n_o_l_i_d
 
   measure:
     row_count is count()
@@ -139,7 +134,7 @@ source: claims is duckdb.sql("""
 }
 
 // Settlements
-source: settlements is duckdb.sql("""
+source: settlements_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Settlements')
 """) extend {
   dimension:
@@ -147,8 +142,6 @@ source: settlements is duckdb.sql("""
     claim_i_d is Claim_ID
 
   primary_key: settlement_i_d
-
-  join_one: claims on claim_i_d = claims.claim_i_d
 
   measure:
     row_count is count()
@@ -164,4 +157,50 @@ source: settlements is duckdb.sql("""
     avg_settlement_amount is avg(Settlement_Amount)
     max_settlement_amount is max(Settlement_Amount)
     min_settlement_amount is min(Settlement_Amount)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: customers_policies is customers_policies_base on customer_i_d = customers_policies.customer_i_d
+}
+
+// Services (with joins)
+source: services is services_base extend {
+  join_many: first_notification_of_loss is first_notification_of_loss_base on service_i_d = first_notification_of_loss.service_i_d
+}
+
+// Available_Policies (with joins)
+source: available_policies is available_policies_base extend {
+  join_many: customers_policies is customers_policies_base on policy_i_d = customers_policies.policy_i_d
+}
+
+// Customers_Policies (with joins)
+source: customers_policies is customers_policies_base extend {
+  join_one: available_policies is available_policies_base on policy_i_d = available_policies.policy_i_d
+  join_one: customers is customers_base on customer_i_d = customers.customer_i_d
+  join_many: first_notification_of_loss_customer_i_d is first_notification_of_loss_base on customer_i_d = first_notification_of_loss_customer_i_d.customer_i_d
+  join_many: first_notification_of_loss_policy_i_d is first_notification_of_loss_base on policy_i_d = first_notification_of_loss_policy_i_d.policy_i_d
+}
+
+// First_Notification_of_Loss (with joins)
+source: first_notification_of_loss is first_notification_of_loss_base extend {
+  join_one: customer_i_d_customers_policies is customers_policies_base on customer_i_d = customer_i_d_customers_policies.customer_i_d
+  join_one: policy_i_d_customers_policies is customers_policies_base on policy_i_d = policy_i_d_customers_policies.policy_i_d
+  join_one: services is services_base on service_i_d = services.service_i_d
+  join_many: claims is claims_base on f_n_o_l_i_d = claims.f_n_o_l_i_d
+}
+
+// Claims (with joins)
+source: claims is claims_base extend {
+  join_one: first_notification_of_loss is first_notification_of_loss_base on f_n_o_l_i_d = first_notification_of_loss.f_n_o_l_i_d
+  join_many: settlements is settlements_base on claim_i_d = settlements.claim_i_d
+}
+
+// Settlements (with joins)
+source: settlements is settlements_base extend {
+  join_one: claims is claims_base on claim_i_d = claims.claim_i_d
 }

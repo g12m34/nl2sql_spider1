@@ -1,9 +1,39 @@
 // Malloy semantic layer for: entrepreneur
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// entrepreneur
+source: entrepreneur_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite', 'entrepreneur')
+""") extend {
+  dimension:
+    entrepreneur_i_d is Entrepreneur_ID
+    people_i_d is People_ID
+
+  primary_key: entrepreneur_i_d
+
+  measure:
+    row_count is count()
+    total_entrepreneur_i_d is sum(entrepreneur_i_d)
+    avg_entrepreneur_i_d is avg(entrepreneur_i_d)
+    max_entrepreneur_i_d is max(entrepreneur_i_d)
+    min_entrepreneur_i_d is min(entrepreneur_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
+    total_money_requested is sum(Money_Requested)
+    avg_money_requested is avg(Money_Requested)
+    max_money_requested is max(Money_Requested)
+    min_money_requested is min(Money_Requested)
+}
+
 // people
-source: people_val is duckdb.sql("""
+source: people_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite', 'people')
 """) extend {
   dimension:
@@ -28,30 +58,16 @@ source: people_val is duckdb.sql("""
     min_weight is min(Weight)
 }
 
-// entrepreneur
-source: entrepreneur is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite', 'entrepreneur')
-""") extend {
-  dimension:
-    entrepreneur_i_d is Entrepreneur_ID
-    people_i_d is People_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: entrepreneur_i_d
+// entrepreneur (with joins)
+source: entrepreneur is entrepreneur_base extend {
+  join_one: people_val is people_val_base on people_i_d = people_val.people_i_d
+}
 
-  join_one: people_val on people_i_d = people_val.people_i_d
-
-  measure:
-    row_count is count()
-    total_entrepreneur_i_d is sum(entrepreneur_i_d)
-    avg_entrepreneur_i_d is avg(entrepreneur_i_d)
-    max_entrepreneur_i_d is max(entrepreneur_i_d)
-    min_entrepreneur_i_d is min(entrepreneur_i_d)
-    total_people_i_d is sum(people_i_d)
-    avg_people_i_d is avg(people_i_d)
-    max_people_i_d is max(people_i_d)
-    min_people_i_d is min(people_i_d)
-    total_money_requested is sum(Money_Requested)
-    avg_money_requested is avg(Money_Requested)
-    max_money_requested is max(Money_Requested)
-    min_money_requested is min(Money_Requested)
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: entrepreneur is entrepreneur_base on people_i_d = entrepreneur.people_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: epinions_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // item
-source: item is duckdb.sql("""
+source: item_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'item')
 """) extend {
   primary_key: i_id
@@ -16,34 +20,14 @@ source: item is duckdb.sql("""
     min_i_id is min(i_id)
 }
 
-// useracct
-source: useracct is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'useracct')
-""") extend {
-  dimension:
-    name_val is `name`
-
-  primary_key: u_id
-
-  measure:
-    row_count is count()
-    total_u_id is sum(u_id)
-    avg_u_id is avg(u_id)
-    max_u_id is max(u_id)
-    min_u_id is min(u_id)
-}
-
 // review
-source: review is duckdb.sql("""
+source: review_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'review')
 """) extend {
   dimension:
     rank_val is `rank`
 
   primary_key: a_id
-
-  join_one: item on i_id = item.i_id
-  join_one: useracct on u_id = useracct.u_id
 
   measure:
     row_count is count()
@@ -69,13 +53,27 @@ source: review is duckdb.sql("""
     min_rank_val is min(rank_val)
 }
 
+// useracct
+source: useracct_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'useracct')
+""") extend {
+  dimension:
+    name_val is `name`
+
+  primary_key: u_id
+
+  measure:
+    row_count is count()
+    total_u_id is sum(u_id)
+    avg_u_id is avg(u_id)
+    max_u_id is max(u_id)
+    min_u_id is min(u_id)
+}
+
 // trust
-source: trust is duckdb.sql("""
+source: trust_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'trust')
 """) extend {
-  join_one: target_u_useracct is useracct on target_u_id = target_u_useracct.u_id
-  join_one: source_u_useracct is useracct on source_u_id = source_u_useracct.u_id
-
   measure:
     row_count is count()
     total_source_u_id is sum(source_u_id)
@@ -90,4 +88,32 @@ source: trust is duckdb.sql("""
     avg_trust is avg(trust)
     max_trust is max(trust)
     min_trust is min(trust)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// item (with joins)
+source: item is item_base extend {
+  join_many: review is review_base on i_id = review.i_id
+}
+
+// review (with joins)
+source: review is review_base extend {
+  join_one: item is item_base on i_id = item.i_id
+  join_one: useracct is useracct_base on u_id = useracct.u_id
+}
+
+// useracct (with joins)
+source: useracct is useracct_base extend {
+  join_many: review is review_base on u_id = review.u_id
+  join_many: trust_target_u is trust_base on u_id = trust_target_u.target_u_id
+  join_many: trust_source_u is trust_base on u_id = trust_source_u.source_u_id
+}
+
+// trust (with joins)
+source: trust is trust_base extend {
+  join_one: target_u_useracct is useracct_base on target_u_id = target_u_useracct.u_id
+  join_one: source_u_useracct is useracct_base on source_u_id = source_u_useracct.u_id
 }

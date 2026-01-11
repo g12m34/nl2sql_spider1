@@ -1,0 +1,81 @@
+// =============================================================================
+// MANUFACTORY_1 DATABASE - Products and Manufacturers
+// =============================================================================
+// This database tracks products and their manufacturers:
+// - Manufacturers: companies that produce products
+// - Products: items produced by manufacturers
+//
+// NOTE: Each product has exactly ONE manufacturer (Products.Manufacturer is a foreign key)
+// A product cannot be produced by multiple companies in this schema.
+// =============================================================================
+
+// MANUFACTURERS TABLE
+source: manufacturers_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Manufacturers')
+""") extend {
+  dimension:
+    // Unique manufacturer code
+    code is Code
+
+    // Company name
+    // Values: 'Sony', 'Creative Labs', 'Hewlett-Packard', 'Iomega', 'Fujitsu', 'Winchester'
+    name is Name
+
+    // Headquarters city
+    // Values: 'Tokyo', 'Austin', 'Los Angeles', 'Beijing', 'Taiwan', 'Paris'
+    headquarter is Headquarter
+
+    // Founder's name
+    founder is Founder
+
+    // Annual revenue
+    revenue is Revenue
+
+  primary_key: code
+
+  measure:
+    manufacturer_count is count()
+    total_revenue is sum(revenue)
+}
+
+// PRODUCTS TABLE
+source: products_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite', 'Products')
+""") extend {
+  dimension:
+    // Unique product code
+    code is Code
+
+    // Product name
+    // Values: 'Hard drive', 'Memory', 'ZIP drive', 'Floppy disk', 'Monitor',
+    //         'DVD drive', 'CD drive', 'Printer', 'Toner cartridge', 'DVD burner'
+    // NOTE: Some product names may appear multiple times from different manufacturers
+    name is Name
+
+    // Product price
+    price is Price
+
+    // Manufacturer code (foreign key to Manufacturers)
+    manufacturer is Manufacturer
+
+  primary_key: code
+
+  measure:
+    product_count is count()
+    total_price is sum(price)
+    avg_price is avg(price)
+}
+
+// =============================================================================
+// FULL SOURCES WITH RELATIONSHIPS
+// =============================================================================
+
+// Manufacturers with their products
+source: manufacturers is manufacturers_base extend {
+  join_many: products is products_base on code = products.manufacturer
+}
+
+// Products with manufacturer details
+source: products is products_base extend {
+  join_one: manufacturers is manufacturers_base on manufacturer = manufacturers.code
+}

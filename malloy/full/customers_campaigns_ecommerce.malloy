@@ -1,9 +1,13 @@
 // Malloy semantic layer for: customers_campaigns_ecommerce
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Premises
-source: premises is duckdb.sql("""
+source: premises_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Premises')
 """) extend {
   primary_key: premise_id
@@ -17,7 +21,7 @@ source: premises is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Products')
 """) extend {
   primary_key: product_id
@@ -31,7 +35,7 @@ source: products is duckdb.sql("""
 }
 
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -45,7 +49,7 @@ source: customers is duckdb.sql("""
 }
 
 // Mailshot_Campaigns
-source: mailshot_campaigns is duckdb.sql("""
+source: mailshot_campaigns_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Mailshot_Campaigns')
 """) extend {
   primary_key: mailshot_id
@@ -59,12 +63,9 @@ source: mailshot_campaigns is duckdb.sql("""
 }
 
 // Customer_Addresses
-source: customer_addresses is duckdb.sql("""
+source: customer_addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Customer_Addresses')
 """) extend {
-  join_one: customers on customer_id = customers.customer_id
-  join_one: premises on premise_id = premises.premise_id
-
   measure:
     row_count is count()
     total_customer_id is sum(customer_id)
@@ -78,12 +79,10 @@ source: customer_addresses is duckdb.sql("""
 }
 
 // Customer_Orders
-source: customer_orders is duckdb.sql("""
+source: customer_orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Customer_Orders')
 """) extend {
   primary_key: order_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -98,12 +97,9 @@ source: customer_orders is duckdb.sql("""
 }
 
 // Mailshot_Customers
-source: mailshot_customers is duckdb.sql("""
+source: mailshot_customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Mailshot_Customers')
 """) extend {
-  join_one: mailshot_campaigns on mailshot_id = mailshot_campaigns.mailshot_id
-  join_one: customers on customer_id = customers.customer_id
-
   measure:
     row_count is count()
     total_mailshot_id is sum(mailshot_id)
@@ -117,12 +113,9 @@ source: mailshot_customers is duckdb.sql("""
 }
 
 // Order_Items
-source: order_items is duckdb.sql("""
+source: order_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_campaigns_ecommerce/customers_campaigns_ecommerce.sqlite', 'Order_Items')
 """) extend {
-  join_one: customer_orders on order_id = customer_orders.order_id
-  join_one: products on product_id = products.product_id
-
   measure:
     row_count is count()
     total_item_id is sum(item_id)
@@ -137,4 +130,54 @@ source: order_items is duckdb.sql("""
     avg_product_id is avg(product_id)
     max_product_id is max(product_id)
     min_product_id is min(product_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Premises (with joins)
+source: premises is premises_base extend {
+  join_many: customer_addresses is customer_addresses_base on premise_id = customer_addresses.premise_id
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: order_items is order_items_base on product_id = order_items.product_id
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: customer_addresses is customer_addresses_base on customer_id = customer_addresses.customer_id
+  join_many: customer_orders is customer_orders_base on customer_id = customer_orders.customer_id
+  join_many: mailshot_customers is mailshot_customers_base on customer_id = mailshot_customers.customer_id
+}
+
+// Mailshot_Campaigns (with joins)
+source: mailshot_campaigns is mailshot_campaigns_base extend {
+  join_many: mailshot_customers is mailshot_customers_base on mailshot_id = mailshot_customers.mailshot_id
+}
+
+// Customer_Addresses (with joins)
+source: customer_addresses is customer_addresses_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: premises is premises_base on premise_id = premises.premise_id
+}
+
+// Customer_Orders (with joins)
+source: customer_orders is customer_orders_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: order_items is order_items_base on order_id = order_items.order_id
+}
+
+// Mailshot_Customers (with joins)
+source: mailshot_customers is mailshot_customers_base extend {
+  join_one: mailshot_campaigns is mailshot_campaigns_base on mailshot_id = mailshot_campaigns.mailshot_id
+  join_one: customers is customers_base on customer_id = customers.customer_id
+}
+
+// Order_Items (with joins)
+source: order_items is order_items_base extend {
+  join_one: customer_orders is customer_orders_base on order_id = customer_orders.order_id
+  join_one: products is products_base on product_id = products.product_id
 }

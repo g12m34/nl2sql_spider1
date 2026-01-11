@@ -1,9 +1,37 @@
 // Malloy semantic layer for: ship_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/ship_1/ship_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// captain
+source: captain_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'captain')
+""") extend {
+  dimension:
+    captain_i_d is Captain_ID
+    name_val is `Name`
+    ship_i_d is Ship_ID
+    rank_val is `Rank`
+
+  primary_key: captain_i_d
+
+  measure:
+    row_count is count()
+    total_captain_i_d is sum(captain_i_d)
+    avg_captain_i_d is avg(captain_i_d)
+    max_captain_i_d is max(captain_i_d)
+    min_captain_i_d is min(captain_i_d)
+    total_ship_i_d is sum(ship_i_d)
+    avg_ship_i_d is avg(ship_i_d)
+    max_ship_i_d is max(ship_i_d)
+    min_ship_i_d is min(ship_i_d)
+}
+
 // Ship
-source: ship is duckdb.sql("""
+source: ship_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'Ship')
 """) extend {
   dimension:
@@ -25,28 +53,16 @@ source: ship is duckdb.sql("""
     min_built_year is min(Built_Year)
 }
 
-// captain
-source: captain is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'captain')
-""") extend {
-  dimension:
-    captain_i_d is Captain_ID
-    name_val is `Name`
-    ship_i_d is Ship_ID
-    rank_val is `Rank`
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: captain_i_d
+// captain (with joins)
+source: captain is captain_base extend {
+  join_one: ship is ship_base on ship_i_d = ship.ship_i_d
+}
 
-  join_one: ship on ship_i_d = ship.ship_i_d
-
-  measure:
-    row_count is count()
-    total_captain_i_d is sum(captain_i_d)
-    avg_captain_i_d is avg(captain_i_d)
-    max_captain_i_d is max(captain_i_d)
-    min_captain_i_d is min(captain_i_d)
-    total_ship_i_d is sum(ship_i_d)
-    avg_ship_i_d is avg(ship_i_d)
-    max_ship_i_d is max(ship_i_d)
-    min_ship_i_d is min(ship_i_d)
+// Ship (with joins)
+source: ship is ship_base extend {
+  join_many: captain is captain_base on ship_i_d = captain.ship_i_d
 }

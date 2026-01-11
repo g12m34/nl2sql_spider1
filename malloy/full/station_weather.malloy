@@ -1,9 +1,13 @@
 // Malloy semantic layer for: station_weather
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/station_weather/station_weather.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // train
-source: train is duckdb.sql("""
+source: train_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'train')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: train is duckdb.sql("""
 }
 
 // station
-source: station is duckdb.sql("""
+source: station_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'station')
 """) extend {
   primary_key: id
@@ -39,13 +43,10 @@ source: station is duckdb.sql("""
 }
 
 // route
-source: route is duckdb.sql("""
+source: route_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'route')
 """) extend {
   primary_key: train_id
-
-  join_one: station on station_id = station.id
-  join_one: train on train_id = train.id
 
   measure:
     row_count is count()
@@ -60,12 +61,10 @@ source: route is duckdb.sql("""
 }
 
 // weekly_weather
-source: weekly_weather is duckdb.sql("""
+source: weekly_weather_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'weekly_weather')
 """) extend {
   primary_key: station_id
-
-  join_one: station on station_id = station.id
 
   measure:
     row_count is count()
@@ -89,4 +88,30 @@ source: weekly_weather is duckdb.sql("""
     avg_wind_speed_mph is avg(wind_speed_mph)
     max_wind_speed_mph is max(wind_speed_mph)
     min_wind_speed_mph is min(wind_speed_mph)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// train (with joins)
+source: train is train_base extend {
+  join_many: route is route_base on id = route.train_id
+}
+
+// station (with joins)
+source: station is station_base extend {
+  join_many: route is route_base on id = route.station_id
+  join_many: weekly_weather is weekly_weather_base on id = weekly_weather.station_id
+}
+
+// route (with joins)
+source: route is route_base extend {
+  join_one: station is station_base on station_id = station.id
+  join_one: train is train_base on train_id = train.id
+}
+
+// weekly_weather (with joins)
+source: weekly_weather is weekly_weather_base extend {
+  join_one: station is station_base on station_id = station.id
 }

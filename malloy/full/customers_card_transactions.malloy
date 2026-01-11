@@ -1,9 +1,13 @@
 // Malloy semantic layer for: customers_card_transactions
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Accounts
-source: accounts is duckdb.sql("""
+source: accounts_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Accounts')
 """) extend {
   primary_key: account_id
@@ -21,7 +25,7 @@ source: accounts is duckdb.sql("""
 }
 
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -35,7 +39,7 @@ source: customers is duckdb.sql("""
 }
 
 // Customers_Cards
-source: customers_cards is duckdb.sql("""
+source: customers_cards_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Customers_Cards')
 """) extend {
   primary_key: card_id
@@ -53,12 +57,9 @@ source: customers_cards is duckdb.sql("""
 }
 
 // Financial_Transactions
-source: financial_transactions is duckdb.sql("""
+source: financial_transactions_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_card_transactions/customers_card_transactions.sqlite', 'Financial_Transactions')
 """) extend {
-  join_one: accounts on account_id = accounts.account_id
-  join_one: customers_cards on card_id = customers_cards.card_id
-
   measure:
     row_count is count()
     total_transaction_id is sum(transaction_id)
@@ -81,4 +82,27 @@ source: financial_transactions is duckdb.sql("""
     avg_transaction_amount is avg(transaction_amount)
     max_transaction_amount is max(transaction_amount)
     min_transaction_amount is min(transaction_amount)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Accounts (with joins)
+source: accounts is accounts_base extend {
+  join_many: financial_transactions is financial_transactions_base on account_id = financial_transactions.account_id
+}
+
+// Customers (with joins)
+source: customers is customers_base
+
+// Customers_Cards (with joins)
+source: customers_cards is customers_cards_base extend {
+  join_many: financial_transactions is financial_transactions_base on card_id = financial_transactions.card_id
+}
+
+// Financial_Transactions (with joins)
+source: financial_transactions is financial_transactions_base extend {
+  join_one: accounts is accounts_base on account_id = accounts.account_id
+  join_one: customers_cards is customers_cards_base on card_id = customers_cards.card_id
 }

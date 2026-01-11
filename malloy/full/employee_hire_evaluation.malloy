@@ -1,9 +1,13 @@
 // Malloy semantic layer for: employee_hire_evaluation
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // employee
-source: employee is duckdb.sql("""
+source: employee_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'employee')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: employee is duckdb.sql("""
 }
 
 // shop
-source: shop is duckdb.sql("""
+source: shop_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'shop')
 """) extend {
   dimension:
@@ -46,27 +50,8 @@ source: shop is duckdb.sql("""
     min_number_products is min(Number_products)
 }
 
-// evaluation
-source: evaluation is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'evaluation')
-""") extend {
-  dimension:
-    employee_i_d is Employee_ID
-
-  primary_key: employee_i_d
-
-  join_one: employee on employee_i_d = employee.employee_i_d
-
-  measure:
-    row_count is count()
-    total_bonus is sum(Bonus)
-    avg_bonus is avg(Bonus)
-    max_bonus is max(Bonus)
-    min_bonus is min(Bonus)
-}
-
 // hiring
-source: hiring is duckdb.sql("""
+source: hiring_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'hiring')
 """) extend {
   dimension:
@@ -74,9 +59,6 @@ source: hiring is duckdb.sql("""
     employee_i_d is Employee_ID
 
   primary_key: employee_i_d
-
-  join_one: employee on employee_i_d = employee.employee_i_d
-  join_one: shop on shop_i_d = shop.shop_i_d
 
   measure:
     row_count is count()
@@ -88,4 +70,47 @@ source: hiring is duckdb.sql("""
     avg_employee_i_d is avg(employee_i_d)
     max_employee_i_d is max(employee_i_d)
     min_employee_i_d is min(employee_i_d)
+}
+
+// evaluation
+source: evaluation_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite', 'evaluation')
+""") extend {
+  dimension:
+    employee_i_d is Employee_ID
+
+  primary_key: employee_i_d
+
+  measure:
+    row_count is count()
+    total_bonus is sum(Bonus)
+    avg_bonus is avg(Bonus)
+    max_bonus is max(Bonus)
+    min_bonus is min(Bonus)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// employee (with joins)
+source: employee is employee_base extend {
+  join_many: hiring is hiring_base on employee_i_d = hiring.employee_i_d
+  join_many: evaluation is evaluation_base on employee_i_d = evaluation.employee_i_d
+}
+
+// shop (with joins)
+source: shop is shop_base extend {
+  join_many: hiring is hiring_base on shop_i_d = hiring.shop_i_d
+}
+
+// hiring (with joins)
+source: hiring is hiring_base extend {
+  join_one: employee is employee_base on employee_i_d = employee.employee_i_d
+  join_one: shop is shop_base on shop_i_d = shop.shop_i_d
+}
+
+// evaluation (with joins)
+source: evaluation is evaluation_base extend {
+  join_one: employee is employee_base on employee_i_d = employee.employee_i_d
 }

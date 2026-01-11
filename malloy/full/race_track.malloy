@@ -1,9 +1,33 @@
 // Malloy semantic layer for: race_track
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/race_track/race_track.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
+// race
+source: race_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'race')
+""") extend {
+  dimension:
+    race_i_d is Race_ID
+    name_val is `Name`
+    date_val is `Date`
+    track_i_d is Track_ID
+
+  primary_key: race_i_d
+
+  measure:
+    row_count is count()
+    total_race_i_d is sum(race_i_d)
+    avg_race_i_d is avg(race_i_d)
+    max_race_i_d is max(race_i_d)
+    min_race_i_d is min(race_i_d)
+}
+
 // track
-source: track is duckdb.sql("""
+source: track_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'track')
 """) extend {
   dimension:
@@ -28,24 +52,16 @@ source: track is duckdb.sql("""
     min_year_opened is min(Year_Opened)
 }
 
-// race
-source: race is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'race')
-""") extend {
-  dimension:
-    race_i_d is Race_ID
-    name_val is `Name`
-    date_val is `Date`
-    track_i_d is Track_ID
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  primary_key: race_i_d
+// race (with joins)
+source: race is race_base extend {
+  join_one: track is track_base on track_i_d = track.track_i_d
+}
 
-  join_one: track on track_i_d = track.track_i_d
-
-  measure:
-    row_count is count()
-    total_race_i_d is sum(race_i_d)
-    avg_race_i_d is avg(race_i_d)
-    max_race_i_d is max(race_i_d)
-    min_race_i_d is min(race_i_d)
+// track (with joins)
+source: track is track_base extend {
+  join_many: race is race_base on track_i_d = race.track_i_d
 }

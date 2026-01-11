@@ -1,31 +1,13 @@
 // Malloy semantic layer for: poker_player
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/poker_player/poker_player.sqlite
 
-// people
-source: people_val is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/poker_player/poker_player.sqlite', 'people')
-""") extend {
-  dimension:
-    people_i_d is People_ID
-    name_val is `Name`
-
-  primary_key: people_i_d
-
-  measure:
-    row_count is count()
-    total_people_i_d is sum(people_i_d)
-    avg_people_i_d is avg(people_i_d)
-    max_people_i_d is max(people_i_d)
-    min_people_i_d is min(people_i_d)
-    total_height is sum(Height)
-    avg_height is avg(Height)
-    max_height is max(Height)
-    min_height is min(Height)
-}
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
 
 // poker_player
-source: poker_player is duckdb.sql("""
+source: poker_player_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/poker_player/poker_player.sqlite', 'poker_player')
 """) extend {
   dimension:
@@ -33,8 +15,6 @@ source: poker_player is duckdb.sql("""
     people_i_d is People_ID
 
   primary_key: poker_player_i_d
-
-  join_one: people_val on people_i_d = people_val.people_i_d
 
   measure:
     row_count is count()
@@ -62,4 +42,40 @@ source: poker_player is duckdb.sql("""
     avg_earnings is avg(Earnings)
     max_earnings is max(Earnings)
     min_earnings is min(Earnings)
+}
+
+// people
+source: people_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/poker_player/poker_player.sqlite', 'people')
+""") extend {
+  dimension:
+    people_i_d is People_ID
+    name_val is `Name`
+
+  primary_key: people_i_d
+
+  measure:
+    row_count is count()
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
+    total_height is sum(Height)
+    avg_height is avg(Height)
+    max_height is max(Height)
+    min_height is min(Height)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// poker_player (with joins)
+source: poker_player is poker_player_base extend {
+  join_one: people_val is people_val_base on people_i_d = people_val.people_i_d
+}
+
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: poker_player is poker_player_base on people_i_d = poker_player.people_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: activity_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/activity_1/activity_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Activity
-source: activity is duckdb.sql("""
+source: activity_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Activity')
 """) extend {
   primary_key: actid
@@ -16,8 +20,43 @@ source: activity is duckdb.sql("""
     min_actid is min(actid)
 }
 
+// Participates_in
+source: participates_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Participates_in')
+""") extend {
+  measure:
+    row_count is count()
+    total_stuid is sum(stuid)
+    avg_stuid is avg(stuid)
+    max_stuid is max(stuid)
+    min_stuid is min(stuid)
+    total_actid is sum(actid)
+    avg_actid is avg(actid)
+    max_actid is max(actid)
+    min_actid is min(actid)
+}
+
+// Faculty_Participates_in
+source: faculty_participates_in_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty_Participates_in')
+""") extend {
+  dimension:
+    fac_i_d is FacID
+
+  measure:
+    row_count is count()
+    total_fac_i_d is sum(fac_i_d)
+    avg_fac_i_d is avg(fac_i_d)
+    max_fac_i_d is max(fac_i_d)
+    min_fac_i_d is min(fac_i_d)
+    total_actid is sum(actid)
+    avg_actid is avg(actid)
+    max_actid is max(actid)
+    min_actid is min(actid)
+}
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -47,7 +86,7 @@ source: student_val is duckdb.sql("""
 }
 
 // Faculty
-source: faculty is duckdb.sql("""
+source: faculty_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty')
 """) extend {
   dimension:
@@ -68,43 +107,34 @@ source: faculty is duckdb.sql("""
     min_phone is min(Phone)
 }
 
-// Participates_in
-source: participates_in is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Participates_in')
-""") extend {
-  join_one: activity on actid = activity.actid
-  join_one: student_val on stuid = student_val.stu_i_d
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  measure:
-    row_count is count()
-    total_stuid is sum(stuid)
-    avg_stuid is avg(stuid)
-    max_stuid is max(stuid)
-    min_stuid is min(stuid)
-    total_actid is sum(actid)
-    avg_actid is avg(actid)
-    max_actid is max(actid)
-    min_actid is min(actid)
+// Activity (with joins)
+source: activity is activity_base extend {
+  join_many: participates_in is participates_in_base on actid = participates_in.actid
+  join_many: faculty_participates_in is faculty_participates_in_base on actid = faculty_participates_in.actid
 }
 
-// Faculty_Participates_in
-source: faculty_participates_in is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty_Participates_in')
-""") extend {
-  dimension:
-    fac_i_d is FacID
+// Participates_in (with joins)
+source: participates_in is participates_in_base extend {
+  join_one: activity is activity_base on actid = activity.actid
+  join_one: student_val is student_val_base on stuid = student_val.stu_i_d
+}
 
-  join_one: activity on actid = activity.actid
-  join_one: faculty on fac_i_d = faculty.fac_i_d
+// Faculty_Participates_in (with joins)
+source: faculty_participates_in is faculty_participates_in_base extend {
+  join_one: activity is activity_base on actid = activity.actid
+  join_one: faculty is faculty_base on fac_i_d = faculty.fac_i_d
+}
 
-  measure:
-    row_count is count()
-    total_fac_i_d is sum(fac_i_d)
-    avg_fac_i_d is avg(fac_i_d)
-    max_fac_i_d is max(fac_i_d)
-    min_fac_i_d is min(fac_i_d)
-    total_actid is sum(actid)
-    avg_actid is avg(actid)
-    max_actid is max(actid)
-    min_actid is min(actid)
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: participates_in is participates_in_base on stu_i_d = participates_in.stuid
+}
+
+// Faculty (with joins)
+source: faculty is faculty_base extend {
+  join_many: faculty_participates_in is faculty_participates_in_base on fac_i_d = faculty_participates_in.fac_i_d
 }

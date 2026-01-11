@@ -1,9 +1,13 @@
 // Malloy semantic layer for: voter_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/voter_1/voter_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // AREA_CODE_STATE
-source: a_r_e_a_c_o_d_e_s_t_a_t_e is duckdb.sql("""
+source: a_r_e_a_c_o_d_e_s_t_a_t_e_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'AREA_CODE_STATE')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: a_r_e_a_c_o_d_e_s_t_a_t_e is duckdb.sql("""
 }
 
 // CONTESTANTS
-source: c_o_n_t_e_s_t_a_n_t_s is duckdb.sql("""
+source: c_o_n_t_e_s_t_a_n_t_s_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'CONTESTANTS')
 """) extend {
   primary_key: contestant_number
@@ -34,16 +38,13 @@ source: c_o_n_t_e_s_t_a_n_t_s is duckdb.sql("""
 }
 
 // VOTES
-source: v_o_t_e_s is duckdb.sql("""
+source: v_o_t_e_s_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'VOTES')
 """) extend {
   dimension:
     state_val is `state`
 
   primary_key: vote_id
-
-  join_one: c_o_n_t_e_s_t_a_n_t_s on contestant_number = c_o_n_t_e_s_t_a_n_t_s.contestant_number
-  join_one: a_r_e_a_c_o_d_e_s_t_a_t_e on state_val = a_r_e_a_c_o_d_e_s_t_a_t_e.state_val
 
   measure:
     row_count is count()
@@ -59,4 +60,24 @@ source: v_o_t_e_s is duckdb.sql("""
     avg_contestant_number is avg(contestant_number)
     max_contestant_number is max(contestant_number)
     min_contestant_number is min(contestant_number)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// AREA_CODE_STATE (with joins)
+source: a_r_e_a_c_o_d_e_s_t_a_t_e is a_r_e_a_c_o_d_e_s_t_a_t_e_base extend {
+  join_many: v_o_t_e_s is v_o_t_e_s_base on state_val = v_o_t_e_s.state_val
+}
+
+// CONTESTANTS (with joins)
+source: c_o_n_t_e_s_t_a_n_t_s is c_o_n_t_e_s_t_a_n_t_s_base extend {
+  join_many: v_o_t_e_s is v_o_t_e_s_base on contestant_number = v_o_t_e_s.contestant_number
+}
+
+// VOTES (with joins)
+source: v_o_t_e_s is v_o_t_e_s_base extend {
+  join_one: c_o_n_t_e_s_t_a_n_t_s is c_o_n_t_e_s_t_a_n_t_s_base on contestant_number = c_o_n_t_e_s_t_a_n_t_s.contestant_number
+  join_one: a_r_e_a_c_o_d_e_s_t_a_t_e is a_r_e_a_c_o_d_e_s_t_a_t_e_base on state_val = a_r_e_a_c_o_d_e_s_t_a_t_e.state_val
 }

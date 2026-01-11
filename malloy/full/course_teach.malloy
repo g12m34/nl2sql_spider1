@@ -1,9 +1,13 @@
 // Malloy semantic layer for: course_teach
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/course_teach/course_teach.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // course
-source: course is duckdb.sql("""
+source: course_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'course')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: course is duckdb.sql("""
 }
 
 // teacher
-source: teacher is duckdb.sql("""
+source: teacher_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'teacher')
 """) extend {
   dimension:
@@ -38,7 +42,7 @@ source: teacher is duckdb.sql("""
 }
 
 // course_arrange
-source: course_arrange is duckdb.sql("""
+source: course_arrange_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'course_arrange')
 """) extend {
   dimension:
@@ -46,9 +50,6 @@ source: course_arrange is duckdb.sql("""
     teacher_i_d is Teacher_ID
 
   primary_key: course_i_d
-
-  join_one: teacher on teacher_i_d = teacher.teacher_i_d
-  join_one: course on course_i_d = course.course_i_d
 
   measure:
     row_count is count()
@@ -64,4 +65,24 @@ source: course_arrange is duckdb.sql("""
     avg_grade is avg(Grade)
     max_grade is max(Grade)
     min_grade is min(Grade)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// course (with joins)
+source: course is course_base extend {
+  join_many: course_arrange is course_arrange_base on course_i_d = course_arrange.course_i_d
+}
+
+// teacher (with joins)
+source: teacher is teacher_base extend {
+  join_many: course_arrange is course_arrange_base on teacher_i_d = course_arrange.teacher_i_d
+}
+
+// course_arrange (with joins)
+source: course_arrange is course_arrange_base extend {
+  join_one: teacher is teacher_base on teacher_i_d = teacher.teacher_i_d
+  join_one: course is course_base on course_i_d = course.course_i_d
 }

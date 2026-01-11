@@ -1,9 +1,13 @@
 // Malloy semantic layer for: club_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/club_1/club_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Student')
 """) extend {
   dimension:
@@ -33,7 +37,7 @@ source: student_val is duckdb.sql("""
 }
 
 // Club
-source: club_val is duckdb.sql("""
+source: club_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Club')
 """) extend {
   dimension:
@@ -53,16 +57,13 @@ source: club_val is duckdb.sql("""
 }
 
 // Member_of_club
-source: member_of_club is duckdb.sql("""
+source: member_of_club_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Member_of_club')
 """) extend {
   dimension:
     stu_i_d is StuID
     club_i_d is ClubID
     position_val is `Position`
-
-  join_one: club_val on club_i_d = club_val.club_i_d
-  join_one: student_val on stu_i_d = student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -74,4 +75,24 @@ source: member_of_club is duckdb.sql("""
     avg_club_i_d is avg(club_i_d)
     max_club_i_d is max(club_i_d)
     min_club_i_d is min(club_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: member_of_club is member_of_club_base on stu_i_d = member_of_club.stu_i_d
+}
+
+// Club (with joins)
+source: club_val is club_val_base extend {
+  join_many: member_of_club is member_of_club_base on club_i_d = member_of_club.club_i_d
+}
+
+// Member_of_club (with joins)
+source: member_of_club is member_of_club_base extend {
+  join_one: club_val is club_val_base on club_i_d = club_val.club_i_d
+  join_one: student_val is student_val_base on stu_i_d = student_val.stu_i_d
 }

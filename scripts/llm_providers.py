@@ -11,10 +11,12 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (look in project root)
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(env_path, override=True)
 
 
 @dataclass
@@ -58,8 +60,12 @@ class AnthropicProvider(LLMProvider):
     def name(self) -> str:
         return f"anthropic/{self.model}"
 
-    def generate_sql(self, schema: str, question: str) -> LLMResponse:
-        prompt = self._build_prompt(schema, question)
+    def generate_sql(self, prompt_or_schema: str, question: str = "") -> LLMResponse:
+        """Generate code from prompt. If question is empty, prompt_or_schema is the full prompt."""
+        if question:
+            prompt = self._build_prompt(prompt_or_schema, question)
+        else:
+            prompt = prompt_or_schema
 
         start = time.time()
         try:
@@ -71,7 +77,7 @@ class AnthropicProvider(LLMProvider):
             latency_ms = (time.time() - start) * 1000
 
             raw = response.content[0].text
-            sql = self._extract_sql(raw)
+            sql = self._extract_code(raw)
 
             return LLMResponse(
                 sql=sql,
@@ -97,12 +103,14 @@ Write a SQL query to answer this question: {question}
 
 Return only the SQL query, no explanation. Do not wrap in markdown code blocks."""
 
-    def _extract_sql(self, response: str) -> str:
-        """Extract SQL from response, handling markdown code blocks."""
+    def _extract_code(self, response: str) -> str:
+        """Extract code from response, handling markdown code blocks."""
         text = response.strip()
 
         # Remove markdown code blocks if present
-        if text.startswith("```sql"):
+        if text.startswith("```malloy"):
+            text = text[9:]
+        elif text.startswith("```sql"):
             text = text[6:]
         elif text.startswith("```"):
             text = text[3:]
@@ -115,7 +123,7 @@ Return only the SQL query, no explanation. Do not wrap in markdown code blocks."
 class OpenAIProvider(LLMProvider):
     """OpenAI GPT provider."""
 
-    def __init__(self, model: str = "gpt-5.2-codex"):
+    def __init__(self, model: str = "gpt-5.2"):
         self.model = model
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
@@ -128,23 +136,27 @@ class OpenAIProvider(LLMProvider):
     def name(self) -> str:
         return f"openai/{self.model}"
 
-    def generate_sql(self, schema: str, question: str) -> LLMResponse:
-        prompt = self._build_prompt(schema, question)
+    def generate_sql(self, prompt_or_schema: str, question: str = "") -> LLMResponse:
+        """Generate code from prompt. If question is empty, prompt_or_schema is the full prompt."""
+        if question:
+            prompt = self._build_prompt(prompt_or_schema, question)
+        else:
+            prompt = prompt_or_schema
 
         start = time.time()
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1024
+                max_completion_tokens=1024
             )
             latency_ms = (time.time() - start) * 1000
 
             raw = response.choices[0].message.content
-            sql = self._extract_sql(raw)
+            code = self._extract_code(raw)
 
             return LLMResponse(
-                sql=sql,
+                sql=code,
                 raw_response=raw,
                 model=self.model,
                 latency_ms=latency_ms
@@ -167,9 +179,11 @@ Write a SQL query to answer this question: {question}
 
 Return only the SQL query, no explanation. Do not wrap in markdown code blocks."""
 
-    def _extract_sql(self, response: str) -> str:
+    def _extract_code(self, response: str) -> str:
         text = response.strip()
-        if text.startswith("```sql"):
+        if text.startswith("```malloy"):
+            text = text[9:]
+        elif text.startswith("```sql"):
             text = text[6:]
         elif text.startswith("```"):
             text = text[3:]
@@ -195,8 +209,11 @@ class GoogleProvider(LLMProvider):
     def name(self) -> str:
         return f"google/{self.model}"
 
-    def generate_sql(self, schema: str, question: str) -> LLMResponse:
-        prompt = self._build_prompt(schema, question)
+    def generate_sql(self, prompt_or_schema: str, question: str = "") -> LLMResponse:
+        if question:
+            prompt = self._build_prompt(prompt_or_schema, question)
+        else:
+            prompt = prompt_or_schema
 
         start = time.time()
         try:
@@ -204,10 +221,10 @@ class GoogleProvider(LLMProvider):
             latency_ms = (time.time() - start) * 1000
 
             raw = response.text
-            sql = self._extract_sql(raw)
+            code = self._extract_code(raw)
 
             return LLMResponse(
-                sql=sql,
+                sql=code,
                 raw_response=raw,
                 model=self.model,
                 latency_ms=latency_ms
@@ -230,9 +247,11 @@ Write a SQL query to answer this question: {question}
 
 Return only the SQL query, no explanation. Do not wrap in markdown code blocks."""
 
-    def _extract_sql(self, response: str) -> str:
+    def _extract_code(self, response: str) -> str:
         text = response.strip()
-        if text.startswith("```sql"):
+        if text.startswith("```malloy"):
+            text = text[9:]
+        elif text.startswith("```sql"):
             text = text[6:]
         elif text.startswith("```"):
             text = text[3:]
@@ -260,8 +279,11 @@ class DeepSeekProvider(LLMProvider):
     def name(self) -> str:
         return f"deepseek/{self.model}"
 
-    def generate_sql(self, schema: str, question: str) -> LLMResponse:
-        prompt = self._build_prompt(schema, question)
+    def generate_sql(self, prompt_or_schema: str, question: str = "") -> LLMResponse:
+        if question:
+            prompt = self._build_prompt(prompt_or_schema, question)
+        else:
+            prompt = prompt_or_schema
 
         start = time.time()
         try:
@@ -273,10 +295,10 @@ class DeepSeekProvider(LLMProvider):
             latency_ms = (time.time() - start) * 1000
 
             raw = response.choices[0].message.content
-            sql = self._extract_sql(raw)
+            code = self._extract_code(raw)
 
             return LLMResponse(
-                sql=sql,
+                sql=code,
                 raw_response=raw,
                 model=self.model,
                 latency_ms=latency_ms
@@ -299,9 +321,11 @@ Write a SQL query to answer this question: {question}
 
 Return only the SQL query, no explanation. Do not wrap in markdown code blocks."""
 
-    def _extract_sql(self, response: str) -> str:
+    def _extract_code(self, response: str) -> str:
         text = response.strip()
-        if text.startswith("```sql"):
+        if text.startswith("```malloy"):
+            text = text[9:]
+        elif text.startswith("```sql"):
             text = text[6:]
         elif text.startswith("```"):
             text = text[3:]
@@ -327,8 +351,11 @@ class MinimaxProvider(LLMProvider):
     def name(self) -> str:
         return f"minimax/{self.model}"
 
-    def generate_sql(self, schema: str, question: str) -> LLMResponse:
-        prompt = self._build_prompt(schema, question)
+    def generate_sql(self, prompt_or_schema: str, question: str = "") -> LLMResponse:
+        if question:
+            prompt = self._build_prompt(prompt_or_schema, question)
+        else:
+            prompt = prompt_or_schema
 
         start = time.time()
         try:
@@ -354,10 +381,10 @@ class MinimaxProvider(LLMProvider):
             data = response.json()
 
             raw = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            sql = self._extract_sql(raw)
+            code = self._extract_code(raw)
 
             return LLMResponse(
-                sql=sql,
+                sql=code,
                 raw_response=raw,
                 model=self.model,
                 latency_ms=latency_ms
@@ -380,9 +407,11 @@ Write a SQL query to answer this question: {question}
 
 Return only the SQL query, no explanation. Do not wrap in markdown code blocks."""
 
-    def _extract_sql(self, response: str) -> str:
+    def _extract_code(self, response: str) -> str:
         text = response.strip()
-        if text.startswith("```sql"):
+        if text.startswith("```malloy"):
+            text = text[9:]
+        elif text.startswith("```sql"):
             text = text[6:]
         elif text.startswith("```"):
             text = text[3:]
@@ -393,11 +422,11 @@ Return only the SQL query, no explanation. Do not wrap in markdown code blocks."
 
 # Registry of available providers
 PROVIDERS = {
-    "claude-opus-4.5": lambda: AnthropicProvider("claude-opus-4-5-20250101"),
-    "gpt-5.2-codex": lambda: OpenAIProvider("gpt-5.2-codex"),
-    "gemini-3-pro": lambda: GoogleProvider("gemini-3-pro"),
+    "claude-opus-4.5": lambda: AnthropicProvider("claude-opus-4-5-20251101"),
+    "gpt-5.2": lambda: OpenAIProvider("gpt-5.2"),
+    "gemini-3-pro": lambda: GoogleProvider("gemini-3-pro-preview"),
     "deepseek-v3.2": lambda: DeepSeekProvider("deepseek-chat"),
-    "minimax-2.1": lambda: MinimaxProvider("minimax-2.1"),
+    "minimax-m2": lambda: MinimaxProvider("MiniMax-Text-01"),
 }
 
 

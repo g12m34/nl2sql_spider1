@@ -1,9 +1,13 @@
 // Malloy semantic layer for: behavior_monitoring
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Address_Types
-source: ref_address_types is duckdb.sql("""
+source: ref_address_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Ref_Address_Types')
 """) extend {
   primary_key: address_type_code
@@ -13,7 +17,7 @@ source: ref_address_types is duckdb.sql("""
 }
 
 // Ref_Detention_Type
-source: ref_detention_type is duckdb.sql("""
+source: ref_detention_type_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Ref_Detention_Type')
 """) extend {
   primary_key: detention_type_code
@@ -23,7 +27,7 @@ source: ref_detention_type is duckdb.sql("""
 }
 
 // Ref_Incident_Type
-source: ref_incident_type is duckdb.sql("""
+source: ref_incident_type_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Ref_Incident_Type')
 """) extend {
   primary_key: incident_type_code
@@ -33,7 +37,7 @@ source: ref_incident_type is duckdb.sql("""
 }
 
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Addresses')
 """) extend {
   primary_key: address_id
@@ -47,12 +51,10 @@ source: addresses is duckdb.sql("""
 }
 
 // Students
-source: students is duckdb.sql("""
+source: students_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Students')
 """) extend {
   primary_key: student_id
-
-  join_one: addresses on address_id = addresses.address_id
 
   measure:
     row_count is count()
@@ -67,12 +69,10 @@ source: students is duckdb.sql("""
 }
 
 // Teachers
-source: teachers is duckdb.sql("""
+source: teachers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Teachers')
 """) extend {
   primary_key: teacher_id
-
-  join_one: addresses on address_id = addresses.address_id
 
   measure:
     row_count is count()
@@ -86,57 +86,10 @@ source: teachers is duckdb.sql("""
     min_address_id is min(address_id)
 }
 
-// Behavior_Incident
-source: behavior_incident is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Behavior_Incident')
-""") extend {
-  primary_key: incident_id
-
-  join_one: students on student_id = students.student_id
-  join_one: ref_incident_type on incident_type_code = ref_incident_type.incident_type_code
-
-  measure:
-    row_count is count()
-    total_incident_id is sum(incident_id)
-    avg_incident_id is avg(incident_id)
-    max_incident_id is max(incident_id)
-    min_incident_id is min(incident_id)
-    total_student_id is sum(student_id)
-    avg_student_id is avg(student_id)
-    max_student_id is max(student_id)
-    min_student_id is min(student_id)
-}
-
-// Student_Addresses
-source: student_addresses is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Student_Addresses')
-""") extend {
-  join_one: students on student_id = students.student_id
-  join_one: addresses on address_id = addresses.address_id
-
-  measure:
-    row_count is count()
-    total_student_id is sum(student_id)
-    avg_student_id is avg(student_id)
-    max_student_id is max(student_id)
-    min_student_id is min(student_id)
-    total_address_id is sum(address_id)
-    avg_address_id is avg(address_id)
-    max_address_id is max(address_id)
-    min_address_id is min(address_id)
-    total_monthly_rental is sum(monthly_rental)
-    avg_monthly_rental is avg(monthly_rental)
-    max_monthly_rental is max(monthly_rental)
-    min_monthly_rental is min(monthly_rental)
-}
-
 // Assessment_Notes
-source: assessment_notes is duckdb.sql("""
+source: assessment_notes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Assessment_Notes')
 """) extend {
-  join_one: teachers on teacher_id = teachers.teacher_id
-  join_one: students on student_id = students.student_id
-
   measure:
     row_count is count()
     total_notes_id is sum(notes_id)
@@ -153,14 +106,29 @@ source: assessment_notes is duckdb.sql("""
     min_teacher_id is min(teacher_id)
 }
 
+// Behavior_Incident
+source: behavior_incident_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Behavior_Incident')
+""") extend {
+  primary_key: incident_id
+
+  measure:
+    row_count is count()
+    total_incident_id is sum(incident_id)
+    avg_incident_id is avg(incident_id)
+    max_incident_id is max(incident_id)
+    min_incident_id is min(incident_id)
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+}
+
 // Detention
-source: detention is duckdb.sql("""
+source: detention_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Detention')
 """) extend {
   primary_key: detention_id
-
-  join_one: teachers on teacher_id = teachers.teacher_id
-  join_one: ref_detention_type on detention_type_code = ref_detention_type.detention_type_code
 
   measure:
     row_count is count()
@@ -174,14 +142,30 @@ source: detention is duckdb.sql("""
     min_teacher_id is min(teacher_id)
 }
 
+// Student_Addresses
+source: student_addresses_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Student_Addresses')
+""") extend {
+  measure:
+    row_count is count()
+    total_student_id is sum(student_id)
+    avg_student_id is avg(student_id)
+    max_student_id is max(student_id)
+    min_student_id is min(student_id)
+    total_address_id is sum(address_id)
+    avg_address_id is avg(address_id)
+    max_address_id is max(address_id)
+    min_address_id is min(address_id)
+    total_monthly_rental is sum(monthly_rental)
+    avg_monthly_rental is avg(monthly_rental)
+    max_monthly_rental is max(monthly_rental)
+    min_monthly_rental is min(monthly_rental)
+}
+
 // Students_in_Detention
-source: students_in_detention is duckdb.sql("""
+source: students_in_detention_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite', 'Students_in_Detention')
 """) extend {
-  join_one: students on student_id = students.student_id
-  join_one: detention on detention_id = detention.detention_id
-  join_one: behavior_incident on incident_id = behavior_incident.incident_id
-
   measure:
     row_count is count()
     total_student_id is sum(student_id)
@@ -196,4 +180,77 @@ source: students_in_detention is duckdb.sql("""
     avg_incident_id is avg(incident_id)
     max_incident_id is max(incident_id)
     min_incident_id is min(incident_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Address_Types (with joins)
+source: ref_address_types is ref_address_types_base
+
+// Ref_Detention_Type (with joins)
+source: ref_detention_type is ref_detention_type_base extend {
+  join_many: detention is detention_base on detention_type_code = detention.detention_type_code
+}
+
+// Ref_Incident_Type (with joins)
+source: ref_incident_type is ref_incident_type_base extend {
+  join_many: behavior_incident is behavior_incident_base on incident_type_code = behavior_incident.incident_type_code
+}
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: students is students_base on address_id = students.address_id
+  join_many: teachers is teachers_base on address_id = teachers.address_id
+  join_many: student_addresses is student_addresses_base on address_id = student_addresses.address_id
+}
+
+// Students (with joins)
+source: students is students_base extend {
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+  join_many: assessment_notes is assessment_notes_base on student_id = assessment_notes.student_id
+  join_many: behavior_incident is behavior_incident_base on student_id = behavior_incident.student_id
+  join_many: student_addresses is student_addresses_base on student_id = student_addresses.student_id
+  join_many: students_in_detention is students_in_detention_base on student_id = students_in_detention.student_id
+}
+
+// Teachers (with joins)
+source: teachers is teachers_base extend {
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+  join_many: assessment_notes is assessment_notes_base on teacher_id = assessment_notes.teacher_id
+  join_many: detention is detention_base on teacher_id = detention.teacher_id
+}
+
+// Assessment_Notes (with joins)
+source: assessment_notes is assessment_notes_base extend {
+  join_one: teachers is teachers_base on teacher_id = teachers.teacher_id
+  join_one: students is students_base on student_id = students.student_id
+}
+
+// Behavior_Incident (with joins)
+source: behavior_incident is behavior_incident_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: ref_incident_type is ref_incident_type_base on incident_type_code = ref_incident_type.incident_type_code
+  join_many: students_in_detention is students_in_detention_base on incident_id = students_in_detention.incident_id
+}
+
+// Detention (with joins)
+source: detention is detention_base extend {
+  join_one: teachers is teachers_base on teacher_id = teachers.teacher_id
+  join_one: ref_detention_type is ref_detention_type_base on detention_type_code = ref_detention_type.detention_type_code
+  join_many: students_in_detention is students_in_detention_base on detention_id = students_in_detention.detention_id
+}
+
+// Student_Addresses (with joins)
+source: student_addresses is student_addresses_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+}
+
+// Students_in_Detention (with joins)
+source: students_in_detention is students_in_detention_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: detention is detention_base on detention_id = detention.detention_id
+  join_one: behavior_incident is behavior_incident_base on incident_id = behavior_incident.incident_id
 }

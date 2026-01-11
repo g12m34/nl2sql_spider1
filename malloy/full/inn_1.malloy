@@ -1,9 +1,13 @@
 // Malloy semantic layer for: inn_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/inn_1/inn_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Rooms
-source: rooms is duckdb.sql("""
+source: rooms_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/inn_1/inn_1.sqlite', 'Rooms')
 """) extend {
   dimension:
@@ -32,7 +36,7 @@ source: rooms is duckdb.sql("""
 }
 
 // Reservations
-source: reservations is duckdb.sql("""
+source: reservations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/inn_1/inn_1.sqlite', 'Reservations')
 """) extend {
   dimension:
@@ -43,8 +47,6 @@ source: reservations is duckdb.sql("""
     first_name is FirstName
 
   primary_key: code_val
-
-  join_one: rooms on Room = rooms.room_id
 
   measure:
     row_count is count()
@@ -64,4 +66,18 @@ source: reservations is duckdb.sql("""
     avg_kids is avg(Kids)
     max_kids is max(Kids)
     min_kids is min(Kids)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Rooms (with joins)
+source: rooms is rooms_base extend {
+  join_many: reservations is reservations_base on room_id = reservations.Room
+}
+
+// Reservations (with joins)
+source: reservations is reservations_base extend {
+  join_one: rooms is rooms_base on Room = rooms.room_id
 }

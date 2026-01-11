@@ -1,9 +1,13 @@
 // Malloy semantic layer for: voter_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/voter_2/voter_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Student
-source: student_val is duckdb.sql("""
+source: student_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_2/voter_2.sqlite', 'Student')
 """) extend {
   dimension:
@@ -33,19 +37,11 @@ source: student_val is duckdb.sql("""
 }
 
 // Voting_record
-source: voting_record is duckdb.sql("""
+source: voting_record_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_2/voter_2.sqlite', 'Voting_record')
 """) extend {
   dimension:
     stu_i_d is StuID
-
-  join_one: class_senator_vote_student_val is student_val on Class_Senator_Vote = class_senator_vote_student_val.stu_i_d
-  join_one: class_president_vote_student_val is student_val on Class_President_Vote = class_president_vote_student_val.stu_i_d
-  join_one: treasurer_vote_student_val is student_val on Treasurer_Vote = treasurer_vote_student_val.stu_i_d
-  join_one: secretary_vote_student_val is student_val on Secretary_Vote = secretary_vote_student_val.stu_i_d
-  join_one: vice_president_vote_student_val is student_val on Vice_President_Vote = vice_president_vote_student_val.stu_i_d
-  join_one: president_vote_student_val is student_val on President_Vote = president_vote_student_val.stu_i_d
-  join_one: stu_i_d_student_val is student_val on stu_i_d = stu_i_d_student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -77,4 +73,30 @@ source: voting_record is duckdb.sql("""
     avg_class_senator_vote is avg(Class_Senator_Vote)
     max_class_senator_vote is max(Class_Senator_Vote)
     min_class_senator_vote is min(Class_Senator_Vote)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Student (with joins)
+source: student_val is student_val_base extend {
+  join_many: voting_record_class_senator_vote is voting_record_base on stu_i_d = voting_record_class_senator_vote.Class_Senator_Vote
+  join_many: voting_record_class_president_vote is voting_record_base on stu_i_d = voting_record_class_president_vote.Class_President_Vote
+  join_many: voting_record_treasurer_vote is voting_record_base on stu_i_d = voting_record_treasurer_vote.Treasurer_Vote
+  join_many: voting_record_secretary_vote is voting_record_base on stu_i_d = voting_record_secretary_vote.Secretary_Vote
+  join_many: voting_record_vice_president_vote is voting_record_base on stu_i_d = voting_record_vice_president_vote.Vice_President_Vote
+  join_many: voting_record_president_vote is voting_record_base on stu_i_d = voting_record_president_vote.President_Vote
+  join_many: voting_record_stu_i_d is voting_record_base on stu_i_d = voting_record_stu_i_d.stu_i_d
+}
+
+// Voting_record (with joins)
+source: voting_record is voting_record_base extend {
+  join_one: class_senator_vote_student_val is student_val_base on Class_Senator_Vote = class_senator_vote_student_val.stu_i_d
+  join_one: class_president_vote_student_val is student_val_base on Class_President_Vote = class_president_vote_student_val.stu_i_d
+  join_one: treasurer_vote_student_val is student_val_base on Treasurer_Vote = treasurer_vote_student_val.stu_i_d
+  join_one: secretary_vote_student_val is student_val_base on Secretary_Vote = secretary_vote_student_val.stu_i_d
+  join_one: vice_president_vote_student_val is student_val_base on Vice_President_Vote = vice_president_vote_student_val.stu_i_d
+  join_one: president_vote_student_val is student_val_base on President_Vote = president_vote_student_val.stu_i_d
+  join_one: stu_i_d_student_val is student_val_base on stu_i_d = stu_i_d_student_val.stu_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: flight_company
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/flight_company/flight_company.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // airport
-source: airport is duckdb.sql("""
+source: airport_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'airport')
 """) extend {
   dimension:
@@ -22,7 +26,7 @@ source: airport is duckdb.sql("""
 }
 
 // operate_company
-source: operate_company is duckdb.sql("""
+source: operate_company_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'operate_company')
 """) extend {
   dimension:
@@ -44,16 +48,13 @@ source: operate_company is duckdb.sql("""
 }
 
 // flight
-source: flight is duckdb.sql("""
+source: flight_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'flight')
 """) extend {
   dimension:
     date_val is `Date`
 
   primary_key: id
-
-  join_one: operate_company on company_id = operate_company.id
-  join_one: airport on airport_id = airport.id
 
   measure:
     row_count is count()
@@ -77,4 +78,24 @@ source: flight is duckdb.sql("""
     avg_company_id is avg(company_id)
     max_company_id is max(company_id)
     min_company_id is min(company_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// airport (with joins)
+source: airport is airport_base extend {
+  join_many: flight is flight_base on id = flight.airport_id
+}
+
+// operate_company (with joins)
+source: operate_company is operate_company_base extend {
+  join_many: flight is flight_base on id = flight.company_id
+}
+
+// flight (with joins)
+source: flight is flight_base extend {
+  join_one: operate_company is operate_company_base on company_id = operate_company.id
+  join_one: airport is airport_base on airport_id = airport.id
 }

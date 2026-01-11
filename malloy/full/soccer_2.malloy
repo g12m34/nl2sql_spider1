@@ -1,9 +1,13 @@
 // Malloy semantic layer for: soccer_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // College
-source: college is duckdb.sql("""
+source: college_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'College')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: college is duckdb.sql("""
 }
 
 // Player
-source: player is duckdb.sql("""
+source: player_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'Player')
 """) extend {
   dimension:
@@ -45,7 +49,7 @@ source: player is duckdb.sql("""
 }
 
 // Tryout
-source: tryout is duckdb.sql("""
+source: tryout_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'Tryout')
 """) extend {
   dimension:
@@ -55,13 +59,30 @@ source: tryout is duckdb.sql("""
 
   primary_key: p_i_d
 
-  join_one: college on c_name = college.c_name
-  join_one: player on p_i_d = player.p_i_d
-
   measure:
     row_count is count()
     total_p_i_d is sum(p_i_d)
     avg_p_i_d is avg(p_i_d)
     max_p_i_d is max(p_i_d)
     min_p_i_d is min(p_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// College (with joins)
+source: college is college_base extend {
+  join_many: tryout is tryout_base on c_name = tryout.c_name
+}
+
+// Player (with joins)
+source: player is player_base extend {
+  join_many: tryout is tryout_base on p_i_d = tryout.p_i_d
+}
+
+// Tryout (with joins)
+source: tryout is tryout_base extend {
+  join_one: college is college_base on c_name = college.c_name
+  join_one: player is player_base on p_i_d = player.p_i_d
 }

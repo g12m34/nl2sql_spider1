@@ -1,9 +1,13 @@
 // Malloy semantic layer for: county_public_safety
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // county_public_safety
-source: county_public_safety is duckdb.sql("""
+source: county_public_safety_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite', 'county_public_safety')
 """) extend {
   dimension:
@@ -41,7 +45,7 @@ source: county_public_safety is duckdb.sql("""
 }
 
 // city
-source: city is duckdb.sql("""
+source: city_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite', 'city')
 """) extend {
   dimension:
@@ -50,8 +54,6 @@ source: city is duckdb.sql("""
     name_val is `Name`
 
   primary_key: city_i_d
-
-  join_one: county_public_safety on county_i_d = county_public_safety.county_i_d
 
   measure:
     row_count is count()
@@ -87,4 +89,18 @@ source: city is duckdb.sql("""
     avg_hispanic is avg(Hispanic)
     max_hispanic is max(Hispanic)
     min_hispanic is min(Hispanic)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// county_public_safety (with joins)
+source: county_public_safety is county_public_safety_base extend {
+  join_many: city is city_base on county_i_d = city.county_i_d
+}
+
+// city (with joins)
+source: city is city_base extend {
+  join_one: county_public_safety is county_public_safety_base on county_i_d = county_public_safety.county_i_d
 }

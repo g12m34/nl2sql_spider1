@@ -1,9 +1,13 @@
 // Malloy semantic layer for: solvency_ii
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Addresses')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: addresses is duckdb.sql("""
 }
 
 // Locations
-source: locations is duckdb.sql("""
+source: locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Locations')
 """) extend {
   dimension:
@@ -37,7 +41,7 @@ source: locations is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Products')
 """) extend {
   dimension:
@@ -58,7 +62,7 @@ source: products is duckdb.sql("""
 }
 
 // Parties
-source: parties is duckdb.sql("""
+source: parties_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Parties')
 """) extend {
   dimension:
@@ -75,7 +79,7 @@ source: parties is duckdb.sql("""
 }
 
 // Assets
-source: assets is duckdb.sql("""
+source: assets_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Assets')
 """) extend {
   dimension:
@@ -92,7 +96,7 @@ source: assets is duckdb.sql("""
 }
 
 // Channels
-source: channels is duckdb.sql("""
+source: channels_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Channels')
 """) extend {
   dimension:
@@ -109,7 +113,7 @@ source: channels is duckdb.sql("""
 }
 
 // Finances
-source: finances is duckdb.sql("""
+source: finances_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Finances')
 """) extend {
   dimension:
@@ -126,7 +130,7 @@ source: finances is duckdb.sql("""
 }
 
 // Events
-source: events_val is duckdb.sql("""
+source: events_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Events')
 """) extend {
   dimension:
@@ -137,10 +141,6 @@ source: events_val is duckdb.sql("""
     location_i_d is Location_ID
 
   primary_key: event_i_d
-
-  join_one: finances on finance_i_d = finances.finance_i_d
-  join_one: addresses on address_i_d = addresses.address_i_d
-  join_one: locations on location_i_d = locations.location_i_d
 
   measure:
     row_count is count()
@@ -167,7 +167,7 @@ source: events_val is duckdb.sql("""
 }
 
 // Products_in_Events
-source: products_in_events is duckdb.sql("""
+source: products_in_events_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Products_in_Events')
 """) extend {
   dimension:
@@ -176,9 +176,6 @@ source: products_in_events is duckdb.sql("""
     product_i_d is Product_ID
 
   primary_key: product_in_event_i_d
-
-  join_one: products on product_i_d = products.product_i_d
-  join_one: events_val on event_i_d = events_val.event_i_d
 
   measure:
     row_count is count()
@@ -197,7 +194,7 @@ source: products_in_events is duckdb.sql("""
 }
 
 // Parties_in_Events
-source: parties_in_events is duckdb.sql("""
+source: parties_in_events_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Parties_in_Events')
 """) extend {
   dimension:
@@ -205,9 +202,6 @@ source: parties_in_events is duckdb.sql("""
     event_i_d is Event_ID
 
   primary_key: party_i_d
-
-  join_one: events_val on event_i_d = events_val.event_i_d
-  join_one: parties on party_i_d = parties.party_i_d
 
   measure:
     row_count is count()
@@ -222,7 +216,7 @@ source: parties_in_events is duckdb.sql("""
 }
 
 // Agreements
-source: agreements is duckdb.sql("""
+source: agreements_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Agreements')
 """) extend {
   dimension:
@@ -230,8 +224,6 @@ source: agreements is duckdb.sql("""
     event_i_d is Event_ID
 
   primary_key: document_i_d
-
-  join_one: events_val on event_i_d = events_val.event_i_d
 
   measure:
     row_count is count()
@@ -246,7 +238,7 @@ source: agreements is duckdb.sql("""
 }
 
 // Assets_in_Events
-source: assets_in_events is duckdb.sql("""
+source: assets_in_events_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Assets_in_Events')
 """) extend {
   dimension:
@@ -254,9 +246,6 @@ source: assets_in_events is duckdb.sql("""
     event_i_d is Event_ID
 
   primary_key: asset_i_d
-
-  join_one: event_i_d_events_val is events_val on event_i_d = event_i_d_events_val.event_i_d
-  join_one: event_i_d_events_val_2 is events_val on event_i_d = event_i_d_events_val_2.event_i_d
 
   measure:
     row_count is count()
@@ -268,4 +257,74 @@ source: assets_in_events is duckdb.sql("""
     avg_event_i_d is avg(event_i_d)
     max_event_i_d is max(event_i_d)
     min_event_i_d is min(event_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: events_val is events_val_base on address_i_d = events_val.address_i_d
+}
+
+// Locations (with joins)
+source: locations is locations_base extend {
+  join_many: events_val is events_val_base on location_i_d = events_val.location_i_d
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: products_in_events is products_in_events_base on product_i_d = products_in_events.product_i_d
+}
+
+// Parties (with joins)
+source: parties is parties_base extend {
+  join_many: parties_in_events is parties_in_events_base on party_i_d = parties_in_events.party_i_d
+}
+
+// Assets (with joins)
+source: assets is assets_base
+
+// Channels (with joins)
+source: channels is channels_base
+
+// Finances (with joins)
+source: finances is finances_base extend {
+  join_many: events_val is events_val_base on finance_i_d = events_val.finance_i_d
+}
+
+// Events (with joins)
+source: events_val is events_val_base extend {
+  join_one: finances is finances_base on finance_i_d = finances.finance_i_d
+  join_one: addresses is addresses_base on address_i_d = addresses.address_i_d
+  join_one: locations is locations_base on location_i_d = locations.location_i_d
+  join_many: products_in_events is products_in_events_base on event_i_d = products_in_events.event_i_d
+  join_many: parties_in_events is parties_in_events_base on event_i_d = parties_in_events.event_i_d
+  join_many: agreements is agreements_base on event_i_d = agreements.event_i_d
+  join_many: assets_in_events_event_i_d is assets_in_events_base on event_i_d = assets_in_events_event_i_d.event_i_d
+  join_many: assets_in_events_event_i_d_2 is assets_in_events_base on event_i_d = assets_in_events_event_i_d_2.event_i_d
+}
+
+// Products_in_Events (with joins)
+source: products_in_events is products_in_events_base extend {
+  join_one: products is products_base on product_i_d = products.product_i_d
+  join_one: events_val is events_val_base on event_i_d = events_val.event_i_d
+}
+
+// Parties_in_Events (with joins)
+source: parties_in_events is parties_in_events_base extend {
+  join_one: events_val is events_val_base on event_i_d = events_val.event_i_d
+  join_one: parties is parties_base on party_i_d = parties.party_i_d
+}
+
+// Agreements (with joins)
+source: agreements is agreements_base extend {
+  join_one: events_val is events_val_base on event_i_d = events_val.event_i_d
+}
+
+// Assets_in_Events (with joins)
+source: assets_in_events is assets_in_events_base extend {
+  join_one: event_i_d_events_val is events_val_base on event_i_d = event_i_d_events_val.event_i_d
+  join_one: event_i_d_events_val_2 is events_val_base on event_i_d = event_i_d_events_val_2.event_i_d
 }

@@ -1,0 +1,419 @@
+{
+  "description": "Questions from enriched databases only",
+  "questions": [
+    {
+      "id": 0,
+      "db_id": "game_1",
+      "question": "What are the ids of all students who played video games and sports?",
+      "gold_sql": "SELECT StuID FROM Sportsinfo INTERSECT SELECT StuID FROM Plays_games",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 1,
+      "db_id": "scholar",
+      "question": "who published the most at chi",
+      "gold_sql": "SELECT DISTINCT COUNT ( DISTINCT t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"chi\" GROUP BY t1.authorid ORDER BY COUNT ( DISTINCT t2.paperid ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 2,
+      "db_id": "movie_1",
+      "question": "What are the titles and directors of the movies whose star is greater than the average stars of the movies directed by James Cameron?",
+      "gold_sql": "SELECT T2.title ,  T2.director FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T1.stars  >  (SELECT avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE T2.director  =  \"James Cameron\")",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 3,
+      "db_id": "manufactory_1",
+      "question": "Find the name of product that is produced by both companies Creative Labs and Sony.",
+      "gold_sql": "SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Creative Labs' INTERSECT SELECT T1.name FROM products AS T1 JOIN manufacturers AS T2 ON T1.Manufacturer  =  T2.code WHERE T2.name  =  'Sony'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/manufactory_1/manufactory_1.sqlite"
+    },
+    {
+      "id": 4,
+      "db_id": "ship_1",
+      "question": "What are the ranks of captains that are both in the Cutter and Armed schooner classes?",
+      "gold_sql": "SELECT rank FROM captain WHERE CLASS  =  'Cutter' INTERSECT SELECT rank FROM captain WHERE CLASS  =  'Armed schooner'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 5,
+      "db_id": "gas_company",
+      "question": "Show all headquarters without a company in banking industry.",
+      "gold_sql": "SELECT headquarters FROM company EXCEPT SELECT headquarters FROM company WHERE main_industry  =  'Banking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    },
+    {
+      "id": 6,
+      "db_id": "activity_1",
+      "question": "Which students participate in both Canoeing and Kayaking as their activities? Tell me their student ids.",
+      "gold_sql": "SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Canoeing' INTERSECT SELECT T1.stuid FROM participates_in AS T1 JOIN activity AS T2 ON T2.actid  =  T2.actid WHERE T2.activity_name  =  'Kayaking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 7,
+      "db_id": "geo",
+      "question": "which is the longest river in usa",
+      "gold_sql": "SELECT river_name FROM river WHERE LENGTH  =  ( SELECT MAX ( LENGTH ) FROM river );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 8,
+      "db_id": "customers_and_products_contacts",
+      "question": "Show the names of customers who have both an order in completed status and an order in part status.",
+      "gold_sql": "SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  'Completed' INTERSECT SELECT T1.customer_name FROM customers AS T1 JOIN customer_orders AS T2 ON T1.customer_id  =  T2.customer_id WHERE T2.order_status_code  =  'Part'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/customers_and_products_contacts/customers_and_products_contacts.sqlite"
+    },
+    {
+      "id": 9,
+      "db_id": "behavior_monitoring",
+      "question": "What are the line 1 of addresses shared by some students and some teachers?",
+      "gold_sql": "SELECT T1.line_1 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.address_id INTERSECT SELECT T1.line_1 FROM Addresses AS T1 JOIN Teachers AS T2 ON T1.address_id  =  T2.address_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 20,
+      "db_id": "movie_1",
+      "question": "What is the average number of stars that each reviewer awards for a movie?",
+      "gold_sql": "SELECT T2.name ,  avg(T1.stars) FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID GROUP BY T2.name",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 27,
+      "db_id": "geo",
+      "question": "what is the tallest mountain in the united states",
+      "gold_sql": "SELECT mountain_name FROM mountain WHERE mountain_altitude  =  ( SELECT MAX ( mountain_altitude ) FROM mountain );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 28,
+      "db_id": "scholar",
+      "question": "main topics of work by Brian DeRenzi",
+      "gold_sql": "SELECT DISTINCT t1.keyphrasename  ,  SUM ( t3.numcitedby ) FROM paperkeyphrase AS t2 JOIN keyphrase AS t1 ON t2.keyphraseid  =  t1.keyphraseid JOIN paper AS t3 ON t3.paperid  =  t2.paperid JOIN writes AS t4 ON t4.paperid  =  t3.paperid JOIN author AS t5 ON t4.authorid  =  t5.authorid WHERE t5.authorname  =  \"Brian DeRenzi\" GROUP BY t1.keyphrasename ORDER BY SUM ( t3.numcitedby ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 32,
+      "db_id": "geo",
+      "question": "what is the lowest point of all states through which the mississippi river runs through",
+      "gold_sql": "SELECT lowest_point FROM highlow WHERE state_name IN ( SELECT traverse FROM river WHERE river_name  =  \"mississippi\" ) ORDER BY lowest_elevation LIMIT 1;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 35,
+      "db_id": "geo",
+      "question": "what is the largest capital",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MAX ( t1.population ) FROM state AS t2 JOIN city AS t1 ON t2.capital  =  t1.city_name );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 40,
+      "db_id": "scholar",
+      "question": "What is the most cited paper by ohad shamir ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"ohad shamir\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 46,
+      "db_id": "geo",
+      "question": "what state has the sparsest population density",
+      "gold_sql": "SELECT state_name FROM state WHERE density  =  ( SELECT MIN ( density ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 47,
+      "db_id": "activity_1",
+      "question": "What is the first and last name of the faculty members who participated in at least one activity? For each of them, also show the number of activities they participated in.",
+      "gold_sql": "SELECT  T1.fname ,  T1.lname ,  count(*) ,  T1.FacID FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID GROUP BY T1.FacID",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 55,
+      "db_id": "geo",
+      "question": "what is the biggest state",
+      "gold_sql": "SELECT state_name FROM state WHERE area  =  ( SELECT MAX ( area ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 56,
+      "db_id": "scholar",
+      "question": "count of ACL papers by author",
+      "gold_sql": "SELECT DISTINCT COUNT ( t2.paperid )  ,  t1.authorid FROM venue AS t3 JOIN paper AS t2 ON t3.venueid  =  t2.venueid JOIN writes AS t1 ON t1.paperid  =  t2.paperid WHERE t3.venuename  =  \"ACL\" GROUP BY t1.authorid;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 58,
+      "db_id": "geo",
+      "question": "what rivers flow through the state with the largest population",
+      "gold_sql": "SELECT river_name FROM river WHERE traverse IN ( SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state ) );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 59,
+      "db_id": "geo",
+      "question": "where is the highest mountain of the united states",
+      "gold_sql": "SELECT state_name FROM mountain WHERE mountain_altitude  =  ( SELECT MAX ( mountain_altitude ) FROM mountain );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 63,
+      "db_id": "movie_1",
+      "question": "What are the movie titles with the highest average rating and what are those ratings?",
+      "gold_sql": "SELECT T2.title ,  avg(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID GROUP BY T1.mID ORDER BY avg(T1.stars) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 64,
+      "db_id": "geo",
+      "question": "what is the lowest point of the state with the largest area",
+      "gold_sql": "SELECT t2.lowest_point FROM state AS t1 JOIN highlow AS t2 ON t1.state_name  =  t2.state_name WHERE t1.state_name IN ( SELECT state_name FROM state WHERE area  =  ( SELECT MAX ( area ) FROM state ) );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 65,
+      "db_id": "geo",
+      "question": "how large is the largest city in alaska",
+      "gold_sql": "SELECT population FROM city WHERE population  =  ( SELECT MAX ( population ) FROM city WHERE state_name  =  \"alaska\" ) AND state_name  =  \"alaska\";",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 81,
+      "db_id": "geo",
+      "question": "what states border the state with the smallest area",
+      "gold_sql": "SELECT border FROM border_info WHERE state_name  =  ( SELECT state_name FROM state WHERE area  =  ( SELECT MIN ( area ) FROM state ) );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 91,
+      "db_id": "movie_1",
+      "question": "What are the ids of all moviest hat have not been reviewed by Britanny Harris?",
+      "gold_sql": "SELECT mID FROM Rating EXCEPT SELECT T1.mID FROM Rating AS T1 JOIN Reviewer AS T2 ON T1.rID  =  T2.rID WHERE T2.name  =  \"Brittany Harris\"",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 106,
+      "db_id": "game_1",
+      "question": "Show student ids who are on scholarship and have major 600.",
+      "gold_sql": "SELECT StuID FROM Student WHERE major  =  600 INTERSECT SELECT StuID FROM Sportsinfo WHERE onscholarship  =  'Y'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/game_1/game_1.sqlite"
+    },
+    {
+      "id": 110,
+      "db_id": "movie_1",
+      "question": "What is the name of the movie that has been reviewed the most?",
+      "gold_sql": "SELECT T2.title ,  T1.mID FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID GROUP BY T1.mID ORDER BY count(*) DESC LIMIT 1",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 111,
+      "db_id": "geo",
+      "question": "what is the capital of the state with the most inhabitants",
+      "gold_sql": "SELECT capital FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 114,
+      "db_id": "movie_1",
+      "question": "Return all reviewer names and movie names together in a single list.",
+      "gold_sql": "SELECT name FROM Reviewer UNION SELECT title FROM Movie",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 117,
+      "db_id": "scholar",
+      "question": "What is the most cited paper of ohad shamir ?",
+      "gold_sql": "SELECT DISTINCT t4.citedpaperid  ,  COUNT ( t4.citedpaperid ) FROM paper AS t3 JOIN cite AS t4 ON t3.paperid  =  t4.citedpaperid JOIN writes AS t2 ON t2.paperid  =  t3.paperid JOIN author AS t1 ON t2.authorid  =  t1.authorid WHERE t1.authorname  =  \"ohad shamir\" GROUP BY t4.citedpaperid ORDER BY COUNT ( t4.citedpaperid ) DESC;",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/scholar/scholar.sqlite"
+    },
+    {
+      "id": 124,
+      "db_id": "behavior_monitoring",
+      "question": "Find the last names of teachers who are not involved in any detention.",
+      "gold_sql": "SELECT last_name FROM Teachers EXCEPT SELECT T1.last_name FROM Teachers AS T1 JOIN Detention AS T2 ON T1.teacher_id  =  T2.teacher_id",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/behavior_monitoring/behavior_monitoring.sqlite"
+    },
+    {
+      "id": 133,
+      "db_id": "activity_1",
+      "question": "Show the ids of all the faculty members who participate in an activity and advise a student.",
+      "gold_sql": "SELECT FacID FROM Faculty_participates_in INTERSECT SELECT advisor FROM Student",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 136,
+      "db_id": "geo",
+      "question": "what state has the longest river",
+      "gold_sql": "SELECT DISTINCT traverse FROM river WHERE LENGTH  =  ( SELECT MAX ( DISTINCT LENGTH ) FROM river );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 144,
+      "db_id": "gas_company",
+      "question": "What are the headquarters without companies that are in the banking industry?",
+      "gold_sql": "SELECT headquarters FROM company EXCEPT SELECT headquarters FROM company WHERE main_industry  =  'Banking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/gas_company/gas_company.sqlite"
+    },
+    {
+      "id": 148,
+      "db_id": "geo",
+      "question": "which state is the smallest",
+      "gold_sql": "SELECT state_name FROM state WHERE area  =  ( SELECT MIN ( area ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 150,
+      "db_id": "movie_1",
+      "question": "For each director, what are the titles and ratings for all the movies they reviewed?",
+      "gold_sql": "SELECT T2.title ,  T1.stars ,  T2.director ,  max(T1.stars) FROM Rating AS T1 JOIN Movie AS T2 ON T1.mID  =  T2.mID WHERE director != \"null\" GROUP BY director",
+      "difficulty": "hard",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/movie_1/movie_1.sqlite"
+    },
+    {
+      "id": 152,
+      "db_id": "activity_1",
+      "question": "Show ids for the faculty members who don't advise any student.",
+      "gold_sql": "SELECT FacID FROM Faculty EXCEPT SELECT advisor FROM Student",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 162,
+      "db_id": "activity_1",
+      "question": "What are the first names of the professors who do not play Canoeing or Kayaking as activities?",
+      "gold_sql": "SELECT lname FROM faculty WHERE rank  =  'Professor' EXCEPT SELECT DISTINCT T1.lname FROM Faculty AS T1 JOIN Faculty_participates_in AS T2 ON T1.facID  =  T2.facID JOIN activity AS T3 ON T2.actid  =  T2.actid WHERE T3.activity_name  =  'Canoeing' OR T3.activity_name  =  'Kayaking'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/activity_1/activity_1.sqlite"
+    },
+    {
+      "id": 180,
+      "db_id": "geo",
+      "question": "what is the capital of the state with the largest population",
+      "gold_sql": "SELECT capital FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 185,
+      "db_id": "geo",
+      "question": "what is the largest city in wyoming",
+      "gold_sql": "SELECT city_name FROM city WHERE population  =  ( SELECT MAX ( population ) FROM city WHERE state_name  =  \"wyoming\" ) AND state_name  =  \"wyoming\";",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 189,
+      "db_id": "geo",
+      "question": "which state has the most population",
+      "gold_sql": "SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 197,
+      "db_id": "geo",
+      "question": "what is the most populous state in the us",
+      "gold_sql": "SELECT state_name FROM state WHERE population  =  ( SELECT MAX ( population ) FROM state );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    },
+    {
+      "id": 198,
+      "db_id": "ship_1",
+      "question": "What are the names of ships that are commanded by both captains with the rank of Midshipman and captains with the rank of Lieutenant?",
+      "gold_sql": "SELECT t1.name FROM ship AS t1 JOIN captain AS t2 ON t1.ship_id  =  t2.ship_id WHERE t2.rank  =  'Midshipman' INTERSECT SELECT t1.name FROM ship AS t1 JOIN captain AS t2 ON t1.ship_id  =  t2.ship_id WHERE t2.rank  =  'Lieutenant'",
+      "difficulty": "extra",
+      "source": "train_spider",
+      "db_path": "/workspace/spider_db/spider/database/ship_1/ship_1.sqlite"
+    },
+    {
+      "id": 199,
+      "db_id": "geo",
+      "question": "what states does the shortest river run through",
+      "gold_sql": "SELECT traverse FROM river WHERE LENGTH  =  ( SELECT MIN ( LENGTH ) FROM river );",
+      "difficulty": "hard",
+      "source": "train_others",
+      "db_path": "/workspace/spider_db/spider/database/geo/geo.sqlite"
+    }
+  ]
+}

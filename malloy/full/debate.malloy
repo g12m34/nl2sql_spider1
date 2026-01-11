@@ -1,9 +1,13 @@
 // Malloy semantic layer for: debate
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/debate/debate.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // people
-source: people_val is duckdb.sql("""
+source: people_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/debate/debate.sqlite', 'people')
 """) extend {
   dimension:
@@ -25,7 +29,7 @@ source: people_val is duckdb.sql("""
 }
 
 // debate
-source: debate is duckdb.sql("""
+source: debate_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/debate/debate.sqlite', 'debate')
 """) extend {
   dimension:
@@ -47,17 +51,13 @@ source: debate is duckdb.sql("""
 }
 
 // debate_people
-source: debate_people is duckdb.sql("""
+source: debate_people_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/debate/debate.sqlite', 'debate_people')
 """) extend {
   dimension:
     debate_i_d is Debate_ID
 
   primary_key: debate_i_d
-
-  join_one: negative_people_val is people_val on Negative = negative_people_val.people_i_d
-  join_one: affirmative_people_val is people_val on Affirmative = affirmative_people_val.people_i_d
-  join_one: debate on debate_i_d = debate.debate_i_d
 
   measure:
     row_count is count()
@@ -73,4 +73,26 @@ source: debate_people is duckdb.sql("""
     avg_negative is avg(Negative)
     max_negative is max(Negative)
     min_negative is min(Negative)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// people (with joins)
+source: people_val is people_val_base extend {
+  join_many: debate_people_negative is debate_people_base on people_i_d = debate_people_negative.Negative
+  join_many: debate_people_affirmative is debate_people_base on people_i_d = debate_people_affirmative.Affirmative
+}
+
+// debate (with joins)
+source: debate is debate_base extend {
+  join_many: debate_people is debate_people_base on debate_i_d = debate_people.debate_i_d
+}
+
+// debate_people (with joins)
+source: debate_people is debate_people_base extend {
+  join_one: negative_people_val is people_val_base on Negative = negative_people_val.people_i_d
+  join_one: affirmative_people_val is people_val_base on Affirmative = affirmative_people_val.people_i_d
+  join_one: debate is debate_base on debate_i_d = debate.debate_i_d
 }

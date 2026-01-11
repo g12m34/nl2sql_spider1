@@ -1,9 +1,13 @@
 // Malloy semantic layer for: network_2
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/network_2/network_2.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Person
-source: person_val is duckdb.sql("""
+source: person_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_2/network_2.sqlite', 'Person')
 """) extend {
   dimension:
@@ -20,15 +24,12 @@ source: person_val is duckdb.sql("""
 }
 
 // PersonFriend
-source: person_friend is duckdb.sql("""
+source: person_friend_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_2/network_2.sqlite', 'PersonFriend')
 """) extend {
   dimension:
     name_val is `name`
     year_val is `year`
-
-  join_one: friend_person_val is person_val on friend = friend_person_val.name_val
-  join_one: name_person_val is person_val on name_val = name_person_val.name_val
 
   measure:
     row_count is count()
@@ -36,4 +37,20 @@ source: person_friend is duckdb.sql("""
     avg_year_val is avg(year_val)
     max_year_val is max(year_val)
     min_year_val is min(year_val)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Person (with joins)
+source: person_val is person_val_base extend {
+  join_many: person_friend_friend is person_friend_base on name_val = person_friend_friend.friend
+  join_many: person_friend_name is person_friend_base on name_val = person_friend_name.name_val
+}
+
+// PersonFriend (with joins)
+source: person_friend is person_friend_base extend {
+  join_one: friend_person_val is person_val_base on friend = friend_person_val.name_val
+  join_one: name_person_val is person_val_base on name_val = name_person_val.name_val
 }

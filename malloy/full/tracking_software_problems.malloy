@@ -1,9 +1,13 @@
 // Malloy semantic layer for: tracking_software_problems
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Problem_Category_Codes
-source: problem_category_codes is duckdb.sql("""
+source: problem_category_codes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Category_Codes')
 """) extend {
   primary_key: problem_category_code
@@ -12,8 +16,30 @@ source: problem_category_codes is duckdb.sql("""
     row_count is count()
 }
 
+// Problem_Log
+source: problem_log_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Log')
+""") extend {
+  primary_key: problem_log_id
+
+  measure:
+    row_count is count()
+    total_problem_log_id is sum(problem_log_id)
+    avg_problem_log_id is avg(problem_log_id)
+    max_problem_log_id is max(problem_log_id)
+    min_problem_log_id is min(problem_log_id)
+    total_assigned_to_staff_id is sum(assigned_to_staff_id)
+    avg_assigned_to_staff_id is avg(assigned_to_staff_id)
+    max_assigned_to_staff_id is max(assigned_to_staff_id)
+    min_assigned_to_staff_id is min(assigned_to_staff_id)
+    total_problem_id is sum(problem_id)
+    avg_problem_id is avg(problem_id)
+    max_problem_id is max(problem_id)
+    min_problem_id is min(problem_id)
+}
+
 // Problem_Status_Codes
-source: problem_status_codes is duckdb.sql("""
+source: problem_status_codes_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Status_Codes')
 """) extend {
   primary_key: problem_status_code
@@ -23,7 +49,7 @@ source: problem_status_codes is duckdb.sql("""
 }
 
 // Product
-source: product is duckdb.sql("""
+source: product_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Product')
 """) extend {
   primary_key: product_id
@@ -37,7 +63,7 @@ source: product is duckdb.sql("""
 }
 
 // Staff
-source: staff_val is duckdb.sql("""
+source: staff_val_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Staff')
 """) extend {
   primary_key: staff_id
@@ -51,14 +77,10 @@ source: staff_val is duckdb.sql("""
 }
 
 // Problems
-source: problems is duckdb.sql("""
+source: problems_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problems')
 """) extend {
   primary_key: problem_id
-
-  join_one: reported_by_staff_staff_val is staff_val on reported_by_staff_id = reported_by_staff_staff_val.staff_id
-  join_one: product on product_id = product.product_id
-  join_one: closure_authorised_by_staff_staff_val is staff_val on closure_authorised_by_staff_id = closure_authorised_by_staff_staff_val.staff_id
 
   measure:
     row_count is count()
@@ -80,29 +102,44 @@ source: problems is duckdb.sql("""
     min_reported_by_staff_id is min(reported_by_staff_id)
 }
 
-// Problem_Log
-source: problem_log is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_software_problems/tracking_software_problems.sqlite', 'Problem_Log')
-""") extend {
-  primary_key: problem_log_id
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: problem_status_codes on problem_status_code = problem_status_codes.problem_status_code
-  join_one: problems on problem_id = problems.problem_id
-  join_one: staff_val on assigned_to_staff_id = staff_val.staff_id
-  join_one: problem_category_codes on problem_category_code = problem_category_codes.problem_category_code
+// Problem_Category_Codes (with joins)
+source: problem_category_codes is problem_category_codes_base extend {
+  join_many: problem_log is problem_log_base on problem_category_code = problem_log.problem_category_code
+}
 
-  measure:
-    row_count is count()
-    total_problem_log_id is sum(problem_log_id)
-    avg_problem_log_id is avg(problem_log_id)
-    max_problem_log_id is max(problem_log_id)
-    min_problem_log_id is min(problem_log_id)
-    total_assigned_to_staff_id is sum(assigned_to_staff_id)
-    avg_assigned_to_staff_id is avg(assigned_to_staff_id)
-    max_assigned_to_staff_id is max(assigned_to_staff_id)
-    min_assigned_to_staff_id is min(assigned_to_staff_id)
-    total_problem_id is sum(problem_id)
-    avg_problem_id is avg(problem_id)
-    max_problem_id is max(problem_id)
-    min_problem_id is min(problem_id)
+// Problem_Log (with joins)
+source: problem_log is problem_log_base extend {
+  join_one: problem_status_codes is problem_status_codes_base on problem_status_code = problem_status_codes.problem_status_code
+  join_one: problems is problems_base on problem_id = problems.problem_id
+  join_one: staff_val is staff_val_base on assigned_to_staff_id = staff_val.staff_id
+  join_one: problem_category_codes is problem_category_codes_base on problem_category_code = problem_category_codes.problem_category_code
+}
+
+// Problem_Status_Codes (with joins)
+source: problem_status_codes is problem_status_codes_base extend {
+  join_many: problem_log is problem_log_base on problem_status_code = problem_log.problem_status_code
+}
+
+// Product (with joins)
+source: product is product_base extend {
+  join_many: problems is problems_base on product_id = problems.product_id
+}
+
+// Staff (with joins)
+source: staff_val is staff_val_base extend {
+  join_many: problem_log is problem_log_base on staff_id = problem_log.assigned_to_staff_id
+  join_many: problems_reported_by_staff is problems_base on staff_id = problems_reported_by_staff.reported_by_staff_id
+  join_many: problems_closure_authorised_by_staff is problems_base on staff_id = problems_closure_authorised_by_staff.closure_authorised_by_staff_id
+}
+
+// Problems (with joins)
+source: problems is problems_base extend {
+  join_one: reported_by_staff_staff_val is staff_val_base on reported_by_staff_id = reported_by_staff_staff_val.staff_id
+  join_one: product is product_base on product_id = product.product_id
+  join_one: closure_authorised_by_staff_staff_val is staff_val_base on closure_authorised_by_staff_id = closure_authorised_by_staff_staff_val.staff_id
+  join_many: problem_log is problem_log_base on problem_id = problem_log.problem_id
 }

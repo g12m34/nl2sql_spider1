@@ -1,9 +1,13 @@
 // Malloy semantic layer for: storm_record
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/storm_record/storm_record.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // storm
-source: storm is duckdb.sql("""
+source: storm_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/storm_record/storm_record.sqlite', 'storm')
 """) extend {
   dimension:
@@ -34,7 +38,7 @@ source: storm is duckdb.sql("""
 }
 
 // region
-source: region is duckdb.sql("""
+source: region_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/storm_record/storm_record.sqlite', 'region')
 """) extend {
   primary_key: Region_id
@@ -48,16 +52,13 @@ source: region is duckdb.sql("""
 }
 
 // affected_region
-source: affected_region is duckdb.sql("""
+source: affected_region_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/storm_record/storm_record.sqlite', 'affected_region')
 """) extend {
   dimension:
     storm_i_d is Storm_ID
 
   primary_key: Region_id
-
-  join_one: storm on storm_i_d = storm.storm_i_d
-  join_one: region on Region_id = region.Region_id
 
   measure:
     row_count is count()
@@ -73,4 +74,24 @@ source: affected_region is duckdb.sql("""
     avg_number_city_affected is avg(Number_city_affected)
     max_number_city_affected is max(Number_city_affected)
     min_number_city_affected is min(Number_city_affected)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// storm (with joins)
+source: storm is storm_base extend {
+  join_many: affected_region is affected_region_base on storm_i_d = affected_region.storm_i_d
+}
+
+// region (with joins)
+source: region is region_base extend {
+  join_many: affected_region is affected_region_base on Region_id = affected_region.Region_id
+}
+
+// affected_region (with joins)
+source: affected_region is affected_region_base extend {
+  join_one: storm is storm_base on storm_i_d = storm.storm_i_d
+  join_one: region is region_base on Region_id = region.Region_id
 }

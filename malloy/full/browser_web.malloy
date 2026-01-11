@@ -1,9 +1,13 @@
 // Malloy semantic layer for: browser_web
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/browser_web/browser_web.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Web_client_accelerator
-source: web_client_accelerator is duckdb.sql("""
+source: web_client_accelerator_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'Web_client_accelerator')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: web_client_accelerator is duckdb.sql("""
 }
 
 // browser
-source: browser is duckdb.sql("""
+source: browser_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'browser')
 """) extend {
   dimension:
@@ -41,13 +45,10 @@ source: browser is duckdb.sql("""
 }
 
 // accelerator_compatible_browser
-source: accelerator_compatible_browser is duckdb.sql("""
+source: accelerator_compatible_browser_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'accelerator_compatible_browser')
 """) extend {
   primary_key: accelerator_id
-
-  join_one: browser on browser_id = browser.id
-  join_one: web_client_accelerator on accelerator_id = web_client_accelerator.id
 
   measure:
     row_count is count()
@@ -63,4 +64,24 @@ source: accelerator_compatible_browser is duckdb.sql("""
     avg_compatible_since_year is avg(compatible_since_year)
     max_compatible_since_year is max(compatible_since_year)
     min_compatible_since_year is min(compatible_since_year)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Web_client_accelerator (with joins)
+source: web_client_accelerator is web_client_accelerator_base extend {
+  join_many: accelerator_compatible_browser is accelerator_compatible_browser_base on id = accelerator_compatible_browser.accelerator_id
+}
+
+// browser (with joins)
+source: browser is browser_base extend {
+  join_many: accelerator_compatible_browser is accelerator_compatible_browser_base on id = accelerator_compatible_browser.browser_id
+}
+
+// accelerator_compatible_browser (with joins)
+source: accelerator_compatible_browser is accelerator_compatible_browser_base extend {
+  join_one: browser is browser_base on browser_id = browser.id
+  join_one: web_client_accelerator is web_client_accelerator_base on accelerator_id = web_client_accelerator.id
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: machine_repair
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // repair
-source: repair is duckdb.sql("""
+source: repair_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'repair')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: repair is duckdb.sql("""
 }
 
 // machine
-source: machine is duckdb.sql("""
+source: machine_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'machine')
 """) extend {
   dimension:
@@ -50,7 +54,7 @@ source: machine is duckdb.sql("""
 }
 
 // technician
-source: technician is duckdb.sql("""
+source: technician_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'technician')
 """) extend {
   dimension:
@@ -75,7 +79,7 @@ source: technician is duckdb.sql("""
 }
 
 // repair_assignment
-source: repair_assignment is duckdb.sql("""
+source: repair_assignment_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/machine_repair/machine_repair.sqlite', 'repair_assignment')
 """) extend {
   dimension:
@@ -83,10 +87,6 @@ source: repair_assignment is duckdb.sql("""
     machine_i_d is Machine_ID
 
   primary_key: technician_id
-
-  join_one: machine on machine_i_d = machine.machine_i_d
-  join_one: repair on repair_i_d = repair.repair_i_d
-  join_one: technician on technician_id = technician.technician_id
 
   measure:
     row_count is count()
@@ -102,4 +102,30 @@ source: repair_assignment is duckdb.sql("""
     avg_machine_i_d is avg(machine_i_d)
     max_machine_i_d is max(machine_i_d)
     min_machine_i_d is min(machine_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// repair (with joins)
+source: repair is repair_base extend {
+  join_many: repair_assignment is repair_assignment_base on repair_i_d = repair_assignment.repair_i_d
+}
+
+// machine (with joins)
+source: machine is machine_base extend {
+  join_many: repair_assignment is repair_assignment_base on machine_i_d = repair_assignment.machine_i_d
+}
+
+// technician (with joins)
+source: technician is technician_base extend {
+  join_many: repair_assignment is repair_assignment_base on technician_id = repair_assignment.technician_id
+}
+
+// repair_assignment (with joins)
+source: repair_assignment is repair_assignment_base extend {
+  join_one: machine is machine_base on machine_i_d = machine.machine_i_d
+  join_one: repair is repair_base on repair_i_d = repair.repair_i_d
+  join_one: technician is technician_base on technician_id = technician.technician_id
 }

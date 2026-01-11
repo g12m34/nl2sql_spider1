@@ -1,9 +1,13 @@
 // Malloy semantic layer for: products_gen_characteristics
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Ref_Characteristic_Types
-source: ref_characteristic_types is duckdb.sql("""
+source: ref_characteristic_types_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Ref_Characteristic_Types')
 """) extend {
   primary_key: characteristic_type_code
@@ -13,7 +17,7 @@ source: ref_characteristic_types is duckdb.sql("""
 }
 
 // Ref_Colors
-source: ref_colors is duckdb.sql("""
+source: ref_colors_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Ref_Colors')
 """) extend {
   primary_key: color_code
@@ -23,7 +27,7 @@ source: ref_colors is duckdb.sql("""
 }
 
 // Ref_Product_Categories
-source: ref_product_categories is duckdb.sql("""
+source: ref_product_categories_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Ref_Product_Categories')
 """) extend {
   primary_key: product_category_code
@@ -33,12 +37,10 @@ source: ref_product_categories is duckdb.sql("""
 }
 
 // Characteristics
-source: characteristics is duckdb.sql("""
+source: characteristics_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Characteristics')
 """) extend {
   primary_key: characteristic_id
-
-  join_one: ref_characteristic_types on characteristic_type_code = ref_characteristic_types.characteristic_type_code
 
   measure:
     row_count is count()
@@ -49,13 +51,10 @@ source: characteristics is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Products')
 """) extend {
   primary_key: product_id
-
-  join_one: ref_colors on color_code = ref_colors.color_code
-  join_one: ref_product_categories on product_category_code = ref_product_categories.product_category_code
 
   measure:
     row_count is count()
@@ -66,12 +65,9 @@ source: products is duckdb.sql("""
 }
 
 // Product_Characteristics
-source: product_characteristics is duckdb.sql("""
+source: product_characteristics_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/products_gen_characteristics/products_gen_characteristics.sqlite', 'Product_Characteristics')
 """) extend {
-  join_one: products on product_id = products.product_id
-  join_one: characteristics on characteristic_id = characteristics.characteristic_id
-
   measure:
     row_count is count()
     total_product_id is sum(product_id)
@@ -82,4 +78,42 @@ source: product_characteristics is duckdb.sql("""
     avg_characteristic_id is avg(characteristic_id)
     max_characteristic_id is max(characteristic_id)
     min_characteristic_id is min(characteristic_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Ref_Characteristic_Types (with joins)
+source: ref_characteristic_types is ref_characteristic_types_base extend {
+  join_many: characteristics is characteristics_base on characteristic_type_code = characteristics.characteristic_type_code
+}
+
+// Ref_Colors (with joins)
+source: ref_colors is ref_colors_base extend {
+  join_many: products is products_base on color_code = products.color_code
+}
+
+// Ref_Product_Categories (with joins)
+source: ref_product_categories is ref_product_categories_base extend {
+  join_many: products is products_base on product_category_code = products.product_category_code
+}
+
+// Characteristics (with joins)
+source: characteristics is characteristics_base extend {
+  join_one: ref_characteristic_types is ref_characteristic_types_base on characteristic_type_code = ref_characteristic_types.characteristic_type_code
+  join_many: product_characteristics is product_characteristics_base on characteristic_id = product_characteristics.characteristic_id
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_one: ref_colors is ref_colors_base on color_code = ref_colors.color_code
+  join_one: ref_product_categories is ref_product_categories_base on product_category_code = ref_product_categories.product_category_code
+  join_many: product_characteristics is product_characteristics_base on product_id = product_characteristics.product_id
+}
+
+// Product_Characteristics (with joins)
+source: product_characteristics is product_characteristics_base extend {
+  join_one: products is products_base on product_id = products.product_id
+  join_one: characteristics is characteristics_base on characteristic_id = characteristics.characteristic_id
 }

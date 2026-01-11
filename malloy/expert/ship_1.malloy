@@ -1,0 +1,95 @@
+// =============================================================================
+// SHIP_1 DATABASE - Naval Ship and Captain Registry
+// =============================================================================
+// This database tracks naval ships and their commanding captains:
+// - Ship: vessels in the fleet
+// - Captain: officers who command ships, with their naval class and rank
+//
+// IMPORTANT: The captain table has its own "Class" field (ship classification they commanded)
+// which is DIFFERENT from Ship.Class (classification society like KR, GL)
+// Captain.Class values: 'Cutter', 'Armed schooner', 'Frigate', 'Sloop-of-war', 'Third-rate ship of the line'
+// =============================================================================
+
+// SHIP TABLE
+// Naval vessels in the fleet
+source: ship_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'Ship')
+""") extend {
+  dimension:
+    // Unique ship identifier
+    ship_id is Ship_ID
+
+    // Name of the ship
+    // Examples: 'HMS Manxman', 'HMS Gorgon', 'HM Cutter Avenger', 'HM Schooner Hotspur'
+    ship_name is Name
+
+    // Ship type
+    // Value: 'Panamax' (all ships in this database)
+    ship_type is Type
+
+    // Year the ship was built
+    // Values: 1997.0, 1998.0
+    built_year is Built_Year
+
+    // Classification society code
+    // Values: 'KR', 'GL' (NOT the naval ship class - see captain.Class for that)
+    ship_class is Class
+
+    // Flag/country of registration
+    // Values: 'Panama', 'Malta'
+    flag is Flag
+
+  primary_key: ship_id
+
+  measure:
+    ship_count is count()
+}
+
+// CAPTAIN TABLE
+// Naval officers who command ships
+source: captain_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_1/ship_1.sqlite', 'captain')
+""") extend {
+  dimension:
+    // Unique captain identifier
+    captain_id is Captain_ID
+
+    // Full name and title of the captain
+    // Examples: 'Captain Sir Henry Langford', 'Lieutenant Hugh Bolitho'
+    captain_name is Name
+
+    // ID of the ship this captain commands
+    ship_id is Ship_ID
+
+    // Captain's age
+    // Range: 38-60
+    captain_age is age
+
+    // Type of vessel class the captain has commanded
+    // IMPORTANT: This is the naval ship class, NOT Ship.Class
+    // Values: 'Cutter', 'Armed schooner', 'Frigate', 'Sloop-of-war', 'Third-rate ship of the line'
+    captain_class is Class
+
+    // Naval rank of the captain
+    // Values: 'Midshipman', 'Lieutenant', 'Commander, junior captain'
+    rank is Rank
+
+  primary_key: captain_id
+
+  measure:
+    captain_count is count()
+}
+
+// =============================================================================
+// FULL SOURCES WITH RELATIONSHIPS
+// =============================================================================
+
+// Ship with its captain(s)
+source: ship is ship_base extend {
+  join_many: captain is captain_base on ship_id = captain.ship_id
+}
+
+// Captain with ship details
+source: captain is captain_base extend {
+  join_one: ship is ship_base on ship_id = ship.ship_id
+}

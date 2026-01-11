@@ -1,9 +1,13 @@
 // Malloy semantic layer for: party_people
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/party_people/party_people.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // region
-source: region is duckdb.sql("""
+source: region_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'region')
 """) extend {
   dimension:
@@ -21,7 +25,7 @@ source: region is duckdb.sql("""
 }
 
 // party
-source: party is duckdb.sql("""
+source: party_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'party')
 """) extend {
   dimension:
@@ -29,8 +33,6 @@ source: party is duckdb.sql("""
     region_i_d is Region_ID
 
   primary_key: party_i_d
-
-  join_one: region on region_i_d = region.region_i_d
 
   measure:
     row_count is count()
@@ -45,7 +47,7 @@ source: party is duckdb.sql("""
 }
 
 // member
-source: member is duckdb.sql("""
+source: member_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'member')
 """) extend {
   dimension:
@@ -53,8 +55,6 @@ source: member is duckdb.sql("""
     party_i_d is Party_ID
 
   primary_key: member_i_d
-
-  join_one: party on party_i_d = party.party_i_d
 
   measure:
     row_count is count()
@@ -65,7 +65,7 @@ source: member is duckdb.sql("""
 }
 
 // party_events
-source: party_events is duckdb.sql("""
+source: party_events_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'party_events')
 """) extend {
   dimension:
@@ -74,9 +74,6 @@ source: party_events is duckdb.sql("""
     member_in_charge_i_d is Member_in_charge_ID
 
   primary_key: event_i_d
-
-  join_one: member on member_in_charge_i_d = member.member_i_d
-  join_one: party on party_i_d = party.party_i_d
 
   measure:
     row_count is count()
@@ -92,4 +89,32 @@ source: party_events is duckdb.sql("""
     avg_member_in_charge_i_d is avg(member_in_charge_i_d)
     max_member_in_charge_i_d is max(member_in_charge_i_d)
     min_member_in_charge_i_d is min(member_in_charge_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// region (with joins)
+source: region is region_base extend {
+  join_many: party is party_base on region_i_d = party.region_i_d
+}
+
+// party (with joins)
+source: party is party_base extend {
+  join_one: region is region_base on region_i_d = region.region_i_d
+  join_many: member is member_base on party_i_d = member.party_i_d
+  join_many: party_events is party_events_base on party_i_d = party_events.party_i_d
+}
+
+// member (with joins)
+source: member is member_base extend {
+  join_one: party is party_base on party_i_d = party.party_i_d
+  join_many: party_events is party_events_base on member_i_d = party_events.member_in_charge_i_d
+}
+
+// party_events (with joins)
+source: party_events is party_events_base extend {
+  join_one: member is member_base on member_in_charge_i_d = member.member_i_d
+  join_one: party is party_base on party_i_d = party.party_i_d
 }

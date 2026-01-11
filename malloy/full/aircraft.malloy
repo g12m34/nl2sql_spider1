@@ -1,9 +1,13 @@
 // Malloy semantic layer for: aircraft
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/aircraft/aircraft.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // pilot
-source: pilot is duckdb.sql("""
+source: pilot_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'pilot')
 """) extend {
   dimension:
@@ -24,7 +28,7 @@ source: pilot is duckdb.sql("""
 }
 
 // aircraft
-source: aircraft is duckdb.sql("""
+source: aircraft_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'aircraft')
 """) extend {
   dimension:
@@ -40,8 +44,26 @@ source: aircraft is duckdb.sql("""
     min_aircraft_i_d is min(aircraft_i_d)
 }
 
+// match
+source: match_val_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'match')
+""") extend {
+  dimension:
+    round_val is `Round`
+    date_val is `Date`
+
+  primary_key: round_val
+
+  measure:
+    row_count is count()
+    total_round_val is sum(round_val)
+    avg_round_val is avg(round_val)
+    max_round_val is max(round_val)
+    min_round_val is min(round_val)
+}
+
 // airport
-source: airport is duckdb.sql("""
+source: airport_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'airport')
 """) extend {
   dimension:
@@ -82,29 +104,8 @@ source: airport is duckdb.sql("""
     min_freight_metric_tonnes is min(Freight_Metric_Tonnes)
 }
 
-// match
-source: match_val is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'match')
-""") extend {
-  dimension:
-    round_val is `Round`
-    date_val is `Date`
-
-  primary_key: round_val
-
-  join_one: pilot on Winning_Pilot = pilot.Pilot_Id
-  join_one: aircraft on Winning_Aircraft = aircraft.aircraft_i_d
-
-  measure:
-    row_count is count()
-    total_round_val is sum(round_val)
-    avg_round_val is avg(round_val)
-    max_round_val is max(round_val)
-    min_round_val is min(round_val)
-}
-
 // airport_aircraft
-source: airport_aircraft is duckdb.sql("""
+source: airport_aircraft_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'airport_aircraft')
 """) extend {
   dimension:
@@ -113,9 +114,6 @@ source: airport_aircraft is duckdb.sql("""
     aircraft_i_d is Aircraft_ID
 
   primary_key: airport_i_d
-
-  join_one: aircraft on aircraft_i_d = aircraft.aircraft_i_d
-  join_one: airport on airport_i_d = airport.airport_i_d
 
   measure:
     row_count is count()
@@ -131,4 +129,36 @@ source: airport_aircraft is duckdb.sql("""
     avg_aircraft_i_d is avg(aircraft_i_d)
     max_aircraft_i_d is max(aircraft_i_d)
     min_aircraft_i_d is min(aircraft_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// pilot (with joins)
+source: pilot is pilot_base extend {
+  join_many: match_val is match_val_base on Pilot_Id = match_val.Winning_Pilot
+}
+
+// aircraft (with joins)
+source: aircraft is aircraft_base extend {
+  join_many: match_val is match_val_base on aircraft_i_d = match_val.Winning_Aircraft
+  join_many: airport_aircraft is airport_aircraft_base on aircraft_i_d = airport_aircraft.aircraft_i_d
+}
+
+// match (with joins)
+source: match_val is match_val_base extend {
+  join_one: pilot is pilot_base on Winning_Pilot = pilot.Pilot_Id
+  join_one: aircraft is aircraft_base on Winning_Aircraft = aircraft.aircraft_i_d
+}
+
+// airport (with joins)
+source: airport is airport_base extend {
+  join_many: airport_aircraft is airport_aircraft_base on airport_i_d = airport_aircraft.airport_i_d
+}
+
+// airport_aircraft (with joins)
+source: airport_aircraft is airport_aircraft_base extend {
+  join_one: aircraft is aircraft_base on aircraft_i_d = aircraft.aircraft_i_d
+  join_one: airport is airport_base on airport_i_d = airport.airport_i_d
 }

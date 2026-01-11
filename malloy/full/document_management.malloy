@@ -1,9 +1,13 @@
 // Malloy semantic layer for: document_management
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/document_management/document_management.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Roles
-source: roles is duckdb.sql("""
+source: roles_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Roles')
 """) extend {
   primary_key: role_code
@@ -12,8 +16,22 @@ source: roles is duckdb.sql("""
     row_count is count()
 }
 
+// Users
+source: users_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Users')
+""") extend {
+  primary_key: user_id
+
+  measure:
+    row_count is count()
+    total_user_id is sum(user_id)
+    avg_user_id is avg(user_id)
+    max_user_id is max(user_id)
+    min_user_id is min(user_id)
+}
+
 // Document_Structures
-source: document_structures is duckdb.sql("""
+source: document_structures_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Structures')
 """) extend {
   primary_key: document_structure_code
@@ -23,7 +41,7 @@ source: document_structures is duckdb.sql("""
 }
 
 // Functional_Areas
-source: functional_areas is duckdb.sql("""
+source: functional_areas_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Functional_Areas')
 """) extend {
   primary_key: functional_area_code
@@ -33,7 +51,7 @@ source: functional_areas is duckdb.sql("""
 }
 
 // Images
-source: images is duckdb.sql("""
+source: images_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Images')
 """) extend {
   primary_key: image_id
@@ -46,29 +64,11 @@ source: images is duckdb.sql("""
     min_image_id is min(image_id)
 }
 
-// Users
-source: users is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Users')
-""") extend {
-  primary_key: user_id
-
-  join_one: roles on role_code = roles.role_code
-
-  measure:
-    row_count is count()
-    total_user_id is sum(user_id)
-    avg_user_id is avg(user_id)
-    max_user_id is max(user_id)
-    min_user_id is min(user_id)
-}
-
 // Documents
-source: documents is duckdb.sql("""
+source: documents_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Documents')
 """) extend {
   primary_key: document_code
-
-  join_one: document_structures on document_structure_code = document_structures.document_structure_code
 
   measure:
     row_count is count()
@@ -79,23 +79,18 @@ source: documents is duckdb.sql("""
 }
 
 // Document_Functional_Areas
-source: document_functional_areas is duckdb.sql("""
+source: document_functional_areas_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Functional_Areas')
 """) extend {
-  join_one: functional_areas on functional_area_code = functional_areas.functional_area_code
-  join_one: documents on document_code = documents.document_code
-
   measure:
     row_count is count()
 }
 
 // Document_Sections
-source: document_sections is duckdb.sql("""
+source: document_sections_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Sections')
 """) extend {
   primary_key: section_id
-
-  join_one: documents on document_code = documents.document_code
 
   measure:
     row_count is count()
@@ -110,13 +105,10 @@ source: document_sections is duckdb.sql("""
 }
 
 // Document_Sections_Images
-source: document_sections_images is duckdb.sql("""
+source: document_sections_images_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/document_management/document_management.sqlite', 'Document_Sections_Images')
 """) extend {
   primary_key: section_id
-
-  join_one: images on image_id = images.image_id
-  join_one: document_sections on section_id = document_sections.section_id
 
   measure:
     row_count is count()
@@ -128,4 +120,58 @@ source: document_sections_images is duckdb.sql("""
     avg_image_id is avg(image_id)
     max_image_id is max(image_id)
     min_image_id is min(image_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Roles (with joins)
+source: roles is roles_base extend {
+  join_many: users is users_base on role_code = users.role_code
+}
+
+// Users (with joins)
+source: users is users_base extend {
+  join_one: roles is roles_base on role_code = roles.role_code
+}
+
+// Document_Structures (with joins)
+source: document_structures is document_structures_base extend {
+  join_many: documents is documents_base on document_structure_code = documents.document_structure_code
+}
+
+// Functional_Areas (with joins)
+source: functional_areas is functional_areas_base extend {
+  join_many: document_functional_areas is document_functional_areas_base on functional_area_code = document_functional_areas.functional_area_code
+}
+
+// Images (with joins)
+source: images is images_base extend {
+  join_many: document_sections_images is document_sections_images_base on image_id = document_sections_images.image_id
+}
+
+// Documents (with joins)
+source: documents is documents_base extend {
+  join_one: document_structures is document_structures_base on document_structure_code = document_structures.document_structure_code
+  join_many: document_functional_areas is document_functional_areas_base on document_code = document_functional_areas.document_code
+  join_many: document_sections is document_sections_base on document_code = document_sections.document_code
+}
+
+// Document_Functional_Areas (with joins)
+source: document_functional_areas is document_functional_areas_base extend {
+  join_one: functional_areas is functional_areas_base on functional_area_code = functional_areas.functional_area_code
+  join_one: documents is documents_base on document_code = documents.document_code
+}
+
+// Document_Sections (with joins)
+source: document_sections is document_sections_base extend {
+  join_one: documents is documents_base on document_code = documents.document_code
+  join_many: document_sections_images is document_sections_images_base on section_id = document_sections_images.section_id
+}
+
+// Document_Sections_Images (with joins)
+source: document_sections_images is document_sections_images_base extend {
+  join_one: images is images_base on image_id = images.image_id
+  join_one: document_sections is document_sections_base on section_id = document_sections.section_id
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: news_report
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/news_report/news_report.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // event
-source: event is duckdb.sql("""
+source: event_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/news_report/news_report.sqlite', 'event')
 """) extend {
   dimension:
@@ -26,7 +30,7 @@ source: event is duckdb.sql("""
 }
 
 // journalist
-source: journalist is duckdb.sql("""
+source: journalist_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/news_report/news_report.sqlite', 'journalist')
 """) extend {
   dimension:
@@ -48,7 +52,7 @@ source: journalist is duckdb.sql("""
 }
 
 // news_report
-source: news_report is duckdb.sql("""
+source: news_report_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/news_report/news_report.sqlite', 'news_report')
 """) extend {
   dimension:
@@ -56,9 +60,6 @@ source: news_report is duckdb.sql("""
     event_i_d is Event_ID
 
   primary_key: journalist_i_d
-
-  join_one: event on event_i_d = event.event_i_d
-  join_one: journalist on journalist_i_d = journalist.journalist_i_d
 
   measure:
     row_count is count()
@@ -70,4 +71,24 @@ source: news_report is duckdb.sql("""
     avg_event_i_d is avg(event_i_d)
     max_event_i_d is max(event_i_d)
     min_event_i_d is min(event_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// event (with joins)
+source: event is event_base extend {
+  join_many: news_report is news_report_base on event_i_d = news_report.event_i_d
+}
+
+// journalist (with joins)
+source: journalist is journalist_base extend {
+  join_many: news_report is news_report_base on journalist_i_d = news_report.journalist_i_d
+}
+
+// news_report (with joins)
+source: news_report is news_report_base extend {
+  join_one: event is event_base on event_i_d = event.event_i_d
+  join_one: journalist is journalist_base on journalist_i_d = journalist.journalist_i_d
 }

@@ -1,9 +1,13 @@
 // Malloy semantic layer for: singer
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/singer/singer.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // singer
-source: singer is duckdb.sql("""
+source: singer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/singer/singer.sqlite', 'singer')
 """) extend {
   dimension:
@@ -29,7 +33,7 @@ source: singer is duckdb.sql("""
 }
 
 // song
-source: song is duckdb.sql("""
+source: song_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/singer/singer.sqlite', 'song')
 """) extend {
   dimension:
@@ -37,8 +41,6 @@ source: song is duckdb.sql("""
     singer_i_d is Singer_ID
 
   primary_key: song_i_d
-
-  join_one: singer on singer_i_d = singer.singer_i_d
 
   measure:
     row_count is count()
@@ -58,4 +60,18 @@ source: song is duckdb.sql("""
     avg_highest_position is avg(Highest_Position)
     max_highest_position is max(Highest_Position)
     min_highest_position is min(Highest_Position)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// singer (with joins)
+source: singer is singer_base extend {
+  join_many: song is song_base on singer_i_d = song.singer_i_d
+}
+
+// song (with joins)
+source: song is song_base extend {
+  join_one: singer is singer_base on singer_i_d = singer.singer_i_d
 }

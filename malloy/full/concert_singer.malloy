@@ -1,9 +1,13 @@
 // Malloy semantic layer for: concert_singer
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // stadium
-source: stadium is duckdb.sql("""
+source: stadium_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'stadium')
 """) extend {
   dimension:
@@ -37,7 +41,7 @@ source: stadium is duckdb.sql("""
 }
 
 // singer
-source: singer is duckdb.sql("""
+source: singer_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'singer')
 """) extend {
   dimension:
@@ -59,7 +63,7 @@ source: singer is duckdb.sql("""
 }
 
 // concert
-source: concert is duckdb.sql("""
+source: concert_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'concert')
 """) extend {
   dimension:
@@ -68,8 +72,6 @@ source: concert is duckdb.sql("""
     year_val is `Year`
 
   primary_key: concert_i_d
-
-  join_one: stadium on stadium_i_d = stadium.stadium_i_d
 
   measure:
     row_count is count()
@@ -80,7 +82,7 @@ source: concert is duckdb.sql("""
 }
 
 // singer_in_concert
-source: singer_in_concert is duckdb.sql("""
+source: singer_in_concert_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/concert_singer/concert_singer.sqlite', 'singer_in_concert')
 """) extend {
   dimension:
@@ -89,13 +91,36 @@ source: singer_in_concert is duckdb.sql("""
 
   primary_key: concert_i_d
 
-  join_one: singer on singer_i_d = singer.singer_i_d
-  join_one: concert on concert_i_d = concert.concert_i_d
-
   measure:
     row_count is count()
     total_concert_i_d is sum(concert_i_d)
     avg_concert_i_d is avg(concert_i_d)
     max_concert_i_d is max(concert_i_d)
     min_concert_i_d is min(concert_i_d)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// stadium (with joins)
+source: stadium is stadium_base extend {
+  join_many: concert is concert_base on stadium_i_d = concert.stadium_i_d
+}
+
+// singer (with joins)
+source: singer is singer_base extend {
+  join_many: singer_in_concert is singer_in_concert_base on singer_i_d = singer_in_concert.singer_i_d
+}
+
+// concert (with joins)
+source: concert is concert_base extend {
+  join_one: stadium is stadium_base on stadium_i_d = stadium.stadium_i_d
+  join_many: singer_in_concert is singer_in_concert_base on concert_i_d = singer_in_concert.concert_i_d
+}
+
+// singer_in_concert (with joins)
+source: singer_in_concert is singer_in_concert_base extend {
+  join_one: singer is singer_base on singer_i_d = singer.singer_i_d
+  join_one: concert is concert_base on concert_i_d = concert.concert_i_d
 }

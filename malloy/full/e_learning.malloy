@@ -1,9 +1,13 @@
 // Malloy semantic layer for: e_learning
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/e_learning/e_learning.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Course_Authors_and_Tutors
-source: course_authors_and_tutors is duckdb.sql("""
+source: course_authors_and_tutors_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Course_Authors_and_Tutors')
 """) extend {
   dimension:
@@ -20,7 +24,7 @@ source: course_authors_and_tutors is duckdb.sql("""
 }
 
 // Students
-source: students is duckdb.sql("""
+source: students_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Students')
 """) extend {
   primary_key: student_id
@@ -34,7 +38,7 @@ source: students is duckdb.sql("""
 }
 
 // Subjects
-source: subjects is duckdb.sql("""
+source: subjects_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Subjects')
 """) extend {
   primary_key: subject_id
@@ -48,13 +52,10 @@ source: subjects is duckdb.sql("""
 }
 
 // Courses
-source: courses is duckdb.sql("""
+source: courses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Courses')
 """) extend {
   primary_key: course_id
-
-  join_one: subjects on subject_id = subjects.subject_id
-  join_one: course_authors_and_tutors on author_id = course_authors_and_tutors.author_id
 
   measure:
     row_count is count()
@@ -73,13 +74,10 @@ source: courses is duckdb.sql("""
 }
 
 // Student_Course_Enrolment
-source: student_course_enrolment is duckdb.sql("""
+source: student_course_enrolment_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Student_Course_Enrolment')
 """) extend {
   primary_key: registration_id
-
-  join_one: students on student_id = students.student_id
-  join_one: courses on course_id = courses.course_id
 
   measure:
     row_count is count()
@@ -98,15 +96,51 @@ source: student_course_enrolment is duckdb.sql("""
 }
 
 // Student_Tests_Taken
-source: student_tests_taken is duckdb.sql("""
+source: student_tests_taken_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Student_Tests_Taken')
 """) extend {
-  join_one: student_course_enrolment on registration_id = student_course_enrolment.registration_id
-
   measure:
     row_count is count()
     total_registration_id is sum(registration_id)
     avg_registration_id is avg(registration_id)
     max_registration_id is max(registration_id)
     min_registration_id is min(registration_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Course_Authors_and_Tutors (with joins)
+source: course_authors_and_tutors is course_authors_and_tutors_base extend {
+  join_many: courses is courses_base on author_id = courses.author_id
+}
+
+// Students (with joins)
+source: students is students_base extend {
+  join_many: student_course_enrolment is student_course_enrolment_base on student_id = student_course_enrolment.student_id
+}
+
+// Subjects (with joins)
+source: subjects is subjects_base extend {
+  join_many: courses is courses_base on subject_id = courses.subject_id
+}
+
+// Courses (with joins)
+source: courses is courses_base extend {
+  join_one: subjects is subjects_base on subject_id = subjects.subject_id
+  join_one: course_authors_and_tutors is course_authors_and_tutors_base on author_id = course_authors_and_tutors.author_id
+  join_many: student_course_enrolment is student_course_enrolment_base on course_id = student_course_enrolment.course_id
+}
+
+// Student_Course_Enrolment (with joins)
+source: student_course_enrolment is student_course_enrolment_base extend {
+  join_one: students is students_base on student_id = students.student_id
+  join_one: courses is courses_base on course_id = courses.course_id
+  join_many: student_tests_taken is student_tests_taken_base on registration_id = student_tests_taken.registration_id
+}
+
+// Student_Tests_Taken (with joins)
+source: student_tests_taken is student_tests_taken_base extend {
+  join_one: student_course_enrolment is student_course_enrolment_base on registration_id = student_course_enrolment.registration_id
 }

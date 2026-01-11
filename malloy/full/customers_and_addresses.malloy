@@ -1,9 +1,13 @@
 // Malloy semantic layer for: customers_and_addresses
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // Addresses
-source: addresses is duckdb.sql("""
+source: addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Addresses')
 """) extend {
   primary_key: address_id
@@ -17,7 +21,7 @@ source: addresses is duckdb.sql("""
 }
 
 // Products
-source: products is duckdb.sql("""
+source: products_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Products')
 """) extend {
   primary_key: product_id
@@ -31,7 +35,7 @@ source: products is duckdb.sql("""
 }
 
 // Customers
-source: customers is duckdb.sql("""
+source: customers_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Customers')
 """) extend {
   primary_key: customer_id
@@ -45,12 +49,9 @@ source: customers is duckdb.sql("""
 }
 
 // Customer_Addresses
-source: customer_addresses is duckdb.sql("""
+source: customer_addresses_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Customer_Addresses')
 """) extend {
-  join_one: customers on customer_id = customers.customer_id
-  join_one: addresses on address_id = addresses.address_id
-
   measure:
     row_count is count()
     total_customer_id is sum(customer_id)
@@ -64,11 +65,9 @@ source: customer_addresses is duckdb.sql("""
 }
 
 // Customer_Contact_Channels
-source: customer_contact_channels is duckdb.sql("""
+source: customer_contact_channels_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Customer_Contact_Channels')
 """) extend {
-  join_one: customers on customer_id = customers.customer_id
-
   measure:
     row_count is count()
     total_customer_id is sum(customer_id)
@@ -78,12 +77,10 @@ source: customer_contact_channels is duckdb.sql("""
 }
 
 // Customer_Orders
-source: customer_orders is duckdb.sql("""
+source: customer_orders_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Customer_Orders')
 """) extend {
   primary_key: order_id
-
-  join_one: customers on customer_id = customers.customer_id
 
   measure:
     row_count is count()
@@ -98,12 +95,9 @@ source: customer_orders is duckdb.sql("""
 }
 
 // Order_Items
-source: order_items is duckdb.sql("""
+source: order_items_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customers_and_addresses/customers_and_addresses.sqlite', 'Order_Items')
 """) extend {
-  join_one: customer_orders on order_id = customer_orders.order_id
-  join_one: products on product_id = products.product_id
-
   measure:
     row_count is count()
     total_order_id is sum(order_id)
@@ -114,4 +108,48 @@ source: order_items is duckdb.sql("""
     avg_product_id is avg(product_id)
     max_product_id is max(product_id)
     min_product_id is min(product_id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// Addresses (with joins)
+source: addresses is addresses_base extend {
+  join_many: customer_addresses is customer_addresses_base on address_id = customer_addresses.address_id
+}
+
+// Products (with joins)
+source: products is products_base extend {
+  join_many: order_items is order_items_base on product_id = order_items.product_id
+}
+
+// Customers (with joins)
+source: customers is customers_base extend {
+  join_many: customer_addresses is customer_addresses_base on customer_id = customer_addresses.customer_id
+  join_many: customer_contact_channels is customer_contact_channels_base on customer_id = customer_contact_channels.customer_id
+  join_many: customer_orders is customer_orders_base on customer_id = customer_orders.customer_id
+}
+
+// Customer_Addresses (with joins)
+source: customer_addresses is customer_addresses_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_one: addresses is addresses_base on address_id = addresses.address_id
+}
+
+// Customer_Contact_Channels (with joins)
+source: customer_contact_channels is customer_contact_channels_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+}
+
+// Customer_Orders (with joins)
+source: customer_orders is customer_orders_base extend {
+  join_one: customers is customers_base on customer_id = customers.customer_id
+  join_many: order_items is order_items_base on order_id = order_items.order_id
+}
+
+// Order_Items (with joins)
+source: order_items is order_items_base extend {
+  join_one: customer_orders is customer_orders_base on order_id = customer_orders.order_id
+  join_one: products is products_base on product_id = products.product_id
 }

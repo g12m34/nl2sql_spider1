@@ -1,9 +1,13 @@
 // Malloy semantic layer for: bike_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/bike_1/bike_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // station
-source: station is duckdb.sql("""
+source: station_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'station')
 """) extend {
   dimension:
@@ -31,8 +35,31 @@ source: station is duckdb.sql("""
     min_dock_count is min(dock_count)
 }
 
+// status
+source: status_base is duckdb.sql("""
+  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'status')
+""") extend {
+  dimension:
+    time_val is `time`
+
+  measure:
+    row_count is count()
+    total_station_id is sum(station_id)
+    avg_station_id is avg(station_id)
+    max_station_id is max(station_id)
+    min_station_id is min(station_id)
+    total_bikes_available is sum(bikes_available)
+    avg_bikes_available is avg(bikes_available)
+    max_bikes_available is max(bikes_available)
+    min_bikes_available is min(bikes_available)
+    total_docks_available is sum(docks_available)
+    avg_docks_available is avg(docks_available)
+    max_docks_available is max(docks_available)
+    min_docks_available is min(docks_available)
+}
+
 // trip
-source: trip is duckdb.sql("""
+source: trip_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'trip')
 """) extend {
   primary_key: id
@@ -66,7 +93,7 @@ source: trip is duckdb.sql("""
 }
 
 // weather
-source: weather is duckdb.sql("""
+source: weather_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'weather')
 """) extend {
   dimension:
@@ -165,27 +192,22 @@ source: weather is duckdb.sql("""
     min_zip_code is min(zip_code)
 }
 
-// status
-source: status is duckdb.sql("""
-  SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'status')
-""") extend {
-  dimension:
-    time_val is `time`
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
 
-  join_one: station on station_id = station.id
-
-  measure:
-    row_count is count()
-    total_station_id is sum(station_id)
-    avg_station_id is avg(station_id)
-    max_station_id is max(station_id)
-    min_station_id is min(station_id)
-    total_bikes_available is sum(bikes_available)
-    avg_bikes_available is avg(bikes_available)
-    max_bikes_available is max(bikes_available)
-    min_bikes_available is min(bikes_available)
-    total_docks_available is sum(docks_available)
-    avg_docks_available is avg(docks_available)
-    max_docks_available is max(docks_available)
-    min_docks_available is min(docks_available)
+// station (with joins)
+source: station is station_base extend {
+  join_many: status is status_base on id = status.station_id
 }
+
+// status (with joins)
+source: status is status_base extend {
+  join_one: station is station_base on station_id = station.id
+}
+
+// trip (with joins)
+source: trip is trip_base
+
+// weather (with joins)
+source: weather is weather_base

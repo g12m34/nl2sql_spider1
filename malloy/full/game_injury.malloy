@@ -1,9 +1,13 @@
 // Malloy semantic layer for: game_injury
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/game_injury/game_injury.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // stadium
-source: stadium is duckdb.sql("""
+source: stadium_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'stadium')
 """) extend {
   dimension:
@@ -36,15 +40,13 @@ source: stadium is duckdb.sql("""
 }
 
 // game
-source: game is duckdb.sql("""
+source: game_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'game')
 """) extend {
   dimension:
     date_val is `Date`
 
   primary_key: id
-
-  join_one: stadium on stadium_id = stadium.id
 
   measure:
     row_count is count()
@@ -63,12 +65,10 @@ source: game is duckdb.sql("""
 }
 
 // injury_accident
-source: injury_accident is duckdb.sql("""
+source: injury_accident_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'injury_accident')
 """) extend {
   primary_key: id
-
-  join_one: game on game_id = game.id
 
   measure:
     row_count is count()
@@ -80,4 +80,24 @@ source: injury_accident is duckdb.sql("""
     avg_id is avg(id)
     max_id is max(id)
     min_id is min(id)
+}
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// stadium (with joins)
+source: stadium is stadium_base extend {
+  join_many: game is game_base on id = game.stadium_id
+}
+
+// game (with joins)
+source: game is game_base extend {
+  join_one: stadium is stadium_base on stadium_id = stadium.id
+  join_many: injury_accident is injury_accident_base on id = injury_accident.game_id
+}
+
+// injury_accident (with joins)
+source: injury_accident is injury_accident_base extend {
+  join_one: game is game_base on game_id = game.id
 }

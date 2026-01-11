@@ -1,9 +1,13 @@
 // Malloy semantic layer for: company_1
-// Full layer with ALL columns, primary keys, and joins
+// Full layer with ALL columns, primary keys, and bidirectional joins
 // Database: /workspace/spider_db/spider/database/company_1/company_1.sqlite
 
+// ============================================================
+// BASE SOURCES (no joins - enables forward references)
+// ============================================================
+
 // works_on
-source: works_on is duckdb.sql("""
+source: works_on_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'works_on')
 """) extend {
   dimension:
@@ -28,7 +32,7 @@ source: works_on is duckdb.sql("""
 }
 
 // employee
-source: employee is duckdb.sql("""
+source: employee_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'employee')
 """) extend {
   primary_key: Ssn
@@ -54,7 +58,7 @@ source: employee is duckdb.sql("""
 }
 
 // department
-source: department is duckdb.sql("""
+source: department_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'department')
 """) extend {
   primary_key: Dnumber
@@ -72,7 +76,7 @@ source: department is duckdb.sql("""
 }
 
 // project
-source: project is duckdb.sql("""
+source: project_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'project')
 """) extend {
   primary_key: Pnumber
@@ -90,7 +94,7 @@ source: project is duckdb.sql("""
 }
 
 // dependent
-source: dependent is duckdb.sql("""
+source: dependent_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'dependent')
 """) extend {
   primary_key: Essn
@@ -104,7 +108,7 @@ source: dependent is duckdb.sql("""
 }
 
 // dept_locations
-source: dept_locations is duckdb.sql("""
+source: dept_locations_base is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'dept_locations')
 """) extend {
   primary_key: Dnumber
@@ -116,3 +120,25 @@ source: dept_locations is duckdb.sql("""
     max_dnumber is max(Dnumber)
     min_dnumber is min(Dnumber)
 }
+
+// ============================================================
+// FULL SOURCES (with joins - use these for queries)
+// ============================================================
+
+// works_on (with joins)
+source: works_on is works_on_base
+
+// employee (with joins)
+source: employee is employee_base
+
+// department (with joins)
+source: department is department_base
+
+// project (with joins)
+source: project is project_base
+
+// dependent (with joins)
+source: dependent is dependent_base
+
+// dept_locations (with joins)
+source: dept_locations is dept_locations_base
