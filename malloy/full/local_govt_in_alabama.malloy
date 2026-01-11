@@ -6,81 +6,81 @@
 source: services is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Services')
 """) extend {
-  primary_key: Service_ID
-
   dimension:
     service_i_d is Service_ID
 
+  primary_key: service_i_d
+
   measure:
     row_count is count()
-    total_service_i_d is sum(Service_ID)
-    avg_service_i_d is avg(Service_ID)
-    max_service_i_d is max(Service_ID)
-    min_service_i_d is min(Service_ID)
+    total_service_i_d is sum(service_i_d)
+    avg_service_i_d is avg(service_i_d)
+    max_service_i_d is max(service_i_d)
+    min_service_i_d is min(service_i_d)
 }
 
 // Participants
 source: participants is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Participants')
 """) extend {
-  primary_key: Participant_ID
-
   dimension:
     participant_i_d is Participant_ID
 
+  primary_key: participant_i_d
+
   measure:
     row_count is count()
-    total_participant_i_d is sum(Participant_ID)
-    avg_participant_i_d is avg(Participant_ID)
-    max_participant_i_d is max(Participant_ID)
-    min_participant_i_d is min(Participant_ID)
+    total_participant_i_d is sum(participant_i_d)
+    avg_participant_i_d is avg(participant_i_d)
+    max_participant_i_d is max(participant_i_d)
+    min_participant_i_d is min(participant_i_d)
 }
 
 // Events
 source: events_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Events')
 """) extend {
-  primary_key: Event_ID
-
-  join_one: services on Service_ID = services.Service_ID
-
   dimension:
     event_i_d is Event_ID
     service_i_d is Service_ID
 
+  primary_key: event_i_d
+
+  join_one: services on service_i_d = services.service_i_d
+
   measure:
     row_count is count()
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
-    total_service_i_d is sum(Service_ID)
-    avg_service_i_d is avg(Service_ID)
-    max_service_i_d is max(Service_ID)
-    min_service_i_d is min(Service_ID)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
+    total_service_i_d is sum(service_i_d)
+    avg_service_i_d is avg(service_i_d)
+    max_service_i_d is max(service_i_d)
+    min_service_i_d is min(service_i_d)
 }
 
 // Participants_in_Events
 source: participants_in_events is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_in_alabama/local_govt_in_alabama.sqlite', 'Participants_in_Events')
 """) extend {
-  primary_key: Event_ID
-
-  join_one: events_val on Event_ID = events_val.Event_ID
-  join_one: participants on Participant_ID = participants.Participant_ID
-
   dimension:
     event_i_d is Event_ID
     participant_i_d is Participant_ID
 
+  primary_key: event_i_d
+
+  join_one: events_val on event_i_d = events_val.event_i_d
+  join_one: participants on participant_i_d = participants.participant_i_d
+
   measure:
     row_count is count()
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
-    total_participant_i_d is sum(Participant_ID)
-    avg_participant_i_d is avg(Participant_ID)
-    max_participant_i_d is max(Participant_ID)
-    min_participant_i_d is min(Participant_ID)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
+    total_participant_i_d is sum(participant_i_d)
+    avg_participant_i_d is avg(participant_i_d)
+    max_participant_i_d is max(participant_i_d)
+    min_participant_i_d is min(participant_i_d)
 }

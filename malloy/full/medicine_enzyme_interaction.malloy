@@ -6,11 +6,11 @@
 source: medicine is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'medicine')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
     f_d_a_approved is FDA_approved
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -24,11 +24,11 @@ source: medicine is duckdb.sql("""
 source: enzyme is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/medicine_enzyme_interaction/medicine_enzyme_interaction.sqlite', 'enzyme')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
     o_m_i_m is OMIM
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -36,10 +36,10 @@ source: enzyme is duckdb.sql("""
     avg_id is avg(id)
     max_id is max(id)
     min_id is min(id)
-    total_o_m_i_m is sum(OMIM)
-    avg_o_m_i_m is avg(OMIM)
-    max_o_m_i_m is max(OMIM)
-    min_o_m_i_m is min(OMIM)
+    total_o_m_i_m is sum(o_m_i_m)
+    avg_o_m_i_m is avg(o_m_i_m)
+    max_o_m_i_m is max(o_m_i_m)
+    min_o_m_i_m is min(o_m_i_m)
 }
 
 // medicine_enzyme_interaction

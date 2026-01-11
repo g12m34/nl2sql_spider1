@@ -6,10 +6,10 @@
 source: campuses is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'Campuses')
 """) extend {
-  primary_key: Id
-
   dimension:
     year_val is `Year`
+
+  primary_key: Id
 
   measure:
     row_count is count()
@@ -17,23 +17,23 @@ source: campuses is duckdb.sql("""
     avg_id is avg(Id)
     max_id is max(Id)
     min_id is min(Id)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // csu_fees
 source: csu_fees is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'csu_fees')
 """) extend {
-  primary_key: Campus
-
-  join_one: campuses on Campus = campuses.Id
-
   dimension:
     year_val is `Year`
     campus_fee is CampusFee
+
+  primary_key: Campus
+
+  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -41,33 +41,33 @@ source: csu_fees is duckdb.sql("""
     avg_campus is avg(Campus)
     max_campus is max(Campus)
     min_campus is min(Campus)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
-    total_campus_fee is sum(CampusFee)
-    avg_campus_fee is avg(CampusFee)
-    max_campus_fee is max(CampusFee)
-    min_campus_fee is min(CampusFee)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_campus_fee is sum(campus_fee)
+    avg_campus_fee is avg(campus_fee)
+    max_campus_fee is max(campus_fee)
+    min_campus_fee is min(campus_fee)
 }
 
 // degrees
 source: degrees is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'degrees')
 """) extend {
-  primary_key: `Year`
-
-  join_one: campuses on Campus = campuses.Id
-
   dimension:
     year_val is `Year`
 
+  primary_key: year_val
+
+  join_one: campuses on Campus = campuses.Id
+
   measure:
     row_count is count()
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
     total_campus is sum(Campus)
     avg_campus is avg(Campus)
     max_campus is max(Campus)
@@ -82,12 +82,12 @@ source: degrees is duckdb.sql("""
 source: discipline_enrollments is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'discipline_enrollments')
 """) extend {
+  dimension:
+    year_val is `Year`
+
   primary_key: Campus
 
   join_one: campuses on Campus = campuses.Id
-
-  dimension:
-    year_val is `Year`
 
   measure:
     row_count is count()
@@ -99,10 +99,10 @@ source: discipline_enrollments is duckdb.sql("""
     avg_discipline is avg(Discipline)
     max_discipline is max(Discipline)
     min_discipline is min(Discipline)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
     total_undergraduate is sum(Undergraduate)
     avg_undergraduate is avg(Undergraduate)
     max_undergraduate is max(Undergraduate)
@@ -117,14 +117,14 @@ source: discipline_enrollments is duckdb.sql("""
 source: enrollments is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'enrollments')
 """) extend {
-  primary_key: Campus
-
-  join_one: campuses on Campus = campuses.Id
-
   dimension:
     year_val is `Year`
     total_enrollment_a_y is TotalEnrollment_AY
     f_t_e_a_y is FTE_AY
+
+  primary_key: Campus
+
+  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -132,28 +132,28 @@ source: enrollments is duckdb.sql("""
     avg_campus is avg(Campus)
     max_campus is max(Campus)
     min_campus is min(Campus)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
-    total_total_enrollment_a_y is sum(TotalEnrollment_AY)
-    avg_total_enrollment_a_y is avg(TotalEnrollment_AY)
-    max_total_enrollment_a_y is max(TotalEnrollment_AY)
-    min_total_enrollment_a_y is min(TotalEnrollment_AY)
-    total_f_t_e_a_y is sum(FTE_AY)
-    avg_f_t_e_a_y is avg(FTE_AY)
-    max_f_t_e_a_y is max(FTE_AY)
-    min_f_t_e_a_y is min(FTE_AY)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_total_enrollment_a_y is sum(total_enrollment_a_y)
+    avg_total_enrollment_a_y is avg(total_enrollment_a_y)
+    max_total_enrollment_a_y is max(total_enrollment_a_y)
+    min_total_enrollment_a_y is min(total_enrollment_a_y)
+    total_f_t_e_a_y is sum(f_t_e_a_y)
+    avg_f_t_e_a_y is avg(f_t_e_a_y)
+    max_f_t_e_a_y is max(f_t_e_a_y)
+    min_f_t_e_a_y is min(f_t_e_a_y)
 }
 
 // faculty
 source: faculty is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/csu_1/csu_1.sqlite', 'faculty')
 """) extend {
-  join_one: campuses on Campus = campuses.Id
-
   dimension:
     year_val is `Year`
+
+  join_one: campuses on Campus = campuses.Id
 
   measure:
     row_count is count()
@@ -161,10 +161,10 @@ source: faculty is duckdb.sql("""
     avg_campus is avg(Campus)
     max_campus is max(Campus)
     min_campus is min(Campus)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
     total_faculty is sum(Faculty)
     avg_faculty is avg(Faculty)
     max_faculty is max(Faculty)

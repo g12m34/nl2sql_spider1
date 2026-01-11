@@ -20,10 +20,10 @@ source: item is duckdb.sql("""
 source: useracct is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'useracct')
 """) extend {
-  primary_key: u_id
-
   dimension:
     name_val is `name`
+
+  primary_key: u_id
 
   measure:
     row_count is count()
@@ -37,13 +37,13 @@ source: useracct is duckdb.sql("""
 source: review is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/epinions_1/epinions_1.sqlite', 'review')
 """) extend {
+  dimension:
+    rank_val is `rank`
+
   primary_key: a_id
 
   join_one: item on i_id = item.i_id
   join_one: useracct on u_id = useracct.u_id
-
-  dimension:
-    rank_val is `rank`
 
   measure:
     row_count is count()
@@ -63,10 +63,10 @@ source: review is duckdb.sql("""
     avg_rating is avg(rating)
     max_rating is max(rating)
     min_rating is min(rating)
-    total_rank_val is sum(`rank`)
-    avg_rank_val is avg(`rank`)
-    max_rank_val is max(`rank`)
-    min_rank_val is min(`rank`)
+    total_rank_val is sum(rank_val)
+    avg_rank_val is avg(rank_val)
+    max_rank_val is max(rank_val)
+    min_rank_val is min(rank_val)
 }
 
 // trust

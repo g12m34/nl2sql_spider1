@@ -6,37 +6,37 @@
 source: scientists is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'Scientists')
 """) extend {
-  primary_key: SSN
-
   dimension:
     s_s_n is SSN
     name_val is `Name`
 
+  primary_key: s_s_n
+
   measure:
     row_count is count()
-    total_s_s_n is sum(SSN)
-    avg_s_s_n is avg(SSN)
-    max_s_s_n is max(SSN)
-    min_s_s_n is min(SSN)
+    total_s_s_n is sum(s_s_n)
+    avg_s_s_n is avg(s_s_n)
+    max_s_s_n is max(s_s_n)
+    min_s_s_n is min(s_s_n)
 }
 
 // Projects
 source: projects is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scientist_1/scientist_1.sqlite', 'Projects')
 """) extend {
-  primary_key: `Code`
-
   dimension:
     code_val is `Code`
     name_val is `Name`
     hours_val is `Hours`
 
+  primary_key: code_val
+
   measure:
     row_count is count()
-    total_hours_val is sum(`Hours`)
-    avg_hours_val is avg(`Hours`)
-    max_hours_val is max(`Hours`)
-    min_hours_val is min(`Hours`)
+    total_hours_val is sum(hours_val)
+    avg_hours_val is avg(hours_val)
+    max_hours_val is max(hours_val)
+    min_hours_val is min(hours_val)
 }
 
 // AssignedTo
@@ -45,8 +45,8 @@ source: assigned_to is duckdb.sql("""
 """) extend {
   primary_key: Scientist
 
-  join_one: projects on Project = projects.`Code`
-  join_one: scientists on Scientist = scientists.SSN
+  join_one: projects on Project = projects.code_val
+  join_one: scientists on Scientist = scientists.s_s_n
 
   measure:
     row_count is count()

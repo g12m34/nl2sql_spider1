@@ -20,18 +20,18 @@ source: activity is duckdb.sql("""
 source: student_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Student')
 """) extend {
-  primary_key: StuID
-
   dimension:
     stu_i_d is StuID
     l_name is LName
 
+  primary_key: stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -50,18 +50,18 @@ source: student_val is duckdb.sql("""
 source: faculty is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty')
 """) extend {
-  primary_key: FacID
-
   dimension:
     fac_i_d is FacID
     rank_val is `Rank`
 
+  primary_key: fac_i_d
+
   measure:
     row_count is count()
-    total_fac_i_d is sum(FacID)
-    avg_fac_i_d is avg(FacID)
-    max_fac_i_d is max(FacID)
-    min_fac_i_d is min(FacID)
+    total_fac_i_d is sum(fac_i_d)
+    avg_fac_i_d is avg(fac_i_d)
+    max_fac_i_d is max(fac_i_d)
+    min_fac_i_d is min(fac_i_d)
     total_phone is sum(Phone)
     avg_phone is avg(Phone)
     max_phone is max(Phone)
@@ -73,7 +73,7 @@ source: participates_in is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Participates_in')
 """) extend {
   join_one: activity on actid = activity.actid
-  join_one: student_val on stuid = student_val.StuID
+  join_one: student_val on stuid = student_val.stu_i_d
 
   measure:
     row_count is count()
@@ -91,18 +91,18 @@ source: participates_in is duckdb.sql("""
 source: faculty_participates_in is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/activity_1/activity_1.sqlite', 'Faculty_Participates_in')
 """) extend {
-  join_one: activity on actid = activity.actid
-  join_one: faculty on FacID = faculty.FacID
-
   dimension:
     fac_i_d is FacID
 
+  join_one: activity on actid = activity.actid
+  join_one: faculty on fac_i_d = faculty.fac_i_d
+
   measure:
     row_count is count()
-    total_fac_i_d is sum(FacID)
-    avg_fac_i_d is avg(FacID)
-    max_fac_i_d is max(FacID)
-    min_fac_i_d is min(FacID)
+    total_fac_i_d is sum(fac_i_d)
+    avg_fac_i_d is avg(fac_i_d)
+    max_fac_i_d is max(fac_i_d)
+    min_fac_i_d is min(fac_i_d)
     total_actid is sum(actid)
     avg_actid is avg(actid)
     max_actid is max(actid)

@@ -20,13 +20,13 @@ source: players is duckdb.sql("""
 source: matches is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wta_1/wta_1.sqlite', 'matches')
 """) extend {
-  join_one: winner_players is players on winner_id = winner_players.player_id
-  join_one: loser_players is players on loser_id = loser_players.player_id
-
   dimension:
     minutes_val is `minutes`
     round_val is `round`
     year_val is `year`
+
+  join_one: winner_players is players on winner_id = winner_players.player_id
+  join_one: loser_players is players on loser_id = loser_players.player_id
 
   measure:
     row_count is count()
@@ -66,10 +66,10 @@ source: matches is duckdb.sql("""
     avg_match_num is avg(match_num)
     max_match_num is max(match_num)
     min_match_num is min(match_num)
-    total_minutes_val is sum(`minutes`)
-    avg_minutes_val is avg(`minutes`)
-    max_minutes_val is max(`minutes`)
-    min_minutes_val is min(`minutes`)
+    total_minutes_val is sum(minutes_val)
+    avg_minutes_val is avg(minutes_val)
+    max_minutes_val is max(minutes_val)
+    min_minutes_val is min(minutes_val)
     total_winner_age is sum(winner_age)
     avg_winner_age is avg(winner_age)
     max_winner_age is max(winner_age)
@@ -94,10 +94,10 @@ source: matches is duckdb.sql("""
     avg_winner_seed is avg(winner_seed)
     max_winner_seed is max(winner_seed)
     min_winner_seed is min(winner_seed)
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // rankings

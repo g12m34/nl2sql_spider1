@@ -6,18 +6,18 @@
 source: conductor is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'conductor')
 """) extend {
-  primary_key: Conductor_ID
-
   dimension:
     conductor_i_d is Conductor_ID
     name_val is `Name`
 
+  primary_key: conductor_i_d
+
   measure:
     row_count is count()
-    total_conductor_i_d is sum(Conductor_ID)
-    avg_conductor_i_d is avg(Conductor_ID)
-    max_conductor_i_d is max(Conductor_ID)
-    min_conductor_i_d is min(Conductor_ID)
+    total_conductor_i_d is sum(conductor_i_d)
+    avg_conductor_i_d is avg(conductor_i_d)
+    max_conductor_i_d is max(conductor_i_d)
+    min_conductor_i_d is min(conductor_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -32,24 +32,24 @@ source: conductor is duckdb.sql("""
 source: orchestra is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'orchestra')
 """) extend {
-  primary_key: Orchestra_ID
-
-  join_one: conductor on Conductor_ID = conductor.Conductor_ID
-
   dimension:
     orchestra_i_d is Orchestra_ID
     conductor_i_d is Conductor_ID
 
+  primary_key: orchestra_i_d
+
+  join_one: conductor on conductor_i_d = conductor.conductor_i_d
+
   measure:
     row_count is count()
-    total_orchestra_i_d is sum(Orchestra_ID)
-    avg_orchestra_i_d is avg(Orchestra_ID)
-    max_orchestra_i_d is max(Orchestra_ID)
-    min_orchestra_i_d is min(Orchestra_ID)
-    total_conductor_i_d is sum(Conductor_ID)
-    avg_conductor_i_d is avg(Conductor_ID)
-    max_conductor_i_d is max(Conductor_ID)
-    min_conductor_i_d is min(Conductor_ID)
+    total_orchestra_i_d is sum(orchestra_i_d)
+    avg_orchestra_i_d is avg(orchestra_i_d)
+    max_orchestra_i_d is max(orchestra_i_d)
+    min_orchestra_i_d is min(orchestra_i_d)
+    total_conductor_i_d is sum(conductor_i_d)
+    avg_conductor_i_d is avg(conductor_i_d)
+    max_conductor_i_d is max(conductor_i_d)
+    min_conductor_i_d is min(conductor_i_d)
     total_year_of_founded is sum(Year_of_Founded)
     avg_year_of_founded is avg(Year_of_Founded)
     max_year_of_founded is max(Year_of_Founded)
@@ -60,10 +60,6 @@ source: orchestra is duckdb.sql("""
 source: performance is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'performance')
 """) extend {
-  primary_key: Performance_ID
-
-  join_one: orchestra on Orchestra_ID = orchestra.Orchestra_ID
-
   dimension:
     performance_i_d is Performance_ID
     orchestra_i_d is Orchestra_ID
@@ -71,43 +67,47 @@ source: performance is duckdb.sql("""
     date_val is `Date`
     official_ratings is `Official_ratings_(millions)`
 
+  primary_key: performance_i_d
+
+  join_one: orchestra on orchestra_i_d = orchestra.orchestra_i_d
+
   measure:
     row_count is count()
-    total_performance_i_d is sum(Performance_ID)
-    avg_performance_i_d is avg(Performance_ID)
-    max_performance_i_d is max(Performance_ID)
-    min_performance_i_d is min(Performance_ID)
-    total_orchestra_i_d is sum(Orchestra_ID)
-    avg_orchestra_i_d is avg(Orchestra_ID)
-    max_orchestra_i_d is max(Orchestra_ID)
-    min_orchestra_i_d is min(Orchestra_ID)
-    total_official_ratings is sum(`Official_ratings_(millions)`)
-    avg_official_ratings is avg(`Official_ratings_(millions)`)
-    max_official_ratings is max(`Official_ratings_(millions)`)
-    min_official_ratings is min(`Official_ratings_(millions)`)
+    total_performance_i_d is sum(performance_i_d)
+    avg_performance_i_d is avg(performance_i_d)
+    max_performance_i_d is max(performance_i_d)
+    min_performance_i_d is min(performance_i_d)
+    total_orchestra_i_d is sum(orchestra_i_d)
+    avg_orchestra_i_d is avg(orchestra_i_d)
+    max_orchestra_i_d is max(orchestra_i_d)
+    min_orchestra_i_d is min(orchestra_i_d)
+    total_official_ratings is sum(official_ratings)
+    avg_official_ratings is avg(official_ratings)
+    max_official_ratings is max(official_ratings)
+    min_official_ratings is min(official_ratings)
 }
 
 // show
 source: show is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/orchestra/orchestra.sqlite', 'show')
 """) extend {
-  join_one: performance on Performance_ID = performance.Performance_ID
-
   dimension:
     show_i_d is Show_ID
     performance_i_d is Performance_ID
     result_val is `Result`
 
+  join_one: performance on performance_i_d = performance.performance_i_d
+
   measure:
     row_count is count()
-    total_show_i_d is sum(Show_ID)
-    avg_show_i_d is avg(Show_ID)
-    max_show_i_d is max(Show_ID)
-    min_show_i_d is min(Show_ID)
-    total_performance_i_d is sum(Performance_ID)
-    avg_performance_i_d is avg(Performance_ID)
-    max_performance_i_d is max(Performance_ID)
-    min_performance_i_d is min(Performance_ID)
+    total_show_i_d is sum(show_i_d)
+    avg_show_i_d is avg(show_i_d)
+    max_show_i_d is max(show_i_d)
+    min_show_i_d is min(show_i_d)
+    total_performance_i_d is sum(performance_i_d)
+    avg_performance_i_d is avg(performance_i_d)
+    max_performance_i_d is max(performance_i_d)
+    min_performance_i_d is min(performance_i_d)
     total_attendance is sum(Attendance)
     avg_attendance is avg(Attendance)
     max_attendance is max(Attendance)

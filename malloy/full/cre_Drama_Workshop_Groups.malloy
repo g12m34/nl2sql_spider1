@@ -26,10 +26,10 @@ source: ref_service_types is duckdb.sql("""
 source: addresses is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Addresses')
 """) extend {
-  primary_key: Address_ID
-
   dimension:
     address_i_d is Address_ID
+
+  primary_key: address_i_d
 
   measure:
     row_count is count()
@@ -39,10 +39,10 @@ source: addresses is duckdb.sql("""
 source: products is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Products')
 """) extend {
-  primary_key: Product_ID
-
   dimension:
     product_i_d is Product_ID
+
+  primary_key: product_i_d
 
   measure:
     row_count is count()
@@ -66,169 +66,169 @@ source: marketing_regions is duckdb.sql("""
 source: clients is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Clients')
 """) extend {
-  primary_key: Client_ID
-
-  join_one: addresses on Address_ID = addresses.Address_ID
-
   dimension:
     client_i_d is Client_ID
     address_i_d is Address_ID
 
+  primary_key: client_i_d
+
+  join_one: addresses on address_i_d = addresses.address_i_d
+
   measure:
     row_count is count()
-    total_client_i_d is sum(Client_ID)
-    avg_client_i_d is avg(Client_ID)
-    max_client_i_d is max(Client_ID)
-    min_client_i_d is min(Client_ID)
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
+    total_client_i_d is sum(client_i_d)
+    avg_client_i_d is avg(client_i_d)
+    max_client_i_d is max(client_i_d)
+    min_client_i_d is min(client_i_d)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
 }
 
 // Drama_Workshop_Groups
 source: drama_workshop_groups is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Drama_Workshop_Groups')
 """) extend {
-  primary_key: Workshop_Group_ID
-
-  join_one: addresses on Address_ID = addresses.Address_ID
-
   dimension:
     workshop_group_i_d is Workshop_Group_ID
     address_i_d is Address_ID
 
+  primary_key: workshop_group_i_d
+
+  join_one: addresses on address_i_d = addresses.address_i_d
+
   measure:
     row_count is count()
-    total_workshop_group_i_d is sum(Workshop_Group_ID)
-    avg_workshop_group_i_d is avg(Workshop_Group_ID)
-    max_workshop_group_i_d is max(Workshop_Group_ID)
-    min_workshop_group_i_d is min(Workshop_Group_ID)
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
+    total_workshop_group_i_d is sum(workshop_group_i_d)
+    avg_workshop_group_i_d is avg(workshop_group_i_d)
+    max_workshop_group_i_d is max(workshop_group_i_d)
+    min_workshop_group_i_d is min(workshop_group_i_d)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
 }
 
 // Performers
 source: performers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Performers')
 """) extend {
-  primary_key: Performer_ID
-
-  join_one: addresses on Address_ID = addresses.Address_ID
-
   dimension:
     performer_i_d is Performer_ID
     address_i_d is Address_ID
 
+  primary_key: performer_i_d
+
+  join_one: addresses on address_i_d = addresses.address_i_d
+
   measure:
     row_count is count()
-    total_performer_i_d is sum(Performer_ID)
-    avg_performer_i_d is avg(Performer_ID)
-    max_performer_i_d is max(Performer_ID)
-    min_performer_i_d is min(Performer_ID)
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
+    total_performer_i_d is sum(performer_i_d)
+    avg_performer_i_d is avg(performer_i_d)
+    max_performer_i_d is max(performer_i_d)
+    min_performer_i_d is min(performer_i_d)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
 }
 
 // Customers
 source: customers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Customers')
 """) extend {
-  primary_key: Customer_ID
-
-  join_one: addresses on Address_ID = addresses.Address_ID
-
   dimension:
     customer_i_d is Customer_ID
     address_i_d is Address_ID
 
+  primary_key: customer_i_d
+
+  join_one: addresses on address_i_d = addresses.address_i_d
+
   measure:
     row_count is count()
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
 }
 
 // Stores
 source: stores is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Stores')
 """) extend {
-  primary_key: Store_ID
-
-  join_one: marketing_regions on Marketing_Region_Code = marketing_regions.Marketing_Region_Code
-  join_one: addresses on Address_ID = addresses.Address_ID
-
   dimension:
     store_i_d is Store_ID
     address_i_d is Address_ID
 
+  primary_key: store_i_d
+
+  join_one: marketing_regions on Marketing_Region_Code = marketing_regions.Marketing_Region_Code
+  join_one: addresses on address_i_d = addresses.address_i_d
+
   measure:
     row_count is count()
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
 }
 
 // Bookings
 source: bookings is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Bookings')
 """) extend {
-  primary_key: Booking_ID
-
-  join_one: drama_workshop_groups on Workshop_Group_ID = drama_workshop_groups.Workshop_Group_ID
-  join_one: clients on Customer_ID = clients.Client_ID
-
   dimension:
     booking_i_d is Booking_ID
     customer_i_d is Customer_ID
     workshop_group_i_d is Workshop_Group_ID
     store_i_d is Store_ID
 
+  primary_key: booking_i_d
+
+  join_one: drama_workshop_groups on workshop_group_i_d = drama_workshop_groups.workshop_group_i_d
+  join_one: clients on customer_i_d = clients.client_i_d
+
   measure:
     row_count is count()
-    total_booking_i_d is sum(Booking_ID)
-    avg_booking_i_d is avg(Booking_ID)
-    max_booking_i_d is max(Booking_ID)
-    min_booking_i_d is min(Booking_ID)
-    total_customer_i_d is sum(Customer_ID)
-    avg_customer_i_d is avg(Customer_ID)
-    max_customer_i_d is max(Customer_ID)
-    min_customer_i_d is min(Customer_ID)
-    total_store_i_d is sum(Store_ID)
-    avg_store_i_d is avg(Store_ID)
-    max_store_i_d is max(Store_ID)
-    min_store_i_d is min(Store_ID)
+    total_booking_i_d is sum(booking_i_d)
+    avg_booking_i_d is avg(booking_i_d)
+    max_booking_i_d is max(booking_i_d)
+    min_booking_i_d is min(booking_i_d)
+    total_customer_i_d is sum(customer_i_d)
+    avg_customer_i_d is avg(customer_i_d)
+    max_customer_i_d is max(customer_i_d)
+    min_customer_i_d is min(customer_i_d)
+    total_store_i_d is sum(store_i_d)
+    avg_store_i_d is avg(store_i_d)
+    max_store_i_d is max(store_i_d)
+    min_store_i_d is min(store_i_d)
 }
 
 // Services
 source: services is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Services')
 """) extend {
-  primary_key: Service_ID
-
-  join_one: ref_service_types on Service_Type_Code = ref_service_types.Service_Type_Code
-  join_one: drama_workshop_groups on Workshop_Group_ID = drama_workshop_groups.Workshop_Group_ID
-
   dimension:
     service_i_d is Service_ID
     workshop_group_i_d is Workshop_Group_ID
 
+  primary_key: service_i_d
+
+  join_one: ref_service_types on Service_Type_Code = ref_service_types.Service_Type_Code
+  join_one: drama_workshop_groups on workshop_group_i_d = drama_workshop_groups.workshop_group_i_d
+
   measure:
     row_count is count()
-    total_service_i_d is sum(Service_ID)
-    avg_service_i_d is avg(Service_ID)
-    max_service_i_d is max(Service_ID)
-    min_service_i_d is min(Service_ID)
-    total_workshop_group_i_d is sum(Workshop_Group_ID)
-    avg_workshop_group_i_d is avg(Workshop_Group_ID)
-    max_workshop_group_i_d is max(Workshop_Group_ID)
-    min_workshop_group_i_d is min(Workshop_Group_ID)
+    total_service_i_d is sum(service_i_d)
+    avg_service_i_d is avg(service_i_d)
+    max_service_i_d is max(service_i_d)
+    min_service_i_d is min(service_i_d)
+    total_workshop_group_i_d is sum(workshop_group_i_d)
+    avg_workshop_group_i_d is avg(workshop_group_i_d)
+    max_workshop_group_i_d is max(workshop_group_i_d)
+    min_workshop_group_i_d is min(workshop_group_i_d)
     total_product_price is sum(Product_Price)
     avg_product_price is avg(Product_Price)
     max_product_price is max(Product_Price)
@@ -239,159 +239,152 @@ source: services is duckdb.sql("""
 source: customer_orders is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Customer_Orders')
 """) extend {
-  primary_key: Order_ID
-
-  join_one: stores on Store_ID = stores.Store_ID
-  join_one: customers on Customer_ID = customers.Customer_ID
-
   dimension:
     order_i_d is Order_ID
     customer_i_d is Customer_ID
     store_i_d is Store_ID
 
+  primary_key: order_i_d
+
+  join_one: stores on store_i_d = stores.store_i_d
+  join_one: customers on customer_i_d = customers.customer_i_d
+
   measure:
     row_count is count()
-    total_order_i_d is sum(Order_ID)
-    avg_order_i_d is avg(Order_ID)
-    max_order_i_d is max(Order_ID)
-    min_order_i_d is min(Order_ID)
-    total_customer_i_d is sum(Customer_ID)
-    avg_customer_i_d is avg(Customer_ID)
-    max_customer_i_d is max(Customer_ID)
-    min_customer_i_d is min(Customer_ID)
-    total_store_i_d is sum(Store_ID)
-    avg_store_i_d is avg(Store_ID)
-    max_store_i_d is max(Store_ID)
-    min_store_i_d is min(Store_ID)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_customer_i_d is sum(customer_i_d)
+    avg_customer_i_d is avg(customer_i_d)
+    max_customer_i_d is max(customer_i_d)
+    min_customer_i_d is min(customer_i_d)
+    total_store_i_d is sum(store_i_d)
+    avg_store_i_d is avg(store_i_d)
+    max_store_i_d is max(store_i_d)
+    min_store_i_d is min(store_i_d)
 }
 
 // Performers_in_Bookings
 source: performers_in_bookings is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Performers_in_Bookings')
 """) extend {
-  primary_key: Order_ID
-
-  join_one: bookings on Order_ID = bookings.Booking_ID
-  join_one: performers on Performer_ID = performers.Performer_ID
-
   dimension:
     order_i_d is Order_ID
     performer_i_d is Performer_ID
 
+  primary_key: order_i_d
+
+  join_one: bookings on order_i_d = bookings.booking_i_d
+  join_one: performers on performer_i_d = performers.performer_i_d
+
   measure:
     row_count is count()
-    total_order_i_d is sum(Order_ID)
-    avg_order_i_d is avg(Order_ID)
-    max_order_i_d is max(Order_ID)
-    min_order_i_d is min(Order_ID)
-    total_performer_i_d is sum(Performer_ID)
-    avg_performer_i_d is avg(Performer_ID)
-    max_performer_i_d is max(Performer_ID)
-    min_performer_i_d is min(Performer_ID)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_performer_i_d is sum(performer_i_d)
+    avg_performer_i_d is avg(performer_i_d)
+    max_performer_i_d is max(performer_i_d)
+    min_performer_i_d is min(performer_i_d)
 }
 
 // Bookings_Services
 source: bookings_services is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Bookings_Services')
 """) extend {
-  primary_key: Order_ID
-
-  join_one: services on Product_ID = services.Service_ID
-  join_one: bookings on Order_ID = bookings.Booking_ID
-
   dimension:
     order_i_d is Order_ID
     product_i_d is Product_ID
 
+  primary_key: order_i_d
+
+  join_one: services on product_i_d = services.service_i_d
+  join_one: bookings on order_i_d = bookings.booking_i_d
+
   measure:
     row_count is count()
-    total_order_i_d is sum(Order_ID)
-    avg_order_i_d is avg(Order_ID)
-    max_order_i_d is max(Order_ID)
-    min_order_i_d is min(Order_ID)
-    total_product_i_d is sum(Product_ID)
-    avg_product_i_d is avg(Product_ID)
-    max_product_i_d is max(Product_ID)
-    min_product_i_d is min(Product_ID)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
 }
 
 // Order_Items
 source: order_items is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Order_Items')
 """) extend {
-  primary_key: Order_Item_ID
-
-  join_one: products on Product_ID = products.Product_ID
-  join_one: customer_orders on Order_ID = customer_orders.Order_ID
-
   dimension:
     order_item_i_d is Order_Item_ID
     order_i_d is Order_ID
     product_i_d is Product_ID
 
+  primary_key: order_item_i_d
+
+  join_one: products on product_i_d = products.product_i_d
+  join_one: customer_orders on order_i_d = customer_orders.order_i_d
+
   measure:
     row_count is count()
-    total_order_item_i_d is sum(Order_Item_ID)
-    avg_order_item_i_d is avg(Order_Item_ID)
-    max_order_item_i_d is max(Order_Item_ID)
-    min_order_item_i_d is min(Order_Item_ID)
-    total_order_i_d is sum(Order_ID)
-    avg_order_i_d is avg(Order_ID)
-    max_order_i_d is max(Order_ID)
-    min_order_i_d is min(Order_ID)
-    total_product_i_d is sum(Product_ID)
-    avg_product_i_d is avg(Product_ID)
-    max_product_i_d is max(Product_ID)
-    min_product_i_d is min(Product_ID)
+    total_order_item_i_d is sum(order_item_i_d)
+    avg_order_item_i_d is avg(order_item_i_d)
+    max_order_item_i_d is max(order_item_i_d)
+    min_order_item_i_d is min(order_item_i_d)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
 }
 
 // Invoices
 source: invoices is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Invoices')
 """) extend {
-  primary_key: Invoice_ID
-
-  join_one: ref_payment_methods on payment_method_code = ref_payment_methods.payment_method_code
-  join_one: bookings on Order_ID = bookings.Booking_ID
-  join_one: customer_orders on Order_ID = customer_orders.Order_ID
-
   dimension:
     invoice_i_d is Invoice_ID
     order_i_d is Order_ID
     product_i_d is Product_ID
     order_item_i_d is Order_Item_ID
 
+  primary_key: invoice_i_d
+
+  join_one: ref_payment_methods on payment_method_code = ref_payment_methods.payment_method_code
+  join_one: bookings on order_i_d = bookings.booking_i_d
+  join_one: customer_orders on order_i_d = customer_orders.order_i_d
+
   measure:
     row_count is count()
-    total_invoice_i_d is sum(Invoice_ID)
-    avg_invoice_i_d is avg(Invoice_ID)
-    max_invoice_i_d is max(Invoice_ID)
-    min_invoice_i_d is min(Invoice_ID)
-    total_order_i_d is sum(Order_ID)
-    avg_order_i_d is avg(Order_ID)
-    max_order_i_d is max(Order_ID)
-    min_order_i_d is min(Order_ID)
-    total_product_i_d is sum(Product_ID)
-    avg_product_i_d is avg(Product_ID)
-    max_product_i_d is max(Product_ID)
-    min_product_i_d is min(Product_ID)
-    total_order_item_i_d is sum(Order_Item_ID)
-    avg_order_item_i_d is avg(Order_Item_ID)
-    max_order_item_i_d is max(Order_Item_ID)
-    min_order_item_i_d is min(Order_Item_ID)
+    total_invoice_i_d is sum(invoice_i_d)
+    avg_invoice_i_d is avg(invoice_i_d)
+    max_invoice_i_d is max(invoice_i_d)
+    min_invoice_i_d is min(invoice_i_d)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
+    total_order_item_i_d is sum(order_item_i_d)
+    avg_order_item_i_d is avg(order_item_i_d)
+    max_order_item_i_d is max(order_item_i_d)
+    min_order_item_i_d is min(order_item_i_d)
 }
 
 // Invoice_Items
 source: invoice_items is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Drama_Workshop_Groups/cre_Drama_Workshop_Groups.sqlite', 'Invoice_Items')
 """) extend {
-  primary_key: Invoice_Item_ID
-
-  join_one: order_i_d_bookings_services is bookings_services on Order_ID = order_i_d_bookings_services.Order_ID
-  join_one: product_i_d_bookings_services is bookings_services on Product_ID = product_i_d_bookings_services.Product_ID
-  join_one: invoices on Invoice_ID = invoices.Invoice_ID
-  join_one: order_items on Order_Item_ID = order_items.Order_Item_ID
-
   dimension:
     invoice_item_i_d is Invoice_Item_ID
     invoice_i_d is Invoice_ID
@@ -399,28 +392,35 @@ source: invoice_items is duckdb.sql("""
     order_item_i_d is Order_Item_ID
     product_i_d is Product_ID
 
+  primary_key: invoice_item_i_d
+
+  join_one: order_i_d_bookings_services is bookings_services on order_i_d = order_i_d_bookings_services.order_i_d
+  join_one: product_i_d_bookings_services is bookings_services on product_i_d = product_i_d_bookings_services.product_i_d
+  join_one: invoices on invoice_i_d = invoices.invoice_i_d
+  join_one: order_items on order_item_i_d = order_items.order_item_i_d
+
   measure:
     row_count is count()
-    total_invoice_item_i_d is sum(Invoice_Item_ID)
-    avg_invoice_item_i_d is avg(Invoice_Item_ID)
-    max_invoice_item_i_d is max(Invoice_Item_ID)
-    min_invoice_item_i_d is min(Invoice_Item_ID)
-    total_invoice_i_d is sum(Invoice_ID)
-    avg_invoice_i_d is avg(Invoice_ID)
-    max_invoice_i_d is max(Invoice_ID)
-    min_invoice_i_d is min(Invoice_ID)
-    total_order_i_d is sum(Order_ID)
-    avg_order_i_d is avg(Order_ID)
-    max_order_i_d is max(Order_ID)
-    min_order_i_d is min(Order_ID)
-    total_order_item_i_d is sum(Order_Item_ID)
-    avg_order_item_i_d is avg(Order_Item_ID)
-    max_order_item_i_d is max(Order_Item_ID)
-    min_order_item_i_d is min(Order_Item_ID)
-    total_product_i_d is sum(Product_ID)
-    avg_product_i_d is avg(Product_ID)
-    max_product_i_d is max(Product_ID)
-    min_product_i_d is min(Product_ID)
+    total_invoice_item_i_d is sum(invoice_item_i_d)
+    avg_invoice_item_i_d is avg(invoice_item_i_d)
+    max_invoice_item_i_d is max(invoice_item_i_d)
+    min_invoice_item_i_d is min(invoice_item_i_d)
+    total_invoice_i_d is sum(invoice_i_d)
+    avg_invoice_i_d is avg(invoice_i_d)
+    max_invoice_i_d is max(invoice_i_d)
+    min_invoice_i_d is min(invoice_i_d)
+    total_order_i_d is sum(order_i_d)
+    avg_order_i_d is avg(order_i_d)
+    max_order_i_d is max(order_i_d)
+    min_order_i_d is min(order_i_d)
+    total_order_item_i_d is sum(order_item_i_d)
+    avg_order_item_i_d is avg(order_item_i_d)
+    max_order_item_i_d is max(order_item_i_d)
+    min_order_item_i_d is min(order_item_i_d)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
     total_order_quantity is sum(Order_Quantity)
     avg_order_quantity is avg(Order_Quantity)
     max_order_quantity is max(Order_Quantity)

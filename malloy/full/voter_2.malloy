@@ -6,18 +6,18 @@
 source: student_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_2/voter_2.sqlite', 'Student')
 """) extend {
-  primary_key: StuID
-
   dimension:
     stu_i_d is StuID
     l_name is LName
 
+  primary_key: stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -36,23 +36,23 @@ source: student_val is duckdb.sql("""
 source: voting_record is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_2/voter_2.sqlite', 'Voting_record')
 """) extend {
-  join_one: class_senator_vote_student_val is student_val on Class_Senator_Vote = class_senator_vote_student_val.StuID
-  join_one: class_president_vote_student_val is student_val on Class_President_Vote = class_president_vote_student_val.StuID
-  join_one: treasurer_vote_student_val is student_val on Treasurer_Vote = treasurer_vote_student_val.StuID
-  join_one: secretary_vote_student_val is student_val on Secretary_Vote = secretary_vote_student_val.StuID
-  join_one: vice_president_vote_student_val is student_val on Vice_President_Vote = vice_president_vote_student_val.StuID
-  join_one: president_vote_student_val is student_val on President_Vote = president_vote_student_val.StuID
-  join_one: stu_i_d_student_val is student_val on StuID = stu_i_d_student_val.StuID
-
   dimension:
     stu_i_d is StuID
 
+  join_one: class_senator_vote_student_val is student_val on Class_Senator_Vote = class_senator_vote_student_val.stu_i_d
+  join_one: class_president_vote_student_val is student_val on Class_President_Vote = class_president_vote_student_val.stu_i_d
+  join_one: treasurer_vote_student_val is student_val on Treasurer_Vote = treasurer_vote_student_val.stu_i_d
+  join_one: secretary_vote_student_val is student_val on Secretary_Vote = secretary_vote_student_val.stu_i_d
+  join_one: vice_president_vote_student_val is student_val on Vice_President_Vote = vice_president_vote_student_val.stu_i_d
+  join_one: president_vote_student_val is student_val on President_Vote = president_vote_student_val.stu_i_d
+  join_one: stu_i_d_student_val is student_val on stu_i_d = stu_i_d_student_val.stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
     total_president_vote is sum(President_Vote)
     avg_president_vote is avg(President_Vote)
     max_president_vote is max(President_Vote)

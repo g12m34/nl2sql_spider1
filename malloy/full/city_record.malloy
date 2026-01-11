@@ -6,64 +6,64 @@
 source: city is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'city')
 """) extend {
-  primary_key: City_ID
-
   dimension:
     city_i_d is City_ID
     g_d_p is GDP
 
+  primary_key: city_i_d
+
   measure:
     row_count is count()
-    total_city_i_d is sum(City_ID)
-    avg_city_i_d is avg(City_ID)
-    max_city_i_d is max(City_ID)
-    min_city_i_d is min(City_ID)
+    total_city_i_d is sum(city_i_d)
+    avg_city_i_d is avg(city_i_d)
+    max_city_i_d is max(city_i_d)
+    min_city_i_d is min(city_i_d)
     total_regional_population is sum(Regional_Population)
     avg_regional_population is avg(Regional_Population)
     max_regional_population is max(Regional_Population)
     min_regional_population is min(Regional_Population)
-    total_g_d_p is sum(GDP)
-    avg_g_d_p is avg(GDP)
-    max_g_d_p is max(GDP)
-    min_g_d_p is min(GDP)
+    total_g_d_p is sum(g_d_p)
+    avg_g_d_p is avg(g_d_p)
+    max_g_d_p is max(g_d_p)
+    min_g_d_p is min(g_d_p)
 }
 
 // match
 source: match_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'match')
 """) extend {
-  primary_key: Match_ID
-
   dimension:
     match_i_d is Match_ID
     date_val is `Date`
     result_val is `Result`
 
+  primary_key: match_i_d
+
   measure:
     row_count is count()
-    total_match_i_d is sum(Match_ID)
-    avg_match_i_d is avg(Match_ID)
-    max_match_i_d is max(Match_ID)
-    min_match_i_d is min(Match_ID)
+    total_match_i_d is sum(match_i_d)
+    avg_match_i_d is avg(match_i_d)
+    max_match_i_d is max(match_i_d)
+    min_match_i_d is min(match_i_d)
 }
 
 // temperature
 source: temperature is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'temperature')
 """) extend {
-  primary_key: City_ID
-
-  join_one: city on City_ID = city.City_ID
-
   dimension:
     city_i_d is City_ID
 
+  primary_key: city_i_d
+
+  join_one: city on city_i_d = city.city_i_d
+
   measure:
     row_count is count()
-    total_city_i_d is sum(City_ID)
-    avg_city_i_d is avg(City_ID)
-    max_city_i_d is max(City_ID)
-    min_city_i_d is min(City_ID)
+    total_city_i_d is sum(city_i_d)
+    avg_city_i_d is avg(city_i_d)
+    max_city_i_d is max(city_i_d)
+    min_city_i_d is min(city_i_d)
     total_jan is sum(Jan)
     avg_jan is avg(Jan)
     max_jan is max(Jan)
@@ -114,23 +114,23 @@ source: temperature is duckdb.sql("""
 source: hosting_city is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/city_record/city_record.sqlite', 'hosting_city')
 """) extend {
-  primary_key: `Year`
-
-  join_one: match_val on Match_ID = match_val.Match_ID
-  join_one: city on Host_City = city.City_ID
-
   dimension:
     year_val is `Year`
     match_i_d is Match_ID
 
+  primary_key: year_val
+
+  join_one: match_val on match_i_d = match_val.match_i_d
+  join_one: city on Host_City = city.city_i_d
+
   measure:
     row_count is count()
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
-    total_match_i_d is sum(Match_ID)
-    avg_match_i_d is avg(Match_ID)
-    max_match_i_d is max(Match_ID)
-    min_match_i_d is min(Match_ID)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_match_i_d is sum(match_i_d)
+    avg_match_i_d is avg(match_i_d)
+    max_match_i_d is max(match_i_d)
+    min_match_i_d is min(match_i_d)
 }

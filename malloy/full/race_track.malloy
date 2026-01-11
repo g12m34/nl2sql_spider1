@@ -6,18 +6,18 @@
 source: track is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'track')
 """) extend {
-  primary_key: Track_ID
-
   dimension:
     track_i_d is Track_ID
     name_val is `Name`
 
+  primary_key: track_i_d
+
   measure:
     row_count is count()
-    total_track_i_d is sum(Track_ID)
-    avg_track_i_d is avg(Track_ID)
-    max_track_i_d is max(Track_ID)
-    min_track_i_d is min(Track_ID)
+    total_track_i_d is sum(track_i_d)
+    avg_track_i_d is avg(track_i_d)
+    max_track_i_d is max(track_i_d)
+    min_track_i_d is min(track_i_d)
     total_seating is sum(Seating)
     avg_seating is avg(Seating)
     max_seating is max(Seating)
@@ -32,20 +32,20 @@ source: track is duckdb.sql("""
 source: race is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/race_track/race_track.sqlite', 'race')
 """) extend {
-  primary_key: Race_ID
-
-  join_one: track on Track_ID = track.Track_ID
-
   dimension:
     race_i_d is Race_ID
     name_val is `Name`
     date_val is `Date`
     track_i_d is Track_ID
 
+  primary_key: race_i_d
+
+  join_one: track on track_i_d = track.track_i_d
+
   measure:
     row_count is count()
-    total_race_i_d is sum(Race_ID)
-    avg_race_i_d is avg(Race_ID)
-    max_race_i_d is max(Race_ID)
-    min_race_i_d is min(Race_ID)
+    total_race_i_d is sum(race_i_d)
+    avg_race_i_d is avg(race_i_d)
+    max_race_i_d is max(race_i_d)
+    min_race_i_d is min(race_i_d)
 }

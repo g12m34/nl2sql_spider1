@@ -6,18 +6,18 @@
 source: country is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite', 'country')
 """) extend {
-  primary_key: Country_ID
-
   dimension:
     country_i_d is Country_ID
     name_val is `Name`
 
+  primary_key: country_i_d
+
   measure:
     row_count is count()
-    total_country_i_d is sum(Country_ID)
-    avg_country_i_d is avg(Country_ID)
-    max_country_i_d is max(Country_ID)
-    min_country_i_d is min(Country_ID)
+    total_country_i_d is sum(country_i_d)
+    avg_country_i_d is avg(country_i_d)
+    max_country_i_d is max(country_i_d)
+    min_country_i_d is min(country_i_d)
     total_population is sum(Population)
     avg_population is avg(Population)
     max_population is max(Population)
@@ -32,25 +32,25 @@ source: country is duckdb.sql("""
 source: roller_coaster is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/roller_coaster/roller_coaster.sqlite', 'roller_coaster')
 """) extend {
-  primary_key: Roller_Coaster_ID
-
-  join_one: country on Country_ID = country.Country_ID
-
   dimension:
     roller_coaster_i_d is Roller_Coaster_ID
     name_val is `Name`
     country_i_d is Country_ID
 
+  primary_key: roller_coaster_i_d
+
+  join_one: country on country_i_d = country.country_i_d
+
   measure:
     row_count is count()
-    total_roller_coaster_i_d is sum(Roller_Coaster_ID)
-    avg_roller_coaster_i_d is avg(Roller_Coaster_ID)
-    max_roller_coaster_i_d is max(Roller_Coaster_ID)
-    min_roller_coaster_i_d is min(Roller_Coaster_ID)
-    total_country_i_d is sum(Country_ID)
-    avg_country_i_d is avg(Country_ID)
-    max_country_i_d is max(Country_ID)
-    min_country_i_d is min(Country_ID)
+    total_roller_coaster_i_d is sum(roller_coaster_i_d)
+    avg_roller_coaster_i_d is avg(roller_coaster_i_d)
+    max_roller_coaster_i_d is max(roller_coaster_i_d)
+    min_roller_coaster_i_d is min(roller_coaster_i_d)
+    total_country_i_d is sum(country_i_d)
+    avg_country_i_d is avg(country_i_d)
+    max_country_i_d is max(country_i_d)
+    min_country_i_d is min(country_i_d)
     total_length is sum(Length)
     avg_length is avg(Length)
     max_length is max(Length)

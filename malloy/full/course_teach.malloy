@@ -6,60 +6,60 @@
 source: course is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'course')
 """) extend {
-  primary_key: Course_ID
-
   dimension:
     course_i_d is Course_ID
 
+  primary_key: course_i_d
+
   measure:
     row_count is count()
-    total_course_i_d is sum(Course_ID)
-    avg_course_i_d is avg(Course_ID)
-    max_course_i_d is max(Course_ID)
-    min_course_i_d is min(Course_ID)
+    total_course_i_d is sum(course_i_d)
+    avg_course_i_d is avg(course_i_d)
+    max_course_i_d is max(course_i_d)
+    min_course_i_d is min(course_i_d)
 }
 
 // teacher
 source: teacher is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'teacher')
 """) extend {
-  primary_key: Teacher_ID
-
   dimension:
     teacher_i_d is Teacher_ID
     name_val is `Name`
 
+  primary_key: teacher_i_d
+
   measure:
     row_count is count()
-    total_teacher_i_d is sum(Teacher_ID)
-    avg_teacher_i_d is avg(Teacher_ID)
-    max_teacher_i_d is max(Teacher_ID)
-    min_teacher_i_d is min(Teacher_ID)
+    total_teacher_i_d is sum(teacher_i_d)
+    avg_teacher_i_d is avg(teacher_i_d)
+    max_teacher_i_d is max(teacher_i_d)
+    min_teacher_i_d is min(teacher_i_d)
 }
 
 // course_arrange
 source: course_arrange is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/course_teach/course_teach.sqlite', 'course_arrange')
 """) extend {
-  primary_key: Course_ID
-
-  join_one: teacher on Teacher_ID = teacher.Teacher_ID
-  join_one: course on Course_ID = course.Course_ID
-
   dimension:
     course_i_d is Course_ID
     teacher_i_d is Teacher_ID
 
+  primary_key: course_i_d
+
+  join_one: teacher on teacher_i_d = teacher.teacher_i_d
+  join_one: course on course_i_d = course.course_i_d
+
   measure:
     row_count is count()
-    total_course_i_d is sum(Course_ID)
-    avg_course_i_d is avg(Course_ID)
-    max_course_i_d is max(Course_ID)
-    min_course_i_d is min(Course_ID)
-    total_teacher_i_d is sum(Teacher_ID)
-    avg_teacher_i_d is avg(Teacher_ID)
-    max_teacher_i_d is max(Teacher_ID)
-    min_teacher_i_d is min(Teacher_ID)
+    total_course_i_d is sum(course_i_d)
+    avg_course_i_d is avg(course_i_d)
+    max_course_i_d is max(course_i_d)
+    min_course_i_d is min(course_i_d)
+    total_teacher_i_d is sum(teacher_i_d)
+    avg_teacher_i_d is avg(teacher_i_d)
+    max_teacher_i_d is max(teacher_i_d)
+    min_teacher_i_d is min(teacher_i_d)
     total_grade is sum(Grade)
     avg_grade is avg(Grade)
     max_grade is max(Grade)

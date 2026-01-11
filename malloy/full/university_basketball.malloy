@@ -6,17 +6,17 @@
 source: university is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/university_basketball/university_basketball.sqlite', 'university')
 """) extend {
-  primary_key: School_ID
-
   dimension:
     school_i_d is School_ID
 
+  primary_key: school_i_d
+
   measure:
     row_count is count()
-    total_school_i_d is sum(School_ID)
-    avg_school_i_d is avg(School_ID)
-    max_school_i_d is max(School_ID)
-    min_school_i_d is min(School_ID)
+    total_school_i_d is sum(school_i_d)
+    avg_school_i_d is avg(school_i_d)
+    max_school_i_d is max(school_i_d)
+    min_school_i_d is min(school_i_d)
     total_founded is sum(Founded)
     avg_founded is avg(Founded)
     max_founded is max(Founded)
@@ -31,10 +31,6 @@ source: university is duckdb.sql("""
 source: basketball_match is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/university_basketball/university_basketball.sqlite', 'basketball_match')
 """) extend {
-  primary_key: Team_ID
-
-  join_one: university on School_ID = university.School_ID
-
   dimension:
     team_i_d is Team_ID
     school_i_d is School_ID
@@ -43,16 +39,20 @@ source: basketball_match is duckdb.sql("""
     a_c_c_home is ACC_Home
     a_c_c_road is ACC_Road
 
+  primary_key: team_i_d
+
+  join_one: university on school_i_d = university.school_i_d
+
   measure:
     row_count is count()
-    total_team_i_d is sum(Team_ID)
-    avg_team_i_d is avg(Team_ID)
-    max_team_i_d is max(Team_ID)
-    min_team_i_d is min(Team_ID)
-    total_school_i_d is sum(School_ID)
-    avg_school_i_d is avg(School_ID)
-    max_school_i_d is max(School_ID)
-    min_school_i_d is min(School_ID)
+    total_team_i_d is sum(team_i_d)
+    avg_team_i_d is avg(team_i_d)
+    max_team_i_d is max(team_i_d)
+    min_team_i_d is min(team_i_d)
+    total_school_i_d is sum(school_i_d)
+    avg_school_i_d is avg(school_i_d)
+    max_school_i_d is max(school_i_d)
+    min_school_i_d is min(school_i_d)
     total_all_games_percent is sum(All_Games_Percent)
     avg_all_games_percent is avg(All_Games_Percent)
     max_all_games_percent is max(All_Games_Percent)

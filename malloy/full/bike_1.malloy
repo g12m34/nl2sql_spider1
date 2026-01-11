@@ -6,10 +6,10 @@
 source: station is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'station')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -169,10 +169,10 @@ source: weather is duckdb.sql("""
 source: status is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/bike_1/bike_1.sqlite', 'status')
 """) extend {
-  join_one: station on station_id = station.id
-
   dimension:
     time_val is `time`
+
+  join_one: station on station_id = station.id
 
   measure:
     row_count is count()

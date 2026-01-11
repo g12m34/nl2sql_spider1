@@ -6,10 +6,10 @@
 source: a_c_c_o_u_n_t_s is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/small_bank_1/small_bank_1.sqlite', 'ACCOUNTS')
 """) extend {
-  primary_key: custid
-
   dimension:
     name_val is `name`
+
+  primary_key: custid
 
   measure:
     row_count is count()

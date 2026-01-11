@@ -6,10 +6,10 @@
 source: building is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'building')
 """) extend {
-  primary_key: building_id
-
   dimension:
     name_val is `Name`
+
+  primary_key: building_id
 
   measure:
     row_count is count()
@@ -27,12 +27,12 @@ source: building is duckdb.sql("""
 source: institution is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/protein_institute/protein_institute.sqlite', 'Institution')
 """) extend {
+  dimension:
+    type_val is `Type`
+
   primary_key: Institution_id
 
   join_one: building on building_id = building.building_id
-
-  dimension:
-    type_val is `Type`
 
   measure:
     row_count is count()

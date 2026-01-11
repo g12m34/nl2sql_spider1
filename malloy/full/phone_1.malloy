@@ -6,12 +6,12 @@
 source: chip_model is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'chip_model')
 """) extend {
-  primary_key: Model_name
-
   dimension:
     r_a_m_mi_b is RAM_MiB
     r_o_m_mi_b is ROM_MiB
     wi_fi is WiFi
+
+  primary_key: Model_name
 
   measure:
     row_count is count()
@@ -19,24 +19,24 @@ source: chip_model is duckdb.sql("""
     avg_launch_year is avg(Launch_year)
     max_launch_year is max(Launch_year)
     min_launch_year is min(Launch_year)
-    total_r_a_m_mi_b is sum(RAM_MiB)
-    avg_r_a_m_mi_b is avg(RAM_MiB)
-    max_r_a_m_mi_b is max(RAM_MiB)
-    min_r_a_m_mi_b is min(RAM_MiB)
-    total_r_o_m_mi_b is sum(ROM_MiB)
-    avg_r_o_m_mi_b is avg(ROM_MiB)
-    max_r_o_m_mi_b is max(ROM_MiB)
-    min_r_o_m_mi_b is min(ROM_MiB)
+    total_r_a_m_mi_b is sum(r_a_m_mi_b)
+    avg_r_a_m_mi_b is avg(r_a_m_mi_b)
+    max_r_a_m_mi_b is max(r_a_m_mi_b)
+    min_r_a_m_mi_b is min(r_a_m_mi_b)
+    total_r_o_m_mi_b is sum(r_o_m_mi_b)
+    avg_r_o_m_mi_b is avg(r_o_m_mi_b)
+    max_r_o_m_mi_b is max(r_o_m_mi_b)
+    min_r_o_m_mi_b is min(r_o_m_mi_b)
 }
 
 // screen_mode
 source: screen_mode is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'screen_mode')
 """) extend {
-  primary_key: Graphics_mode
-
   dimension:
     type_val is `Type`
+
+  primary_key: Graphics_mode
 
   measure:
     row_count is count()
@@ -58,13 +58,13 @@ source: screen_mode is duckdb.sql("""
 source: phone is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_1/phone_1.sqlite', 'phone')
 """) extend {
+  dimension:
+    date_val is `Date`
+
   primary_key: Hardware_Model_name
 
   join_one: ref_chip_model is chip_model on chip_model = ref_chip_model.Model_name
   join_one: ref_screen_mode is screen_mode on screen_mode = ref_screen_mode.Graphics_mode
-
-  dimension:
-    date_val is `Date`
 
   measure:
     row_count is count()

@@ -6,10 +6,10 @@
 source: a_r_e_a_c_o_d_e_s_t_a_t_e is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'AREA_CODE_STATE')
 """) extend {
-  primary_key: area_code
-
   dimension:
     state_val is `state`
+
+  primary_key: area_code
 
   measure:
     row_count is count()
@@ -37,13 +37,13 @@ source: c_o_n_t_e_s_t_a_n_t_s is duckdb.sql("""
 source: v_o_t_e_s is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/voter_1/voter_1.sqlite', 'VOTES')
 """) extend {
+  dimension:
+    state_val is `state`
+
   primary_key: vote_id
 
   join_one: c_o_n_t_e_s_t_a_n_t_s on contestant_number = c_o_n_t_e_s_t_a_n_t_s.contestant_number
-  join_one: a_r_e_a_c_o_d_e_s_t_a_t_e on `state` = a_r_e_a_c_o_d_e_s_t_a_t_e.`state`
-
-  dimension:
-    state_val is `state`
+  join_one: a_r_e_a_c_o_d_e_s_t_a_t_e on state_val = a_r_e_a_c_o_d_e_s_t_a_t_e.state_val
 
   measure:
     row_count is count()

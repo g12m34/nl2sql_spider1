@@ -6,12 +6,12 @@
 source: g_e_o_g_r_a_p_h_i_c is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurants/restaurants.sqlite', 'GEOGRAPHIC')
 """) extend {
-  primary_key: CITY_NAME
-
   dimension:
     c_i_t_y_n_a_m_e is CITY_NAME
     c_o_u_n_t_y is COUNTY
     r_e_g_i_o_n is REGION
+
+  primary_key: c_i_t_y_n_a_m_e
 
   measure:
     row_count is count()
@@ -21,10 +21,6 @@ source: g_e_o_g_r_a_p_h_i_c is duckdb.sql("""
 source: r_e_s_t_a_u_r_a_n_t is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurants/restaurants.sqlite', 'RESTAURANT')
 """) extend {
-  primary_key: ID
-
-  join_one: g_e_o_g_r_a_p_h_i_c on CITY_NAME = g_e_o_g_r_a_p_h_i_c.CITY_NAME
-
   dimension:
     i_d is ID
     n_a_m_e is `NAME`
@@ -32,40 +28,44 @@ source: r_e_s_t_a_u_r_a_n_t is duckdb.sql("""
     c_i_t_y_n_a_m_e is CITY_NAME
     r_a_t_i_n_g is RATING
 
+  primary_key: i_d
+
+  join_one: g_e_o_g_r_a_p_h_i_c on c_i_t_y_n_a_m_e = g_e_o_g_r_a_p_h_i_c.c_i_t_y_n_a_m_e
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
-    total_r_a_t_i_n_g is sum(RATING)
-    avg_r_a_t_i_n_g is avg(RATING)
-    max_r_a_t_i_n_g is max(RATING)
-    min_r_a_t_i_n_g is min(RATING)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
+    total_r_a_t_i_n_g is sum(r_a_t_i_n_g)
+    avg_r_a_t_i_n_g is avg(r_a_t_i_n_g)
+    max_r_a_t_i_n_g is max(r_a_t_i_n_g)
+    min_r_a_t_i_n_g is min(r_a_t_i_n_g)
 }
 
 // LOCATION
 source: l_o_c_a_t_i_o_n is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/restaurants/restaurants.sqlite', 'LOCATION')
 """) extend {
-  primary_key: RESTAURANT_ID
-
-  join_one: g_e_o_g_r_a_p_h_i_c on CITY_NAME = g_e_o_g_r_a_p_h_i_c.CITY_NAME
-
   dimension:
     r_e_s_t_a_u_r_a_n_t_i_d is RESTAURANT_ID
     h_o_u_s_e_n_u_m_b_e_r is HOUSE_NUMBER
     s_t_r_e_e_t_n_a_m_e is STREET_NAME
     c_i_t_y_n_a_m_e is CITY_NAME
 
+  primary_key: r_e_s_t_a_u_r_a_n_t_i_d
+
+  join_one: g_e_o_g_r_a_p_h_i_c on c_i_t_y_n_a_m_e = g_e_o_g_r_a_p_h_i_c.c_i_t_y_n_a_m_e
+
   measure:
     row_count is count()
-    total_r_e_s_t_a_u_r_a_n_t_i_d is sum(RESTAURANT_ID)
-    avg_r_e_s_t_a_u_r_a_n_t_i_d is avg(RESTAURANT_ID)
-    max_r_e_s_t_a_u_r_a_n_t_i_d is max(RESTAURANT_ID)
-    min_r_e_s_t_a_u_r_a_n_t_i_d is min(RESTAURANT_ID)
-    total_h_o_u_s_e_n_u_m_b_e_r is sum(HOUSE_NUMBER)
-    avg_h_o_u_s_e_n_u_m_b_e_r is avg(HOUSE_NUMBER)
-    max_h_o_u_s_e_n_u_m_b_e_r is max(HOUSE_NUMBER)
-    min_h_o_u_s_e_n_u_m_b_e_r is min(HOUSE_NUMBER)
+    total_r_e_s_t_a_u_r_a_n_t_i_d is sum(r_e_s_t_a_u_r_a_n_t_i_d)
+    avg_r_e_s_t_a_u_r_a_n_t_i_d is avg(r_e_s_t_a_u_r_a_n_t_i_d)
+    max_r_e_s_t_a_u_r_a_n_t_i_d is max(r_e_s_t_a_u_r_a_n_t_i_d)
+    min_r_e_s_t_a_u_r_a_n_t_i_d is min(r_e_s_t_a_u_r_a_n_t_i_d)
+    total_h_o_u_s_e_n_u_m_b_e_r is sum(h_o_u_s_e_n_u_m_b_e_r)
+    avg_h_o_u_s_e_n_u_m_b_e_r is avg(h_o_u_s_e_n_u_m_b_e_r)
+    max_h_o_u_s_e_n_u_m_b_e_r is max(h_o_u_s_e_n_u_m_b_e_r)
+    min_h_o_u_s_e_n_u_m_b_e_r is min(h_o_u_s_e_n_u_m_b_e_r)
 }

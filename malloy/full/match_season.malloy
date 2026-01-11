@@ -20,10 +20,10 @@ source: country is duckdb.sql("""
 source: team is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'team')
 """) extend {
-  primary_key: Team_id
-
   dimension:
     name_val is `Name`
+
+  primary_key: Team_id
 
   measure:
     row_count is count()
@@ -37,13 +37,13 @@ source: team is duckdb.sql("""
 source: match_season is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'match_season')
 """) extend {
+  dimension:
+    position_val is `Position`
+
   primary_key: Season
 
   join_one: ref_team is team on Team = ref_team.Team_id
   join_one: ref_country is country on Country = ref_country.Country_id
-
-  dimension:
-    position_val is `Position`
 
   measure:
     row_count is count()
@@ -69,22 +69,22 @@ source: match_season is duckdb.sql("""
 source: player is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/match_season/match_season.sqlite', 'player')
 """) extend {
-  primary_key: Player_ID
-
-  join_one: ref_team is team on Team = ref_team.Team_id
-
   dimension:
     player_i_d is Player_ID
     total_w_l is Total_WL
     singles_w_l is Singles_WL
     doubles_w_l is Doubles_WL
 
+  primary_key: player_i_d
+
+  join_one: ref_team is team on Team = ref_team.Team_id
+
   measure:
     row_count is count()
-    total_player_i_d is sum(Player_ID)
-    avg_player_i_d is avg(Player_ID)
-    max_player_i_d is max(Player_ID)
-    min_player_i_d is min(Player_ID)
+    total_player_i_d is sum(player_i_d)
+    avg_player_i_d is avg(player_i_d)
+    max_player_i_d is max(player_i_d)
+    min_player_i_d is min(player_i_d)
     total_team is sum(Team)
     avg_team is avg(Team)
     max_team is max(Team)

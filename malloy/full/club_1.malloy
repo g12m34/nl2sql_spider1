@@ -6,18 +6,18 @@
 source: student_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Student')
 """) extend {
-  primary_key: StuID
-
   dimension:
     stu_i_d is StuID
     l_name is LName
 
+  primary_key: stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -36,42 +36,42 @@ source: student_val is duckdb.sql("""
 source: club_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Club')
 """) extend {
-  primary_key: ClubID
-
   dimension:
     club_i_d is ClubID
     club_name is ClubName
     club_desc is ClubDesc
     club_location is ClubLocation
 
+  primary_key: club_i_d
+
   measure:
     row_count is count()
-    total_club_i_d is sum(ClubID)
-    avg_club_i_d is avg(ClubID)
-    max_club_i_d is max(ClubID)
-    min_club_i_d is min(ClubID)
+    total_club_i_d is sum(club_i_d)
+    avg_club_i_d is avg(club_i_d)
+    max_club_i_d is max(club_i_d)
+    min_club_i_d is min(club_i_d)
 }
 
 // Member_of_club
 source: member_of_club is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/club_1/club_1.sqlite', 'Member_of_club')
 """) extend {
-  join_one: club_val on ClubID = club_val.ClubID
-  join_one: student_val on StuID = student_val.StuID
-
   dimension:
     stu_i_d is StuID
     club_i_d is ClubID
     position_val is `Position`
 
+  join_one: club_val on club_i_d = club_val.club_i_d
+  join_one: student_val on stu_i_d = student_val.stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
-    total_club_i_d is sum(ClubID)
-    avg_club_i_d is avg(ClubID)
-    max_club_i_d is max(ClubID)
-    min_club_i_d is min(ClubID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
+    total_club_i_d is sum(club_i_d)
+    avg_club_i_d is avg(club_i_d)
+    max_club_i_d is max(club_i_d)
+    min_club_i_d is min(club_i_d)
 }

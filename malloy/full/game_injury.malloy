@@ -6,10 +6,10 @@
 source: stadium is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'stadium')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -39,12 +39,12 @@ source: stadium is duckdb.sql("""
 source: game is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/game_injury/game_injury.sqlite', 'game')
 """) extend {
+  dimension:
+    date_val is `Date`
+
   primary_key: id
 
   join_one: stadium on stadium_id = stadium.id
-
-  dimension:
-    date_val is `Date`
 
   measure:
     row_count is count()

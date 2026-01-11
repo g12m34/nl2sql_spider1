@@ -1,24 +1,25 @@
 // Malloy semantic layer for: formula_1
 // Full layer with ALL columns, primary keys, and joins
 // Database: /workspace/spider_db/spider/database/formula_1/formula_1.sqlite
+// Note: Some columns marked as 'number' in Spider metadata are actually strings
 
 // circuits
 source: circuits is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'circuits')
 """) extend {
-  primary_key: circuitId
-
   dimension:
     circuit_id is circuitId
     circuit_ref is circuitRef
     name_val is `name`
 
+  primary_key: circuit_id
+
   measure:
     row_count is count()
-    total_circuit_id is sum(circuitId)
-    avg_circuit_id is avg(circuitId)
-    max_circuit_id is max(circuitId)
-    min_circuit_id is min(circuitId)
+    total_circuit_id is sum(circuit_id)
+    avg_circuit_id is avg(circuit_id)
+    max_circuit_id is max(circuit_id)
+    min_circuit_id is min(circuit_id)
     total_lat is sum(lat)
     avg_lat is avg(lat)
     max_lat is max(lat)
@@ -33,83 +34,79 @@ source: circuits is duckdb.sql("""
 source: drivers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'drivers')
 """) extend {
-  primary_key: driverId
-
   dimension:
     driver_id is driverId
     driver_ref is driverRef
     number_val is `number`
     code_val is `code`
 
+  primary_key: driver_id
+
   measure:
     row_count is count()
-    total_driver_id is sum(driverId)
-    avg_driver_id is avg(driverId)
-    max_driver_id is max(driverId)
-    min_driver_id is min(driverId)
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
 }
 
 // status
 source: status is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'status')
 """) extend {
-  primary_key: statusId
-
   dimension:
     status_id is statusId
 
+  primary_key: status_id
+
   measure:
     row_count is count()
-    total_status_id is sum(statusId)
-    avg_status_id is avg(statusId)
-    max_status_id is max(statusId)
-    min_status_id is min(statusId)
+    total_status_id is sum(status_id)
+    avg_status_id is avg(status_id)
+    max_status_id is max(status_id)
+    min_status_id is min(status_id)
 }
 
 // seasons
 source: seasons is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'seasons')
 """) extend {
-  primary_key: `year`
-
   dimension:
     year_val is `year`
 
+  primary_key: year_val
+
   measure:
     row_count is count()
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // constructors
 source: constructors is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructors')
 """) extend {
-  primary_key: constructorId
-
   dimension:
     constructor_id is constructorId
     constructor_ref is constructorRef
     name_val is `name`
 
+  primary_key: constructor_id
+
   measure:
     row_count is count()
-    total_constructor_id is sum(constructorId)
-    avg_constructor_id is avg(constructorId)
-    max_constructor_id is max(constructorId)
-    min_constructor_id is min(constructorId)
+    total_constructor_id is sum(constructor_id)
+    avg_constructor_id is avg(constructor_id)
+    max_constructor_id is max(constructor_id)
+    min_constructor_id is min(constructor_id)
 }
 
 // races
 source: races is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'races')
 """) extend {
-  primary_key: raceId
-
-  join_one: circuits on circuitId = circuits.circuitId
-
   dimension:
     race_id is raceId
     year_val is `year`
@@ -119,35 +116,34 @@ source: races is duckdb.sql("""
     date_val is `date`
     time_val is `time`
 
+  primary_key: race_id
+
+  join_one: circuits on circuit_id = circuits.circuit_id
+
   measure:
     row_count is count()
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
-    total_round_val is sum(`round`)
-    avg_round_val is avg(`round`)
-    max_round_val is max(`round`)
-    min_round_val is min(`round`)
-    total_circuit_id is sum(circuitId)
-    avg_circuit_id is avg(circuitId)
-    max_circuit_id is max(circuitId)
-    min_circuit_id is min(circuitId)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_round_val is sum(round_val)
+    avg_round_val is avg(round_val)
+    max_round_val is max(round_val)
+    min_round_val is min(round_val)
+    total_circuit_id is sum(circuit_id)
+    avg_circuit_id is avg(circuit_id)
+    max_circuit_id is max(circuit_id)
+    min_circuit_id is min(circuit_id)
 }
 
 // constructorStandings
 source: constructor_standings is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructorStandings')
 """) extend {
-  primary_key: constructorStandingsId
-
-  join_one: races on raceId = races.raceId
-  join_one: constructors on constructorId = constructors.constructorId
-
   dimension:
     constructor_standings_id is constructorStandingsId
     race_id is raceId
@@ -155,20 +151,25 @@ source: constructor_standings is duckdb.sql("""
     position_val is `position`
     position_text is positionText
 
+  primary_key: constructor_standings_id
+
+  join_one: races on race_id = races.race_id
+  join_one: constructors on constructor_id = constructors.constructor_id
+
   measure:
     row_count is count()
-    total_constructor_standings_id is sum(constructorStandingsId)
-    avg_constructor_standings_id is avg(constructorStandingsId)
-    max_constructor_standings_id is max(constructorStandingsId)
-    min_constructor_standings_id is min(constructorStandingsId)
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_constructor_id is sum(constructorId)
-    avg_constructor_id is avg(constructorId)
-    max_constructor_id is max(constructorId)
-    min_constructor_id is min(constructorId)
+    total_constructor_standings_id is sum(constructor_standings_id)
+    avg_constructor_standings_id is avg(constructor_standings_id)
+    max_constructor_standings_id is max(constructor_standings_id)
+    min_constructor_standings_id is min(constructor_standings_id)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_constructor_id is sum(constructor_id)
+    avg_constructor_id is avg(constructor_id)
+    max_constructor_id is max(constructor_id)
+    min_constructor_id is min(constructor_id)
     total_points is sum(points)
     avg_points is avg(points)
     max_points is max(points)
@@ -183,12 +184,6 @@ source: constructor_standings is duckdb.sql("""
 source: results is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'results')
 """) extend {
-  primary_key: resultId
-
-  join_one: drivers on driverId = drivers.driverId
-  join_one: races on raceId = races.raceId
-  join_one: constructors on constructorId = constructors.constructorId
-
   dimension:
     result_id is resultId
     race_id is raceId
@@ -205,51 +200,52 @@ source: results is duckdb.sql("""
     fastest_lap_speed is fastestLapSpeed
     status_id is statusId
 
+  primary_key: result_id
+
+  join_one: drivers on driver_id = drivers.driver_id
+  join_one: races on race_id = races.race_id
+  join_one: constructors on constructor_id = constructors.constructor_id
+
   measure:
     row_count is count()
-    total_result_id is sum(resultId)
-    avg_result_id is avg(resultId)
-    max_result_id is max(resultId)
-    min_result_id is min(resultId)
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_driver_id is sum(driverId)
-    avg_driver_id is avg(driverId)
-    max_driver_id is max(driverId)
-    min_driver_id is min(driverId)
-    total_constructor_id is sum(constructorId)
-    avg_constructor_id is avg(constructorId)
-    max_constructor_id is max(constructorId)
-    min_constructor_id is min(constructorId)
+    total_result_id is sum(result_id)
+    avg_result_id is avg(result_id)
+    max_result_id is max(result_id)
+    min_result_id is min(result_id)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
+    total_constructor_id is sum(constructor_id)
+    avg_constructor_id is avg(constructor_id)
+    max_constructor_id is max(constructor_id)
+    min_constructor_id is min(constructor_id)
     total_grid is sum(grid)
     avg_grid is avg(grid)
     max_grid is max(grid)
     min_grid is min(grid)
-    total_position_order is sum(positionOrder)
-    avg_position_order is avg(positionOrder)
-    max_position_order is max(positionOrder)
-    min_position_order is min(positionOrder)
+    total_position_order is sum(position_order)
+    avg_position_order is avg(position_order)
+    max_position_order is max(position_order)
+    min_position_order is min(position_order)
     total_points is sum(points)
     avg_points is avg(points)
     max_points is max(points)
     min_points is min(points)
-    total_status_id is sum(statusId)
-    avg_status_id is avg(statusId)
-    max_status_id is max(statusId)
-    min_status_id is min(statusId)
+    total_status_id is sum(status_id)
+    avg_status_id is avg(status_id)
+    max_status_id is max(status_id)
+    min_status_id is min(status_id)
 }
 
 // driverStandings
 source: driver_standings is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'driverStandings')
 """) extend {
-  primary_key: driverStandingsId
-
-  join_one: drivers on driverId = drivers.driverId
-  join_one: races on raceId = races.raceId
-
   dimension:
     driver_standings_id is driverStandingsId
     race_id is raceId
@@ -257,20 +253,25 @@ source: driver_standings is duckdb.sql("""
     position_val is `position`
     position_text is positionText
 
+  primary_key: driver_standings_id
+
+  join_one: drivers on driver_id = drivers.driver_id
+  join_one: races on race_id = races.race_id
+
   measure:
     row_count is count()
-    total_driver_standings_id is sum(driverStandingsId)
-    avg_driver_standings_id is avg(driverStandingsId)
-    max_driver_standings_id is max(driverStandingsId)
-    min_driver_standings_id is min(driverStandingsId)
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_driver_id is sum(driverId)
-    avg_driver_id is avg(driverId)
-    max_driver_id is max(driverId)
-    min_driver_id is min(driverId)
+    total_driver_standings_id is sum(driver_standings_id)
+    avg_driver_standings_id is avg(driver_standings_id)
+    max_driver_standings_id is max(driver_standings_id)
+    min_driver_standings_id is min(driver_standings_id)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
     total_points is sum(points)
     avg_points is avg(points)
     max_points is max(points)
@@ -285,30 +286,30 @@ source: driver_standings is duckdb.sql("""
 source: constructor_results is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'constructorResults')
 """) extend {
-  primary_key: constructorResultsId
-
-  join_one: races on raceId = races.raceId
-  join_one: constructors on constructorId = constructors.constructorId
-
   dimension:
     constructor_results_id is constructorResultsId
     race_id is raceId
     constructor_id is constructorId
 
+  primary_key: constructor_results_id
+
+  join_one: races on race_id = races.race_id
+  join_one: constructors on constructor_id = constructors.constructor_id
+
   measure:
     row_count is count()
-    total_constructor_results_id is sum(constructorResultsId)
-    avg_constructor_results_id is avg(constructorResultsId)
-    max_constructor_results_id is max(constructorResultsId)
-    min_constructor_results_id is min(constructorResultsId)
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_constructor_id is sum(constructorId)
-    avg_constructor_id is avg(constructorId)
-    max_constructor_id is max(constructorId)
-    min_constructor_id is min(constructorId)
+    total_constructor_results_id is sum(constructor_results_id)
+    avg_constructor_results_id is avg(constructor_results_id)
+    max_constructor_results_id is max(constructor_results_id)
+    min_constructor_results_id is min(constructor_results_id)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_constructor_id is sum(constructor_id)
+    avg_constructor_id is avg(constructor_id)
+    max_constructor_id is max(constructor_id)
+    min_constructor_id is min(constructor_id)
     total_points is sum(points)
     avg_points is avg(points)
     max_points is max(points)
@@ -319,12 +320,6 @@ source: constructor_results is duckdb.sql("""
 source: qualifying is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'qualifying')
 """) extend {
-  primary_key: qualifyId
-
-  join_one: drivers on driverId = drivers.driverId
-  join_one: races on raceId = races.raceId
-  join_one: constructors on constructorId = constructors.constructorId
-
   dimension:
     qualify_id is qualifyId
     race_id is raceId
@@ -333,50 +328,56 @@ source: qualifying is duckdb.sql("""
     number_val is `number`
     position_val is `position`
 
+  primary_key: qualify_id
+
+  join_one: drivers on driver_id = drivers.driver_id
+  join_one: races on race_id = races.race_id
+  join_one: constructors on constructor_id = constructors.constructor_id
+
   measure:
     row_count is count()
-    total_qualify_id is sum(qualifyId)
-    avg_qualify_id is avg(qualifyId)
-    max_qualify_id is max(qualifyId)
-    min_qualify_id is min(qualifyId)
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_driver_id is sum(driverId)
-    avg_driver_id is avg(driverId)
-    max_driver_id is max(driverId)
-    min_driver_id is min(driverId)
-    total_constructor_id is sum(constructorId)
-    avg_constructor_id is avg(constructorId)
-    max_constructor_id is max(constructorId)
-    min_constructor_id is min(constructorId)
+    total_qualify_id is sum(qualify_id)
+    avg_qualify_id is avg(qualify_id)
+    max_qualify_id is max(qualify_id)
+    min_qualify_id is min(qualify_id)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
+    total_constructor_id is sum(constructor_id)
+    avg_constructor_id is avg(constructor_id)
+    max_constructor_id is max(constructor_id)
+    min_constructor_id is min(constructor_id)
 }
 
 // pitStops
 source: pit_stops is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'pitStops')
 """) extend {
-  primary_key: raceId
-
-  join_one: drivers on driverId = drivers.driverId
-  join_one: races on raceId = races.raceId
-
   dimension:
     race_id is raceId
     driver_id is driverId
     time_val is `time`
 
+  primary_key: race_id
+
+  join_one: drivers on driver_id = drivers.driver_id
+  join_one: races on race_id = races.race_id
+
   measure:
     row_count is count()
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_driver_id is sum(driverId)
-    avg_driver_id is avg(driverId)
-    max_driver_id is max(driverId)
-    min_driver_id is min(driverId)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
     total_stop is sum(stop)
     avg_stop is avg(stop)
     max_stop is max(stop)
@@ -391,27 +392,27 @@ source: pit_stops is duckdb.sql("""
 source: lap_times is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/formula_1/formula_1.sqlite', 'lapTimes')
 """) extend {
-  primary_key: raceId
-
-  join_one: drivers on driverId = drivers.driverId
-  join_one: races on raceId = races.raceId
-
   dimension:
     race_id is raceId
     driver_id is driverId
     position_val is `position`
     time_val is `time`
 
+  primary_key: race_id
+
+  join_one: drivers on driver_id = drivers.driver_id
+  join_one: races on race_id = races.race_id
+
   measure:
     row_count is count()
-    total_race_id is sum(raceId)
-    avg_race_id is avg(raceId)
-    max_race_id is max(raceId)
-    min_race_id is min(raceId)
-    total_driver_id is sum(driverId)
-    avg_driver_id is avg(driverId)
-    max_driver_id is max(driverId)
-    min_driver_id is min(driverId)
+    total_race_id is sum(race_id)
+    avg_race_id is avg(race_id)
+    max_race_id is max(race_id)
+    min_race_id is min(race_id)
+    total_driver_id is sum(driver_id)
+    avg_driver_id is avg(driver_id)
+    max_driver_id is max(driver_id)
+    min_driver_id is min(driver_id)
     total_lap is sum(lap)
     avg_lap is avg(lap)
     max_lap is max(lap)

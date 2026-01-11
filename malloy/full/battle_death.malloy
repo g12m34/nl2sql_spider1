@@ -6,12 +6,12 @@
 source: battle is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'battle')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
     date_val is `date`
     result_val is `result`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -25,12 +25,12 @@ source: battle is duckdb.sql("""
 source: ship is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/battle_death/battle_death.sqlite', 'ship')
 """) extend {
+  dimension:
+    name_val is `name`
+
   primary_key: id
 
   join_one: battle on lost_in_battle = battle.id
-
-  dimension:
-    name_val is `name`
 
   measure:
     row_count is count()

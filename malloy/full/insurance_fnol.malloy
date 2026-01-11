@@ -6,160 +6,160 @@
 source: customers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Customers')
 """) extend {
-  primary_key: Customer_ID
-
   dimension:
     customer_i_d is Customer_ID
 
+  primary_key: customer_i_d
+
   measure:
     row_count is count()
-    total_customer_i_d is sum(Customer_ID)
-    avg_customer_i_d is avg(Customer_ID)
-    max_customer_i_d is max(Customer_ID)
-    min_customer_i_d is min(Customer_ID)
+    total_customer_i_d is sum(customer_i_d)
+    avg_customer_i_d is avg(customer_i_d)
+    max_customer_i_d is max(customer_i_d)
+    min_customer_i_d is min(customer_i_d)
 }
 
 // Services
 source: services is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Services')
 """) extend {
-  primary_key: Service_ID
-
   dimension:
     service_i_d is Service_ID
 
+  primary_key: service_i_d
+
   measure:
     row_count is count()
-    total_service_i_d is sum(Service_ID)
-    avg_service_i_d is avg(Service_ID)
-    max_service_i_d is max(Service_ID)
-    min_service_i_d is min(Service_ID)
+    total_service_i_d is sum(service_i_d)
+    avg_service_i_d is avg(service_i_d)
+    max_service_i_d is max(service_i_d)
+    min_service_i_d is min(service_i_d)
 }
 
 // Available_Policies
 source: available_policies is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Available_Policies')
 """) extend {
-  primary_key: Policy_ID
-
   dimension:
     policy_i_d is Policy_ID
 
+  primary_key: policy_i_d
+
   measure:
     row_count is count()
-    total_policy_i_d is sum(Policy_ID)
-    avg_policy_i_d is avg(Policy_ID)
-    max_policy_i_d is max(Policy_ID)
-    min_policy_i_d is min(Policy_ID)
+    total_policy_i_d is sum(policy_i_d)
+    avg_policy_i_d is avg(policy_i_d)
+    max_policy_i_d is max(policy_i_d)
+    min_policy_i_d is min(policy_i_d)
 }
 
 // Customers_Policies
 source: customers_policies is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Customers_Policies')
 """) extend {
-  primary_key: Customer_ID
-
-  join_one: available_policies on Policy_ID = available_policies.Policy_ID
-  join_one: customers on Customer_ID = customers.Customer_ID
-
   dimension:
     customer_i_d is Customer_ID
     policy_i_d is Policy_ID
 
+  primary_key: customer_i_d
+
+  join_one: available_policies on policy_i_d = available_policies.policy_i_d
+  join_one: customers on customer_i_d = customers.customer_i_d
+
   measure:
     row_count is count()
-    total_customer_i_d is sum(Customer_ID)
-    avg_customer_i_d is avg(Customer_ID)
-    max_customer_i_d is max(Customer_ID)
-    min_customer_i_d is min(Customer_ID)
-    total_policy_i_d is sum(Policy_ID)
-    avg_policy_i_d is avg(Policy_ID)
-    max_policy_i_d is max(Policy_ID)
-    min_policy_i_d is min(Policy_ID)
+    total_customer_i_d is sum(customer_i_d)
+    avg_customer_i_d is avg(customer_i_d)
+    max_customer_i_d is max(customer_i_d)
+    min_customer_i_d is min(customer_i_d)
+    total_policy_i_d is sum(policy_i_d)
+    avg_policy_i_d is avg(policy_i_d)
+    max_policy_i_d is max(policy_i_d)
+    min_policy_i_d is min(policy_i_d)
 }
 
 // First_Notification_of_Loss
 source: first_notification_of_loss is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'First_Notification_of_Loss')
 """) extend {
-  primary_key: FNOL_ID
-
-  join_one: customer_i_d_customers_policies is customers_policies on Customer_ID = customer_i_d_customers_policies.Customer_ID
-  join_one: policy_i_d_customers_policies is customers_policies on Policy_ID = policy_i_d_customers_policies.Policy_ID
-  join_one: services on Service_ID = services.Service_ID
-
   dimension:
     f_n_o_l_i_d is FNOL_ID
     customer_i_d is Customer_ID
     policy_i_d is Policy_ID
     service_i_d is Service_ID
 
+  primary_key: f_n_o_l_i_d
+
+  join_one: customer_i_d_customers_policies is customers_policies on customer_i_d = customer_i_d_customers_policies.customer_i_d
+  join_one: policy_i_d_customers_policies is customers_policies on policy_i_d = policy_i_d_customers_policies.policy_i_d
+  join_one: services on service_i_d = services.service_i_d
+
   measure:
     row_count is count()
-    total_f_n_o_l_i_d is sum(FNOL_ID)
-    avg_f_n_o_l_i_d is avg(FNOL_ID)
-    max_f_n_o_l_i_d is max(FNOL_ID)
-    min_f_n_o_l_i_d is min(FNOL_ID)
-    total_customer_i_d is sum(Customer_ID)
-    avg_customer_i_d is avg(Customer_ID)
-    max_customer_i_d is max(Customer_ID)
-    min_customer_i_d is min(Customer_ID)
-    total_policy_i_d is sum(Policy_ID)
-    avg_policy_i_d is avg(Policy_ID)
-    max_policy_i_d is max(Policy_ID)
-    min_policy_i_d is min(Policy_ID)
-    total_service_i_d is sum(Service_ID)
-    avg_service_i_d is avg(Service_ID)
-    max_service_i_d is max(Service_ID)
-    min_service_i_d is min(Service_ID)
+    total_f_n_o_l_i_d is sum(f_n_o_l_i_d)
+    avg_f_n_o_l_i_d is avg(f_n_o_l_i_d)
+    max_f_n_o_l_i_d is max(f_n_o_l_i_d)
+    min_f_n_o_l_i_d is min(f_n_o_l_i_d)
+    total_customer_i_d is sum(customer_i_d)
+    avg_customer_i_d is avg(customer_i_d)
+    max_customer_i_d is max(customer_i_d)
+    min_customer_i_d is min(customer_i_d)
+    total_policy_i_d is sum(policy_i_d)
+    avg_policy_i_d is avg(policy_i_d)
+    max_policy_i_d is max(policy_i_d)
+    min_policy_i_d is min(policy_i_d)
+    total_service_i_d is sum(service_i_d)
+    avg_service_i_d is avg(service_i_d)
+    max_service_i_d is max(service_i_d)
+    min_service_i_d is min(service_i_d)
 }
 
 // Claims
 source: claims is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Claims')
 """) extend {
-  primary_key: Claim_ID
-
-  join_one: first_notification_of_loss on FNOL_ID = first_notification_of_loss.FNOL_ID
-
   dimension:
     claim_i_d is Claim_ID
     f_n_o_l_i_d is FNOL_ID
 
+  primary_key: claim_i_d
+
+  join_one: first_notification_of_loss on f_n_o_l_i_d = first_notification_of_loss.f_n_o_l_i_d
+
   measure:
     row_count is count()
-    total_claim_i_d is sum(Claim_ID)
-    avg_claim_i_d is avg(Claim_ID)
-    max_claim_i_d is max(Claim_ID)
-    min_claim_i_d is min(Claim_ID)
-    total_f_n_o_l_i_d is sum(FNOL_ID)
-    avg_f_n_o_l_i_d is avg(FNOL_ID)
-    max_f_n_o_l_i_d is max(FNOL_ID)
-    min_f_n_o_l_i_d is min(FNOL_ID)
+    total_claim_i_d is sum(claim_i_d)
+    avg_claim_i_d is avg(claim_i_d)
+    max_claim_i_d is max(claim_i_d)
+    min_claim_i_d is min(claim_i_d)
+    total_f_n_o_l_i_d is sum(f_n_o_l_i_d)
+    avg_f_n_o_l_i_d is avg(f_n_o_l_i_d)
+    max_f_n_o_l_i_d is max(f_n_o_l_i_d)
+    min_f_n_o_l_i_d is min(f_n_o_l_i_d)
 }
 
 // Settlements
 source: settlements is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/insurance_fnol/insurance_fnol.sqlite', 'Settlements')
 """) extend {
-  primary_key: Settlement_ID
-
-  join_one: claims on Claim_ID = claims.Claim_ID
-
   dimension:
     settlement_i_d is Settlement_ID
     claim_i_d is Claim_ID
 
+  primary_key: settlement_i_d
+
+  join_one: claims on claim_i_d = claims.claim_i_d
+
   measure:
     row_count is count()
-    total_settlement_i_d is sum(Settlement_ID)
-    avg_settlement_i_d is avg(Settlement_ID)
-    max_settlement_i_d is max(Settlement_ID)
-    min_settlement_i_d is min(Settlement_ID)
-    total_claim_i_d is sum(Claim_ID)
-    avg_claim_i_d is avg(Claim_ID)
-    max_claim_i_d is max(Claim_ID)
-    min_claim_i_d is min(Claim_ID)
+    total_settlement_i_d is sum(settlement_i_d)
+    avg_settlement_i_d is avg(settlement_i_d)
+    max_settlement_i_d is max(settlement_i_d)
+    min_settlement_i_d is min(settlement_i_d)
+    total_claim_i_d is sum(claim_i_d)
+    avg_claim_i_d is avg(claim_i_d)
+    max_claim_i_d is max(claim_i_d)
+    min_claim_i_d is min(claim_i_d)
     total_settlement_amount is sum(Settlement_Amount)
     avg_settlement_amount is avg(Settlement_Amount)
     max_settlement_amount is max(Settlement_Amount)

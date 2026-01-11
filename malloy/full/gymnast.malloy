@@ -6,18 +6,18 @@
 source: people_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'people')
 """) extend {
-  primary_key: People_ID
-
   dimension:
     people_i_d is People_ID
     name_val is `Name`
 
+  primary_key: people_i_d
+
   measure:
     row_count is count()
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -32,19 +32,19 @@ source: people_val is duckdb.sql("""
 source: gymnast is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gymnast/gymnast.sqlite', 'gymnast')
 """) extend {
-  primary_key: Gymnast_ID
-
-  join_one: people_val on Gymnast_ID = people_val.People_ID
-
   dimension:
     gymnast_i_d is Gymnast_ID
 
+  primary_key: gymnast_i_d
+
+  join_one: people_val on gymnast_i_d = people_val.people_i_d
+
   measure:
     row_count is count()
-    total_gymnast_i_d is sum(Gymnast_ID)
-    avg_gymnast_i_d is avg(Gymnast_ID)
-    max_gymnast_i_d is max(Gymnast_ID)
-    min_gymnast_i_d is min(Gymnast_ID)
+    total_gymnast_i_d is sum(gymnast_i_d)
+    avg_gymnast_i_d is avg(gymnast_i_d)
+    max_gymnast_i_d is max(gymnast_i_d)
+    min_gymnast_i_d is min(gymnast_i_d)
     total_floor_exercise_points is sum(Floor_Exercise_Points)
     avg_floor_exercise_points is avg(Floor_Exercise_Points)
     max_floor_exercise_points is max(Floor_Exercise_Points)

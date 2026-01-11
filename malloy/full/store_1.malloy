@@ -6,10 +6,10 @@
 source: artists is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'artists')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -23,11 +23,11 @@ source: artists is duckdb.sql("""
 source: employees is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'employees')
 """) extend {
-  primary_key: id
-
-
   dimension:
     state_val is `state`
+
+  primary_key: id
+
 
   measure:
     row_count is count()
@@ -45,10 +45,10 @@ source: employees is duckdb.sql("""
 source: genres is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'genres')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -62,10 +62,10 @@ source: genres is duckdb.sql("""
 source: media_types is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'media_types')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -79,10 +79,10 @@ source: media_types is duckdb.sql("""
 source: playlists is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'playlists')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -116,12 +116,12 @@ source: albums is duckdb.sql("""
 source: customers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'customers')
 """) extend {
+  dimension:
+    state_val is `state`
+
   primary_key: id
 
   join_one: employees on support_rep_id = employees.id
-
-  dimension:
-    state_val is `state`
 
   measure:
     row_count is count()
@@ -139,14 +139,14 @@ source: customers is duckdb.sql("""
 source: tracks is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/store_1/store_1.sqlite', 'tracks')
 """) extend {
+  dimension:
+    name_val is `name`
+
   primary_key: id
 
   join_one: media_types on media_type_id = media_types.id
   join_one: genres on genre_id = genres.id
   join_one: albums on album_id = albums.id
-
-  dimension:
-    name_val is `name`
 
   measure:
     row_count is count()

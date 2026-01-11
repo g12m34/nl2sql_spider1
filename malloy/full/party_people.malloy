@@ -6,90 +6,90 @@
 source: region is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'region')
 """) extend {
-  primary_key: Region_ID
-
   dimension:
     region_i_d is Region_ID
     date_val is `Date`
 
+  primary_key: region_i_d
+
   measure:
     row_count is count()
-    total_region_i_d is sum(Region_ID)
-    avg_region_i_d is avg(Region_ID)
-    max_region_i_d is max(Region_ID)
-    min_region_i_d is min(Region_ID)
+    total_region_i_d is sum(region_i_d)
+    avg_region_i_d is avg(region_i_d)
+    max_region_i_d is max(region_i_d)
+    min_region_i_d is min(region_i_d)
 }
 
 // party
 source: party is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'party')
 """) extend {
-  primary_key: Party_ID
-
-  join_one: region on Region_ID = region.Region_ID
-
   dimension:
     party_i_d is Party_ID
     region_i_d is Region_ID
 
+  primary_key: party_i_d
+
+  join_one: region on region_i_d = region.region_i_d
+
   measure:
     row_count is count()
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
-    total_region_i_d is sum(Region_ID)
-    avg_region_i_d is avg(Region_ID)
-    max_region_i_d is max(Region_ID)
-    min_region_i_d is min(Region_ID)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
+    total_region_i_d is sum(region_i_d)
+    avg_region_i_d is avg(region_i_d)
+    max_region_i_d is max(region_i_d)
+    min_region_i_d is min(region_i_d)
 }
 
 // member
 source: member is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'member')
 """) extend {
-  primary_key: Member_ID
-
-  join_one: party on Party_ID = party.Party_ID
-
   dimension:
     member_i_d is Member_ID
     party_i_d is Party_ID
 
+  primary_key: member_i_d
+
+  join_one: party on party_i_d = party.party_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
 }
 
 // party_events
 source: party_events is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_people/party_people.sqlite', 'party_events')
 """) extend {
-  primary_key: Event_ID
-
-  join_one: member on Member_in_charge_ID = member.Member_ID
-  join_one: party on Party_ID = party.Party_ID
-
   dimension:
     event_i_d is Event_ID
     party_i_d is Party_ID
     member_in_charge_i_d is Member_in_charge_ID
 
+  primary_key: event_i_d
+
+  join_one: member on member_in_charge_i_d = member.member_i_d
+  join_one: party on party_i_d = party.party_i_d
+
   measure:
     row_count is count()
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
-    total_member_in_charge_i_d is sum(Member_in_charge_ID)
-    avg_member_in_charge_i_d is avg(Member_in_charge_ID)
-    max_member_in_charge_i_d is max(Member_in_charge_ID)
-    min_member_in_charge_i_d is min(Member_in_charge_ID)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
+    total_member_in_charge_i_d is sum(member_in_charge_i_d)
+    avg_member_in_charge_i_d is avg(member_in_charge_i_d)
+    max_member_in_charge_i_d is max(member_in_charge_i_d)
+    min_member_in_charge_i_d is min(member_in_charge_i_d)
 }

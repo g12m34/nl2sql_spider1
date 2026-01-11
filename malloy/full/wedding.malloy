@@ -6,18 +6,18 @@
 source: people_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wedding/wedding.sqlite', 'people')
 """) extend {
-  primary_key: People_ID
-
   dimension:
     people_i_d is People_ID
     name_val is `Name`
 
+  primary_key: people_i_d
+
   measure:
     row_count is count()
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -28,18 +28,18 @@ source: people_val is duckdb.sql("""
 source: church is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wedding/wedding.sqlite', 'church')
 """) extend {
-  primary_key: Church_ID
-
   dimension:
     church_i_d is Church_ID
     name_val is `Name`
 
+  primary_key: church_i_d
+
   measure:
     row_count is count()
-    total_church_i_d is sum(Church_ID)
-    avg_church_i_d is avg(Church_ID)
-    max_church_i_d is max(Church_ID)
-    min_church_i_d is min(Church_ID)
+    total_church_i_d is sum(church_i_d)
+    avg_church_i_d is avg(church_i_d)
+    max_church_i_d is max(church_i_d)
+    min_church_i_d is min(church_i_d)
     total_open_date is sum(Open_Date)
     avg_open_date is avg(Open_Date)
     max_open_date is max(Open_Date)
@@ -50,34 +50,34 @@ source: church is duckdb.sql("""
 source: wedding is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wedding/wedding.sqlite', 'wedding')
 """) extend {
-  primary_key: Church_ID
-
-  join_one: female_i_d_people_val is people_val on Female_ID = female_i_d_people_val.People_ID
-  join_one: male_i_d_people_val is people_val on Male_ID = male_i_d_people_val.People_ID
-  join_one: church on Church_ID = church.Church_ID
-
   dimension:
     church_i_d is Church_ID
     male_i_d is Male_ID
     female_i_d is Female_ID
     year_val is `Year`
 
+  primary_key: church_i_d
+
+  join_one: female_i_d_people_val is people_val on female_i_d = female_i_d_people_val.people_i_d
+  join_one: male_i_d_people_val is people_val on male_i_d = male_i_d_people_val.people_i_d
+  join_one: church on church_i_d = church.church_i_d
+
   measure:
     row_count is count()
-    total_church_i_d is sum(Church_ID)
-    avg_church_i_d is avg(Church_ID)
-    max_church_i_d is max(Church_ID)
-    min_church_i_d is min(Church_ID)
-    total_male_i_d is sum(Male_ID)
-    avg_male_i_d is avg(Male_ID)
-    max_male_i_d is max(Male_ID)
-    min_male_i_d is min(Male_ID)
-    total_female_i_d is sum(Female_ID)
-    avg_female_i_d is avg(Female_ID)
-    max_female_i_d is max(Female_ID)
-    min_female_i_d is min(Female_ID)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_church_i_d is sum(church_i_d)
+    avg_church_i_d is avg(church_i_d)
+    max_church_i_d is max(church_i_d)
+    min_church_i_d is min(church_i_d)
+    total_male_i_d is sum(male_i_d)
+    avg_male_i_d is avg(male_i_d)
+    max_male_i_d is max(male_i_d)
+    min_male_i_d is min(male_i_d)
+    total_female_i_d is sum(female_i_d)
+    avg_female_i_d is avg(female_i_d)
+    max_female_i_d is max(female_i_d)
+    min_female_i_d is min(female_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }

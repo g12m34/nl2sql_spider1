@@ -6,17 +6,17 @@
 source: shop is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'shop')
 """) extend {
-  primary_key: Shop_ID
-
   dimension:
     shop_i_d is Shop_ID
 
+  primary_key: shop_i_d
+
   measure:
     row_count is count()
-    total_shop_i_d is sum(Shop_ID)
-    avg_shop_i_d is avg(Shop_ID)
-    max_shop_i_d is max(Shop_ID)
-    min_shop_i_d is min(Shop_ID)
+    total_shop_i_d is sum(shop_i_d)
+    avg_shop_i_d is avg(shop_i_d)
+    max_shop_i_d is max(shop_i_d)
+    min_shop_i_d is min(shop_i_d)
     total_score is sum(Score)
     avg_score is avg(Score)
     max_score is max(Score)
@@ -27,18 +27,18 @@ source: shop is duckdb.sql("""
 source: member is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'member')
 """) extend {
-  primary_key: Member_ID
-
   dimension:
     member_i_d is Member_ID
     name_val is `Name`
 
+  primary_key: member_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -57,25 +57,25 @@ source: member is duckdb.sql("""
 source: happy_hour is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'happy_hour')
 """) extend {
-  primary_key: HH_ID
-
-  join_one: shop on Shop_ID = shop.Shop_ID
-
   dimension:
     h_h_i_d is HH_ID
     shop_i_d is Shop_ID
     month_val is `Month`
 
+  primary_key: h_h_i_d
+
+  join_one: shop on shop_i_d = shop.shop_i_d
+
   measure:
     row_count is count()
-    total_h_h_i_d is sum(HH_ID)
-    avg_h_h_i_d is avg(HH_ID)
-    max_h_h_i_d is max(HH_ID)
-    min_h_h_i_d is min(HH_ID)
-    total_shop_i_d is sum(Shop_ID)
-    avg_shop_i_d is avg(Shop_ID)
-    max_shop_i_d is max(Shop_ID)
-    min_shop_i_d is min(Shop_ID)
+    total_h_h_i_d is sum(h_h_i_d)
+    avg_h_h_i_d is avg(h_h_i_d)
+    max_h_h_i_d is max(h_h_i_d)
+    min_h_h_i_d is min(h_h_i_d)
+    total_shop_i_d is sum(shop_i_d)
+    avg_shop_i_d is avg(shop_i_d)
+    max_shop_i_d is max(shop_i_d)
+    min_shop_i_d is min(shop_i_d)
     total_num_of_shaff_in_charge is sum(Num_of_shaff_in_charge)
     avg_num_of_shaff_in_charge is avg(Num_of_shaff_in_charge)
     max_num_of_shaff_in_charge is max(Num_of_shaff_in_charge)
@@ -86,24 +86,24 @@ source: happy_hour is duckdb.sql("""
 source: happy_hour_member is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/coffee_shop/coffee_shop.sqlite', 'happy_hour_member')
 """) extend {
-  primary_key: HH_ID
-
-  join_one: member on Member_ID = member.Member_ID
-
   dimension:
     h_h_i_d is HH_ID
     member_i_d is Member_ID
 
+  primary_key: h_h_i_d
+
+  join_one: member on member_i_d = member.member_i_d
+
   measure:
     row_count is count()
-    total_h_h_i_d is sum(HH_ID)
-    avg_h_h_i_d is avg(HH_ID)
-    max_h_h_i_d is max(HH_ID)
-    min_h_h_i_d is min(HH_ID)
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
+    total_h_h_i_d is sum(h_h_i_d)
+    avg_h_h_i_d is avg(h_h_i_d)
+    max_h_h_i_d is max(h_h_i_d)
+    min_h_h_i_d is min(h_h_i_d)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
     total_total_amount is sum(Total_amount)
     avg_total_amount is avg(Total_amount)
     max_total_amount is max(Total_amount)

@@ -6,19 +6,19 @@
 source: mountain is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/climbing/climbing.sqlite', 'mountain')
 """) extend {
-  primary_key: Mountain_ID
-
   dimension:
     mountain_i_d is Mountain_ID
     name_val is `Name`
     range_val is `Range`
 
+  primary_key: mountain_i_d
+
   measure:
     row_count is count()
-    total_mountain_i_d is sum(Mountain_ID)
-    avg_mountain_i_d is avg(Mountain_ID)
-    max_mountain_i_d is max(Mountain_ID)
-    min_mountain_i_d is min(Mountain_ID)
+    total_mountain_i_d is sum(mountain_i_d)
+    avg_mountain_i_d is avg(mountain_i_d)
+    max_mountain_i_d is max(mountain_i_d)
+    min_mountain_i_d is min(mountain_i_d)
     total_height is sum(Height)
     avg_height is avg(Height)
     max_height is max(Height)
@@ -33,28 +33,28 @@ source: mountain is duckdb.sql("""
 source: climber is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/climbing/climbing.sqlite', 'climber')
 """) extend {
-  primary_key: Climber_ID
-
-  join_one: mountain on Mountain_ID = mountain.Mountain_ID
-
   dimension:
     climber_i_d is Climber_ID
     name_val is `Name`
     time_val is `Time`
     mountain_i_d is Mountain_ID
 
+  primary_key: climber_i_d
+
+  join_one: mountain on mountain_i_d = mountain.mountain_i_d
+
   measure:
     row_count is count()
-    total_climber_i_d is sum(Climber_ID)
-    avg_climber_i_d is avg(Climber_ID)
-    max_climber_i_d is max(Climber_ID)
-    min_climber_i_d is min(Climber_ID)
+    total_climber_i_d is sum(climber_i_d)
+    avg_climber_i_d is avg(climber_i_d)
+    max_climber_i_d is max(climber_i_d)
+    min_climber_i_d is min(climber_i_d)
     total_points is sum(Points)
     avg_points is avg(Points)
     max_points is max(Points)
     min_points is min(Points)
-    total_mountain_i_d is sum(Mountain_ID)
-    avg_mountain_i_d is avg(Mountain_ID)
-    max_mountain_i_d is max(Mountain_ID)
-    min_mountain_i_d is min(Mountain_ID)
+    total_mountain_i_d is sum(mountain_i_d)
+    avg_mountain_i_d is avg(mountain_i_d)
+    max_mountain_i_d is max(mountain_i_d)
+    min_mountain_i_d is min(mountain_i_d)
 }

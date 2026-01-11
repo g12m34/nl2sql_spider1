@@ -6,22 +6,22 @@
 source: festival_detail is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite', 'festival_detail')
 """) extend {
-  primary_key: Festival_ID
-
   dimension:
     festival_i_d is Festival_ID
     year_val is `Year`
 
+  primary_key: festival_i_d
+
   measure:
     row_count is count()
-    total_festival_i_d is sum(Festival_ID)
-    avg_festival_i_d is avg(Festival_ID)
-    max_festival_i_d is max(Festival_ID)
-    min_festival_i_d is min(Festival_ID)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_festival_i_d is sum(festival_i_d)
+    avg_festival_i_d is avg(festival_i_d)
+    max_festival_i_d is max(festival_i_d)
+    min_festival_i_d is min(festival_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
     total_num_of_audience is sum(Num_of_Audience)
     avg_num_of_audience is avg(Num_of_Audience)
     max_num_of_audience is max(Num_of_Audience)
@@ -32,43 +32,43 @@ source: festival_detail is duckdb.sql("""
 source: artwork is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite', 'artwork')
 """) extend {
-  primary_key: Artwork_ID
-
   dimension:
     artwork_i_d is Artwork_ID
     type_val is `Type`
     name_val is `Name`
 
+  primary_key: artwork_i_d
+
   measure:
     row_count is count()
-    total_artwork_i_d is sum(Artwork_ID)
-    avg_artwork_i_d is avg(Artwork_ID)
-    max_artwork_i_d is max(Artwork_ID)
-    min_artwork_i_d is min(Artwork_ID)
+    total_artwork_i_d is sum(artwork_i_d)
+    avg_artwork_i_d is avg(artwork_i_d)
+    max_artwork_i_d is max(artwork_i_d)
+    min_artwork_i_d is min(artwork_i_d)
 }
 
 // nomination
 source: nomination is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entertainment_awards/entertainment_awards.sqlite', 'nomination')
 """) extend {
-  primary_key: Artwork_ID
-
-  join_one: festival_detail on Festival_ID = festival_detail.Festival_ID
-  join_one: artwork on Artwork_ID = artwork.Artwork_ID
-
   dimension:
     artwork_i_d is Artwork_ID
     festival_i_d is Festival_ID
     result_val is `Result`
 
+  primary_key: artwork_i_d
+
+  join_one: festival_detail on festival_i_d = festival_detail.festival_i_d
+  join_one: artwork on artwork_i_d = artwork.artwork_i_d
+
   measure:
     row_count is count()
-    total_artwork_i_d is sum(Artwork_ID)
-    avg_artwork_i_d is avg(Artwork_ID)
-    max_artwork_i_d is max(Artwork_ID)
-    min_artwork_i_d is min(Artwork_ID)
-    total_festival_i_d is sum(Festival_ID)
-    avg_festival_i_d is avg(Festival_ID)
-    max_festival_i_d is max(Festival_ID)
-    min_festival_i_d is min(Festival_ID)
+    total_artwork_i_d is sum(artwork_i_d)
+    avg_artwork_i_d is avg(artwork_i_d)
+    max_artwork_i_d is max(artwork_i_d)
+    min_artwork_i_d is min(artwork_i_d)
+    total_festival_i_d is sum(festival_i_d)
+    avg_festival_i_d is avg(festival_i_d)
+    max_festival_i_d is max(festival_i_d)
+    min_festival_i_d is min(festival_i_d)
 }

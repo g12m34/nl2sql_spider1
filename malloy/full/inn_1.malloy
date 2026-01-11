@@ -6,8 +6,6 @@
 source: rooms is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/inn_1/inn_1.sqlite', 'Rooms')
 """) extend {
-  primary_key: RoomId
-
   dimension:
     room_id is RoomId
     room_name is roomName
@@ -15,30 +13,28 @@ source: rooms is duckdb.sql("""
     max_occupancy is maxOccupancy
     base_price is basePrice
 
+  primary_key: room_id
+
   measure:
     row_count is count()
     total_beds is sum(beds)
     avg_beds is avg(beds)
     max_beds is max(beds)
     min_beds is min(beds)
-    total_max_occupancy is sum(maxOccupancy)
-    avg_max_occupancy is avg(maxOccupancy)
-    max_max_occupancy is max(maxOccupancy)
-    min_max_occupancy is min(maxOccupancy)
-    total_base_price is sum(basePrice)
-    avg_base_price is avg(basePrice)
-    max_base_price is max(basePrice)
-    min_base_price is min(basePrice)
+    total_max_occupancy is sum(max_occupancy)
+    avg_max_occupancy is avg(max_occupancy)
+    max_max_occupancy is max(max_occupancy)
+    min_max_occupancy is min(max_occupancy)
+    total_base_price is sum(base_price)
+    avg_base_price is avg(base_price)
+    max_base_price is max(base_price)
+    min_base_price is min(base_price)
 }
 
 // Reservations
 source: reservations is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/inn_1/inn_1.sqlite', 'Reservations')
 """) extend {
-  primary_key: `Code`
-
-  join_one: rooms on Room = rooms.RoomId
-
   dimension:
     code_val is `Code`
     check_in is CheckIn
@@ -46,12 +42,16 @@ source: reservations is duckdb.sql("""
     last_name is LastName
     first_name is FirstName
 
+  primary_key: code_val
+
+  join_one: rooms on Room = rooms.room_id
+
   measure:
     row_count is count()
-    total_code_val is sum(`Code`)
-    avg_code_val is avg(`Code`)
-    max_code_val is max(`Code`)
-    min_code_val is min(`Code`)
+    total_code_val is sum(code_val)
+    avg_code_val is avg(code_val)
+    max_code_val is max(code_val)
+    min_code_val is min(code_val)
     total_rate is sum(Rate)
     avg_rate is avg(Rate)
     max_rate is max(Rate)

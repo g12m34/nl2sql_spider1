@@ -6,17 +6,17 @@
 source: party is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'party')
 """) extend {
-  primary_key: Party_ID
-
   dimension:
     party_i_d is Party_ID
 
+  primary_key: party_i_d
+
   measure:
     row_count is count()
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
     total_number_of_hosts is sum(Number_of_hosts)
     avg_number_of_hosts is avg(Number_of_hosts)
     max_number_of_hosts is max(Number_of_hosts)
@@ -27,41 +27,41 @@ source: party is duckdb.sql("""
 source: host is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'host')
 """) extend {
-  primary_key: Host_ID
-
   dimension:
     host_i_d is Host_ID
     name_val is `Name`
 
+  primary_key: host_i_d
+
   measure:
     row_count is count()
-    total_host_i_d is sum(Host_ID)
-    avg_host_i_d is avg(Host_ID)
-    max_host_i_d is max(Host_ID)
-    min_host_i_d is min(Host_ID)
+    total_host_i_d is sum(host_i_d)
+    avg_host_i_d is avg(host_i_d)
+    max_host_i_d is max(host_i_d)
+    min_host_i_d is min(host_i_d)
 }
 
 // party_host
 source: party_host is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/party_host/party_host.sqlite', 'party_host')
 """) extend {
-  primary_key: Party_ID
-
-  join_one: party on Party_ID = party.Party_ID
-  join_one: host on Host_ID = host.Host_ID
-
   dimension:
     party_i_d is Party_ID
     host_i_d is Host_ID
 
+  primary_key: party_i_d
+
+  join_one: party on party_i_d = party.party_i_d
+  join_one: host on host_i_d = host.host_i_d
+
   measure:
     row_count is count()
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
-    total_host_i_d is sum(Host_ID)
-    avg_host_i_d is avg(Host_ID)
-    max_host_i_d is max(Host_ID)
-    min_host_i_d is min(Host_ID)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
+    total_host_i_d is sum(host_i_d)
+    avg_host_i_d is avg(host_i_d)
+    max_host_i_d is max(host_i_d)
+    min_host_i_d is min(host_i_d)
 }

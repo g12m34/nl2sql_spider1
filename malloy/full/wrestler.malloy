@@ -6,32 +6,32 @@
 source: wrestler is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wrestler/wrestler.sqlite', 'wrestler')
 """) extend {
-  primary_key: Wrestler_ID
-
   dimension:
     wrestler_i_d is Wrestler_ID
     name_val is `Name`
 
+  primary_key: wrestler_i_d
+
   measure:
     row_count is count()
-    total_wrestler_i_d is sum(Wrestler_ID)
-    avg_wrestler_i_d is avg(Wrestler_ID)
-    max_wrestler_i_d is max(Wrestler_ID)
-    min_wrestler_i_d is min(Wrestler_ID)
+    total_wrestler_i_d is sum(wrestler_i_d)
+    avg_wrestler_i_d is avg(wrestler_i_d)
+    max_wrestler_i_d is max(wrestler_i_d)
+    min_wrestler_i_d is min(wrestler_i_d)
 }
 
 // Elimination
 source: elimination is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/wrestler/wrestler.sqlite', 'Elimination')
 """) extend {
-  primary_key: Elimination_ID
-
-  join_one: wrestler on Wrestler_ID = wrestler.Wrestler_ID
-
   dimension:
     elimination_i_d is Elimination_ID
     wrestler_i_d is Wrestler_ID
     time_val is `Time`
+
+  primary_key: elimination_i_d
+
+  join_one: wrestler on wrestler_i_d = wrestler.wrestler_i_d
 
   measure:
     row_count is count()

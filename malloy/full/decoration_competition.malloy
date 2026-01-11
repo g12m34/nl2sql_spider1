@@ -6,67 +6,67 @@
 source: college is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite', 'college')
 """) extend {
-  primary_key: College_ID
-
   dimension:
     college_i_d is College_ID
     name_val is `Name`
 
+  primary_key: college_i_d
+
   measure:
     row_count is count()
-    total_college_i_d is sum(College_ID)
-    avg_college_i_d is avg(College_ID)
-    max_college_i_d is max(College_ID)
-    min_college_i_d is min(College_ID)
+    total_college_i_d is sum(college_i_d)
+    avg_college_i_d is avg(college_i_d)
+    max_college_i_d is max(college_i_d)
+    min_college_i_d is min(college_i_d)
 }
 
 // member
 source: member is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite', 'member')
 """) extend {
-  primary_key: Member_ID
-
-  join_one: college on College_ID = college.College_ID
-
   dimension:
     member_i_d is Member_ID
     name_val is `Name`
     college_i_d is College_ID
 
+  primary_key: member_i_d
+
+  join_one: college on college_i_d = college.college_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
-    total_college_i_d is sum(College_ID)
-    avg_college_i_d is avg(College_ID)
-    max_college_i_d is max(College_ID)
-    min_college_i_d is min(College_ID)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
+    total_college_i_d is sum(college_i_d)
+    avg_college_i_d is avg(college_i_d)
+    max_college_i_d is max(college_i_d)
+    min_college_i_d is min(college_i_d)
 }
 
 // round
 source: round_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/decoration_competition/decoration_competition.sqlite', 'round')
 """) extend {
-  primary_key: Member_ID
-
-  join_one: member on Member_ID = member.Member_ID
-
   dimension:
     round_i_d is Round_ID
     member_i_d is Member_ID
 
+  primary_key: member_i_d
+
+  join_one: member on member_i_d = member.member_i_d
+
   measure:
     row_count is count()
-    total_round_i_d is sum(Round_ID)
-    avg_round_i_d is avg(Round_ID)
-    max_round_i_d is max(Round_ID)
-    min_round_i_d is min(Round_ID)
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
+    total_round_i_d is sum(round_i_d)
+    avg_round_i_d is avg(round_i_d)
+    max_round_i_d is max(round_i_d)
+    min_round_i_d is min(round_i_d)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
     total_rank_in_round is sum(Rank_in_Round)
     avg_rank_in_round is avg(Rank_in_Round)
     max_rank_in_round is max(Rank_in_Round)

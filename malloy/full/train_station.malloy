@@ -6,18 +6,18 @@
 source: station is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/train_station/train_station.sqlite', 'station')
 """) extend {
-  primary_key: Station_ID
-
   dimension:
     station_i_d is Station_ID
     name_val is `Name`
 
+  primary_key: station_i_d
+
   measure:
     row_count is count()
-    total_station_i_d is sum(Station_ID)
-    avg_station_i_d is avg(Station_ID)
-    max_station_i_d is max(Station_ID)
-    min_station_i_d is min(Station_ID)
+    total_station_i_d is sum(station_i_d)
+    avg_station_i_d is avg(station_i_d)
+    max_station_i_d is max(station_i_d)
+    min_station_i_d is min(station_i_d)
     total_annual_entry_exit is sum(Annual_entry_exit)
     avg_annual_entry_exit is avg(Annual_entry_exit)
     max_annual_entry_exit is max(Annual_entry_exit)
@@ -40,42 +40,42 @@ source: station is duckdb.sql("""
 source: train is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/train_station/train_station.sqlite', 'train')
 """) extend {
-  primary_key: Train_ID
-
   dimension:
     train_i_d is Train_ID
     name_val is `Name`
     time_val is `Time`
 
+  primary_key: train_i_d
+
   measure:
     row_count is count()
-    total_train_i_d is sum(Train_ID)
-    avg_train_i_d is avg(Train_ID)
-    max_train_i_d is max(Train_ID)
-    min_train_i_d is min(Train_ID)
+    total_train_i_d is sum(train_i_d)
+    avg_train_i_d is avg(train_i_d)
+    max_train_i_d is max(train_i_d)
+    min_train_i_d is min(train_i_d)
 }
 
 // train_station
 source: train_station is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/train_station/train_station.sqlite', 'train_station')
 """) extend {
-  primary_key: Train_ID
-
-  join_one: station on Station_ID = station.Station_ID
-  join_one: train on Train_ID = train.Train_ID
-
   dimension:
     train_i_d is Train_ID
     station_i_d is Station_ID
 
+  primary_key: train_i_d
+
+  join_one: station on station_i_d = station.station_i_d
+  join_one: train on train_i_d = train.train_i_d
+
   measure:
     row_count is count()
-    total_train_i_d is sum(Train_ID)
-    avg_train_i_d is avg(Train_ID)
-    max_train_i_d is max(Train_ID)
-    min_train_i_d is min(Train_ID)
-    total_station_i_d is sum(Station_ID)
-    avg_station_i_d is avg(Station_ID)
-    max_station_i_d is max(Station_ID)
-    min_station_i_d is min(Station_ID)
+    total_train_i_d is sum(train_i_d)
+    avg_train_i_d is avg(train_i_d)
+    max_train_i_d is max(train_i_d)
+    min_train_i_d is min(train_i_d)
+    total_station_i_d is sum(station_i_d)
+    avg_station_i_d is avg(station_i_d)
+    max_station_i_d is max(station_i_d)
+    min_station_i_d is min(station_i_d)
 }

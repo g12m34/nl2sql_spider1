@@ -6,19 +6,19 @@
 source: ship is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'ship')
 """) extend {
-  primary_key: Ship_ID
-
   dimension:
     ship_i_d is Ship_ID
     name_val is `Name`
     type_val is `Type`
 
+  primary_key: ship_i_d
+
   measure:
     row_count is count()
-    total_ship_i_d is sum(Ship_ID)
-    avg_ship_i_d is avg(Ship_ID)
-    max_ship_i_d is max(Ship_ID)
-    min_ship_i_d is min(Ship_ID)
+    total_ship_i_d is sum(ship_i_d)
+    avg_ship_i_d is avg(ship_i_d)
+    max_ship_i_d is max(ship_i_d)
+    min_ship_i_d is min(ship_i_d)
     total_tonnage is sum(Tonnage)
     avg_tonnage is avg(Tonnage)
     max_tonnage is max(Tonnage)
@@ -29,25 +29,25 @@ source: ship is duckdb.sql("""
 source: mission is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/ship_mission/ship_mission.sqlite', 'mission')
 """) extend {
-  primary_key: Mission_ID
-
-  join_one: ship on Ship_ID = ship.Ship_ID
-
   dimension:
     mission_i_d is Mission_ID
     ship_i_d is Ship_ID
     code_val is `Code`
 
+  primary_key: mission_i_d
+
+  join_one: ship on ship_i_d = ship.ship_i_d
+
   measure:
     row_count is count()
-    total_mission_i_d is sum(Mission_ID)
-    avg_mission_i_d is avg(Mission_ID)
-    max_mission_i_d is max(Mission_ID)
-    min_mission_i_d is min(Mission_ID)
-    total_ship_i_d is sum(Ship_ID)
-    avg_ship_i_d is avg(Ship_ID)
-    max_ship_i_d is max(Ship_ID)
-    min_ship_i_d is min(Ship_ID)
+    total_mission_i_d is sum(mission_i_d)
+    avg_mission_i_d is avg(mission_i_d)
+    max_mission_i_d is max(mission_i_d)
+    min_mission_i_d is min(mission_i_d)
+    total_ship_i_d is sum(ship_i_d)
+    avg_ship_i_d is avg(ship_i_d)
+    max_ship_i_d is max(ship_i_d)
+    min_ship_i_d is min(ship_i_d)
     total_launched_year is sum(Launched_Year)
     avg_launched_year is avg(Launched_Year)
     max_launched_year is max(Launched_Year)

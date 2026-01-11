@@ -6,19 +6,19 @@
 source: swimmer is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'swimmer')
 """) extend {
-  primary_key: ID
-
   dimension:
     i_d is ID
     name_val is `name`
     time_val is `Time`
 
+  primary_key: i_d
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
     total_meter_100 is sum(meter_100)
     avg_meter_100 is avg(meter_100)
     max_meter_100 is max(meter_100)
@@ -29,18 +29,18 @@ source: swimmer is duckdb.sql("""
 source: stadium is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'stadium')
 """) extend {
-  primary_key: ID
-
   dimension:
     i_d is ID
     name_val is `name`
 
+  primary_key: i_d
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
     total_capacity is sum(Capacity)
     avg_capacity is avg(Capacity)
     max_capacity is max(Capacity)
@@ -55,55 +55,55 @@ source: stadium is duckdb.sql("""
 source: event is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'event')
 """) extend {
-  primary_key: ID
-
-  join_one: stadium on Stadium_ID = stadium.ID
-
   dimension:
     i_d is ID
     name_val is `Name`
     stadium_i_d is Stadium_ID
     year_val is `Year`
 
+  primary_key: i_d
+
+  join_one: stadium on stadium_i_d = stadium.i_d
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
-    total_stadium_i_d is sum(Stadium_ID)
-    avg_stadium_i_d is avg(Stadium_ID)
-    max_stadium_i_d is max(Stadium_ID)
-    min_stadium_i_d is min(Stadium_ID)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
+    total_stadium_i_d is sum(stadium_i_d)
+    avg_stadium_i_d is avg(stadium_i_d)
+    max_stadium_i_d is max(stadium_i_d)
+    min_stadium_i_d is min(stadium_i_d)
 }
 
 // record
 source: record is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/swimming/swimming.sqlite', 'record')
 """) extend {
-  primary_key: Swimmer_ID
-
-  join_one: swimmer on Swimmer_ID = swimmer.ID
-  join_one: event on Event_ID = event.ID
-
   dimension:
     i_d is ID
     result_val is `Result`
     swimmer_i_d is Swimmer_ID
     event_i_d is Event_ID
 
+  primary_key: swimmer_i_d
+
+  join_one: swimmer on swimmer_i_d = swimmer.i_d
+  join_one: event on event_i_d = event.i_d
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
-    total_swimmer_i_d is sum(Swimmer_ID)
-    avg_swimmer_i_d is avg(Swimmer_ID)
-    max_swimmer_i_d is max(Swimmer_ID)
-    min_swimmer_i_d is min(Swimmer_ID)
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
+    total_swimmer_i_d is sum(swimmer_i_d)
+    avg_swimmer_i_d is avg(swimmer_i_d)
+    max_swimmer_i_d is max(swimmer_i_d)
+    min_swimmer_i_d is min(swimmer_i_d)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
 }

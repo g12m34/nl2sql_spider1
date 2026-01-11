@@ -6,123 +6,118 @@
 source: venue is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'venue')
 """) extend {
-  primary_key: venueId
-
   dimension:
     venue_id is venueId
     venue_name is venueName
 
+  primary_key: venue_id
+
   measure:
     row_count is count()
-    total_venue_id is sum(venueId)
-    avg_venue_id is avg(venueId)
-    max_venue_id is max(venueId)
-    min_venue_id is min(venueId)
+    total_venue_id is sum(venue_id)
+    avg_venue_id is avg(venue_id)
+    max_venue_id is max(venue_id)
+    min_venue_id is min(venue_id)
 }
 
 // author
 source: author is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'author')
 """) extend {
-  primary_key: authorId
-
   dimension:
     author_id is authorId
     author_name is authorName
 
+  primary_key: author_id
+
   measure:
     row_count is count()
-    total_author_id is sum(authorId)
-    avg_author_id is avg(authorId)
-    max_author_id is max(authorId)
-    min_author_id is min(authorId)
+    total_author_id is sum(author_id)
+    avg_author_id is avg(author_id)
+    max_author_id is max(author_id)
+    min_author_id is min(author_id)
 }
 
 // dataset
 source: dataset is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'dataset')
 """) extend {
-  primary_key: datasetId
-
   dimension:
     dataset_id is datasetId
     dataset_name is datasetName
 
+  primary_key: dataset_id
+
   measure:
     row_count is count()
-    total_dataset_id is sum(datasetId)
-    avg_dataset_id is avg(datasetId)
-    max_dataset_id is max(datasetId)
-    min_dataset_id is min(datasetId)
+    total_dataset_id is sum(dataset_id)
+    avg_dataset_id is avg(dataset_id)
+    max_dataset_id is max(dataset_id)
+    min_dataset_id is min(dataset_id)
 }
 
 // journal
 source: journal is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'journal')
 """) extend {
-  primary_key: journalId
-
   dimension:
     journal_id is journalId
     journal_name is journalName
 
+  primary_key: journal_id
+
   measure:
     row_count is count()
-    total_journal_id is sum(journalId)
-    avg_journal_id is avg(journalId)
-    max_journal_id is max(journalId)
-    min_journal_id is min(journalId)
+    total_journal_id is sum(journal_id)
+    avg_journal_id is avg(journal_id)
+    max_journal_id is max(journal_id)
+    min_journal_id is min(journal_id)
 }
 
 // keyphrase
 source: keyphrase is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'keyphrase')
 """) extend {
-  primary_key: keyphraseId
-
   dimension:
     keyphrase_id is keyphraseId
     keyphrase_name is keyphraseName
 
+  primary_key: keyphrase_id
+
   measure:
     row_count is count()
-    total_keyphrase_id is sum(keyphraseId)
-    avg_keyphrase_id is avg(keyphraseId)
-    max_keyphrase_id is max(keyphraseId)
-    min_keyphrase_id is min(keyphraseId)
+    total_keyphrase_id is sum(keyphrase_id)
+    avg_keyphrase_id is avg(keyphrase_id)
+    max_keyphrase_id is max(keyphrase_id)
+    min_keyphrase_id is min(keyphrase_id)
 }
 
 // paperDataset
 source: paper_dataset is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperDataset')
 """) extend {
-  primary_key: datasetId
-
   dimension:
     paper_id is paperId
     dataset_id is datasetId
 
+  primary_key: dataset_id
+
   measure:
     row_count is count()
-    total_paper_id is sum(paperId)
-    avg_paper_id is avg(paperId)
-    max_paper_id is max(paperId)
-    min_paper_id is min(paperId)
-    total_dataset_id is sum(datasetId)
-    avg_dataset_id is avg(datasetId)
-    max_dataset_id is max(datasetId)
-    min_dataset_id is min(datasetId)
+    total_paper_id is sum(paper_id)
+    avg_paper_id is avg(paper_id)
+    max_paper_id is max(paper_id)
+    min_paper_id is min(paper_id)
+    total_dataset_id is sum(dataset_id)
+    avg_dataset_id is avg(dataset_id)
+    max_dataset_id is max(dataset_id)
+    min_dataset_id is min(dataset_id)
 }
 
 // paper
 source: paper is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paper')
 """) extend {
-  primary_key: paperId
-
-  join_one: venue on venueId = venue.venueId
-  join_one: journal on journalId = journal.journalId
-
   dimension:
     paper_id is paperId
     venue_id is venueId
@@ -131,105 +126,110 @@ source: paper is duckdb.sql("""
     num_cited_by is numCitedBy
     journal_id is journalId
 
+  primary_key: paper_id
+
+  join_one: venue on venue_id = venue.venue_id
+  join_one: journal on journal_id = journal.journal_id
+
   measure:
     row_count is count()
-    total_paper_id is sum(paperId)
-    avg_paper_id is avg(paperId)
-    max_paper_id is max(paperId)
-    min_paper_id is min(paperId)
-    total_venue_id is sum(venueId)
-    avg_venue_id is avg(venueId)
-    max_venue_id is max(venueId)
-    min_venue_id is min(venueId)
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
-    total_num_citing is sum(numCiting)
-    avg_num_citing is avg(numCiting)
-    max_num_citing is max(numCiting)
-    min_num_citing is min(numCiting)
-    total_num_cited_by is sum(numCitedBy)
-    avg_num_cited_by is avg(numCitedBy)
-    max_num_cited_by is max(numCitedBy)
-    min_num_cited_by is min(numCitedBy)
-    total_journal_id is sum(journalId)
-    avg_journal_id is avg(journalId)
-    max_journal_id is max(journalId)
-    min_journal_id is min(journalId)
+    total_paper_id is sum(paper_id)
+    avg_paper_id is avg(paper_id)
+    max_paper_id is max(paper_id)
+    min_paper_id is min(paper_id)
+    total_venue_id is sum(venue_id)
+    avg_venue_id is avg(venue_id)
+    max_venue_id is max(venue_id)
+    min_venue_id is min(venue_id)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_num_citing is sum(num_citing)
+    avg_num_citing is avg(num_citing)
+    max_num_citing is max(num_citing)
+    min_num_citing is min(num_citing)
+    total_num_cited_by is sum(num_cited_by)
+    avg_num_cited_by is avg(num_cited_by)
+    max_num_cited_by is max(num_cited_by)
+    min_num_cited_by is min(num_cited_by)
+    total_journal_id is sum(journal_id)
+    avg_journal_id is avg(journal_id)
+    max_journal_id is max(journal_id)
+    min_journal_id is min(journal_id)
 }
 
 // cite
 source: cite is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'cite')
 """) extend {
-  primary_key: citingPaperId
-
-  join_one: citing_paper_paper is paper on citingPaperId = citing_paper_paper.paperId
-  join_one: cited_paper_paper is paper on citedPaperId = cited_paper_paper.paperId
-
   dimension:
     citing_paper_id is citingPaperId
     cited_paper_id is citedPaperId
 
+  primary_key: citing_paper_id
+
+  join_one: citing_paper_paper is paper on citing_paper_id = citing_paper_paper.paper_id
+  join_one: cited_paper_paper is paper on cited_paper_id = cited_paper_paper.paper_id
+
   measure:
     row_count is count()
-    total_citing_paper_id is sum(citingPaperId)
-    avg_citing_paper_id is avg(citingPaperId)
-    max_citing_paper_id is max(citingPaperId)
-    min_citing_paper_id is min(citingPaperId)
-    total_cited_paper_id is sum(citedPaperId)
-    avg_cited_paper_id is avg(citedPaperId)
-    max_cited_paper_id is max(citedPaperId)
-    min_cited_paper_id is min(citedPaperId)
+    total_citing_paper_id is sum(citing_paper_id)
+    avg_citing_paper_id is avg(citing_paper_id)
+    max_citing_paper_id is max(citing_paper_id)
+    min_citing_paper_id is min(citing_paper_id)
+    total_cited_paper_id is sum(cited_paper_id)
+    avg_cited_paper_id is avg(cited_paper_id)
+    max_cited_paper_id is max(cited_paper_id)
+    min_cited_paper_id is min(cited_paper_id)
 }
 
 // paperKeyphrase
 source: paper_keyphrase is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'paperKeyphrase')
 """) extend {
-  primary_key: keyphraseId
-
-  join_one: keyphrase on keyphraseId = keyphrase.keyphraseId
-  join_one: paper on paperId = paper.paperId
-
   dimension:
     paper_id is paperId
     keyphrase_id is keyphraseId
 
+  primary_key: keyphrase_id
+
+  join_one: keyphrase on keyphrase_id = keyphrase.keyphrase_id
+  join_one: paper on paper_id = paper.paper_id
+
   measure:
     row_count is count()
-    total_paper_id is sum(paperId)
-    avg_paper_id is avg(paperId)
-    max_paper_id is max(paperId)
-    min_paper_id is min(paperId)
-    total_keyphrase_id is sum(keyphraseId)
-    avg_keyphrase_id is avg(keyphraseId)
-    max_keyphrase_id is max(keyphraseId)
-    min_keyphrase_id is min(keyphraseId)
+    total_paper_id is sum(paper_id)
+    avg_paper_id is avg(paper_id)
+    max_paper_id is max(paper_id)
+    min_paper_id is min(paper_id)
+    total_keyphrase_id is sum(keyphrase_id)
+    avg_keyphrase_id is avg(keyphrase_id)
+    max_keyphrase_id is max(keyphrase_id)
+    min_keyphrase_id is min(keyphrase_id)
 }
 
 // writes
 source: writes is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/scholar/scholar.sqlite', 'writes')
 """) extend {
-  primary_key: paperId
-
-  join_one: author on authorId = author.authorId
-  join_one: paper on paperId = paper.paperId
-
   dimension:
     paper_id is paperId
     author_id is authorId
 
+  primary_key: paper_id
+
+  join_one: author on author_id = author.author_id
+  join_one: paper on paper_id = paper.paper_id
+
   measure:
     row_count is count()
-    total_paper_id is sum(paperId)
-    avg_paper_id is avg(paperId)
-    max_paper_id is max(paperId)
-    min_paper_id is min(paperId)
-    total_author_id is sum(authorId)
-    avg_author_id is avg(authorId)
-    max_author_id is max(authorId)
-    min_author_id is min(authorId)
+    total_paper_id is sum(paper_id)
+    avg_paper_id is avg(paper_id)
+    max_paper_id is max(paper_id)
+    min_paper_id is min(paper_id)
+    total_author_id is sum(author_id)
+    avg_author_id is avg(author_id)
+    max_author_id is max(author_id)
+    min_author_id is min(author_id)
 }

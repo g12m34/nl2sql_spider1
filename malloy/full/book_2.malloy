@@ -6,17 +6,17 @@
 source: book is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/book_2/book_2.sqlite', 'book')
 """) extend {
-  primary_key: Book_ID
-
   dimension:
     book_i_d is Book_ID
 
+  primary_key: book_i_d
+
   measure:
     row_count is count()
-    total_book_i_d is sum(Book_ID)
-    avg_book_i_d is avg(Book_ID)
-    max_book_i_d is max(Book_ID)
-    min_book_i_d is min(Book_ID)
+    total_book_i_d is sum(book_i_d)
+    avg_book_i_d is avg(book_i_d)
+    max_book_i_d is max(book_i_d)
+    min_book_i_d is min(book_i_d)
     total_issues is sum(Issues)
     avg_issues is avg(Issues)
     max_issues is max(Issues)
@@ -27,24 +27,24 @@ source: book is duckdb.sql("""
 source: publication is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/book_2/book_2.sqlite', 'publication')
 """) extend {
-  primary_key: Publication_ID
-
-  join_one: book on Book_ID = book.Book_ID
-
   dimension:
     publication_i_d is Publication_ID
     book_i_d is Book_ID
 
+  primary_key: publication_i_d
+
+  join_one: book on book_i_d = book.book_i_d
+
   measure:
     row_count is count()
-    total_publication_i_d is sum(Publication_ID)
-    avg_publication_i_d is avg(Publication_ID)
-    max_publication_i_d is max(Publication_ID)
-    min_publication_i_d is min(Publication_ID)
-    total_book_i_d is sum(Book_ID)
-    avg_book_i_d is avg(Book_ID)
-    max_book_i_d is max(Book_ID)
-    min_book_i_d is min(Book_ID)
+    total_publication_i_d is sum(publication_i_d)
+    avg_publication_i_d is avg(publication_i_d)
+    max_publication_i_d is max(publication_i_d)
+    min_publication_i_d is min(publication_i_d)
+    total_book_i_d is sum(book_i_d)
+    avg_book_i_d is avg(book_i_d)
+    max_book_i_d is max(book_i_d)
+    min_book_i_d is min(book_i_d)
     total_price is sum(Price)
     avg_price is avg(Price)
     max_price is max(Price)

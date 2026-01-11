@@ -20,10 +20,10 @@ source: staff_val is duckdb.sql("""
 source: customers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/customer_complaints/customer_complaints.sqlite', 'Customers')
 """) extend {
-  primary_key: customer_id
-
   dimension:
     state_val is `state`
+
+  primary_key: customer_id
 
   measure:
     row_count is count()

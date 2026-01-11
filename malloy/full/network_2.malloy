@@ -6,10 +6,10 @@
 source: person_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_2/network_2.sqlite', 'Person')
 """) extend {
-  primary_key: `name`
-
   dimension:
     name_val is `name`
+
+  primary_key: name_val
 
   measure:
     row_count is count()
@@ -23,17 +23,17 @@ source: person_val is duckdb.sql("""
 source: person_friend is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/network_2/network_2.sqlite', 'PersonFriend')
 """) extend {
-  join_one: friend_person_val is person_val on friend = friend_person_val.`name`
-  join_one: name_person_val is person_val on `name` = name_person_val.`name`
-
   dimension:
     name_val is `name`
     year_val is `year`
 
+  join_one: friend_person_val is person_val on friend = friend_person_val.name_val
+  join_one: name_person_val is person_val on name_val = name_person_val.name_val
+
   measure:
     row_count is count()
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }

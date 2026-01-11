@@ -6,18 +6,18 @@
 source: people_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/candidate_poll/candidate_poll.sqlite', 'people')
 """) extend {
-  primary_key: People_ID
-
   dimension:
     people_i_d is People_ID
     name_val is `Name`
 
+  primary_key: people_i_d
+
   measure:
     row_count is count()
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_height is sum(Height)
     avg_height is avg(Height)
     max_height is max(Height)
@@ -32,25 +32,25 @@ source: people_val is duckdb.sql("""
 source: candidate is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/candidate_poll/candidate_poll.sqlite', 'candidate')
 """) extend {
-  primary_key: Candidate_ID
-
-  join_one: people_val on People_ID = people_val.People_ID
-
   dimension:
     candidate_i_d is Candidate_ID
     people_i_d is People_ID
     date_val is `Date`
 
+  primary_key: candidate_i_d
+
+  join_one: people_val on people_i_d = people_val.people_i_d
+
   measure:
     row_count is count()
-    total_candidate_i_d is sum(Candidate_ID)
-    avg_candidate_i_d is avg(Candidate_ID)
-    max_candidate_i_d is max(Candidate_ID)
-    min_candidate_i_d is min(Candidate_ID)
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_candidate_i_d is sum(candidate_i_d)
+    avg_candidate_i_d is avg(candidate_i_d)
+    max_candidate_i_d is max(candidate_i_d)
+    min_candidate_i_d is min(candidate_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_support_rate is sum(Support_rate)
     avg_support_rate is avg(Support_rate)
     max_support_rate is max(Support_rate)

@@ -6,17 +6,17 @@
 source: film is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'film')
 """) extend {
-  primary_key: Film_ID
-
   dimension:
     film_i_d is Film_ID
 
+  primary_key: film_i_d
+
   measure:
     row_count is count()
-    total_film_i_d is sum(Film_ID)
-    avg_film_i_d is avg(Film_ID)
-    max_film_i_d is max(Film_ID)
-    min_film_i_d is min(Film_ID)
+    total_film_i_d is sum(film_i_d)
+    avg_film_i_d is avg(film_i_d)
+    max_film_i_d is max(film_i_d)
+    min_film_i_d is min(film_i_d)
     total_rank_in_series is sum(Rank_in_series)
     avg_rank_in_series is avg(Rank_in_series)
     max_rank_in_series is max(Rank_in_series)
@@ -31,18 +31,18 @@ source: film is duckdb.sql("""
 source: cinema is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'cinema')
 """) extend {
-  primary_key: Cinema_ID
-
   dimension:
     cinema_i_d is Cinema_ID
     name_val is `Name`
 
+  primary_key: cinema_i_d
+
   measure:
     row_count is count()
-    total_cinema_i_d is sum(Cinema_ID)
-    avg_cinema_i_d is avg(Cinema_ID)
-    max_cinema_i_d is max(Cinema_ID)
-    min_cinema_i_d is min(Cinema_ID)
+    total_cinema_i_d is sum(cinema_i_d)
+    avg_cinema_i_d is avg(cinema_i_d)
+    max_cinema_i_d is max(cinema_i_d)
+    min_cinema_i_d is min(cinema_i_d)
     total_openning_year is sum(Openning_year)
     avg_openning_year is avg(Openning_year)
     max_openning_year is max(Openning_year)
@@ -57,26 +57,26 @@ source: cinema is duckdb.sql("""
 source: schedule is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cinema/cinema.sqlite', 'schedule')
 """) extend {
-  primary_key: Cinema_ID
-
-  join_one: cinema on Cinema_ID = cinema.Cinema_ID
-  join_one: film on Film_ID = film.Film_ID
-
   dimension:
     cinema_i_d is Cinema_ID
     film_i_d is Film_ID
     date_val is `Date`
 
+  primary_key: cinema_i_d
+
+  join_one: cinema on cinema_i_d = cinema.cinema_i_d
+  join_one: film on film_i_d = film.film_i_d
+
   measure:
     row_count is count()
-    total_cinema_i_d is sum(Cinema_ID)
-    avg_cinema_i_d is avg(Cinema_ID)
-    max_cinema_i_d is max(Cinema_ID)
-    min_cinema_i_d is min(Cinema_ID)
-    total_film_i_d is sum(Film_ID)
-    avg_film_i_d is avg(Film_ID)
-    max_film_i_d is max(Film_ID)
-    min_film_i_d is min(Film_ID)
+    total_cinema_i_d is sum(cinema_i_d)
+    avg_cinema_i_d is avg(cinema_i_d)
+    max_cinema_i_d is max(cinema_i_d)
+    min_cinema_i_d is min(cinema_i_d)
+    total_film_i_d is sum(film_i_d)
+    avg_film_i_d is avg(film_i_d)
+    max_film_i_d is max(film_i_d)
+    min_film_i_d is min(film_i_d)
     total_show_times_per_day is sum(Show_times_per_day)
     avg_show_times_per_day is avg(Show_times_per_day)
     max_show_times_per_day is max(Show_times_per_day)

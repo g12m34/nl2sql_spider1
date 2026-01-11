@@ -6,18 +6,18 @@
 source: driver is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'driver')
 """) extend {
-  primary_key: Driver_ID
-
   dimension:
     driver_i_d is Driver_ID
     name_val is `Name`
 
+  primary_key: driver_i_d
+
   measure:
     row_count is count()
-    total_driver_i_d is sum(Driver_ID)
-    avg_driver_i_d is avg(Driver_ID)
-    max_driver_i_d is max(Driver_ID)
-    min_driver_i_d is min(Driver_ID)
+    total_driver_i_d is sum(driver_i_d)
+    avg_driver_i_d is avg(driver_i_d)
+    max_driver_i_d is max(driver_i_d)
+    min_driver_i_d is min(driver_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -28,43 +28,43 @@ source: driver is duckdb.sql("""
 source: school is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'school')
 """) extend {
-  primary_key: School_ID
-
   dimension:
     school_i_d is School_ID
     type_val is `Type`
 
+  primary_key: school_i_d
+
   measure:
     row_count is count()
-    total_school_i_d is sum(School_ID)
-    avg_school_i_d is avg(School_ID)
-    max_school_i_d is max(School_ID)
-    min_school_i_d is min(School_ID)
+    total_school_i_d is sum(school_i_d)
+    avg_school_i_d is avg(school_i_d)
+    max_school_i_d is max(school_i_d)
+    min_school_i_d is min(school_i_d)
 }
 
 // school_bus
 source: school_bus is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_bus/school_bus.sqlite', 'school_bus')
 """) extend {
-  primary_key: School_ID
-
-  join_one: driver on Driver_ID = driver.Driver_ID
-  join_one: school on School_ID = school.School_ID
-
   dimension:
     school_i_d is School_ID
     driver_i_d is Driver_ID
 
+  primary_key: school_i_d
+
+  join_one: driver on driver_i_d = driver.driver_i_d
+  join_one: school on school_i_d = school.school_i_d
+
   measure:
     row_count is count()
-    total_school_i_d is sum(School_ID)
-    avg_school_i_d is avg(School_ID)
-    max_school_i_d is max(School_ID)
-    min_school_i_d is min(School_ID)
-    total_driver_i_d is sum(Driver_ID)
-    avg_driver_i_d is avg(Driver_ID)
-    max_driver_i_d is max(Driver_ID)
-    min_driver_i_d is min(Driver_ID)
+    total_school_i_d is sum(school_i_d)
+    avg_school_i_d is avg(school_i_d)
+    max_school_i_d is max(school_i_d)
+    min_school_i_d is min(school_i_d)
+    total_driver_i_d is sum(driver_i_d)
+    avg_driver_i_d is avg(driver_i_d)
+    max_driver_i_d is max(driver_i_d)
+    min_driver_i_d is min(driver_i_d)
     total_years_working is sum(Years_Working)
     avg_years_working is avg(Years_Working)
     max_years_working is max(Years_Working)

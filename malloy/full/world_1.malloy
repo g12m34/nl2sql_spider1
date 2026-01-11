@@ -6,8 +6,6 @@
 source: country is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/world_1/world_1.sqlite', 'country')
 """) extend {
-  primary_key: `Code`
-
   dimension:
     code_val is `Code`
     name_val is `Name`
@@ -20,32 +18,34 @@ source: country is duckdb.sql("""
     government_form is GovernmentForm
     head_of_state is HeadOfState
 
+  primary_key: code_val
+
   measure:
     row_count is count()
-    total_surface_area is sum(SurfaceArea)
-    avg_surface_area is avg(SurfaceArea)
-    max_surface_area is max(SurfaceArea)
-    min_surface_area is min(SurfaceArea)
-    total_indep_year is sum(IndepYear)
-    avg_indep_year is avg(IndepYear)
-    max_indep_year is max(IndepYear)
-    min_indep_year is min(IndepYear)
+    total_surface_area is sum(surface_area)
+    avg_surface_area is avg(surface_area)
+    max_surface_area is max(surface_area)
+    min_surface_area is min(surface_area)
+    total_indep_year is sum(indep_year)
+    avg_indep_year is avg(indep_year)
+    max_indep_year is max(indep_year)
+    min_indep_year is min(indep_year)
     total_population is sum(Population)
     avg_population is avg(Population)
     max_population is max(Population)
     min_population is min(Population)
-    total_life_expectancy is sum(LifeExpectancy)
-    avg_life_expectancy is avg(LifeExpectancy)
-    max_life_expectancy is max(LifeExpectancy)
-    min_life_expectancy is min(LifeExpectancy)
-    total_g_n_p is sum(GNP)
-    avg_g_n_p is avg(GNP)
-    max_g_n_p is max(GNP)
-    min_g_n_p is min(GNP)
-    total_g_n_p_old is sum(GNPOld)
-    avg_g_n_p_old is avg(GNPOld)
-    max_g_n_p_old is max(GNPOld)
-    min_g_n_p_old is min(GNPOld)
+    total_life_expectancy is sum(life_expectancy)
+    avg_life_expectancy is avg(life_expectancy)
+    max_life_expectancy is max(life_expectancy)
+    min_life_expectancy is min(life_expectancy)
+    total_g_n_p is sum(g_n_p)
+    avg_g_n_p is avg(g_n_p)
+    max_g_n_p is max(g_n_p)
+    min_g_n_p is min(g_n_p)
+    total_g_n_p_old is sum(g_n_p_old)
+    avg_g_n_p_old is avg(g_n_p_old)
+    max_g_n_p_old is max(g_n_p_old)
+    min_g_n_p_old is min(g_n_p_old)
     total_capital is sum(Capital)
     avg_capital is avg(Capital)
     max_capital is max(Capital)
@@ -56,21 +56,21 @@ source: country is duckdb.sql("""
 source: city is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/world_1/world_1.sqlite', 'city')
 """) extend {
-  primary_key: ID
-
-  join_one: country on CountryCode = country.`Code`
-
   dimension:
     i_d is ID
     name_val is `Name`
     country_code is CountryCode
 
+  primary_key: i_d
+
+  join_one: country on country_code = country.code_val
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
     total_population is sum(Population)
     avg_population is avg(Population)
     max_population is max(Population)
@@ -81,14 +81,14 @@ source: city is duckdb.sql("""
 source: countrylanguage is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/world_1/world_1.sqlite', 'countrylanguage')
 """) extend {
-  primary_key: CountryCode
-
-  join_one: country on CountryCode = country.`Code`
-
   dimension:
     country_code is CountryCode
     language_val is `Language`
     is_official is IsOfficial
+
+  primary_key: country_code
+
+  join_one: country on country_code = country.code_val
 
   measure:
     row_count is count()

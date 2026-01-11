@@ -183,12 +183,12 @@ source: project_staff is duckdb.sql("""
 source: tasks is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tracking_grants_for_research/tracking_grants_for_research.sqlite', 'Tasks')
 """) extend {
+  dimension:
+    eg_agree_objectives is `eg Agree Objectives`
+
   primary_key: task_id
 
   join_one: projects on project_id = projects.project_id
-
-  dimension:
-    eg_agree_objectives is `eg Agree Objectives`
 
   measure:
     row_count is count()

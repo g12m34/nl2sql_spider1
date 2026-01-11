@@ -6,11 +6,11 @@
 source: list is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_1/student_1.sqlite', 'list')
 """) extend {
-  primary_key: LastName
-
   dimension:
     last_name is LastName
     first_name is FirstName
+
+  primary_key: last_name
 
   measure:
     row_count is count()
@@ -28,11 +28,11 @@ source: list is duckdb.sql("""
 source: teachers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/student_1/student_1.sqlite', 'teachers')
 """) extend {
-  primary_key: LastName
-
   dimension:
     last_name is LastName
     first_name is FirstName
+
+  primary_key: last_name
 
   measure:
     row_count is count()

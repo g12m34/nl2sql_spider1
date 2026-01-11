@@ -6,51 +6,51 @@
 source: addresses is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Addresses')
 """) extend {
-  primary_key: Address_ID
-
   dimension:
     address_i_d is Address_ID
 
+  primary_key: address_i_d
+
   measure:
     row_count is count()
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
 }
 
 // Locations
 source: locations is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Locations')
 """) extend {
-  primary_key: Location_ID
-
   dimension:
     location_i_d is Location_ID
 
+  primary_key: location_i_d
+
   measure:
     row_count is count()
-    total_location_i_d is sum(Location_ID)
-    avg_location_i_d is avg(Location_ID)
-    max_location_i_d is max(Location_ID)
-    min_location_i_d is min(Location_ID)
+    total_location_i_d is sum(location_i_d)
+    avg_location_i_d is avg(location_i_d)
+    max_location_i_d is max(location_i_d)
+    min_location_i_d is min(location_i_d)
 }
 
 // Products
 source: products is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Products')
 """) extend {
-  primary_key: Product_ID
-
   dimension:
     product_i_d is Product_ID
 
+  primary_key: product_i_d
+
   measure:
     row_count is count()
-    total_product_i_d is sum(Product_ID)
-    avg_product_i_d is avg(Product_ID)
-    max_product_i_d is max(Product_ID)
-    min_product_i_d is min(Product_ID)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
     total_product_price is sum(Product_Price)
     avg_product_price is avg(Product_Price)
     max_product_price is max(Product_Price)
@@ -61,80 +61,74 @@ source: products is duckdb.sql("""
 source: parties is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Parties')
 """) extend {
-  primary_key: Party_ID
-
   dimension:
     party_i_d is Party_ID
 
+  primary_key: party_i_d
+
   measure:
     row_count is count()
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
 }
 
 // Assets
 source: assets is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Assets')
 """) extend {
-  primary_key: Asset_ID
-
   dimension:
     asset_i_d is Asset_ID
 
+  primary_key: asset_i_d
+
   measure:
     row_count is count()
-    total_asset_i_d is sum(Asset_ID)
-    avg_asset_i_d is avg(Asset_ID)
-    max_asset_i_d is max(Asset_ID)
-    min_asset_i_d is min(Asset_ID)
+    total_asset_i_d is sum(asset_i_d)
+    avg_asset_i_d is avg(asset_i_d)
+    max_asset_i_d is max(asset_i_d)
+    min_asset_i_d is min(asset_i_d)
 }
 
 // Channels
 source: channels is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Channels')
 """) extend {
-  primary_key: Channel_ID
-
   dimension:
     channel_i_d is Channel_ID
 
+  primary_key: channel_i_d
+
   measure:
     row_count is count()
-    total_channel_i_d is sum(Channel_ID)
-    avg_channel_i_d is avg(Channel_ID)
-    max_channel_i_d is max(Channel_ID)
-    min_channel_i_d is min(Channel_ID)
+    total_channel_i_d is sum(channel_i_d)
+    avg_channel_i_d is avg(channel_i_d)
+    max_channel_i_d is max(channel_i_d)
+    min_channel_i_d is min(channel_i_d)
 }
 
 // Finances
 source: finances is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Finances')
 """) extend {
-  primary_key: Finance_ID
-
   dimension:
     finance_i_d is Finance_ID
 
+  primary_key: finance_i_d
+
   measure:
     row_count is count()
-    total_finance_i_d is sum(Finance_ID)
-    avg_finance_i_d is avg(Finance_ID)
-    max_finance_i_d is max(Finance_ID)
-    min_finance_i_d is min(Finance_ID)
+    total_finance_i_d is sum(finance_i_d)
+    avg_finance_i_d is avg(finance_i_d)
+    max_finance_i_d is max(finance_i_d)
+    min_finance_i_d is min(finance_i_d)
 }
 
 // Events
 source: events_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Events')
 """) extend {
-  primary_key: Event_ID
-
-  join_one: finances on Finance_ID = finances.Finance_ID
-  join_one: addresses on Address_ID = addresses.Address_ID
-  join_one: locations on Location_ID = locations.Location_ID
-
   dimension:
     event_i_d is Event_ID
     address_i_d is Address_ID
@@ -142,130 +136,136 @@ source: events_val is duckdb.sql("""
     finance_i_d is Finance_ID
     location_i_d is Location_ID
 
+  primary_key: event_i_d
+
+  join_one: finances on finance_i_d = finances.finance_i_d
+  join_one: addresses on address_i_d = addresses.address_i_d
+  join_one: locations on location_i_d = locations.location_i_d
+
   measure:
     row_count is count()
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
-    total_address_i_d is sum(Address_ID)
-    avg_address_i_d is avg(Address_ID)
-    max_address_i_d is max(Address_ID)
-    min_address_i_d is min(Address_ID)
-    total_channel_i_d is sum(Channel_ID)
-    avg_channel_i_d is avg(Channel_ID)
-    max_channel_i_d is max(Channel_ID)
-    min_channel_i_d is min(Channel_ID)
-    total_finance_i_d is sum(Finance_ID)
-    avg_finance_i_d is avg(Finance_ID)
-    max_finance_i_d is max(Finance_ID)
-    min_finance_i_d is min(Finance_ID)
-    total_location_i_d is sum(Location_ID)
-    avg_location_i_d is avg(Location_ID)
-    max_location_i_d is max(Location_ID)
-    min_location_i_d is min(Location_ID)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
+    total_address_i_d is sum(address_i_d)
+    avg_address_i_d is avg(address_i_d)
+    max_address_i_d is max(address_i_d)
+    min_address_i_d is min(address_i_d)
+    total_channel_i_d is sum(channel_i_d)
+    avg_channel_i_d is avg(channel_i_d)
+    max_channel_i_d is max(channel_i_d)
+    min_channel_i_d is min(channel_i_d)
+    total_finance_i_d is sum(finance_i_d)
+    avg_finance_i_d is avg(finance_i_d)
+    max_finance_i_d is max(finance_i_d)
+    min_finance_i_d is min(finance_i_d)
+    total_location_i_d is sum(location_i_d)
+    avg_location_i_d is avg(location_i_d)
+    max_location_i_d is max(location_i_d)
+    min_location_i_d is min(location_i_d)
 }
 
 // Products_in_Events
 source: products_in_events is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Products_in_Events')
 """) extend {
-  primary_key: Product_in_Event_ID
-
-  join_one: products on Product_ID = products.Product_ID
-  join_one: events_val on Event_ID = events_val.Event_ID
-
   dimension:
     product_in_event_i_d is Product_in_Event_ID
     event_i_d is Event_ID
     product_i_d is Product_ID
 
+  primary_key: product_in_event_i_d
+
+  join_one: products on product_i_d = products.product_i_d
+  join_one: events_val on event_i_d = events_val.event_i_d
+
   measure:
     row_count is count()
-    total_product_in_event_i_d is sum(Product_in_Event_ID)
-    avg_product_in_event_i_d is avg(Product_in_Event_ID)
-    max_product_in_event_i_d is max(Product_in_Event_ID)
-    min_product_in_event_i_d is min(Product_in_Event_ID)
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
-    total_product_i_d is sum(Product_ID)
-    avg_product_i_d is avg(Product_ID)
-    max_product_i_d is max(Product_ID)
-    min_product_i_d is min(Product_ID)
+    total_product_in_event_i_d is sum(product_in_event_i_d)
+    avg_product_in_event_i_d is avg(product_in_event_i_d)
+    max_product_in_event_i_d is max(product_in_event_i_d)
+    min_product_in_event_i_d is min(product_in_event_i_d)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
+    total_product_i_d is sum(product_i_d)
+    avg_product_i_d is avg(product_i_d)
+    max_product_i_d is max(product_i_d)
+    min_product_i_d is min(product_i_d)
 }
 
 // Parties_in_Events
 source: parties_in_events is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Parties_in_Events')
 """) extend {
-  primary_key: Party_ID
-
-  join_one: events_val on Event_ID = events_val.Event_ID
-  join_one: parties on Party_ID = parties.Party_ID
-
   dimension:
     party_i_d is Party_ID
     event_i_d is Event_ID
 
+  primary_key: party_i_d
+
+  join_one: events_val on event_i_d = events_val.event_i_d
+  join_one: parties on party_i_d = parties.party_i_d
+
   measure:
     row_count is count()
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
 }
 
 // Agreements
 source: agreements is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Agreements')
 """) extend {
-  primary_key: Document_ID
-
-  join_one: events_val on Event_ID = events_val.Event_ID
-
   dimension:
     document_i_d is Document_ID
     event_i_d is Event_ID
 
+  primary_key: document_i_d
+
+  join_one: events_val on event_i_d = events_val.event_i_d
+
   measure:
     row_count is count()
-    total_document_i_d is sum(Document_ID)
-    avg_document_i_d is avg(Document_ID)
-    max_document_i_d is max(Document_ID)
-    min_document_i_d is min(Document_ID)
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
+    total_document_i_d is sum(document_i_d)
+    avg_document_i_d is avg(document_i_d)
+    max_document_i_d is max(document_i_d)
+    min_document_i_d is min(document_i_d)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
 }
 
 // Assets_in_Events
 source: assets_in_events is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/solvency_ii/solvency_ii.sqlite', 'Assets_in_Events')
 """) extend {
-  primary_key: Asset_ID
-
-  join_one: event_i_d_events_val is events_val on Event_ID = event_i_d_events_val.Event_ID
-  join_one: event_i_d_events_val_2 is events_val on Event_ID = event_i_d_events_val_2.Event_ID
-
   dimension:
     asset_i_d is Asset_ID
     event_i_d is Event_ID
 
+  primary_key: asset_i_d
+
+  join_one: event_i_d_events_val is events_val on event_i_d = event_i_d_events_val.event_i_d
+  join_one: event_i_d_events_val_2 is events_val on event_i_d = event_i_d_events_val_2.event_i_d
+
   measure:
     row_count is count()
-    total_asset_i_d is sum(Asset_ID)
-    avg_asset_i_d is avg(Asset_ID)
-    max_asset_i_d is max(Asset_ID)
-    min_asset_i_d is min(Asset_ID)
-    total_event_i_d is sum(Event_ID)
-    avg_event_i_d is avg(Event_ID)
-    max_event_i_d is max(Event_ID)
-    min_event_i_d is min(Event_ID)
+    total_asset_i_d is sum(asset_i_d)
+    avg_asset_i_d is avg(asset_i_d)
+    max_asset_i_d is max(asset_i_d)
+    min_asset_i_d is min(asset_i_d)
+    total_event_i_d is sum(event_i_d)
+    avg_event_i_d is avg(event_i_d)
+    max_event_i_d is max(event_i_d)
+    min_event_i_d is min(event_i_d)
 }

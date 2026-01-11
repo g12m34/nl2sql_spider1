@@ -6,18 +6,18 @@
 source: department is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'department')
 """) extend {
-  primary_key: Department_ID
-
   dimension:
     department_i_d is Department_ID
     name_val is `Name`
 
+  primary_key: department_i_d
+
   measure:
     row_count is count()
-    total_department_i_d is sum(Department_ID)
-    avg_department_i_d is avg(Department_ID)
-    max_department_i_d is max(Department_ID)
-    min_department_i_d is min(Department_ID)
+    total_department_i_d is sum(department_i_d)
+    avg_department_i_d is avg(department_i_d)
+    max_department_i_d is max(department_i_d)
+    min_department_i_d is min(department_i_d)
     total_ranking is sum(Ranking)
     avg_ranking is avg(Ranking)
     max_ranking is max(Ranking)
@@ -36,18 +36,18 @@ source: department is duckdb.sql("""
 source: head is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'head')
 """) extend {
-  primary_key: head_ID
-
   dimension:
     head_i_d is head_ID
     name_val is `name`
 
+  primary_key: head_i_d
+
   measure:
     row_count is count()
-    total_head_i_d is sum(head_ID)
-    avg_head_i_d is avg(head_ID)
-    max_head_i_d is max(head_ID)
-    min_head_i_d is min(head_ID)
+    total_head_i_d is sum(head_i_d)
+    avg_head_i_d is avg(head_i_d)
+    max_head_i_d is max(head_i_d)
+    min_head_i_d is min(head_i_d)
     total_age is sum(age)
     avg_age is avg(age)
     max_age is max(age)
@@ -58,23 +58,23 @@ source: head is duckdb.sql("""
 source: management is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/department_management/department_management.sqlite', 'management')
 """) extend {
-  primary_key: department_ID
-
-  join_one: head on head_ID = head.head_ID
-  join_one: department on department_ID = department.Department_ID
-
   dimension:
     department_i_d is department_ID
     head_i_d is head_ID
 
+  primary_key: department_i_d
+
+  join_one: head on head_i_d = head.head_i_d
+  join_one: department on department_i_d = department.department_i_d
+
   measure:
     row_count is count()
-    total_department_i_d is sum(department_ID)
-    avg_department_i_d is avg(department_ID)
-    max_department_i_d is max(department_ID)
-    min_department_i_d is min(department_ID)
-    total_head_i_d is sum(head_ID)
-    avg_head_i_d is avg(head_ID)
-    max_head_i_d is max(head_ID)
-    min_head_i_d is min(head_ID)
+    total_department_i_d is sum(department_i_d)
+    avg_department_i_d is avg(department_i_d)
+    max_department_i_d is max(department_i_d)
+    min_department_i_d is min(department_i_d)
+    total_head_i_d is sum(head_i_d)
+    avg_head_i_d is avg(head_i_d)
+    max_head_i_d is max(head_i_d)
+    min_head_i_d is min(head_i_d)
 }

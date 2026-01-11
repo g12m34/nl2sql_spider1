@@ -6,37 +6,37 @@
 source: continents is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'continents')
 """) extend {
-  primary_key: ContId
-
   dimension:
     cont_id is ContId
 
+  primary_key: cont_id
+
   measure:
     row_count is count()
-    total_cont_id is sum(ContId)
-    avg_cont_id is avg(ContId)
-    max_cont_id is max(ContId)
-    min_cont_id is min(ContId)
+    total_cont_id is sum(cont_id)
+    avg_cont_id is avg(cont_id)
+    max_cont_id is max(cont_id)
+    min_cont_id is min(cont_id)
 }
 
 // countries
 source: countries is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'countries')
 """) extend {
-  primary_key: CountryId
-
-  join_one: continents on Continent = continents.ContId
-
   dimension:
     country_id is CountryId
     country_name is CountryName
 
+  primary_key: country_id
+
+  join_one: continents on Continent = continents.cont_id
+
   measure:
     row_count is count()
-    total_country_id is sum(CountryId)
-    avg_country_id is avg(CountryId)
-    max_country_id is max(CountryId)
-    min_country_id is min(CountryId)
+    total_country_id is sum(country_id)
+    avg_country_id is avg(country_id)
+    max_country_id is max(country_id)
+    min_country_id is min(country_id)
     total_continent is sum(Continent)
     avg_continent is avg(Continent)
     max_continent is max(Continent)
@@ -47,12 +47,12 @@ source: countries is duckdb.sql("""
 source: car_makers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'car_makers')
 """) extend {
-  primary_key: Id
-
-  join_one: countries on Country = countries.CountryId
-
   dimension:
     full_name is FullName
+
+  primary_key: Id
+
+  join_one: countries on Country = countries.country_id
 
   measure:
     row_count is count()
@@ -66,19 +66,19 @@ source: car_makers is duckdb.sql("""
 source: model_list is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'model_list')
 """) extend {
-  primary_key: ModelId
-
-  join_one: car_makers on Maker = car_makers.Id
-
   dimension:
     model_id is ModelId
 
+  primary_key: model_id
+
+  join_one: car_makers on Maker = car_makers.Id
+
   measure:
     row_count is count()
-    total_model_id is sum(ModelId)
-    avg_model_id is avg(ModelId)
-    max_model_id is max(ModelId)
-    min_model_id is min(ModelId)
+    total_model_id is sum(model_id)
+    avg_model_id is avg(model_id)
+    max_model_id is max(model_id)
+    min_model_id is min(model_id)
     total_maker is sum(Maker)
     avg_maker is avg(Maker)
     max_maker is max(Maker)
@@ -89,32 +89,32 @@ source: model_list is duckdb.sql("""
 source: car_names is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'car_names')
 """) extend {
-  primary_key: MakeId
-
-  join_one: model_list on Model = model_list.Model
-
   dimension:
     make_id is MakeId
 
+  primary_key: make_id
+
+  join_one: model_list on Model = model_list.Model
+
   measure:
     row_count is count()
-    total_make_id is sum(MakeId)
-    avg_make_id is avg(MakeId)
-    max_make_id is max(MakeId)
-    min_make_id is min(MakeId)
+    total_make_id is sum(make_id)
+    avg_make_id is avg(make_id)
+    max_make_id is max(make_id)
+    min_make_id is min(make_id)
 }
 
 // cars_data
 source: cars_data is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/car_1/car_1.sqlite', 'cars_data')
 """) extend {
-  primary_key: Id
-
-  join_one: car_names on Id = car_names.MakeId
-
   dimension:
     m_p_g is MPG
     year_val is `Year`
+
+  primary_key: Id
+
+  join_one: car_names on Id = car_names.make_id
 
   measure:
     row_count is count()
@@ -138,8 +138,8 @@ source: cars_data is duckdb.sql("""
     avg_accelerate is avg(Accelerate)
     max_accelerate is max(Accelerate)
     min_accelerate is min(Accelerate)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }

@@ -50,93 +50,93 @@ source: roles is duckdb.sql("""
 source: all_documents is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'All_Documents')
 """) extend {
-  primary_key: Document_ID
+  dimension:
+    document_i_d is Document_ID
+
+  primary_key: document_i_d
 
   join_one: ref_calendar on Date_Stored = ref_calendar.Calendar_Date
   join_one: ref_document_types on Document_Type_Code = ref_document_types.Document_Type_Code
 
-  dimension:
-    document_i_d is Document_ID
-
   measure:
     row_count is count()
-    total_document_i_d is sum(Document_ID)
-    avg_document_i_d is avg(Document_ID)
-    max_document_i_d is max(Document_ID)
-    min_document_i_d is min(Document_ID)
+    total_document_i_d is sum(document_i_d)
+    avg_document_i_d is avg(document_i_d)
+    max_document_i_d is max(document_i_d)
+    min_document_i_d is min(document_i_d)
 }
 
 // Employees
 source: employees is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Employees')
 """) extend {
-  primary_key: Employee_ID
-
-  join_one: roles on Role_Code = roles.Role_Code
-
   dimension:
     employee_i_d is Employee_ID
     gender_m_f_u is Gender_MFU
 
+  primary_key: employee_i_d
+
+  join_one: roles on Role_Code = roles.Role_Code
+
   measure:
     row_count is count()
-    total_employee_i_d is sum(Employee_ID)
-    avg_employee_i_d is avg(Employee_ID)
-    max_employee_i_d is max(Employee_ID)
-    min_employee_i_d is min(Employee_ID)
+    total_employee_i_d is sum(employee_i_d)
+    avg_employee_i_d is avg(employee_i_d)
+    max_employee_i_d is max(employee_i_d)
+    min_employee_i_d is min(employee_i_d)
 }
 
 // Document_Locations
 source: document_locations is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Document_Locations')
 """) extend {
-  primary_key: Document_ID
+  dimension:
+    document_i_d is Document_ID
 
-  join_one: all_documents on Document_ID = all_documents.Document_ID
+  primary_key: document_i_d
+
+  join_one: all_documents on document_i_d = all_documents.document_i_d
   join_one: date_in_locaton_to_ref_calendar is ref_calendar on Date_in_Locaton_To = date_in_locaton_to_ref_calendar.Calendar_Date
   join_one: date_in_location_from_ref_calendar is ref_calendar on Date_in_Location_From = date_in_location_from_ref_calendar.Calendar_Date
   join_one: ref_locations on Location_Code = ref_locations.Location_Code
 
-  dimension:
-    document_i_d is Document_ID
-
   measure:
     row_count is count()
-    total_document_i_d is sum(Document_ID)
-    avg_document_i_d is avg(Document_ID)
-    max_document_i_d is max(Document_ID)
-    min_document_i_d is min(Document_ID)
+    total_document_i_d is sum(document_i_d)
+    avg_document_i_d is avg(document_i_d)
+    max_document_i_d is max(document_i_d)
+    min_document_i_d is min(document_i_d)
 }
 
 // Documents_to_be_Destroyed
 source: documents_to_be_destroyed is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/cre_Doc_Tracking_DB/cre_Doc_Tracking_DB.sqlite', 'Documents_to_be_Destroyed')
 """) extend {
-  primary_key: Document_ID
-
-  join_one: all_documents on Document_ID = all_documents.Document_ID
-  join_one: actual_destruction_date_ref_calendar is ref_calendar on Actual_Destruction_Date = actual_destruction_date_ref_calendar.Calendar_Date
-  join_one: planned_destruction_date_ref_calendar is ref_calendar on Planned_Destruction_Date = planned_destruction_date_ref_calendar.Calendar_Date
-  join_one: destruction_authorised_by_employee_i_d_employees is employees on Destruction_Authorised_by_Employee_ID = destruction_authorised_by_employee_i_d_employees.Employee_ID
-  join_one: destroyed_by_employee_i_d_employees is employees on Destroyed_by_Employee_ID = destroyed_by_employee_i_d_employees.Employee_ID
-
   dimension:
     document_i_d is Document_ID
     destruction_authorised_by_employee_i_d is Destruction_Authorised_by_Employee_ID
     destroyed_by_employee_i_d is Destroyed_by_Employee_ID
 
+  primary_key: document_i_d
+
+  join_one: all_documents on document_i_d = all_documents.document_i_d
+  join_one: actual_destruction_date_ref_calendar is ref_calendar on Actual_Destruction_Date = actual_destruction_date_ref_calendar.Calendar_Date
+  join_one: planned_destruction_date_ref_calendar is ref_calendar on Planned_Destruction_Date = planned_destruction_date_ref_calendar.Calendar_Date
+  join_one: destruction_authorised_by_employee_i_d_employees is employees on destruction_authorised_by_employee_i_d = destruction_authorised_by_employee_i_d_employees.employee_i_d
+  join_one: destroyed_by_employee_i_d_employees is employees on destroyed_by_employee_i_d = destroyed_by_employee_i_d_employees.employee_i_d
+
   measure:
     row_count is count()
-    total_document_i_d is sum(Document_ID)
-    avg_document_i_d is avg(Document_ID)
-    max_document_i_d is max(Document_ID)
-    min_document_i_d is min(Document_ID)
-    total_destruction_authorised_by_employee_i_d is sum(Destruction_Authorised_by_Employee_ID)
-    avg_destruction_authorised_by_employee_i_d is avg(Destruction_Authorised_by_Employee_ID)
-    max_destruction_authorised_by_employee_i_d is max(Destruction_Authorised_by_Employee_ID)
-    min_destruction_authorised_by_employee_i_d is min(Destruction_Authorised_by_Employee_ID)
-    total_destroyed_by_employee_i_d is sum(Destroyed_by_Employee_ID)
-    avg_destroyed_by_employee_i_d is avg(Destroyed_by_Employee_ID)
-    max_destroyed_by_employee_i_d is max(Destroyed_by_Employee_ID)
-    min_destroyed_by_employee_i_d is min(Destroyed_by_Employee_ID)
+    total_document_i_d is sum(document_i_d)
+    avg_document_i_d is avg(document_i_d)
+    max_document_i_d is max(document_i_d)
+    min_document_i_d is min(document_i_d)
+    total_destruction_authorised_by_employee_i_d is sum(destruction_authorised_by_employee_i_d)
+    avg_destruction_authorised_by_employee_i_d is avg(destruction_authorised_by_employee_i_d)
+    max_destruction_authorised_by_employee_i_d is max(destruction_authorised_by_employee_i_d)
+    min_destruction_authorised_by_employee_i_d is min(destruction_authorised_by_employee_i_d)
+    total_destroyed_by_employee_i_d is sum(destroyed_by_employee_i_d)
+    avg_destroyed_by_employee_i_d is avg(destroyed_by_employee_i_d)
+    max_destroyed_by_employee_i_d is max(destroyed_by_employee_i_d)
+    min_destroyed_by_employee_i_d is min(destroyed_by_employee_i_d)
 }

@@ -6,8 +6,6 @@
 source: e_m_p_l_o_y_e_e is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'EMPLOYEE')
 """) extend {
-  primary_key: EMP_NUM
-
   dimension:
     e_m_p_n_u_m is EMP_NUM
     e_m_p_l_n_a_m_e is EMP_LNAME
@@ -17,22 +15,20 @@ source: e_m_p_l_o_y_e_e is duckdb.sql("""
     e_m_p_h_i_r_e_d_a_t_e is EMP_HIREDATE
     e_m_p_d_o_b is EMP_DOB
 
+  primary_key: e_m_p_n_u_m
+
   measure:
     row_count is count()
-    total_e_m_p_n_u_m is sum(EMP_NUM)
-    avg_e_m_p_n_u_m is avg(EMP_NUM)
-    max_e_m_p_n_u_m is max(EMP_NUM)
-    min_e_m_p_n_u_m is min(EMP_NUM)
+    total_e_m_p_n_u_m is sum(e_m_p_n_u_m)
+    avg_e_m_p_n_u_m is avg(e_m_p_n_u_m)
+    max_e_m_p_n_u_m is max(e_m_p_n_u_m)
+    min_e_m_p_n_u_m is min(e_m_p_n_u_m)
 }
 
 // DEPARTMENT
 source: d_e_p_a_r_t_m_e_n_t is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'DEPARTMENT')
 """) extend {
-  primary_key: DEPT_CODE
-
-  join_one: e_m_p_l_o_y_e_e on EMP_NUM = e_m_p_l_o_y_e_e.EMP_NUM
-
   dimension:
     d_e_p_t_c_o_d_e is DEPT_CODE
     d_e_p_t_n_a_m_e is DEPT_NAME
@@ -41,43 +37,44 @@ source: d_e_p_a_r_t_m_e_n_t is duckdb.sql("""
     d_e_p_t_a_d_d_r_e_s_s is DEPT_ADDRESS
     d_e_p_t_e_x_t_e_n_s_i_o_n is DEPT_EXTENSION
 
+  primary_key: d_e_p_t_c_o_d_e
+
+  join_one: e_m_p_l_o_y_e_e on e_m_p_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+
   measure:
     row_count is count()
-    total_e_m_p_n_u_m is sum(EMP_NUM)
-    avg_e_m_p_n_u_m is avg(EMP_NUM)
-    max_e_m_p_n_u_m is max(EMP_NUM)
-    min_e_m_p_n_u_m is min(EMP_NUM)
+    total_e_m_p_n_u_m is sum(e_m_p_n_u_m)
+    avg_e_m_p_n_u_m is avg(e_m_p_n_u_m)
+    max_e_m_p_n_u_m is max(e_m_p_n_u_m)
+    min_e_m_p_n_u_m is min(e_m_p_n_u_m)
 }
 
 // COURSE
 source: c_o_u_r_s_e is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'COURSE')
 """) extend {
-  primary_key: CRS_CODE
-
-  join_one: d_e_p_a_r_t_m_e_n_t on DEPT_CODE = d_e_p_a_r_t_m_e_n_t.DEPT_CODE
-
   dimension:
     c_r_s_c_o_d_e is CRS_CODE
     d_e_p_t_c_o_d_e is DEPT_CODE
     c_r_s_d_e_s_c_r_i_p_t_i_o_n is CRS_DESCRIPTION
     c_r_s_c_r_e_d_i_t is CRS_CREDIT
 
+  primary_key: c_r_s_c_o_d_e
+
+  join_one: d_e_p_a_r_t_m_e_n_t on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
+
   measure:
     row_count is count()
-    total_c_r_s_c_r_e_d_i_t is sum(CRS_CREDIT)
-    avg_c_r_s_c_r_e_d_i_t is avg(CRS_CREDIT)
-    max_c_r_s_c_r_e_d_i_t is max(CRS_CREDIT)
-    min_c_r_s_c_r_e_d_i_t is min(CRS_CREDIT)
+    total_c_r_s_c_r_e_d_i_t is sum(c_r_s_c_r_e_d_i_t)
+    avg_c_r_s_c_r_e_d_i_t is avg(c_r_s_c_r_e_d_i_t)
+    max_c_r_s_c_r_e_d_i_t is max(c_r_s_c_r_e_d_i_t)
+    min_c_r_s_c_r_e_d_i_t is min(c_r_s_c_r_e_d_i_t)
 }
 
 // PROFESSOR
 source: p_r_o_f_e_s_s_o_r is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'PROFESSOR')
 """) extend {
-  join_one: d_e_p_a_r_t_m_e_n_t on DEPT_CODE = d_e_p_a_r_t_m_e_n_t.DEPT_CODE
-  join_one: e_m_p_l_o_y_e_e on EMP_NUM = e_m_p_l_o_y_e_e.EMP_NUM
-
   dimension:
     e_m_p_n_u_m is EMP_NUM
     d_e_p_t_c_o_d_e is DEPT_CODE
@@ -85,22 +82,21 @@ source: p_r_o_f_e_s_s_o_r is duckdb.sql("""
     p_r_o_f_e_x_t_e_n_s_i_o_n is PROF_EXTENSION
     p_r_o_f_h_i_g_h_d_e_g_r_e_e is PROF_HIGH_DEGREE
 
+  join_one: d_e_p_a_r_t_m_e_n_t on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
+  join_one: e_m_p_l_o_y_e_e on e_m_p_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+
   measure:
     row_count is count()
-    total_e_m_p_n_u_m is sum(EMP_NUM)
-    avg_e_m_p_n_u_m is avg(EMP_NUM)
-    max_e_m_p_n_u_m is max(EMP_NUM)
-    min_e_m_p_n_u_m is min(EMP_NUM)
+    total_e_m_p_n_u_m is sum(e_m_p_n_u_m)
+    avg_e_m_p_n_u_m is avg(e_m_p_n_u_m)
+    max_e_m_p_n_u_m is max(e_m_p_n_u_m)
+    min_e_m_p_n_u_m is min(e_m_p_n_u_m)
 }
 
 // STUDENT
 source: s_t_u_d_e_n_t is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'STUDENT')
 """) extend {
-  primary_key: STU_NUM
-
-  join_one: d_e_p_a_r_t_m_e_n_t on DEPT_CODE = d_e_p_a_r_t_m_e_n_t.DEPT_CODE
-
   dimension:
     s_t_u_n_u_m is STU_NUM
     s_t_u_l_n_a_m_e is STU_LNAME
@@ -115,39 +111,38 @@ source: s_t_u_d_e_n_t is duckdb.sql("""
     s_t_u_p_h_o_n_e is STU_PHONE
     p_r_o_f_n_u_m is PROF_NUM
 
+  primary_key: s_t_u_n_u_m
+
+  join_one: d_e_p_a_r_t_m_e_n_t on d_e_p_t_c_o_d_e = d_e_p_a_r_t_m_e_n_t.d_e_p_t_c_o_d_e
+
   measure:
     row_count is count()
-    total_s_t_u_n_u_m is sum(STU_NUM)
-    avg_s_t_u_n_u_m is avg(STU_NUM)
-    max_s_t_u_n_u_m is max(STU_NUM)
-    min_s_t_u_n_u_m is min(STU_NUM)
-    total_s_t_u_h_r_s is sum(STU_HRS)
-    avg_s_t_u_h_r_s is avg(STU_HRS)
-    max_s_t_u_h_r_s is max(STU_HRS)
-    min_s_t_u_h_r_s is min(STU_HRS)
-    total_s_t_u_g_p_a is sum(STU_GPA)
-    avg_s_t_u_g_p_a is avg(STU_GPA)
-    max_s_t_u_g_p_a is max(STU_GPA)
-    min_s_t_u_g_p_a is min(STU_GPA)
-    total_s_t_u_t_r_a_n_s_f_e_r is sum(STU_TRANSFER)
-    avg_s_t_u_t_r_a_n_s_f_e_r is avg(STU_TRANSFER)
-    max_s_t_u_t_r_a_n_s_f_e_r is max(STU_TRANSFER)
-    min_s_t_u_t_r_a_n_s_f_e_r is min(STU_TRANSFER)
-    total_p_r_o_f_n_u_m is sum(PROF_NUM)
-    avg_p_r_o_f_n_u_m is avg(PROF_NUM)
-    max_p_r_o_f_n_u_m is max(PROF_NUM)
-    min_p_r_o_f_n_u_m is min(PROF_NUM)
+    total_s_t_u_n_u_m is sum(s_t_u_n_u_m)
+    avg_s_t_u_n_u_m is avg(s_t_u_n_u_m)
+    max_s_t_u_n_u_m is max(s_t_u_n_u_m)
+    min_s_t_u_n_u_m is min(s_t_u_n_u_m)
+    total_s_t_u_h_r_s is sum(s_t_u_h_r_s)
+    avg_s_t_u_h_r_s is avg(s_t_u_h_r_s)
+    max_s_t_u_h_r_s is max(s_t_u_h_r_s)
+    min_s_t_u_h_r_s is min(s_t_u_h_r_s)
+    total_s_t_u_g_p_a is sum(s_t_u_g_p_a)
+    avg_s_t_u_g_p_a is avg(s_t_u_g_p_a)
+    max_s_t_u_g_p_a is max(s_t_u_g_p_a)
+    min_s_t_u_g_p_a is min(s_t_u_g_p_a)
+    total_s_t_u_t_r_a_n_s_f_e_r is sum(s_t_u_t_r_a_n_s_f_e_r)
+    avg_s_t_u_t_r_a_n_s_f_e_r is avg(s_t_u_t_r_a_n_s_f_e_r)
+    max_s_t_u_t_r_a_n_s_f_e_r is max(s_t_u_t_r_a_n_s_f_e_r)
+    min_s_t_u_t_r_a_n_s_f_e_r is min(s_t_u_t_r_a_n_s_f_e_r)
+    total_p_r_o_f_n_u_m is sum(p_r_o_f_n_u_m)
+    avg_p_r_o_f_n_u_m is avg(p_r_o_f_n_u_m)
+    max_p_r_o_f_n_u_m is max(p_r_o_f_n_u_m)
+    min_p_r_o_f_n_u_m is min(p_r_o_f_n_u_m)
 }
 
 // CLASS
 source: c_l_a_s_s is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'CLASS')
 """) extend {
-  primary_key: CLASS_CODE
-
-  join_one: e_m_p_l_o_y_e_e on PROF_NUM = e_m_p_l_o_y_e_e.EMP_NUM
-  join_one: c_o_u_r_s_e on CRS_CODE = c_o_u_r_s_e.CRS_CODE
-
   dimension:
     c_l_a_s_s_c_o_d_e is CLASS_CODE
     c_r_s_c_o_d_e is CRS_CODE
@@ -156,30 +151,35 @@ source: c_l_a_s_s is duckdb.sql("""
     c_l_a_s_s_r_o_o_m is CLASS_ROOM
     p_r_o_f_n_u_m is PROF_NUM
 
+  primary_key: c_l_a_s_s_c_o_d_e
+
+  join_one: e_m_p_l_o_y_e_e on p_r_o_f_n_u_m = e_m_p_l_o_y_e_e.e_m_p_n_u_m
+  join_one: c_o_u_r_s_e on c_r_s_c_o_d_e = c_o_u_r_s_e.c_r_s_c_o_d_e
+
   measure:
     row_count is count()
-    total_p_r_o_f_n_u_m is sum(PROF_NUM)
-    avg_p_r_o_f_n_u_m is avg(PROF_NUM)
-    max_p_r_o_f_n_u_m is max(PROF_NUM)
-    min_p_r_o_f_n_u_m is min(PROF_NUM)
+    total_p_r_o_f_n_u_m is sum(p_r_o_f_n_u_m)
+    avg_p_r_o_f_n_u_m is avg(p_r_o_f_n_u_m)
+    max_p_r_o_f_n_u_m is max(p_r_o_f_n_u_m)
+    min_p_r_o_f_n_u_m is min(p_r_o_f_n_u_m)
 }
 
 // ENROLL
 source: e_n_r_o_l_l is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_1/college_1.sqlite', 'ENROLL')
 """) extend {
-  join_one: s_t_u_d_e_n_t on STU_NUM = s_t_u_d_e_n_t.STU_NUM
-  join_one: c_l_a_s_s on CLASS_CODE = c_l_a_s_s.CLASS_CODE
-
   dimension:
     c_l_a_s_s_c_o_d_e is CLASS_CODE
     s_t_u_n_u_m is STU_NUM
     e_n_r_o_l_l_g_r_a_d_e is ENROLL_GRADE
 
+  join_one: s_t_u_d_e_n_t on s_t_u_n_u_m = s_t_u_d_e_n_t.s_t_u_n_u_m
+  join_one: c_l_a_s_s on c_l_a_s_s_c_o_d_e = c_l_a_s_s.c_l_a_s_s_c_o_d_e
+
   measure:
     row_count is count()
-    total_s_t_u_n_u_m is sum(STU_NUM)
-    avg_s_t_u_n_u_m is avg(STU_NUM)
-    max_s_t_u_n_u_m is max(STU_NUM)
-    min_s_t_u_n_u_m is min(STU_NUM)
+    total_s_t_u_n_u_m is sum(s_t_u_n_u_m)
+    avg_s_t_u_n_u_m is avg(s_t_u_n_u_m)
+    max_s_t_u_n_u_m is max(s_t_u_n_u_m)
+    min_s_t_u_n_u_m is min(s_t_u_n_u_m)
 }

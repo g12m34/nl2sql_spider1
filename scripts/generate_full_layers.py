@@ -226,7 +226,7 @@ def topological_sort(tables):
 
 
 def generate_malloy_source(db_id, tables):
-    """Generate complete Malloy source code."""
+    """Generate complete Malloy source code with all lowercase snake_case."""
     db_path = get_db_path(db_id)
     lines = []
 
@@ -241,23 +241,56 @@ def generate_malloy_source(db_id, tables):
     # Build table_idx -> source_name mapping
     source_names = {idx: get_source_name(tables[idx]['name']) for idx in tables}
 
+    # Build column name -> snake_case mapping for each table
+    # We'll define ALL columns as dimensions with snake_case names
+    table_col_maps = {}
+    for idx, info in tables.items():
+        col_map = {}
+        for col in info['columns']:
+            col_map[col['name']] = to_snake_case(col['name'])
+        table_col_maps[idx] = col_map
+
     for table_idx in sorted_indices:
         table_info = tables[table_idx]
         table_name = table_info['name']
         source_name = source_names[table_idx]
+        col_map = table_col_maps[table_idx]
 
         lines.append(f"// {table_name}")
         lines.append(f'source: {source_name} is duckdb.sql("""')
         lines.append(f"  SELECT * FROM sqlite_scan('{db_path}', '{table_name}')")
         lines.append('""") extend {')
 
-        # Primary key
-        if table_info['primary_key']:
-            pk_name = table_info['primary_key']
-            lines.append(f"  primary_key: {quote_if_reserved(pk_name)}")
+        # Dimensions - define columns that need renaming to snake_case
+        # Track which columns have dimensions defined
+        has_dimension = set()
+        dim_definitions = []
+        for col in table_info['columns']:
+            dim_name = col_map[col['name']]
+            orig_name = col['name']
+            # Skip if dimension name equals original (would be a redefinition)
+            if dim_name.lower() == orig_name.lower() and not needs_quoting(orig_name):
+                continue
+            quoted_orig = quote_if_reserved(orig_name)
+            dim_definitions.append(f"    {dim_name} is {quoted_orig}")
+            has_dimension.add(col['name'])
+
+        if dim_definitions:
+            lines.append("  dimension:")
+            lines.extend(dim_definitions)
             lines.append("")
 
-        # Joins - handle multiple joins to same table and FK column matching table name
+        # Primary key - use dimension name if defined, else original column name
+        if table_info['primary_key']:
+            pk_orig = table_info['primary_key']
+            if pk_orig in has_dimension:
+                pk_ref = col_map.get(pk_orig, to_snake_case(pk_orig))
+            else:
+                pk_ref = quote_if_reserved(pk_orig)
+            lines.append(f"  primary_key: {pk_ref}")
+            lines.append("")
+
+        # Joins - use dimension names if defined, else original column names
         if table_info['foreign_keys']:
             # Count how many times each target table is joined (excluding self-joins)
             join_counts = defaultdict(int)
@@ -266,7 +299,17 @@ def generate_malloy_source(db_id, tables):
                     join_counts[fk['ref_table_idx']] += 1
 
             # Get all column names in this table (to detect conflicts)
-            col_names = {to_snake_case(c['name']) for c in table_info['columns']}
+            col_names = set(col_map.values())
+
+            # Build has_dimension set for referenced tables
+            ref_has_dimension = {}
+            for ref_idx in tables:
+                ref_has_dim = set()
+                for c in tables[ref_idx]['columns']:
+                    c_snake = to_snake_case(c['name'])
+                    if c_snake.lower() != c['name'].lower() or needs_quoting(c['name']):
+                        ref_has_dim.add(c['name'])
+                ref_has_dimension[ref_idx] = ref_has_dim
 
             # Track used join names within this source
             used_join_names = set()
@@ -277,8 +320,20 @@ def generate_malloy_source(db_id, tables):
                 ref_table = tables.get(fk['ref_table_idx'])
                 if ref_table:
                     ref_source_name = source_names[fk['ref_table_idx']]
-                    fk_col = quote_if_reserved(fk['column'])
-                    ref_col = quote_if_reserved(fk['ref_column'])
+                    ref_col_map = table_col_maps[fk['ref_table_idx']]
+
+                    # Use dimension name if defined, else quoted original
+                    fk_col_snake = col_map.get(fk['column'], to_snake_case(fk['column']))
+                    if fk['column'] in has_dimension:
+                        fk_col_ref = fk_col_snake
+                    else:
+                        fk_col_ref = quote_if_reserved(fk['column'])
+
+                    ref_col_snake = ref_col_map.get(fk['ref_column'], to_snake_case(fk['ref_column']))
+                    if fk['ref_column'] in ref_has_dimension.get(fk['ref_table_idx'], set()):
+                        ref_col_ref = ref_col_snake
+                    else:
+                        ref_col_ref = quote_if_reserved(fk['ref_column'])
 
                     # Need alias if: multiple joins to same table, or source name already used,
                     # or source name conflicts with a column name
@@ -290,7 +345,7 @@ def generate_malloy_source(db_id, tables):
 
                     if needs_alias:
                         # Use FK column name to create alias
-                        alias_base = to_snake_case(fk['column']).replace('_id', '').replace('_val', '')
+                        alias_base = fk_col_snake.replace('_id', '').replace('_val', '')
                         if not alias_base or alias_base == ref_source_name:
                             alias_base = 'ref'
                         alias = f"{alias_base}_{ref_source_name}"
@@ -300,45 +355,28 @@ def generate_malloy_source(db_id, tables):
                         while alias in used_join_names or alias in col_names:
                             alias = f"{orig_alias}_{counter}"
                             counter += 1
-                        lines.append(f"  join_one: {alias} is {ref_source_name} on {fk_col} = {alias}.{ref_col}")
+                        lines.append(f"  join_one: {alias} is {ref_source_name} on {fk_col_ref} = {alias}.{ref_col_ref}")
                         used_join_names.add(alias)
                     else:
-                        lines.append(f"  join_one: {ref_source_name} on {fk_col} = {ref_source_name}.{ref_col}")
+                        lines.append(f"  join_one: {ref_source_name} on {fk_col_ref} = {ref_source_name}.{ref_col_ref}")
                         used_join_names.add(ref_source_name)
             lines.append("")
 
-        # Dimensions - collect which ones we'll actually define
-        dim_definitions = []
-        for col in table_info['columns']:
-            dim_name = to_snake_case(col['name'])
-            orig_name = col['name']
-            quoted_orig = quote_if_reserved(orig_name)
-
-            # If dimension name equals original name (case-insensitive),
-            # and original doesn't need quoting, skip it (column already exposed)
-            if dim_name.lower() == orig_name.lower() and not needs_quoting(orig_name):
-                # Skip - column already available with correct name
-                continue
-            else:
-                # Define the dimension with proper quoting
-                dim_definitions.append(f"    {dim_name} is {quoted_orig}")
-
-        if dim_definitions:
-            lines.append("  dimension:")
-            lines.extend(dim_definitions)
-            lines.append("")
-
-        # Measures
+        # Measures - use dimension name if defined, else original column name
         numeric_cols = [c for c in table_info['columns'] if c['type'] == 'number']
         lines.append("  measure:")
         lines.append("    row_count is count()")
         for col in numeric_cols:
-            dim_name = to_snake_case(col['name'])
-            orig_name = quote_if_reserved(col['name'])
-            lines.append(f"    total_{dim_name} is sum({orig_name})")
-            lines.append(f"    avg_{dim_name} is avg({orig_name})")
-            lines.append(f"    max_{dim_name} is max({orig_name})")
-            lines.append(f"    min_{dim_name} is min({orig_name})")
+            dim_name = col_map[col['name']]
+            # Use dimension name if we created one, else use quoted original
+            if col['name'] in has_dimension:
+                ref_name = dim_name
+            else:
+                ref_name = quote_if_reserved(col['name'])
+            lines.append(f"    total_{dim_name} is sum({ref_name})")
+            lines.append(f"    avg_{dim_name} is avg({ref_name})")
+            lines.append(f"    max_{dim_name} is max({ref_name})")
+            lines.append(f"    min_{dim_name} is min({ref_name})")
 
         lines.append("}")
         lines.append("")

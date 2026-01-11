@@ -6,86 +6,86 @@
 source: inst is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Inst')
 """) extend {
-  primary_key: instID
-
   dimension:
     inst_i_d is instID
     name_val is `name`
 
+  primary_key: inst_i_d
+
   measure:
     row_count is count()
-    total_inst_i_d is sum(instID)
-    avg_inst_i_d is avg(instID)
-    max_inst_i_d is max(instID)
-    min_inst_i_d is min(instID)
+    total_inst_i_d is sum(inst_i_d)
+    avg_inst_i_d is avg(inst_i_d)
+    max_inst_i_d is max(inst_i_d)
+    min_inst_i_d is min(inst_i_d)
 }
 
 // Authors
 source: authors is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Authors')
 """) extend {
-  primary_key: authID
-
   dimension:
     auth_i_d is authID
 
+  primary_key: auth_i_d
+
   measure:
     row_count is count()
-    total_auth_i_d is sum(authID)
-    avg_auth_i_d is avg(authID)
-    max_auth_i_d is max(authID)
-    min_auth_i_d is min(authID)
+    total_auth_i_d is sum(auth_i_d)
+    avg_auth_i_d is avg(auth_i_d)
+    max_auth_i_d is max(auth_i_d)
+    min_auth_i_d is min(auth_i_d)
 }
 
 // Papers
 source: papers is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Papers')
 """) extend {
-  primary_key: paperID
-
   dimension:
     paper_i_d is paperID
 
+  primary_key: paper_i_d
+
   measure:
     row_count is count()
-    total_paper_i_d is sum(paperID)
-    avg_paper_i_d is avg(paperID)
-    max_paper_i_d is max(paperID)
-    min_paper_i_d is min(paperID)
+    total_paper_i_d is sum(paper_i_d)
+    avg_paper_i_d is avg(paper_i_d)
+    max_paper_i_d is max(paper_i_d)
+    min_paper_i_d is min(paper_i_d)
 }
 
 // Authorship
 source: authorship is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/icfp_1/icfp_1.sqlite', 'Authorship')
 """) extend {
-  primary_key: authID
-
-  join_one: papers on paperID = papers.paperID
-  join_one: inst on instID = inst.instID
-  join_one: authors on authID = authors.authID
-
   dimension:
     auth_i_d is authID
     inst_i_d is instID
     paper_i_d is paperID
     auth_order is authOrder
 
+  primary_key: auth_i_d
+
+  join_one: papers on paper_i_d = papers.paper_i_d
+  join_one: inst on inst_i_d = inst.inst_i_d
+  join_one: authors on auth_i_d = authors.auth_i_d
+
   measure:
     row_count is count()
-    total_auth_i_d is sum(authID)
-    avg_auth_i_d is avg(authID)
-    max_auth_i_d is max(authID)
-    min_auth_i_d is min(authID)
-    total_inst_i_d is sum(instID)
-    avg_inst_i_d is avg(instID)
-    max_inst_i_d is max(instID)
-    min_inst_i_d is min(instID)
-    total_paper_i_d is sum(paperID)
-    avg_paper_i_d is avg(paperID)
-    max_paper_i_d is max(paperID)
-    min_paper_i_d is min(paperID)
-    total_auth_order is sum(authOrder)
-    avg_auth_order is avg(authOrder)
-    max_auth_order is max(authOrder)
-    min_auth_order is min(authOrder)
+    total_auth_i_d is sum(auth_i_d)
+    avg_auth_i_d is avg(auth_i_d)
+    max_auth_i_d is max(auth_i_d)
+    min_auth_i_d is min(auth_i_d)
+    total_inst_i_d is sum(inst_i_d)
+    avg_inst_i_d is avg(inst_i_d)
+    max_inst_i_d is max(inst_i_d)
+    min_inst_i_d is min(inst_i_d)
+    total_paper_i_d is sum(paper_i_d)
+    avg_paper_i_d is avg(paper_i_d)
+    max_paper_i_d is max(paper_i_d)
+    min_paper_i_d is min(paper_i_d)
+    total_auth_order is sum(auth_order)
+    avg_auth_order is avg(auth_order)
+    max_auth_order is max(auth_order)
+    min_auth_order is min(auth_order)
 }

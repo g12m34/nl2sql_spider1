@@ -6,10 +6,10 @@
 source: aircraft is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'aircraft')
 """) extend {
-  primary_key: aid
-
   dimension:
     name_val is `name`
+
+  primary_key: aid
 
   measure:
     row_count is count()
@@ -27,10 +27,10 @@ source: aircraft is duckdb.sql("""
 source: employee is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_1/flight_1.sqlite', 'employee')
 """) extend {
-  primary_key: eid
-
   dimension:
     name_val is `name`
+
+  primary_key: eid
 
   measure:
     row_count is count()

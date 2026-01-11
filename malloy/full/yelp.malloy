@@ -6,11 +6,11 @@
 source: business is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'business')
 """) extend {
-  primary_key: bid
-
   dimension:
     name_val is `name`
     state_val is `state`
+
+  primary_key: bid
 
   measure:
     row_count is count()
@@ -36,10 +36,10 @@ source: business is duckdb.sql("""
 source: user is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'user')
 """) extend {
-  primary_key: uid
-
   dimension:
     name_val is `name`
+
+  primary_key: uid
 
   measure:
     row_count is count()
@@ -69,13 +69,13 @@ source: category is duckdb.sql("""
 source: checkin is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'checkin')
 """) extend {
-  primary_key: cid
-
-  join_one: business on business_id = business.business_id
-
   dimension:
     count_val is `count`
     day_val is `day`
+
+  primary_key: cid
+
+  join_one: business on business_id = business.business_id
 
   measure:
     row_count is count()
@@ -83,10 +83,10 @@ source: checkin is duckdb.sql("""
     avg_cid is avg(cid)
     max_cid is max(cid)
     min_cid is min(cid)
-    total_count_val is sum(`count`)
-    avg_count_val is avg(`count`)
-    max_count_val is max(`count`)
-    min_count_val is min(`count`)
+    total_count_val is sum(count_val)
+    avg_count_val is avg(count_val)
+    max_count_val is max(count_val)
+    min_count_val is min(count_val)
 }
 
 // neighbourhood
@@ -109,14 +109,14 @@ source: neighbourhood is duckdb.sql("""
 source: review is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'review')
 """) extend {
+  dimension:
+    year_val is `year`
+    month_val is `month`
+
   primary_key: rid
 
   join_one: user on user_id = user.user_id
   join_one: business on business_id = business.business_id
-
-  dimension:
-    year_val is `year`
-    month_val is `month`
 
   measure:
     row_count is count()
@@ -128,24 +128,24 @@ source: review is duckdb.sql("""
     avg_rating is avg(rating)
     max_rating is max(rating)
     min_rating is min(rating)
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // tip
 source: tip is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/yelp/yelp.sqlite', 'tip')
 """) extend {
+  dimension:
+    year_val is `year`
+    month_val is `month`
+
   primary_key: tip_id
 
   join_one: user on user_id = user.user_id
   join_one: business on business_id = business.business_id
-
-  dimension:
-    year_val is `year`
-    month_val is `month`
 
   measure:
     row_count is count()
@@ -157,8 +157,8 @@ source: tip is duckdb.sql("""
     avg_likes is avg(likes)
     max_likes is max(likes)
     min_likes is min(likes)
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }

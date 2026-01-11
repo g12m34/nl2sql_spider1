@@ -34,10 +34,10 @@ source: department is duckdb.sql("""
 source: time_slot is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'time_slot')
 """) extend {
-  primary_key: time_slot_id
-
   dimension:
     day_val is `day`
+
+  primary_key: time_slot_id
 
   measure:
     row_count is count()
@@ -79,13 +79,13 @@ source: course is duckdb.sql("""
 source: instructor is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'instructor')
 """) extend {
-  primary_key: ID
-
-  join_one: department on dept_name = department.dept_name
-
   dimension:
     i_d is ID
     name_val is `name`
+
+  primary_key: i_d
+
+  join_one: department on dept_name = department.dept_name
 
   measure:
     row_count is count()
@@ -99,13 +99,13 @@ source: instructor is duckdb.sql("""
 source: student_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'student')
 """) extend {
-  primary_key: ID
-
-  join_one: department on dept_name = department.dept_name
-
   dimension:
     i_d is ID
     name_val is `name`
+
+  primary_key: i_d
+
+  join_one: department on dept_name = department.dept_name
 
   measure:
     row_count is count()
@@ -119,21 +119,21 @@ source: student_val is duckdb.sql("""
 source: section is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'section')
 """) extend {
+  dimension:
+    year_val is `year`
+
   primary_key: course_id
 
   join_one: building_classroom is classroom on building = building_classroom.building
   join_one: room_number_classroom is classroom on room_number = room_number_classroom.room_number
   join_one: course on course_id = course.course_id
 
-  dimension:
-    year_val is `year`
-
   measure:
     row_count is count()
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // prereq
@@ -153,14 +153,14 @@ source: prereq is duckdb.sql("""
 source: advisor is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'advisor')
 """) extend {
-  primary_key: s_ID
-
-  join_one: student_val on s_ID = student_val.ID
-  join_one: instructor on i_ID = instructor.ID
-
   dimension:
     s_i_d is s_ID
     i_i_d is i_ID
+
+  primary_key: s_i_d
+
+  join_one: student_val on s_i_d = student_val.i_d
+  join_one: instructor on i_i_d = instructor.i_d
 
   measure:
     row_count is count()
@@ -170,46 +170,46 @@ source: advisor is duckdb.sql("""
 source: teaches is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'teaches')
 """) extend {
-  primary_key: ID
-
-  join_one: instructor on ID = instructor.ID
-  join_one: course_section is section on course_id = course_section.course_id
-  join_one: sec_section is section on sec_id = sec_section.sec_id
-  join_one: semester_section is section on semester = semester_section.semester
-  join_one: year_section is section on `year` = year_section.`year`
-
   dimension:
     i_d is ID
     year_val is `year`
 
+  primary_key: i_d
+
+  join_one: instructor on i_d = instructor.i_d
+  join_one: course_section is section on course_id = course_section.course_id
+  join_one: sec_section is section on sec_id = sec_section.sec_id
+  join_one: semester_section is section on semester = semester_section.semester
+  join_one: year_section is section on year_val = year_section.year_val
+
   measure:
     row_count is count()
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // takes
 source: takes is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/college_2/college_2.sqlite', 'takes')
 """) extend {
-  primary_key: ID
-
-  join_one: student_val on ID = student_val.ID
-  join_one: course_section is section on course_id = course_section.course_id
-  join_one: sec_section is section on sec_id = sec_section.sec_id
-  join_one: semester_section is section on semester = semester_section.semester
-  join_one: year_section is section on `year` = year_section.`year`
-
   dimension:
     i_d is ID
     year_val is `year`
 
+  primary_key: i_d
+
+  join_one: student_val on i_d = student_val.i_d
+  join_one: course_section is section on course_id = course_section.course_id
+  join_one: sec_section is section on sec_id = sec_section.sec_id
+  join_one: semester_section is section on semester = semester_section.semester
+  join_one: year_section is section on year_val = year_section.year_val
+
   measure:
     row_count is count()
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }

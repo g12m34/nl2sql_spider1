@@ -6,18 +6,18 @@
 source: people_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite', 'people')
 """) extend {
-  primary_key: People_ID
-
   dimension:
     people_i_d is People_ID
     name_val is `Name`
 
+  primary_key: people_i_d
+
   measure:
     row_count is count()
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_height is sum(Height)
     avg_height is avg(Height)
     max_height is max(Height)
@@ -32,24 +32,24 @@ source: people_val is duckdb.sql("""
 source: entrepreneur is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/entrepreneur/entrepreneur.sqlite', 'entrepreneur')
 """) extend {
-  primary_key: Entrepreneur_ID
-
-  join_one: people_val on People_ID = people_val.People_ID
-
   dimension:
     entrepreneur_i_d is Entrepreneur_ID
     people_i_d is People_ID
 
+  primary_key: entrepreneur_i_d
+
+  join_one: people_val on people_i_d = people_val.people_i_d
+
   measure:
     row_count is count()
-    total_entrepreneur_i_d is sum(Entrepreneur_ID)
-    avg_entrepreneur_i_d is avg(Entrepreneur_ID)
-    max_entrepreneur_i_d is max(Entrepreneur_ID)
-    min_entrepreneur_i_d is min(Entrepreneur_ID)
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_entrepreneur_i_d is sum(entrepreneur_i_d)
+    avg_entrepreneur_i_d is avg(entrepreneur_i_d)
+    max_entrepreneur_i_d is max(entrepreneur_i_d)
+    min_entrepreneur_i_d is min(entrepreneur_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_money_requested is sum(Money_Requested)
     avg_money_requested is avg(Money_Requested)
     max_money_requested is max(Money_Requested)

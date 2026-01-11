@@ -6,18 +6,18 @@
 source: journal is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite', 'journal')
 """) extend {
-  primary_key: Journal_ID
-
   dimension:
     journal_i_d is Journal_ID
     date_val is `Date`
 
+  primary_key: journal_i_d
+
   measure:
     row_count is count()
-    total_journal_i_d is sum(Journal_ID)
-    avg_journal_i_d is avg(Journal_ID)
-    max_journal_i_d is max(Journal_ID)
-    min_journal_i_d is min(Journal_ID)
+    total_journal_i_d is sum(journal_i_d)
+    avg_journal_i_d is avg(journal_i_d)
+    max_journal_i_d is max(journal_i_d)
+    min_journal_i_d is min(journal_i_d)
     total_sales is sum(Sales)
     avg_sales is avg(Sales)
     max_sales is max(Sales)
@@ -28,18 +28,18 @@ source: journal is duckdb.sql("""
 source: editor is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite', 'editor')
 """) extend {
-  primary_key: Editor_ID
-
   dimension:
     editor_i_d is Editor_ID
     name_val is `Name`
 
+  primary_key: editor_i_d
+
   measure:
     row_count is count()
-    total_editor_i_d is sum(Editor_ID)
-    avg_editor_i_d is avg(Editor_ID)
-    max_editor_i_d is max(Editor_ID)
-    min_editor_i_d is min(Editor_ID)
+    total_editor_i_d is sum(editor_i_d)
+    avg_editor_i_d is avg(editor_i_d)
+    max_editor_i_d is max(editor_i_d)
+    min_editor_i_d is min(editor_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -50,23 +50,23 @@ source: editor is duckdb.sql("""
 source: journal_committee is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/journal_committee/journal_committee.sqlite', 'journal_committee')
 """) extend {
-  primary_key: Editor_ID
-
-  join_one: journal on Journal_ID = journal.Journal_ID
-  join_one: editor on Editor_ID = editor.Editor_ID
-
   dimension:
     editor_i_d is Editor_ID
     journal_i_d is Journal_ID
 
+  primary_key: editor_i_d
+
+  join_one: journal on journal_i_d = journal.journal_i_d
+  join_one: editor on editor_i_d = editor.editor_i_d
+
   measure:
     row_count is count()
-    total_editor_i_d is sum(Editor_ID)
-    avg_editor_i_d is avg(Editor_ID)
-    max_editor_i_d is max(Editor_ID)
-    min_editor_i_d is min(Editor_ID)
-    total_journal_i_d is sum(Journal_ID)
-    avg_journal_i_d is avg(Journal_ID)
-    max_journal_i_d is max(Journal_ID)
-    min_journal_i_d is min(Journal_ID)
+    total_editor_i_d is sum(editor_i_d)
+    avg_editor_i_d is avg(editor_i_d)
+    max_editor_i_d is max(editor_i_d)
+    min_editor_i_d is min(editor_i_d)
+    total_journal_i_d is sum(journal_i_d)
+    avg_journal_i_d is avg(journal_i_d)
+    max_journal_i_d is max(journal_i_d)
+    min_journal_i_d is min(journal_i_d)
 }

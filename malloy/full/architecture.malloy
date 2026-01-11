@@ -6,10 +6,10 @@
 source: architect is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'architect')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -19,12 +19,12 @@ source: architect is duckdb.sql("""
 source: bridge is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'bridge')
 """) extend {
+  dimension:
+    name_val is `name`
+
   primary_key: id
 
   join_one: architect on architect_id = architect.id
-
-  dimension:
-    name_val is `name`
 
   measure:
     row_count is count()
@@ -50,13 +50,13 @@ source: bridge is duckdb.sql("""
 source: mill is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/architecture/architecture.sqlite', 'mill')
 """) extend {
-  primary_key: id
-
-  join_one: architect on architect_id = architect.id
-
   dimension:
     name_val is `name`
     type_val is `type`
+
+  primary_key: id
+
+  join_one: architect on architect_id = architect.id
 
   measure:
     row_count is count()

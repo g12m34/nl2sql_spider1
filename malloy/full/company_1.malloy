@@ -6,10 +6,10 @@
 source: works_on is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_1/company_1.sqlite', 'works_on')
 """) extend {
-  primary_key: Essn
-
   dimension:
     hours_val is `Hours`
+
+  primary_key: Essn
 
   measure:
     row_count is count()
@@ -21,10 +21,10 @@ source: works_on is duckdb.sql("""
     avg_pno is avg(Pno)
     max_pno is max(Pno)
     min_pno is min(Pno)
-    total_hours_val is sum(`Hours`)
-    avg_hours_val is avg(`Hours`)
-    max_hours_val is max(`Hours`)
-    min_hours_val is min(`Hours`)
+    total_hours_val is sum(hours_val)
+    avg_hours_val is avg(hours_val)
+    max_hours_val is max(hours_val)
+    min_hours_val is min(hours_val)
 }
 
 // employee

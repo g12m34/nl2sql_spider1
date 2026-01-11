@@ -20,12 +20,12 @@ source: airlines is duckdb.sql("""
 source: airports is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'airports')
 """) extend {
-  primary_key: AirportCode
-
   dimension:
     airport_code is AirportCode
     airport_name is AirportName
     country_abbrev is CountryAbbrev
+
+  primary_key: airport_code
 
   measure:
     row_count is count()
@@ -35,15 +35,15 @@ source: airports is duckdb.sql("""
 source: flights is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_2/flight_2.sqlite', 'flights')
 """) extend {
-  primary_key: Airline
-
-  join_one: dest_airport_airports is airports on DestAirport = dest_airport_airports.AirportCode
-  join_one: source_airport_airports is airports on SourceAirport = source_airport_airports.AirportCode
-
   dimension:
     flight_no is FlightNo
     source_airport is SourceAirport
     dest_airport is DestAirport
+
+  primary_key: Airline
+
+  join_one: dest_airport_airports is airports on dest_airport = dest_airport_airports.airport_code
+  join_one: source_airport_airports is airports on source_airport = source_airport_airports.airport_code
 
   measure:
     row_count is count()
@@ -51,8 +51,8 @@ source: flights is duckdb.sql("""
     avg_airline is avg(Airline)
     max_airline is max(Airline)
     min_airline is min(Airline)
-    total_flight_no is sum(FlightNo)
-    avg_flight_no is avg(FlightNo)
-    max_flight_no is max(FlightNo)
-    min_flight_no is min(FlightNo)
+    total_flight_no is sum(flight_no)
+    avg_flight_no is avg(flight_no)
+    max_flight_no is max(flight_no)
+    min_flight_no is min(flight_no)
 }

@@ -6,22 +6,22 @@
 source: company is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'company')
 """) extend {
-  primary_key: Company_ID
-
   dimension:
     company_i_d is Company_ID
     rank_val is `Rank`
 
+  primary_key: company_i_d
+
   measure:
     row_count is count()
-    total_company_i_d is sum(Company_ID)
-    avg_company_i_d is avg(Company_ID)
-    max_company_i_d is max(Company_ID)
-    min_company_i_d is min(Company_ID)
-    total_rank_val is sum(`Rank`)
-    avg_rank_val is avg(`Rank`)
-    max_rank_val is max(`Rank`)
-    min_rank_val is min(`Rank`)
+    total_company_i_d is sum(company_i_d)
+    avg_company_i_d is avg(company_i_d)
+    max_company_i_d is max(company_i_d)
+    min_company_i_d is min(company_i_d)
+    total_rank_val is sum(rank_val)
+    avg_rank_val is avg(rank_val)
+    max_rank_val is max(rank_val)
+    min_rank_val is min(rank_val)
     total_sales_billion is sum(Sales_billion)
     avg_sales_billion is avg(Sales_billion)
     max_sales_billion is max(Sales_billion)
@@ -44,17 +44,17 @@ source: company is duckdb.sql("""
 source: gas_station is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'gas_station')
 """) extend {
-  primary_key: Station_ID
-
   dimension:
     station_i_d is Station_ID
 
+  primary_key: station_i_d
+
   measure:
     row_count is count()
-    total_station_i_d is sum(Station_ID)
-    avg_station_i_d is avg(Station_ID)
-    max_station_i_d is max(Station_ID)
-    min_station_i_d is min(Station_ID)
+    total_station_i_d is sum(station_i_d)
+    avg_station_i_d is avg(station_i_d)
+    max_station_i_d is max(station_i_d)
+    min_station_i_d is min(station_i_d)
     total_open_year is sum(Open_Year)
     avg_open_year is avg(Open_Year)
     max_open_year is max(Open_Year)
@@ -65,25 +65,25 @@ source: gas_station is duckdb.sql("""
 source: station_company is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/gas_company/gas_company.sqlite', 'station_company')
 """) extend {
-  primary_key: Station_ID
-
-  join_one: company on Company_ID = company.Company_ID
-  join_one: gas_station on Station_ID = gas_station.Station_ID
-
   dimension:
     station_i_d is Station_ID
     company_i_d is Company_ID
 
+  primary_key: station_i_d
+
+  join_one: company on company_i_d = company.company_i_d
+  join_one: gas_station on station_i_d = gas_station.station_i_d
+
   measure:
     row_count is count()
-    total_station_i_d is sum(Station_ID)
-    avg_station_i_d is avg(Station_ID)
-    max_station_i_d is max(Station_ID)
-    min_station_i_d is min(Station_ID)
-    total_company_i_d is sum(Company_ID)
-    avg_company_i_d is avg(Company_ID)
-    max_company_i_d is max(Company_ID)
-    min_company_i_d is min(Company_ID)
+    total_station_i_d is sum(station_i_d)
+    avg_station_i_d is avg(station_i_d)
+    max_station_i_d is max(station_i_d)
+    min_station_i_d is min(station_i_d)
+    total_company_i_d is sum(company_i_d)
+    avg_company_i_d is avg(company_i_d)
+    max_company_i_d is max(company_i_d)
+    min_company_i_d is min(company_i_d)
     total_rank_of_the_year is sum(Rank_of_the_Year)
     avg_rank_of_the_year is avg(Rank_of_the_Year)
     max_rank_of_the_year is max(Rank_of_the_Year)

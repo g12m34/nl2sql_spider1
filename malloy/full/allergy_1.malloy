@@ -6,10 +6,10 @@
 source: allergy_type is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Allergy_Type')
 """) extend {
-  primary_key: Allergy
-
   dimension:
     allergy_type is AllergyType
+
+  primary_key: Allergy
 
   measure:
     row_count is count()
@@ -19,18 +19,18 @@ source: allergy_type is duckdb.sql("""
 source: student_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Student')
 """) extend {
-  primary_key: StuID
-
   dimension:
     stu_i_d is StuID
     l_name is LName
 
+  primary_key: stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -49,16 +49,16 @@ source: student_val is duckdb.sql("""
 source: has_allergy is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/allergy_1/allergy_1.sqlite', 'Has_Allergy')
 """) extend {
-  join_one: allergy_type on Allergy = allergy_type.Allergy
-  join_one: student_val on StuID = student_val.StuID
-
   dimension:
     stu_i_d is StuID
 
+  join_one: allergy_type on Allergy = allergy_type.Allergy
+  join_one: student_val on stu_i_d = student_val.stu_i_d
+
   measure:
     row_count is count()
-    total_stu_i_d is sum(StuID)
-    avg_stu_i_d is avg(StuID)
-    max_stu_i_d is max(StuID)
-    min_stu_i_d is min(StuID)
+    total_stu_i_d is sum(stu_i_d)
+    avg_stu_i_d is avg(stu_i_d)
+    max_stu_i_d is max(stu_i_d)
+    min_stu_i_d is min(stu_i_d)
 }

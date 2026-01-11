@@ -6,18 +6,18 @@
 source: phone is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_market/phone_market.sqlite', 'phone')
 """) extend {
-  primary_key: Phone_ID
-
   dimension:
     name_val is `Name`
     phone_i_d is Phone_ID
 
+  primary_key: phone_i_d
+
   measure:
     row_count is count()
-    total_phone_i_d is sum(Phone_ID)
-    avg_phone_i_d is avg(Phone_ID)
-    max_phone_i_d is max(Phone_ID)
-    min_phone_i_d is min(Phone_ID)
+    total_phone_i_d is sum(phone_i_d)
+    avg_phone_i_d is avg(phone_i_d)
+    max_phone_i_d is max(phone_i_d)
+    min_phone_i_d is min(phone_i_d)
     total_memory_in_g is sum(Memory_in_G)
     avg_memory_in_g is avg(Memory_in_G)
     max_memory_in_g is max(Memory_in_G)
@@ -32,17 +32,17 @@ source: phone is duckdb.sql("""
 source: market is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_market/phone_market.sqlite', 'market')
 """) extend {
-  primary_key: Market_ID
-
   dimension:
     market_i_d is Market_ID
 
+  primary_key: market_i_d
+
   measure:
     row_count is count()
-    total_market_i_d is sum(Market_ID)
-    avg_market_i_d is avg(Market_ID)
-    max_market_i_d is max(Market_ID)
-    min_market_i_d is min(Market_ID)
+    total_market_i_d is sum(market_i_d)
+    avg_market_i_d is avg(market_i_d)
+    max_market_i_d is max(market_i_d)
+    min_market_i_d is min(market_i_d)
     total_num_of_employees is sum(Num_of_employees)
     avg_num_of_employees is avg(Num_of_employees)
     max_num_of_employees is max(Num_of_employees)
@@ -61,21 +61,21 @@ source: market is duckdb.sql("""
 source: phone_market is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/phone_market/phone_market.sqlite', 'phone_market')
 """) extend {
-  primary_key: Market_ID
-
-  join_one: phone on Phone_ID = phone.Phone_ID
-  join_one: market on Market_ID = market.Market_ID
-
   dimension:
     market_i_d is Market_ID
     phone_i_d is Phone_ID
 
+  primary_key: market_i_d
+
+  join_one: phone on phone_i_d = phone.phone_i_d
+  join_one: market on market_i_d = market.market_i_d
+
   measure:
     row_count is count()
-    total_market_i_d is sum(Market_ID)
-    avg_market_i_d is avg(Market_ID)
-    max_market_i_d is max(Market_ID)
-    min_market_i_d is min(Market_ID)
+    total_market_i_d is sum(market_i_d)
+    avg_market_i_d is avg(market_i_d)
+    max_market_i_d is max(market_i_d)
+    min_market_i_d is min(market_i_d)
     total_num_of_stock is sum(Num_of_stock)
     avg_num_of_stock is avg(Num_of_stock)
     max_num_of_stock is max(Num_of_stock)

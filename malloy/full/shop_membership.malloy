@@ -6,84 +6,84 @@
 source: member is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'member')
 """) extend {
-  primary_key: Member_ID
-
   dimension:
     member_i_d is Member_ID
     name_val is `Name`
     level_val is `Level`
 
+  primary_key: member_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
-    total_level_val is sum(`Level`)
-    avg_level_val is avg(`Level`)
-    max_level_val is max(`Level`)
-    min_level_val is min(`Level`)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
+    total_level_val is sum(level_val)
+    avg_level_val is avg(level_val)
+    max_level_val is max(level_val)
+    min_level_val is min(level_val)
 }
 
 // branch
 source: branch is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'branch')
 """) extend {
-  primary_key: Branch_ID
-
   dimension:
     branch_i_d is Branch_ID
     name_val is `Name`
 
+  primary_key: branch_i_d
+
   measure:
     row_count is count()
-    total_branch_i_d is sum(Branch_ID)
-    avg_branch_i_d is avg(Branch_ID)
-    max_branch_i_d is max(Branch_ID)
-    min_branch_i_d is min(Branch_ID)
+    total_branch_i_d is sum(branch_i_d)
+    avg_branch_i_d is avg(branch_i_d)
+    max_branch_i_d is max(branch_i_d)
+    min_branch_i_d is min(branch_i_d)
 }
 
 // membership_register_branch
 source: membership_register_branch is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'membership_register_branch')
 """) extend {
-  primary_key: Member_ID
-
-  join_one: branch on Branch_ID = branch.Branch_ID
-  join_one: member on Member_ID = member.Member_ID
-
   dimension:
     member_i_d is Member_ID
     branch_i_d is Branch_ID
 
+  primary_key: member_i_d
+
+  join_one: branch on branch_i_d = branch.branch_i_d
+  join_one: member on member_i_d = member.member_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
 }
 
 // purchase
 source: purchase is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/shop_membership/shop_membership.sqlite', 'purchase')
 """) extend {
-  primary_key: Member_ID
-
-  join_one: branch on Branch_ID = branch.Branch_ID
-  join_one: member on Member_ID = member.Member_ID
-
   dimension:
     member_i_d is Member_ID
     branch_i_d is Branch_ID
     year_val is `Year`
 
+  primary_key: member_i_d
+
+  join_one: branch on branch_i_d = branch.branch_i_d
+  join_one: member on member_i_d = member.member_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
     total_total_pounds is sum(Total_pounds)
     avg_total_pounds is avg(Total_pounds)
     max_total_pounds is max(Total_pounds)

@@ -9,7 +9,13 @@
       "Bash(docker compose build:*)",
       "Bash(docker compose run --rm nl2sql bash -c \"echo ''User:'' && whoami && echo && claude --dangerously-skip-permissions -p ''echo hello'' 2>&1 | head -20\")",
       "Bash(docker volume rm:*)",
-      "Bash(docker compose run --rm nl2sql bash -c \"whoami && ls -la /home/dev/ && echo && claude --dangerously-skip-permissions -p ''say hello'' 2>&1 | head -30\")"
+      "Bash(docker compose run --rm nl2sql bash -c \"whoami && ls -la /home/dev/ && echo && claude --dangerously-skip-permissions -p ''say hello'' 2>&1 | head -30\")",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(python3:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:yale-lily.github.io)",
+      "Bash(pip3 install:*)"
     ]
   }
 }

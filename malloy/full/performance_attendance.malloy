@@ -6,11 +6,11 @@
 source: member is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'member')
 """) extend {
-  primary_key: Member_ID
-
   dimension:
     member_i_d is Member_ID
     name_val is `Name`
+
+  primary_key: member_i_d
 
   measure:
     row_count is count()
@@ -20,18 +20,18 @@ source: member is duckdb.sql("""
 source: performance is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'performance')
 """) extend {
-  primary_key: Performance_ID
-
   dimension:
     performance_i_d is Performance_ID
     date_val is `Date`
 
+  primary_key: performance_i_d
+
   measure:
     row_count is count()
-    total_performance_i_d is sum(Performance_ID)
-    avg_performance_i_d is avg(Performance_ID)
-    max_performance_i_d is max(Performance_ID)
-    min_performance_i_d is min(Performance_ID)
+    total_performance_i_d is sum(performance_i_d)
+    avg_performance_i_d is avg(performance_i_d)
+    max_performance_i_d is max(performance_i_d)
+    min_performance_i_d is min(performance_i_d)
     total_attendance is sum(Attendance)
     avg_attendance is avg(Attendance)
     max_attendance is max(Attendance)
@@ -42,25 +42,25 @@ source: performance is duckdb.sql("""
 source: member_attendance is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/performance_attendance/performance_attendance.sqlite', 'member_attendance')
 """) extend {
-  primary_key: Member_ID
-
-  join_one: performance on Performance_ID = performance.Performance_ID
-  join_one: member on Member_ID = member.Member_ID
-
   dimension:
     member_i_d is Member_ID
     performance_i_d is Performance_ID
 
+  primary_key: member_i_d
+
+  join_one: performance on performance_i_d = performance.performance_i_d
+  join_one: member on member_i_d = member.member_i_d
+
   measure:
     row_count is count()
-    total_member_i_d is sum(Member_ID)
-    avg_member_i_d is avg(Member_ID)
-    max_member_i_d is max(Member_ID)
-    min_member_i_d is min(Member_ID)
-    total_performance_i_d is sum(Performance_ID)
-    avg_performance_i_d is avg(Performance_ID)
-    max_performance_i_d is max(Performance_ID)
-    min_performance_i_d is min(Performance_ID)
+    total_member_i_d is sum(member_i_d)
+    avg_member_i_d is avg(member_i_d)
+    max_member_i_d is max(member_i_d)
+    min_member_i_d is min(member_i_d)
+    total_performance_i_d is sum(performance_i_d)
+    avg_performance_i_d is avg(performance_i_d)
+    max_performance_i_d is max(performance_i_d)
+    min_performance_i_d is min(performance_i_d)
     total_num_of_pieces is sum(Num_of_Pieces)
     avg_num_of_pieces is avg(Num_of_Pieces)
     max_num_of_pieces is max(Num_of_Pieces)

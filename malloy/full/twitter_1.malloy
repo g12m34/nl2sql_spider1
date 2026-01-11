@@ -6,10 +6,10 @@
 source: user_profiles is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/twitter_1/twitter_1.sqlite', 'user_profiles')
 """) extend {
-  primary_key: uid
-
   dimension:
     name_val is `name`
+
+  primary_key: uid
 
   measure:
     row_count is count()

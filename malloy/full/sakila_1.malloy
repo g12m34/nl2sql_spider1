@@ -20,10 +20,10 @@ source: actor_val is duckdb.sql("""
 source: category is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'category')
 """) extend {
-  primary_key: category_id
-
   dimension:
     name_val is `name`
+
+  primary_key: category_id
 
   measure:
     row_count is count()
@@ -65,10 +65,10 @@ source: film_text is duckdb.sql("""
 source: language_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/sakila_1/sakila_1.sqlite', 'language')
 """) extend {
-  primary_key: language_id
-
   dimension:
     name_val is `name`
+
+  primary_key: language_id
 
   measure:
     row_count is count()

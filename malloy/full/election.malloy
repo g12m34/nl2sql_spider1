@@ -24,43 +24,43 @@ source: county is duckdb.sql("""
 source: party is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'party')
 """) extend {
-  primary_key: Party_ID
-
   dimension:
     party_i_d is Party_ID
     year_val is `Year`
     u_s_senate is US_Senate
 
+  primary_key: party_i_d
+
   measure:
     row_count is count()
-    total_party_i_d is sum(Party_ID)
-    avg_party_i_d is avg(Party_ID)
-    max_party_i_d is max(Party_ID)
-    min_party_i_d is min(Party_ID)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_party_i_d is sum(party_i_d)
+    avg_party_i_d is avg(party_i_d)
+    max_party_i_d is max(party_i_d)
+    min_party_i_d is min(party_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // election
 source: election is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/election/election.sqlite', 'election')
 """) extend {
-  primary_key: Election_ID
-
-  join_one: county on District = county.County_Id
-  join_one: ref_party is party on Party = ref_party.Party_ID
-
   dimension:
     election_i_d is Election_ID
 
+  primary_key: election_i_d
+
+  join_one: county on District = county.County_Id
+  join_one: ref_party is party on Party = ref_party.party_i_d
+
   measure:
     row_count is count()
-    total_election_i_d is sum(Election_ID)
-    avg_election_i_d is avg(Election_ID)
-    max_election_i_d is max(Election_ID)
-    min_election_i_d is min(Election_ID)
+    total_election_i_d is sum(election_i_d)
+    avg_election_i_d is avg(election_i_d)
+    max_election_i_d is max(election_i_d)
+    min_election_i_d is min(election_i_d)
     total_district is sum(District)
     avg_district is avg(District)
     max_district is max(District)

@@ -6,64 +6,64 @@
 source: movie is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Movie')
 """) extend {
-  primary_key: mID
-
   dimension:
     m_i_d is mID
     year_val is `year`
 
+  primary_key: m_i_d
+
   measure:
     row_count is count()
-    total_m_i_d is sum(mID)
-    avg_m_i_d is avg(mID)
-    max_m_i_d is max(mID)
-    min_m_i_d is min(mID)
-    total_year_val is sum(`year`)
-    avg_year_val is avg(`year`)
-    max_year_val is max(`year`)
-    min_year_val is min(`year`)
+    total_m_i_d is sum(m_i_d)
+    avg_m_i_d is avg(m_i_d)
+    max_m_i_d is max(m_i_d)
+    min_m_i_d is min(m_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
 }
 
 // Reviewer
 source: reviewer is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Reviewer')
 """) extend {
-  primary_key: rID
-
   dimension:
     r_i_d is rID
     name_val is `name`
 
+  primary_key: r_i_d
+
   measure:
     row_count is count()
-    total_r_i_d is sum(rID)
-    avg_r_i_d is avg(rID)
-    max_r_i_d is max(rID)
-    min_r_i_d is min(rID)
+    total_r_i_d is sum(r_i_d)
+    avg_r_i_d is avg(r_i_d)
+    max_r_i_d is max(r_i_d)
+    min_r_i_d is min(r_i_d)
 }
 
 // Rating
 source: rating is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/movie_1/movie_1.sqlite', 'Rating')
 """) extend {
-  join_one: reviewer on rID = reviewer.rID
-  join_one: movie on mID = movie.mID
-
   dimension:
     r_i_d is rID
     m_i_d is mID
     rating_date is ratingDate
 
+  join_one: reviewer on r_i_d = reviewer.r_i_d
+  join_one: movie on m_i_d = movie.m_i_d
+
   measure:
     row_count is count()
-    total_r_i_d is sum(rID)
-    avg_r_i_d is avg(rID)
-    max_r_i_d is max(rID)
-    min_r_i_d is min(rID)
-    total_m_i_d is sum(mID)
-    avg_m_i_d is avg(mID)
-    max_m_i_d is max(mID)
-    min_m_i_d is min(mID)
+    total_r_i_d is sum(r_i_d)
+    avg_r_i_d is avg(r_i_d)
+    max_r_i_d is max(r_i_d)
+    min_r_i_d is min(r_i_d)
+    total_m_i_d is sum(m_i_d)
+    avg_m_i_d is avg(m_i_d)
+    max_m_i_d is max(m_i_d)
+    min_m_i_d is min(m_i_d)
     total_stars is sum(stars)
     avg_stars is avg(stars)
     max_stars is max(stars)

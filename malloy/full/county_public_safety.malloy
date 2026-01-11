@@ -6,18 +6,18 @@
 source: county_public_safety is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite', 'county_public_safety')
 """) extend {
-  primary_key: County_ID
-
   dimension:
     county_i_d is County_ID
     name_val is `Name`
 
+  primary_key: county_i_d
+
   measure:
     row_count is count()
-    total_county_i_d is sum(County_ID)
-    avg_county_i_d is avg(County_ID)
-    max_county_i_d is max(County_ID)
-    min_county_i_d is min(County_ID)
+    total_county_i_d is sum(county_i_d)
+    avg_county_i_d is avg(county_i_d)
+    max_county_i_d is max(county_i_d)
+    min_county_i_d is min(county_i_d)
     total_population is sum(Population)
     avg_population is avg(Population)
     max_population is max(Population)
@@ -44,25 +44,25 @@ source: county_public_safety is duckdb.sql("""
 source: city is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/county_public_safety/county_public_safety.sqlite', 'city')
 """) extend {
-  primary_key: City_ID
-
-  join_one: county_public_safety on County_ID = county_public_safety.County_ID
-
   dimension:
     city_i_d is City_ID
     county_i_d is County_ID
     name_val is `Name`
 
+  primary_key: city_i_d
+
+  join_one: county_public_safety on county_i_d = county_public_safety.county_i_d
+
   measure:
     row_count is count()
-    total_city_i_d is sum(City_ID)
-    avg_city_i_d is avg(City_ID)
-    max_city_i_d is max(City_ID)
-    min_city_i_d is min(City_ID)
-    total_county_i_d is sum(County_ID)
-    avg_county_i_d is avg(County_ID)
-    max_county_i_d is max(County_ID)
-    min_county_i_d is min(County_ID)
+    total_city_i_d is sum(city_i_d)
+    avg_city_i_d is avg(city_i_d)
+    max_city_i_d is max(city_i_d)
+    min_city_i_d is min(city_i_d)
+    total_county_i_d is sum(county_i_d)
+    avg_county_i_d is avg(county_i_d)
+    max_county_i_d is max(county_i_d)
+    min_county_i_d is min(county_i_d)
     total_white is sum(White)
     avg_white is avg(White)
     max_white is max(White)

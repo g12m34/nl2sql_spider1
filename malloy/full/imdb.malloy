@@ -6,10 +6,10 @@
 source: actor_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'actor')
 """) extend {
-  primary_key: aid
-
   dimension:
     name_val is `name`
+
+  primary_key: aid
 
   measure:
     row_count is count()
@@ -63,10 +63,10 @@ source: genre is duckdb.sql("""
 source: company is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'company')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -80,10 +80,10 @@ source: company is duckdb.sql("""
 source: director is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'director')
 """) extend {
-  primary_key: did
-
   dimension:
     name_val is `name`
+
+  primary_key: did
 
   measure:
     row_count is count()
@@ -101,10 +101,10 @@ source: director is duckdb.sql("""
 source: producer is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'producer')
 """) extend {
-  primary_key: pid
-
   dimension:
     name_val is `name`
+
+  primary_key: pid
 
   measure:
     row_count is count()
@@ -180,10 +180,10 @@ source: tv_series is duckdb.sql("""
 source: writer is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/imdb/imdb.sqlite', 'writer')
 """) extend {
-  primary_key: wid
-
   dimension:
     name_val is `name`
+
+  primary_key: wid
 
   measure:
     row_count is count()
@@ -191,10 +191,10 @@ source: writer is duckdb.sql("""
     avg_wid is avg(wid)
     max_wid is max(wid)
     min_wid is min(wid)
-    total_name_val is sum(`name`)
-    avg_name_val is avg(`name`)
-    max_name_val is max(`name`)
-    min_name_val is min(`name`)
+    total_name_val is sum(name_val)
+    avg_name_val is avg(name_val)
+    max_name_val is max(name_val)
+    min_name_val is min(name_val)
     total_nationality is sum(nationality)
     avg_nationality is avg(nationality)
     max_nationality is max(nationality)

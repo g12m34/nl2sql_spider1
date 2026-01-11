@@ -6,18 +6,18 @@
 source: singer is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/singer/singer.sqlite', 'singer')
 """) extend {
-  primary_key: Singer_ID
-
   dimension:
     singer_i_d is Singer_ID
     name_val is `Name`
 
+  primary_key: singer_i_d
+
   measure:
     row_count is count()
-    total_singer_i_d is sum(Singer_ID)
-    avg_singer_i_d is avg(Singer_ID)
-    max_singer_i_d is max(Singer_ID)
-    min_singer_i_d is min(Singer_ID)
+    total_singer_i_d is sum(singer_i_d)
+    avg_singer_i_d is avg(singer_i_d)
+    max_singer_i_d is max(singer_i_d)
+    min_singer_i_d is min(singer_i_d)
     total_birth_year is sum(Birth_Year)
     avg_birth_year is avg(Birth_Year)
     max_birth_year is max(Birth_Year)
@@ -32,24 +32,24 @@ source: singer is duckdb.sql("""
 source: song is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/singer/singer.sqlite', 'song')
 """) extend {
-  primary_key: Song_ID
-
-  join_one: singer on Singer_ID = singer.Singer_ID
-
   dimension:
     song_i_d is Song_ID
     singer_i_d is Singer_ID
 
+  primary_key: song_i_d
+
+  join_one: singer on singer_i_d = singer.singer_i_d
+
   measure:
     row_count is count()
-    total_song_i_d is sum(Song_ID)
-    avg_song_i_d is avg(Song_ID)
-    max_song_i_d is max(Song_ID)
-    min_song_i_d is min(Song_ID)
-    total_singer_i_d is sum(Singer_ID)
-    avg_singer_i_d is avg(Singer_ID)
-    max_singer_i_d is max(Singer_ID)
-    min_singer_i_d is min(Singer_ID)
+    total_song_i_d is sum(song_i_d)
+    avg_song_i_d is avg(song_i_d)
+    max_song_i_d is max(song_i_d)
+    min_song_i_d is min(song_i_d)
+    total_singer_i_d is sum(singer_i_d)
+    avg_singer_i_d is avg(singer_i_d)
+    max_singer_i_d is max(singer_i_d)
+    min_singer_i_d is min(singer_i_d)
     total_sales is sum(Sales)
     avg_sales is avg(Sales)
     max_sales is max(Sales)

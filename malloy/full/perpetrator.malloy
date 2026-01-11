@@ -6,19 +6,19 @@
 source: people_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'people')
 """) extend {
-  primary_key: People_ID
-
   dimension:
     people_i_d is People_ID
     name_val is `Name`
     home_town is `Home Town`
 
+  primary_key: people_i_d
+
   measure:
     row_count is count()
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_height is sum(Height)
     avg_height is avg(Height)
     max_height is max(Height)
@@ -33,30 +33,30 @@ source: people_val is duckdb.sql("""
 source: perpetrator is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/perpetrator/perpetrator.sqlite', 'perpetrator')
 """) extend {
-  primary_key: Perpetrator_ID
-
-  join_one: people_val on People_ID = people_val.People_ID
-
   dimension:
     perpetrator_i_d is Perpetrator_ID
     people_i_d is People_ID
     date_val is `Date`
     year_val is `Year`
 
+  primary_key: perpetrator_i_d
+
+  join_one: people_val on people_i_d = people_val.people_i_d
+
   measure:
     row_count is count()
-    total_perpetrator_i_d is sum(Perpetrator_ID)
-    avg_perpetrator_i_d is avg(Perpetrator_ID)
-    max_perpetrator_i_d is max(Perpetrator_ID)
-    min_perpetrator_i_d is min(Perpetrator_ID)
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_perpetrator_i_d is sum(perpetrator_i_d)
+    avg_perpetrator_i_d is avg(perpetrator_i_d)
+    max_perpetrator_i_d is max(perpetrator_i_d)
+    min_perpetrator_i_d is min(perpetrator_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
     total_killed is sum(Killed)
     avg_killed is avg(Killed)
     max_killed is max(Killed)

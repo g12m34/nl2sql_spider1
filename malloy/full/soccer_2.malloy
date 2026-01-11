@@ -6,11 +6,11 @@
 source: college is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'College')
 """) extend {
-  primary_key: cName
-
   dimension:
     c_name is cName
     state_val is `state`
+
+  primary_key: c_name
 
   measure:
     row_count is count()
@@ -24,44 +24,44 @@ source: college is duckdb.sql("""
 source: player is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'Player')
 """) extend {
-  primary_key: pID
-
   dimension:
     p_i_d is pID
     p_name is pName
     y_card is yCard
     h_s is HS
 
+  primary_key: p_i_d
+
   measure:
     row_count is count()
-    total_p_i_d is sum(pID)
-    avg_p_i_d is avg(pID)
-    max_p_i_d is max(pID)
-    min_p_i_d is min(pID)
-    total_h_s is sum(HS)
-    avg_h_s is avg(HS)
-    max_h_s is max(HS)
-    min_h_s is min(HS)
+    total_p_i_d is sum(p_i_d)
+    avg_p_i_d is avg(p_i_d)
+    max_p_i_d is max(p_i_d)
+    min_p_i_d is min(p_i_d)
+    total_h_s is sum(h_s)
+    avg_h_s is avg(h_s)
+    max_h_s is max(h_s)
+    min_h_s is min(h_s)
 }
 
 // Tryout
 source: tryout is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_2/soccer_2.sqlite', 'Tryout')
 """) extend {
-  primary_key: pID
-
-  join_one: college on cName = college.cName
-  join_one: player on pID = player.pID
-
   dimension:
     p_i_d is pID
     c_name is cName
     p_pos is pPos
 
+  primary_key: p_i_d
+
+  join_one: college on c_name = college.c_name
+  join_one: player on p_i_d = player.p_i_d
+
   measure:
     row_count is count()
-    total_p_i_d is sum(pID)
-    avg_p_i_d is avg(pID)
-    max_p_i_d is max(pID)
-    min_p_i_d is min(pID)
+    total_p_i_d is sum(p_i_d)
+    avg_p_i_d is avg(p_i_d)
+    max_p_i_d is max(p_i_d)
+    min_p_i_d is min(p_i_d)
 }

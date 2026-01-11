@@ -139,7 +139,10 @@ source: residents_services is duckdb.sql("""
 source: customer_events is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customer_Events')
 """) extend {
-  primary_key: Customer_Event_ID
+  dimension:
+    customer_event_i_d is Customer_Event_ID
+
+  primary_key: customer_event_i_d
 
   join_one: resident_residents is residents on resident_id = resident_residents.resident_id
   join_one: property_residents is residents on property_id = property_residents.property_id
@@ -147,15 +150,12 @@ source: customer_events is duckdb.sql("""
   join_one: customers on customer_id = customers.customer_id
   join_one: things on thing_id = things.thing_id
 
-  dimension:
-    customer_event_i_d is Customer_Event_ID
-
   measure:
     row_count is count()
-    total_customer_event_i_d is sum(Customer_Event_ID)
-    avg_customer_event_i_d is avg(Customer_Event_ID)
-    max_customer_event_i_d is max(Customer_Event_ID)
-    min_customer_event_i_d is min(Customer_Event_ID)
+    total_customer_event_i_d is sum(customer_event_i_d)
+    avg_customer_event_i_d is avg(customer_event_i_d)
+    max_customer_event_i_d is max(customer_event_i_d)
+    min_customer_event_i_d is min(customer_event_i_d)
     total_customer_id is sum(customer_id)
     avg_customer_id is avg(customer_id)
     max_customer_id is max(customer_id)
@@ -210,24 +210,24 @@ source: timed_locations_of_things is duckdb.sql("""
 source: customer_event_notes is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/local_govt_and_lot/local_govt_and_lot.sqlite', 'Customer_Event_Notes')
 """) extend {
-  primary_key: Customer_Event_Note_ID
-
-  join_one: customer_events on Customer_Event_ID = customer_events.Customer_Event_ID
-
   dimension:
     customer_event_note_i_d is Customer_Event_Note_ID
     customer_event_i_d is Customer_Event_ID
 
+  primary_key: customer_event_note_i_d
+
+  join_one: customer_events on customer_event_i_d = customer_events.customer_event_i_d
+
   measure:
     row_count is count()
-    total_customer_event_note_i_d is sum(Customer_Event_Note_ID)
-    avg_customer_event_note_i_d is avg(Customer_Event_Note_ID)
-    max_customer_event_note_i_d is max(Customer_Event_Note_ID)
-    min_customer_event_note_i_d is min(Customer_Event_Note_ID)
-    total_customer_event_i_d is sum(Customer_Event_ID)
-    avg_customer_event_i_d is avg(Customer_Event_ID)
-    max_customer_event_i_d is max(Customer_Event_ID)
-    min_customer_event_i_d is min(Customer_Event_ID)
+    total_customer_event_note_i_d is sum(customer_event_note_i_d)
+    avg_customer_event_note_i_d is avg(customer_event_note_i_d)
+    max_customer_event_note_i_d is max(customer_event_note_i_d)
+    min_customer_event_note_i_d is min(customer_event_note_i_d)
+    total_customer_event_i_d is sum(customer_event_i_d)
+    avg_customer_event_i_d is avg(customer_event_i_d)
+    max_customer_event_i_d is max(customer_event_i_d)
+    min_customer_event_i_d is min(customer_event_i_d)
     total_resident_id is sum(resident_id)
     avg_resident_id is avg(resident_id)
     max_resident_id is max(resident_id)

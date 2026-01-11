@@ -6,12 +6,12 @@
 source: airport is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'airport')
 """) extend {
-  primary_key: id
-
   dimension:
     i_a_t_a is IATA
     i_c_a_o is ICAO
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -25,11 +25,11 @@ source: airport is duckdb.sql("""
 source: operate_company is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'operate_company')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
     type_val is `Type`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -47,13 +47,13 @@ source: operate_company is duckdb.sql("""
 source: flight is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/flight_company/flight_company.sqlite', 'flight')
 """) extend {
+  dimension:
+    date_val is `Date`
+
   primary_key: id
 
   join_one: operate_company on company_id = operate_company.id
   join_one: airport on airport_id = airport.id
-
-  dimension:
-    date_val is `Date`
 
   measure:
     row_count is count()

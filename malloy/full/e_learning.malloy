@@ -6,10 +6,10 @@
 source: course_authors_and_tutors is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/e_learning/e_learning.sqlite', 'Course_Authors_and_Tutors')
 """) extend {
-  primary_key: author_id
-
   dimension:
     author_tutor_a_t_b is author_tutor_ATB
+
+  primary_key: author_id
 
   measure:
     row_count is count()

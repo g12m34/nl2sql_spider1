@@ -54,10 +54,10 @@ source: treatment_types is duckdb.sql("""
 source: owners is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Owners')
 """) extend {
-  primary_key: owner_id
-
   dimension:
     state_val is `state`
+
+  primary_key: owner_id
 
   measure:
     row_count is count()
@@ -71,10 +71,10 @@ source: owners is duckdb.sql("""
 source: professionals is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Professionals')
 """) extend {
-  primary_key: professional_id
-
   dimension:
     state_val is `state`
+
+  primary_key: professional_id
 
   measure:
     row_count is count()
@@ -88,15 +88,15 @@ source: professionals is duckdb.sql("""
 source: dogs is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/dog_kennels/dog_kennels.sqlite', 'Dogs')
 """) extend {
+  dimension:
+    name_val is `name`
+
   primary_key: dog_id
 
   join_one: owner_owners is owners on owner_id = owner_owners.owner_id
   join_one: owner_owners_2 is owners on owner_id = owner_owners_2.owner_id
   join_one: sizes on size_code = sizes.size_code
   join_one: breeds on breed_code = breeds.breed_code
-
-  dimension:
-    name_val is `name`
 
   measure:
     row_count is count()

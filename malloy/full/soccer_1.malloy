@@ -36,10 +36,10 @@ source: player is duckdb.sql("""
 source: country is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Country')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -75,13 +75,13 @@ source: team is duckdb.sql("""
 source: player_attributes is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Player_Attributes')
 """) extend {
+  dimension:
+    date_val is `date`
+
   primary_key: id
 
   join_one: player_api_player is player on player_api_id = player_api_player.player_api_id
   join_one: player_fifa_api_player is player on player_fifa_api_id = player_fifa_api_player.player_fifa_api_id
-
-  dimension:
-    date_val is `date`
 
   measure:
     row_count is count()
@@ -243,12 +243,12 @@ source: player_attributes is duckdb.sql("""
 source: league is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'League')
 """) extend {
+  dimension:
+    name_val is `name`
+
   primary_key: id
 
   join_one: country on country_id = country.id
-
-  dimension:
-    name_val is `name`
 
   measure:
     row_count is count()
@@ -266,11 +266,6 @@ source: league is duckdb.sql("""
 source: team_attributes is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/soccer_1/soccer_1.sqlite', 'Team_Attributes')
 """) extend {
-  primary_key: id
-
-  join_one: team_api_team is team on team_api_id = team_api_team.team_api_id
-  join_one: team_fifa_api_team is team on team_fifa_api_id = team_fifa_api_team.team_fifa_api_id
-
   dimension:
     date_val is `date`
     build_up_play_speed is buildUpPlaySpeed
@@ -295,6 +290,11 @@ source: team_attributes is duckdb.sql("""
     defence_team_width_class is defenceTeamWidthClass
     defence_defender_line_class is defenceDefenderLineClass
 
+  primary_key: id
+
+  join_one: team_api_team is team on team_api_id = team_api_team.team_api_id
+  join_one: team_fifa_api_team is team on team_fifa_api_id = team_fifa_api_team.team_fifa_api_id
+
   measure:
     row_count is count()
     total_id is sum(id)
@@ -309,40 +309,40 @@ source: team_attributes is duckdb.sql("""
     avg_team_api_id is avg(team_api_id)
     max_team_api_id is max(team_api_id)
     min_team_api_id is min(team_api_id)
-    total_build_up_play_speed is sum(buildUpPlaySpeed)
-    avg_build_up_play_speed is avg(buildUpPlaySpeed)
-    max_build_up_play_speed is max(buildUpPlaySpeed)
-    min_build_up_play_speed is min(buildUpPlaySpeed)
-    total_build_up_play_dribbling is sum(buildUpPlayDribbling)
-    avg_build_up_play_dribbling is avg(buildUpPlayDribbling)
-    max_build_up_play_dribbling is max(buildUpPlayDribbling)
-    min_build_up_play_dribbling is min(buildUpPlayDribbling)
-    total_build_up_play_passing is sum(buildUpPlayPassing)
-    avg_build_up_play_passing is avg(buildUpPlayPassing)
-    max_build_up_play_passing is max(buildUpPlayPassing)
-    min_build_up_play_passing is min(buildUpPlayPassing)
-    total_chance_creation_passing is sum(chanceCreationPassing)
-    avg_chance_creation_passing is avg(chanceCreationPassing)
-    max_chance_creation_passing is max(chanceCreationPassing)
-    min_chance_creation_passing is min(chanceCreationPassing)
-    total_chance_creation_crossing is sum(chanceCreationCrossing)
-    avg_chance_creation_crossing is avg(chanceCreationCrossing)
-    max_chance_creation_crossing is max(chanceCreationCrossing)
-    min_chance_creation_crossing is min(chanceCreationCrossing)
-    total_chance_creation_shooting is sum(chanceCreationShooting)
-    avg_chance_creation_shooting is avg(chanceCreationShooting)
-    max_chance_creation_shooting is max(chanceCreationShooting)
-    min_chance_creation_shooting is min(chanceCreationShooting)
-    total_defence_pressure is sum(defencePressure)
-    avg_defence_pressure is avg(defencePressure)
-    max_defence_pressure is max(defencePressure)
-    min_defence_pressure is min(defencePressure)
-    total_defence_aggression is sum(defenceAggression)
-    avg_defence_aggression is avg(defenceAggression)
-    max_defence_aggression is max(defenceAggression)
-    min_defence_aggression is min(defenceAggression)
-    total_defence_team_width is sum(defenceTeamWidth)
-    avg_defence_team_width is avg(defenceTeamWidth)
-    max_defence_team_width is max(defenceTeamWidth)
-    min_defence_team_width is min(defenceTeamWidth)
+    total_build_up_play_speed is sum(build_up_play_speed)
+    avg_build_up_play_speed is avg(build_up_play_speed)
+    max_build_up_play_speed is max(build_up_play_speed)
+    min_build_up_play_speed is min(build_up_play_speed)
+    total_build_up_play_dribbling is sum(build_up_play_dribbling)
+    avg_build_up_play_dribbling is avg(build_up_play_dribbling)
+    max_build_up_play_dribbling is max(build_up_play_dribbling)
+    min_build_up_play_dribbling is min(build_up_play_dribbling)
+    total_build_up_play_passing is sum(build_up_play_passing)
+    avg_build_up_play_passing is avg(build_up_play_passing)
+    max_build_up_play_passing is max(build_up_play_passing)
+    min_build_up_play_passing is min(build_up_play_passing)
+    total_chance_creation_passing is sum(chance_creation_passing)
+    avg_chance_creation_passing is avg(chance_creation_passing)
+    max_chance_creation_passing is max(chance_creation_passing)
+    min_chance_creation_passing is min(chance_creation_passing)
+    total_chance_creation_crossing is sum(chance_creation_crossing)
+    avg_chance_creation_crossing is avg(chance_creation_crossing)
+    max_chance_creation_crossing is max(chance_creation_crossing)
+    min_chance_creation_crossing is min(chance_creation_crossing)
+    total_chance_creation_shooting is sum(chance_creation_shooting)
+    avg_chance_creation_shooting is avg(chance_creation_shooting)
+    max_chance_creation_shooting is max(chance_creation_shooting)
+    min_chance_creation_shooting is min(chance_creation_shooting)
+    total_defence_pressure is sum(defence_pressure)
+    avg_defence_pressure is avg(defence_pressure)
+    max_defence_pressure is max(defence_pressure)
+    min_defence_pressure is min(defence_pressure)
+    total_defence_aggression is sum(defence_aggression)
+    avg_defence_aggression is avg(defence_aggression)
+    max_defence_aggression is max(defence_aggression)
+    min_defence_aggression is min(defence_aggression)
+    total_defence_team_width is sum(defence_team_width)
+    avg_defence_team_width is avg(defence_team_width)
+    max_defence_team_width is max(defence_team_width)
+    min_defence_team_width is min(defence_team_width)
 }

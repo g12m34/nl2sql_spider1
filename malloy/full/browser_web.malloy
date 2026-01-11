@@ -6,10 +6,10 @@
 source: web_client_accelerator is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'Web_client_accelerator')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -23,10 +23,10 @@ source: web_client_accelerator is duckdb.sql("""
 source: browser is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/browser_web/browser_web.sqlite', 'browser')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()

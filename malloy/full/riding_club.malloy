@@ -6,18 +6,18 @@
 source: player is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player')
 """) extend {
-  primary_key: Player_ID
-
   dimension:
     player_i_d is Player_ID
     rank_val is `Rank`
 
+  primary_key: player_i_d
+
   measure:
     row_count is count()
-    total_player_i_d is sum(Player_ID)
-    avg_player_i_d is avg(Player_ID)
-    max_player_i_d is max(Player_ID)
-    min_player_i_d is min(Player_ID)
+    total_player_i_d is sum(player_i_d)
+    avg_player_i_d is avg(player_i_d)
+    max_player_i_d is max(player_i_d)
+    min_player_i_d is min(player_i_d)
     total_votes is sum(Votes)
     avg_votes is avg(Votes)
     max_votes is max(Votes)
@@ -28,17 +28,17 @@ source: player is duckdb.sql("""
 source: club_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'club')
 """) extend {
-  primary_key: Club_ID
-
   dimension:
     club_i_d is Club_ID
 
+  primary_key: club_i_d
+
   measure:
     row_count is count()
-    total_club_i_d is sum(Club_ID)
-    avg_club_i_d is avg(Club_ID)
-    max_club_i_d is max(Club_ID)
-    min_club_i_d is min(Club_ID)
+    total_club_i_d is sum(club_i_d)
+    avg_club_i_d is avg(club_i_d)
+    max_club_i_d is max(club_i_d)
+    min_club_i_d is min(club_i_d)
     total_start_year is sum(Start_year)
     avg_start_year is avg(Start_year)
     max_start_year is max(Start_year)
@@ -49,53 +49,53 @@ source: club_val is duckdb.sql("""
 source: coach is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'coach')
 """) extend {
-  primary_key: Coach_ID
-
-  join_one: club_val on Club_ID = club_val.Club_ID
-
   dimension:
     coach_i_d is Coach_ID
     club_i_d is Club_ID
     rank_val is `Rank`
 
+  primary_key: coach_i_d
+
+  join_one: club_val on club_i_d = club_val.club_i_d
+
   measure:
     row_count is count()
-    total_coach_i_d is sum(Coach_ID)
-    avg_coach_i_d is avg(Coach_ID)
-    max_coach_i_d is max(Coach_ID)
-    min_coach_i_d is min(Coach_ID)
-    total_club_i_d is sum(Club_ID)
-    avg_club_i_d is avg(Club_ID)
-    max_club_i_d is max(Club_ID)
-    min_club_i_d is min(Club_ID)
-    total_rank_val is sum(`Rank`)
-    avg_rank_val is avg(`Rank`)
-    max_rank_val is max(`Rank`)
-    min_rank_val is min(`Rank`)
+    total_coach_i_d is sum(coach_i_d)
+    avg_coach_i_d is avg(coach_i_d)
+    max_coach_i_d is max(coach_i_d)
+    min_coach_i_d is min(coach_i_d)
+    total_club_i_d is sum(club_i_d)
+    avg_club_i_d is avg(club_i_d)
+    max_club_i_d is max(club_i_d)
+    min_club_i_d is min(club_i_d)
+    total_rank_val is sum(rank_val)
+    avg_rank_val is avg(rank_val)
+    max_rank_val is max(rank_val)
+    min_rank_val is min(rank_val)
 }
 
 // match_result
 source: match_result is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'match_result')
 """) extend {
-  primary_key: `Rank`
-
-  join_one: club_val on Club_ID = club_val.Club_ID
-
   dimension:
     rank_val is `Rank`
     club_i_d is Club_ID
 
+  primary_key: rank_val
+
+  join_one: club_val on club_i_d = club_val.club_i_d
+
   measure:
     row_count is count()
-    total_rank_val is sum(`Rank`)
-    avg_rank_val is avg(`Rank`)
-    max_rank_val is max(`Rank`)
-    min_rank_val is min(`Rank`)
-    total_club_i_d is sum(Club_ID)
-    avg_club_i_d is avg(Club_ID)
-    max_club_i_d is max(Club_ID)
-    min_club_i_d is min(Club_ID)
+    total_rank_val is sum(rank_val)
+    avg_rank_val is avg(rank_val)
+    max_rank_val is max(rank_val)
+    min_rank_val is min(rank_val)
+    total_club_i_d is sum(club_i_d)
+    avg_club_i_d is avg(club_i_d)
+    max_club_i_d is max(club_i_d)
+    min_club_i_d is min(club_i_d)
     total_gold is sum(Gold)
     avg_gold is avg(Gold)
     max_gold is max(Gold)
@@ -122,25 +122,25 @@ source: match_result is duckdb.sql("""
 source: player_coach is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/riding_club/riding_club.sqlite', 'player_coach')
 """) extend {
-  primary_key: Player_ID
-
-  join_one: coach on Coach_ID = coach.Coach_ID
-  join_one: player on Player_ID = player.Player_ID
-
   dimension:
     player_i_d is Player_ID
     coach_i_d is Coach_ID
 
+  primary_key: player_i_d
+
+  join_one: coach on coach_i_d = coach.coach_i_d
+  join_one: player on player_i_d = player.player_i_d
+
   measure:
     row_count is count()
-    total_player_i_d is sum(Player_ID)
-    avg_player_i_d is avg(Player_ID)
-    max_player_i_d is max(Player_ID)
-    min_player_i_d is min(Player_ID)
-    total_coach_i_d is sum(Coach_ID)
-    avg_coach_i_d is avg(Coach_ID)
-    max_coach_i_d is max(Coach_ID)
-    min_coach_i_d is min(Coach_ID)
+    total_player_i_d is sum(player_i_d)
+    avg_player_i_d is avg(player_i_d)
+    max_player_i_d is max(player_i_d)
+    min_player_i_d is min(player_i_d)
+    total_coach_i_d is sum(coach_i_d)
+    avg_coach_i_d is avg(coach_i_d)
+    max_coach_i_d is max(coach_i_d)
+    min_coach_i_d is min(coach_i_d)
     total_starting_year is sum(Starting_year)
     avg_starting_year is avg(Starting_year)
     max_starting_year is max(Starting_year)

@@ -6,11 +6,11 @@
 source: school is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'School')
 """) extend {
-  primary_key: School_id
-
   dimension:
     i_h_s_a_a_class is IHSAA_Class
     i_h_s_a_a_football_class is IHSAA_Football_Class
+
+  primary_key: School_id
 
   measure:
     row_count is count()
@@ -24,12 +24,12 @@ source: school is duckdb.sql("""
 source: budget is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/school_finance/school_finance.sqlite', 'budget')
 """) extend {
+  dimension:
+    year_val is `Year`
+
   primary_key: School_id
 
   join_one: school on School_id = school.School_id
-
-  dimension:
-    year_val is `Year`
 
   measure:
     row_count is count()
@@ -37,10 +37,10 @@ source: budget is duckdb.sql("""
     avg_school_id is avg(School_id)
     max_school_id is max(School_id)
     min_school_id is min(School_id)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
     total_budgeted is sum(Budgeted)
     avg_budgeted is avg(Budgeted)
     max_budgeted is max(Budgeted)

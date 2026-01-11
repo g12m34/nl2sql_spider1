@@ -6,10 +6,10 @@
 source: buildings is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'buildings')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -31,10 +31,10 @@ source: buildings is duckdb.sql("""
 source: companies is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_office/company_office.sqlite', 'Companies')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
+
+  primary_key: id
 
   measure:
     row_count is count()

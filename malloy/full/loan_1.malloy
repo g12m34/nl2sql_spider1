@@ -6,18 +6,18 @@
 source: bank is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'bank')
 """) extend {
-  primary_key: branch_ID
-
   dimension:
     branch_i_d is branch_ID
     state_val is `state`
 
+  primary_key: branch_i_d
+
   measure:
     row_count is count()
-    total_branch_i_d is sum(branch_ID)
-    avg_branch_i_d is avg(branch_ID)
-    max_branch_i_d is max(branch_ID)
-    min_branch_i_d is min(branch_ID)
+    total_branch_i_d is sum(branch_i_d)
+    avg_branch_i_d is avg(branch_i_d)
+    max_branch_i_d is max(branch_i_d)
+    min_branch_i_d is min(branch_i_d)
     total_no_of_customers is sum(no_of_customers)
     avg_no_of_customers is avg(no_of_customers)
     max_no_of_customers is max(no_of_customers)
@@ -28,14 +28,14 @@ source: bank is duckdb.sql("""
 source: customer is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'customer')
 """) extend {
-  primary_key: cust_ID
-
-  join_one: bank on branch_ID = bank.branch_ID
-
   dimension:
     cust_i_d is cust_ID
     branch_i_d is branch_ID
     state_val is `state`
+
+  primary_key: cust_i_d
+
+  join_one: bank on branch_i_d = bank.branch_i_d
 
   measure:
     row_count is count()
@@ -51,24 +51,24 @@ source: customer is duckdb.sql("""
     avg_credit_score is avg(credit_score)
     max_credit_score is max(credit_score)
     min_credit_score is min(credit_score)
-    total_branch_i_d is sum(branch_ID)
-    avg_branch_i_d is avg(branch_ID)
-    max_branch_i_d is max(branch_ID)
-    min_branch_i_d is min(branch_ID)
+    total_branch_i_d is sum(branch_i_d)
+    avg_branch_i_d is avg(branch_i_d)
+    max_branch_i_d is max(branch_i_d)
+    min_branch_i_d is min(branch_i_d)
 }
 
 // loan
 source: loan is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/loan_1/loan_1.sqlite', 'loan')
 """) extend {
-  primary_key: loan_ID
-
-  join_one: bank on branch_ID = bank.branch_ID
-
   dimension:
     loan_i_d is loan_ID
     cust_i_d is cust_ID
     branch_i_d is branch_ID
+
+  primary_key: loan_i_d
+
+  join_one: bank on branch_i_d = bank.branch_i_d
 
   measure:
     row_count is count()

@@ -6,10 +6,10 @@
 source: pilot is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'pilot')
 """) extend {
-  primary_key: Pilot_Id
-
   dimension:
     name_val is `Name`
+
+  primary_key: Pilot_Id
 
   measure:
     row_count is count()
@@ -27,35 +27,35 @@ source: pilot is duckdb.sql("""
 source: aircraft is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'aircraft')
 """) extend {
-  primary_key: Aircraft_ID
-
   dimension:
     aircraft_i_d is Aircraft_ID
 
+  primary_key: aircraft_i_d
+
   measure:
     row_count is count()
-    total_aircraft_i_d is sum(Aircraft_ID)
-    avg_aircraft_i_d is avg(Aircraft_ID)
-    max_aircraft_i_d is max(Aircraft_ID)
-    min_aircraft_i_d is min(Aircraft_ID)
+    total_aircraft_i_d is sum(aircraft_i_d)
+    avg_aircraft_i_d is avg(aircraft_i_d)
+    max_aircraft_i_d is max(aircraft_i_d)
+    min_aircraft_i_d is min(aircraft_i_d)
 }
 
 // airport
 source: airport is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'airport')
 """) extend {
-  primary_key: Airport_ID
-
   dimension:
     airport_i_d is Airport_ID
     change_2007 is `%_Change_2007`
 
+  primary_key: airport_i_d
+
   measure:
     row_count is count()
-    total_airport_i_d is sum(Airport_ID)
-    avg_airport_i_d is avg(Airport_ID)
-    max_airport_i_d is max(Airport_ID)
-    min_airport_i_d is min(Airport_ID)
+    total_airport_i_d is sum(airport_i_d)
+    avg_airport_i_d is avg(airport_i_d)
+    max_airport_i_d is max(airport_i_d)
+    min_airport_i_d is min(airport_i_d)
     total_total_passengers is sum(Total_Passengers)
     avg_total_passengers is avg(Total_Passengers)
     max_total_passengers is max(Total_Passengers)
@@ -86,49 +86,49 @@ source: airport is duckdb.sql("""
 source: match_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'match')
 """) extend {
-  primary_key: `Round`
-
-  join_one: pilot on Winning_Pilot = pilot.Pilot_Id
-  join_one: aircraft on Winning_Aircraft = aircraft.Aircraft_ID
-
   dimension:
     round_val is `Round`
     date_val is `Date`
 
+  primary_key: round_val
+
+  join_one: pilot on Winning_Pilot = pilot.Pilot_Id
+  join_one: aircraft on Winning_Aircraft = aircraft.aircraft_i_d
+
   measure:
     row_count is count()
-    total_round_val is sum(`Round`)
-    avg_round_val is avg(`Round`)
-    max_round_val is max(`Round`)
-    min_round_val is min(`Round`)
+    total_round_val is sum(round_val)
+    avg_round_val is avg(round_val)
+    max_round_val is max(round_val)
+    min_round_val is min(round_val)
 }
 
 // airport_aircraft
 source: airport_aircraft is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/aircraft/aircraft.sqlite', 'airport_aircraft')
 """) extend {
-  primary_key: Airport_ID
-
-  join_one: aircraft on Aircraft_ID = aircraft.Aircraft_ID
-  join_one: airport on Airport_ID = airport.Airport_ID
-
   dimension:
     i_d is ID
     airport_i_d is Airport_ID
     aircraft_i_d is Aircraft_ID
 
+  primary_key: airport_i_d
+
+  join_one: aircraft on aircraft_i_d = aircraft.aircraft_i_d
+  join_one: airport on airport_i_d = airport.airport_i_d
+
   measure:
     row_count is count()
-    total_i_d is sum(ID)
-    avg_i_d is avg(ID)
-    max_i_d is max(ID)
-    min_i_d is min(ID)
-    total_airport_i_d is sum(Airport_ID)
-    avg_airport_i_d is avg(Airport_ID)
-    max_airport_i_d is max(Airport_ID)
-    min_airport_i_d is min(Airport_ID)
-    total_aircraft_i_d is sum(Aircraft_ID)
-    avg_aircraft_i_d is avg(Aircraft_ID)
-    max_aircraft_i_d is max(Aircraft_ID)
-    min_aircraft_i_d is min(Aircraft_ID)
+    total_i_d is sum(i_d)
+    avg_i_d is avg(i_d)
+    max_i_d is max(i_d)
+    min_i_d is min(i_d)
+    total_airport_i_d is sum(airport_i_d)
+    avg_airport_i_d is avg(airport_i_d)
+    max_airport_i_d is max(airport_i_d)
+    min_airport_i_d is min(airport_i_d)
+    total_aircraft_i_d is sum(aircraft_i_d)
+    avg_aircraft_i_d is avg(aircraft_i_d)
+    max_aircraft_i_d is max(aircraft_i_d)
+    min_aircraft_i_d is min(aircraft_i_d)
 }

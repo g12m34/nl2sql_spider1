@@ -6,11 +6,11 @@
 source: train is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/station_weather/station_weather.sqlite', 'train')
 """) extend {
-  primary_key: id
-
   dimension:
     name_val is `name`
     time_val is `time`
+
+  primary_key: id
 
   measure:
     row_count is count()

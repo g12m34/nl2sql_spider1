@@ -6,18 +6,18 @@
 source: people_val is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'people')
 """) extend {
-  primary_key: People_ID
-
   dimension:
     people_i_d is People_ID
     name_val is `Name`
 
+  primary_key: people_i_d
+
   measure:
     row_count is count()
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_age is sum(Age)
     avg_age is avg(Age)
     max_age is max(Age)
@@ -28,18 +28,18 @@ source: people_val is duckdb.sql("""
 source: company is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'company')
 """) extend {
-  primary_key: Company_ID
-
   dimension:
     company_i_d is Company_ID
     name_val is `Name`
 
+  primary_key: company_i_d
+
   measure:
     row_count is count()
-    total_company_i_d is sum(Company_ID)
-    avg_company_i_d is avg(Company_ID)
-    max_company_i_d is max(Company_ID)
-    min_company_i_d is min(Company_ID)
+    total_company_i_d is sum(company_i_d)
+    avg_company_i_d is avg(company_i_d)
+    max_company_i_d is max(company_i_d)
+    min_company_i_d is min(company_i_d)
     total_sales_in_billion is sum(Sales_in_Billion)
     avg_sales_in_billion is avg(Sales_in_Billion)
     max_sales_in_billion is max(Sales_in_Billion)
@@ -62,25 +62,25 @@ source: company is duckdb.sql("""
 source: employment is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/company_employee/company_employee.sqlite', 'employment')
 """) extend {
-  primary_key: Company_ID
-
-  join_one: people_val on People_ID = people_val.People_ID
-  join_one: company on Company_ID = company.Company_ID
-
   dimension:
     company_i_d is Company_ID
     people_i_d is People_ID
 
+  primary_key: company_i_d
+
+  join_one: people_val on people_i_d = people_val.people_i_d
+  join_one: company on company_i_d = company.company_i_d
+
   measure:
     row_count is count()
-    total_company_i_d is sum(Company_ID)
-    avg_company_i_d is avg(Company_ID)
-    max_company_i_d is max(Company_ID)
-    min_company_i_d is min(Company_ID)
-    total_people_i_d is sum(People_ID)
-    avg_people_i_d is avg(People_ID)
-    max_people_i_d is max(People_ID)
-    min_people_i_d is min(People_ID)
+    total_company_i_d is sum(company_i_d)
+    avg_company_i_d is avg(company_i_d)
+    max_company_i_d is max(company_i_d)
+    min_company_i_d is min(company_i_d)
+    total_people_i_d is sum(people_i_d)
+    avg_people_i_d is avg(people_i_d)
+    max_people_i_d is max(people_i_d)
+    min_people_i_d is min(people_i_d)
     total_year_working is sum(Year_working)
     avg_year_working is avg(Year_working)
     max_year_working is max(Year_working)

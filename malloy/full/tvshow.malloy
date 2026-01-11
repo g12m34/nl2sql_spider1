@@ -6,13 +6,13 @@
 source: t_v_channel is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'TV_Channel')
 """) extend {
-  primary_key: id
-
   dimension:
     language_val is `Language`
     pixel_aspect_ratio_p_a_r is Pixel_aspect_ratio_PAR
     hight_definition_t_v is Hight_definition_TV
     pay_per_view_p_p_v is Pay_per_view_PPV
+
+  primary_key: id
 
   measure:
     row_count is count()
@@ -22,12 +22,12 @@ source: t_v_channel is duckdb.sql("""
 source: t_v_series is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/tvshow/tvshow.sqlite', 'TV_series')
 """) extend {
+  dimension:
+    col_18_49_rating_share is `18_49_Rating_Share`
+
   primary_key: id
 
   join_one: t_v_channel on Channel = t_v_channel.id
-
-  dimension:
-    col_18_49_rating_share is `18_49_Rating_Share`
 
   measure:
     row_count is count()

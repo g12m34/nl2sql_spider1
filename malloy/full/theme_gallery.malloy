@@ -6,18 +6,18 @@
 source: artist is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite', 'artist')
 """) extend {
-  primary_key: Artist_ID
-
   dimension:
     artist_i_d is Artist_ID
     name_val is `Name`
 
+  primary_key: artist_i_d
+
   measure:
     row_count is count()
-    total_artist_i_d is sum(Artist_ID)
-    avg_artist_i_d is avg(Artist_ID)
-    max_artist_i_d is max(Artist_ID)
-    min_artist_i_d is min(Artist_ID)
+    total_artist_i_d is sum(artist_i_d)
+    avg_artist_i_d is avg(artist_i_d)
+    max_artist_i_d is max(artist_i_d)
+    min_artist_i_d is min(artist_i_d)
     total_year_join is sum(Year_Join)
     avg_year_join is avg(Year_Join)
     max_year_join is max(Year_Join)
@@ -32,29 +32,29 @@ source: artist is duckdb.sql("""
 source: exhibition is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite', 'exhibition')
 """) extend {
-  primary_key: Exhibition_ID
-
-  join_one: artist on Artist_ID = artist.Artist_ID
-
   dimension:
     exhibition_i_d is Exhibition_ID
     year_val is `Year`
     artist_i_d is Artist_ID
 
+  primary_key: exhibition_i_d
+
+  join_one: artist on artist_i_d = artist.artist_i_d
+
   measure:
     row_count is count()
-    total_exhibition_i_d is sum(Exhibition_ID)
-    avg_exhibition_i_d is avg(Exhibition_ID)
-    max_exhibition_i_d is max(Exhibition_ID)
-    min_exhibition_i_d is min(Exhibition_ID)
-    total_year_val is sum(`Year`)
-    avg_year_val is avg(`Year`)
-    max_year_val is max(`Year`)
-    min_year_val is min(`Year`)
-    total_artist_i_d is sum(Artist_ID)
-    avg_artist_i_d is avg(Artist_ID)
-    max_artist_i_d is max(Artist_ID)
-    min_artist_i_d is min(Artist_ID)
+    total_exhibition_i_d is sum(exhibition_i_d)
+    avg_exhibition_i_d is avg(exhibition_i_d)
+    max_exhibition_i_d is max(exhibition_i_d)
+    min_exhibition_i_d is min(exhibition_i_d)
+    total_year_val is sum(year_val)
+    avg_year_val is avg(year_val)
+    max_year_val is max(year_val)
+    min_year_val is min(year_val)
+    total_artist_i_d is sum(artist_i_d)
+    avg_artist_i_d is avg(artist_i_d)
+    max_artist_i_d is max(artist_i_d)
+    min_artist_i_d is min(artist_i_d)
     total_ticket_price is sum(Ticket_Price)
     avg_ticket_price is avg(Ticket_Price)
     max_ticket_price is max(Ticket_Price)
@@ -65,20 +65,20 @@ source: exhibition is duckdb.sql("""
 source: exhibition_record is duckdb.sql("""
   SELECT * FROM sqlite_scan('/workspace/spider_db/spider/database/theme_gallery/theme_gallery.sqlite', 'exhibition_record')
 """) extend {
-  primary_key: Exhibition_ID
-
-  join_one: exhibition on Exhibition_ID = exhibition.Exhibition_ID
-
   dimension:
     exhibition_i_d is Exhibition_ID
     date_val is `Date`
 
+  primary_key: exhibition_i_d
+
+  join_one: exhibition on exhibition_i_d = exhibition.exhibition_i_d
+
   measure:
     row_count is count()
-    total_exhibition_i_d is sum(Exhibition_ID)
-    avg_exhibition_i_d is avg(Exhibition_ID)
-    max_exhibition_i_d is max(Exhibition_ID)
-    min_exhibition_i_d is min(Exhibition_ID)
+    total_exhibition_i_d is sum(exhibition_i_d)
+    avg_exhibition_i_d is avg(exhibition_i_d)
+    max_exhibition_i_d is max(exhibition_i_d)
+    min_exhibition_i_d is min(exhibition_i_d)
     total_attendance is sum(Attendance)
     avg_attendance is avg(Attendance)
     max_attendance is max(Attendance)
