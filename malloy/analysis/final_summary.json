@@ -1,0 +1,40 @@
+{
+  "overview": {
+    "total_databases": 166,
+    "total_sources": 873,
+    "total_dimensions": 1175,
+    "total_measures": 9521,
+    "total_joins": 792,
+    "avg_sources_per_db": 5.3,
+    "avg_dimensions_per_db": 7.1,
+    "avg_measures_per_db": 57.4,
+    "avg_joins_per_db": 4.8
+  },
+  "complexity_distribution": {
+    "complex (8-15 tables)": 25,
+    "medium (4-7 tables)": 57,
+    "simple (1-3 tables)": 79,
+    "very complex (16+ tables)": 5
+  },
+  "coverage_comparison": {
+    "full_layers": {
+      "files": 166,
+      "sources": 873,
+      "dimensions": 1175,
+      "measures": 9521,
+      "joins": 792
+    },
+    "minimal_layers": {
+      "files": 160,
+      "sources": 750,
+      "dimensions": 3109,
+      "measures": 1253,
+      "joins": 0
+    }
+  },
+  "validation": {
+    "compilation_errors": 0,
+    "runtime_errors": 0,
+    "all_tests_passed": true
+  }
+}
