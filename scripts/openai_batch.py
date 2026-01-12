@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Gemini Batch API client for NL2Malloy evaluation.
+OpenAI Batch API client for NL2Malloy evaluation.
 
-Submits evaluation questions as a batch job to Gemini for 50% cost savings.
+Submits evaluation questions as a batch job to OpenAI for 50% cost savings.
 Handles job submission, status polling, and result retrieval.
 """
 
@@ -24,7 +24,8 @@ from run_evaluation import (
     load_questions,
     load_malloy_layer,
     build_malloy_prompt,
-    MALLOY_DIR
+    MALLOY_DIR,
+    load_reasoning_traces
 )
 
 # Directories
@@ -33,31 +34,35 @@ BATCH_DIR = EVALUATION_DIR / 'batch_jobs'
 BATCH_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def get_genai_client():
-    """Initialize the Google GenAI client."""
-    api_key = os.getenv("GOOGLE_API_KEY")
+def get_openai_client():
+    """Initialize the OpenAI client."""
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("GOOGLE_API_KEY not set in environment")
+        raise ValueError("OPENAI_API_KEY not set in environment")
 
-    from google import genai
-    client = genai.Client(api_key=api_key)
+    import openai
+    client = openai.OpenAI(api_key=api_key)
     return client
 
 
 def prepare_batch_requests(
     questions: List[Dict],
-    model: str = "gemini-2.5-flash",
+    model: str = "gpt-5.2",
     prompt_mode: str = "standard"
 ) -> Tuple[List[Dict], Dict[str, Dict]]:
     """
     Prepare batch requests from evaluation questions.
 
     Returns:
-        - List of inline request objects for Gemini batch API
-        - Mapping of request keys to question metadata
+        - List of JSONL request objects for OpenAI batch API
+        - Mapping of custom_ids to question metadata
     """
-    inline_requests = []
-    key_to_question = {}
+    requests = []
+    id_to_question = {}
+
+    # Pre-load reasoning traces if using reasoning mode
+    if prompt_mode == 'reasoning':
+        load_reasoning_traces()
 
     for q in questions:
         db_id = q['db_id']
@@ -74,82 +79,105 @@ def prepare_batch_requests(
         # Build prompt (pass question_id for reasoning mode)
         prompt = build_malloy_prompt(malloy_layer, question_text, mode=prompt_mode, question_id=question_id)
 
-        # Create request key
-        request_key = f"q{question_id}_{db_id}"
+        # Create custom_id for tracking
+        custom_id = f"q{question_id}_{db_id}"
 
-        # Build inline request
+        # Build batch request in OpenAI format
         request = {
-            'contents': [
-                {
-                    'parts': [{'text': prompt}],
-                    'role': 'user'
-                }
-            ]
+            "custom_id": custom_id,
+            "method": "POST",
+            "url": "/v1/chat/completions",
+            "body": {
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_completion_tokens": 1024
+            }
         }
 
-        inline_requests.append(request)
-        key_to_question[request_key] = {
+        requests.append(request)
+        id_to_question[custom_id] = {
             'question_id': question_id,
             'db_id': db_id,
             'question': question_text,
-            'gold_sql': q.get('gold_sql', q.get('query', '')),
-            'request_index': len(inline_requests) - 1
+            'gold_sql': q.get('gold_sql', q.get('query', ''))
         }
 
-    return inline_requests, key_to_question
+    return requests, id_to_question
 
 
 def submit_batch_job(
     client,
     requests: List[Dict],
-    model: str = "gemini-2.5-flash",
     display_name: str = None
 ) -> str:
     """
-    Submit a batch job to Gemini.
+    Submit a batch job to OpenAI.
 
     Returns:
-        Batch job name/ID
+        Batch job ID
     """
     if display_name is None:
         display_name = f"nl2malloy-eval-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
     print(f"Submitting batch job with {len(requests)} requests...")
-    print(f"Model: {model}")
     print(f"Display name: {display_name}")
 
+    # Write requests to JSONL file
+    batch_input_file = BATCH_DIR / f"{display_name}_input.jsonl"
+    with open(batch_input_file, 'w') as f:
+        for req in requests:
+            f.write(json.dumps(req) + '\n')
+
+    print(f"Batch input file: {batch_input_file}")
+
+    # Upload the file
+    with open(batch_input_file, 'rb') as f:
+        uploaded_file = client.files.create(file=f, purpose="batch")
+
+    print(f"Uploaded file ID: {uploaded_file.id}")
+
+    # Create the batch job
     batch_job = client.batches.create(
-        model=f"models/{model}",
-        src=requests,
-        config={'display_name': display_name}
+        input_file_id=uploaded_file.id,
+        endpoint="/v1/chat/completions",
+        completion_window="24h",
+        metadata={"description": display_name}
     )
 
-    print(f"Batch job created: {batch_job.name}")
-    print(f"State: {batch_job.state}")
+    print(f"Batch job created: {batch_job.id}")
+    print(f"Status: {batch_job.status}")
 
-    return batch_job.name
+    return batch_job.id
 
 
-def check_batch_status(client, job_name: str) -> Dict:
+def check_batch_status(client, job_id: str) -> Dict:
     """
     Check the status of a batch job.
 
     Returns:
         Dict with job status information
     """
-    batch_job = client.batches.get(name=job_name)
+    batch_job = client.batches.retrieve(job_id)
 
     return {
-        'name': batch_job.name,
-        'state': str(batch_job.state),
-        'display_name': getattr(batch_job, 'display_name', None),
-        'create_time': str(getattr(batch_job, 'create_time', None)),
+        'id': batch_job.id,
+        'status': batch_job.status,
+        'created_at': batch_job.created_at,
+        'completed_at': batch_job.completed_at,
+        'failed_at': batch_job.failed_at,
+        'request_counts': {
+            'total': batch_job.request_counts.total,
+            'completed': batch_job.request_counts.completed,
+            'failed': batch_job.request_counts.failed
+        } if batch_job.request_counts else None,
+        'output_file_id': batch_job.output_file_id,
+        'error_file_id': batch_job.error_file_id
     }
 
 
 def wait_for_completion(
     client,
-    job_name: str,
+    job_id: str,
     poll_interval: int = 30,
     max_wait_hours: float = 24
 ) -> Dict:
@@ -162,22 +190,24 @@ def wait_for_completion(
     max_wait_seconds = max_wait_hours * 3600
     start_time = time.time()
 
-    terminal_states = ['JOB_STATE_SUCCEEDED', 'JOB_STATE_FAILED', 'JOB_STATE_CANCELLED', 'JOB_STATE_EXPIRED']
+    terminal_states = ['completed', 'failed', 'expired', 'cancelled']
 
-    print(f"Waiting for batch job {job_name}...")
+    print(f"Waiting for batch job {job_id}...")
 
     while True:
-        batch_job = client.batches.get(name=job_name)
-        state = str(batch_job.state)
-        state_name = state.split('.')[-1] if '.' in state else state
+        batch_job = client.batches.retrieve(job_id)
+        status = batch_job.status
 
         elapsed = time.time() - start_time
-        print(f"  [{elapsed/60:.1f}m] State: {state_name}")
+        progress = ""
+        if batch_job.request_counts:
+            progress = f" ({batch_job.request_counts.completed}/{batch_job.request_counts.total})"
+        print(f"  [{elapsed/60:.1f}m] Status: {status}{progress}")
 
-        if state_name in terminal_states or any(s in state for s in terminal_states):
+        if status in terminal_states:
             return {
                 'job': batch_job,
-                'state': state_name,
+                'status': status,
                 'elapsed_seconds': elapsed
             }
 
@@ -185,14 +215,14 @@ def wait_for_completion(
             print(f"Timeout after {max_wait_hours} hours")
             return {
                 'job': batch_job,
-                'state': 'TIMEOUT',
+                'status': 'TIMEOUT',
                 'elapsed_seconds': elapsed
             }
 
         time.sleep(poll_interval)
 
 
-def extract_results(batch_job, key_to_question: Dict) -> List[Dict]:
+def extract_results(client, batch_job, id_to_question: Dict) -> List[Dict]:
     """
     Extract results from completed batch job.
 
@@ -201,44 +231,47 @@ def extract_results(batch_job, key_to_question: Dict) -> List[Dict]:
     """
     results = []
 
-    # Check for inline responses
-    if hasattr(batch_job, 'dest') and hasattr(batch_job.dest, 'inlined_responses'):
-        responses = batch_job.dest.inlined_responses or []
+    if not batch_job.output_file_id:
+        print("No output file available")
+        return results
 
-        # Map responses back to questions by index
-        index_to_key = {v['request_index']: k for k, v in key_to_question.items()}
+    # Download the output file
+    output_content = client.files.content(batch_job.output_file_id)
+    output_lines = output_content.text.strip().split('\n')
 
-        for idx, response in enumerate(responses):
-            key = index_to_key.get(idx)
-            if key is None:
-                continue
+    for line in output_lines:
+        if not line.strip():
+            continue
 
-            question_meta = key_to_question[key]
+        response_data = json.loads(line)
+        custom_id = response_data.get('custom_id')
 
-            # Extract response text
-            response_text = ""
-            if hasattr(response, 'response'):
-                if hasattr(response.response, 'text'):
-                    response_text = response.response.text
-                elif hasattr(response.response, 'candidates'):
-                    candidates = response.response.candidates
-                    if candidates and len(candidates) > 0:
-                        parts = candidates[0].content.parts
-                        if parts and len(parts) > 0:
-                            response_text = parts[0].text
+        if custom_id not in id_to_question:
+            print(f"Warning: Unknown custom_id {custom_id}")
+            continue
 
-            # Extract Malloy query from response
-            malloy_query = extract_malloy_code(response_text)
+        question_meta = id_to_question[custom_id]
 
-            results.append({
-                'question_id': question_meta['question_id'],
-                'db_id': question_meta['db_id'],
-                'question': question_meta['question'],
-                'gold_sql': question_meta['gold_sql'],
-                'raw_response': response_text,
-                'malloy_query': malloy_query,
-                'request_key': key
-            })
+        # Extract response
+        response_body = response_data.get('response', {}).get('body', {})
+        choices = response_body.get('choices', [])
+
+        response_text = ""
+        if choices:
+            response_text = choices[0].get('message', {}).get('content', '')
+
+        # Extract Malloy query from response
+        malloy_query = extract_malloy_code(response_text)
+
+        results.append({
+            'question_id': question_meta['question_id'],
+            'db_id': question_meta['db_id'],
+            'question': question_meta['question'],
+            'gold_sql': question_meta['gold_sql'],
+            'raw_response': response_text,
+            'malloy_query': malloy_query,
+            'custom_id': custom_id
+        })
 
     return results
 
@@ -260,16 +293,17 @@ def extract_malloy_code(response: str) -> str:
     return text.strip()
 
 
-def save_batch_job_info(job_name: str, key_to_question: Dict, model: str):
+def save_batch_job_info(job_id: str, id_to_question: Dict, model: str, display_name: str):
     """Save batch job info for later retrieval."""
     info = {
-        'job_name': job_name,
+        'job_id': job_id,
         'model': model,
+        'display_name': display_name,
         'submitted_at': datetime.now().isoformat(),
-        'questions': key_to_question
+        'questions': id_to_question
     }
 
-    info_file = BATCH_DIR / f"{job_name.replace('/', '_')}.json"
+    info_file = BATCH_DIR / f"openai_{job_id}.json"
     with open(info_file, 'w') as f:
         json.dump(info, f, indent=2)
 
@@ -277,26 +311,26 @@ def save_batch_job_info(job_name: str, key_to_question: Dict, model: str):
     return info_file
 
 
-def load_batch_job_info(job_name: str) -> Optional[Dict]:
+def load_batch_job_info(job_id: str) -> Optional[Dict]:
     """Load saved batch job info."""
-    info_file = BATCH_DIR / f"{job_name.replace('/', '_')}.json"
+    info_file = BATCH_DIR / f"openai_{job_id}.json"
     if info_file.exists():
         with open(info_file) as f:
             return json.load(f)
     return None
 
 
-def save_results(results: List[Dict], job_name: str, model: str):
+def save_results(results: List[Dict], job_id: str, model: str):
     """Save batch results for evaluation."""
     output = {
-        'job_name': job_name,
+        'job_id': job_id,
         'model': model,
         'completed_at': datetime.now().isoformat(),
         'num_results': len(results),
         'results': results
     }
 
-    results_file = BATCH_DIR / f"results_{job_name.replace('/', '_')}.json"
+    results_file = BATCH_DIR / f"results_openai_{job_id}.json"
     with open(results_file, 'w') as f:
         json.dump(output, f, indent=2)
 
@@ -315,13 +349,12 @@ def cmd_submit(args):
     global MALLOY_DIR
     expert_dir = Path('/workspace/project/malloy/expert')
     if expert_dir.exists():
-        from run_evaluation import MALLOY_DIR as orig_dir
         import run_evaluation
         run_evaluation.MALLOY_DIR = expert_dir
         print(f"Using expert semantic layers from {expert_dir}")
 
     # Prepare requests
-    requests, key_to_question = prepare_batch_requests(
+    requests, id_to_question = prepare_batch_requests(
         questions,
         model=args.model,
         prompt_mode=args.prompt_mode
@@ -329,53 +362,53 @@ def cmd_submit(args):
     print(f"Prepared {len(requests)} batch requests")
 
     # Submit batch job
-    client = get_genai_client()
-    job_name = submit_batch_job(
-        client,
-        requests,
-        model=args.model,
-        display_name=args.name
-    )
+    client = get_openai_client()
+    display_name = args.name or f"nl2malloy-{args.model}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    job_id = submit_batch_job(client, requests, display_name=display_name)
 
     # Save job info
-    save_batch_job_info(job_name, key_to_question, args.model)
+    save_batch_job_info(job_id, id_to_question, args.model, display_name)
 
-    print(f"\nBatch job submitted: {job_name}")
-    print(f"Use 'python gemini_batch.py status {job_name}' to check status")
-    print(f"Use 'python gemini_batch.py wait {job_name}' to wait for completion")
+    print(f"\nBatch job submitted: {job_id}")
+    print(f"Use 'python openai_batch.py status {job_id}' to check status")
+    print(f"Use 'python openai_batch.py wait {job_id}' to wait for completion")
 
 
 def cmd_status(args):
     """Check status of a batch job."""
-    client = get_genai_client()
-    status = check_batch_status(client, args.job_name)
+    client = get_openai_client()
+    status = check_batch_status(client, args.job_id)
 
-    print(f"Job: {status['name']}")
-    print(f"State: {status['state']}")
-    print(f"Display Name: {status['display_name']}")
-    print(f"Created: {status['create_time']}")
+    print(f"Job ID: {status['id']}")
+    print(f"Status: {status['status']}")
+    print(f"Created: {status['created_at']}")
+    if status['completed_at']:
+        print(f"Completed: {status['completed_at']}")
+    if status['request_counts']:
+        rc = status['request_counts']
+        print(f"Progress: {rc['completed']}/{rc['total']} ({rc['failed']} failed)")
 
 
 def cmd_wait(args):
     """Wait for a batch job to complete."""
-    client = get_genai_client()
+    client = get_openai_client()
 
     result = wait_for_completion(
         client,
-        args.job_name,
+        args.job_id,
         poll_interval=args.poll_interval
     )
 
-    print(f"\nFinal state: {result['state']}")
+    print(f"\nFinal status: {result['status']}")
     print(f"Elapsed time: {result['elapsed_seconds']/60:.1f} minutes")
 
-    if 'SUCCEEDED' in result['state']:
+    if result['status'] == 'completed':
         # Load saved question mapping
-        job_info = load_batch_job_info(args.job_name)
+        job_info = load_batch_job_info(args.job_id)
         if job_info:
-            key_to_question = job_info['questions']
-            results = extract_results(result['job'], key_to_question)
-            save_results(results, args.job_name, job_info['model'])
+            id_to_question = job_info['questions']
+            results = extract_results(client, result['job'], id_to_question)
+            save_results(results, args.job_id, job_info['model'])
             print(f"Extracted {len(results)} results")
         else:
             print("Warning: Could not find saved job info for result extraction")
@@ -383,44 +416,42 @@ def cmd_wait(args):
 
 def cmd_results(args):
     """Retrieve results from a completed batch job."""
-    client = get_genai_client()
-    batch_job = client.batches.get(name=args.job_name)
+    client = get_openai_client()
+    batch_job = client.batches.retrieve(args.job_id)
 
-    state = str(batch_job.state)
-    if 'SUCCEEDED' not in state:
-        print(f"Job not yet complete. State: {state}")
+    if batch_job.status != 'completed':
+        print(f"Job not yet complete. Status: {batch_job.status}")
         return
 
     # Load saved question mapping
-    job_info = load_batch_job_info(args.job_name)
+    job_info = load_batch_job_info(args.job_id)
     if not job_info:
         print("Error: Could not find saved job info")
         return
 
-    key_to_question = job_info['questions']
-    results = extract_results(batch_job, key_to_question)
-    results_file = save_results(results, args.job_name, job_info['model'])
+    id_to_question = job_info['questions']
+    results = extract_results(client, batch_job, id_to_question)
+    results_file = save_results(results, args.job_id, job_info['model'])
 
     print(f"Extracted {len(results)} results to {results_file}")
 
 
 def cmd_list(args):
     """List all batch jobs."""
-    client = get_genai_client()
+    client = get_openai_client()
 
-    print("Batch Jobs:")
+    print("OpenAI Batch Jobs:")
     print("-" * 60)
 
-    # List jobs from API
     try:
-        jobs = client.batches.list()
-        for job in jobs:
-            name = job.name
-            state = str(job.state).split('.')[-1]
-            display = getattr(job, 'display_name', 'N/A')
-            print(f"  {name}")
-            print(f"    State: {state}")
-            print(f"    Display: {display}")
+        jobs = client.batches.list(limit=20)
+        for job in jobs.data:
+            print(f"  {job.id}")
+            print(f"    Status: {job.status}")
+            if job.request_counts:
+                print(f"    Progress: {job.request_counts.completed}/{job.request_counts.total}")
+            if job.metadata:
+                print(f"    Description: {job.metadata.get('description', 'N/A')}")
             print()
     except Exception as e:
         print(f"Error listing jobs: {e}")
@@ -433,7 +464,6 @@ def cmd_evaluate(args):
     from run_evaluation import (
         compile_malloy_query,
         execute_sql_duckdb,
-        execute_gold_sql,
         results_match,
         get_gold_sql,
         SPIDER_DIR
@@ -459,15 +489,6 @@ def cmd_evaluate(args):
     results = data['results']
     model = data.get('model', 'unknown')
 
-    # Load question metadata for alt_gold_sql
-    sample_file = Path('/workspace/project/evaluation/enriched_test_sample.json')
-    question_meta = {}
-    if sample_file.exists():
-        with open(sample_file) as f:
-            sample_data = json.load(f)
-        for q in sample_data['questions']:
-            question_meta[q.get('id', q.get('question_id'))] = q
-
     print(f"Evaluating {len(results)} results from {model}")
     print("=" * 60)
 
@@ -477,23 +498,14 @@ def cmd_evaluate(args):
     correct = 0
     errors = []
 
-    skipped = 0
-
     async def evaluate_one(r):
-        nonlocal total, compiled, correct, skipped
+        nonlocal total, compiled, correct
 
         qid = r['question_id']
         db_id = r['db_id']
         malloy_query = r['malloy_query']
         gold_sql = r['gold_sql']
         question = r['question']
-
-        # Check if question should be skipped
-        q_meta = question_meta.get(qid, {})
-        if q_meta.get('skip'):
-            skipped += 1
-            print(f"  Q{qid} ({db_id}): SKIPPED - {q_meta.get('skip_reason', 'flagged')}")
-            return
 
         total += 1
 
@@ -552,38 +564,16 @@ def cmd_evaluate(args):
             correct += 1
             print(f"  Q{qid} ({db_id}): CORRECT")
         else:
-            # Check alternative gold SQLs if available
-            alt_match = False
-            q_meta = question_meta.get(qid, {})
-            alt_gold_sqls = q_meta.get('alt_gold_sql', [])
-
-            for alt_sql in alt_gold_sqls:
-                try:
-                    conn = sqlite3.connect(str(db_path))
-                    cursor = conn.cursor()
-                    cursor.execute(alt_sql)
-                    alt_results = cursor.fetchall()
-                    conn.close()
-                    if results_match(gen_results, alt_results):
-                        alt_match = True
-                        break
-                except:
-                    continue
-
-            if alt_match:
-                correct += 1
-                print(f"  Q{qid} ({db_id}): CORRECT (alt)")
-            else:
-                print(f"  Q{qid} ({db_id}): WRONG")
-                print(f"    Expected {len(gold_results)} rows, got {len(gen_results)} rows")
-                errors.append({
-                    'question_id': qid,
-                    'db_id': db_id,
-                    'question': question,
-                    'error_type': 'logic',
-                    'expected_rows': len(gold_results),
-                    'actual_rows': len(gen_results)
-                })
+            print(f"  Q{qid} ({db_id}): WRONG")
+            print(f"    Expected {len(gold_results)} rows, got {len(gen_results)} rows")
+            errors.append({
+                'question_id': qid,
+                'db_id': db_id,
+                'question': question,
+                'error_type': 'logic',
+                'expected_rows': len(gold_results),
+                'actual_rows': len(gen_results)
+            })
 
     # Run evaluations
     for r in results:
@@ -593,8 +583,6 @@ def cmd_evaluate(args):
     print("\n" + "=" * 60)
     print(f"RESULTS for {model}")
     print("=" * 60)
-    if skipped:
-        print(f"Skipped: {skipped} (problematic gold SQL)")
     print(f"Total questions: {total}")
     print(f"Compiled successfully: {compiled} ({compiled/total*100:.1f}%)")
     print(f"Execution correct: {correct} ({correct/total*100:.1f}%)")
@@ -630,7 +618,7 @@ def cmd_evaluate(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Gemini Batch API client for NL2Malloy evaluation"
+        description="OpenAI Batch API client for NL2Malloy evaluation"
     )
     subparsers = parser.add_subparsers(dest='command', help='Commands')
 
@@ -638,13 +626,13 @@ def main():
     submit_parser = subparsers.add_parser('submit', help='Submit a new batch job')
     submit_parser.add_argument(
         '--questions', '-q',
-        default='/workspace/project/evaluation/enriched_test_sample.json',
+        default='/workspace/project/evaluation/test_hard_extra_100.json',
         help='Path to questions JSON file'
     )
     submit_parser.add_argument(
         '--model', '-m',
-        default='gemini-2.5-flash',
-        help='Gemini model to use (default: gemini-2.5-flash)'
+        default='gpt-5.2',
+        help='OpenAI model to use (default: gpt-5.2)'
     )
     submit_parser.add_argument(
         '--prompt-mode', '-p',
@@ -660,12 +648,12 @@ def main():
 
     # Status command
     status_parser = subparsers.add_parser('status', help='Check batch job status')
-    status_parser.add_argument('job_name', help='Batch job name/ID')
+    status_parser.add_argument('job_id', help='Batch job ID')
     status_parser.set_defaults(func=cmd_status)
 
     # Wait command
     wait_parser = subparsers.add_parser('wait', help='Wait for batch job completion')
-    wait_parser.add_argument('job_name', help='Batch job name/ID')
+    wait_parser.add_argument('job_id', help='Batch job ID')
     wait_parser.add_argument(
         '--poll-interval', '-i',
         type=int,
@@ -676,7 +664,7 @@ def main():
 
     # Results command
     results_parser = subparsers.add_parser('results', help='Retrieve batch results')
-    results_parser.add_argument('job_name', help='Batch job name/ID')
+    results_parser.add_argument('job_id', help='Batch job ID')
     results_parser.set_defaults(func=cmd_results)
 
     # List command

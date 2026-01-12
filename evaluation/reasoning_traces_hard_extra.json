@@ -1,0 +1,2174 @@
+{
+  "description": "Reasoning traces for 100 hard/extra questions - written based on question text and semantic layer only (no gold SQL)",
+  "version": "1.1",
+  "created": "2026-01-12",
+  "traces": {
+    "7951": {
+      "question": "most published author at CVPR 2007",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the author who published the most papers at CVPR in 2007",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "venue -> paper (via venue_id) -> writes (via paper_id) -> author (via author_id)",
+        "filters": [
+          "venue.venue_name = 'CVPR'",
+          "paper.year_published = 2007"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id or author.author_name",
+          "measure": "count of papers (paper_count or count())",
+          "order": "descending by paper count",
+          "limit": 1
+        },
+        "malloy_approach": "Start from paper source, filter by venue and year, group by author via writes join, count papers, order desc limit 1"
+      }
+    },
+    "2467": {
+      "question": "What is highest rating for the most recent movie and when was it released",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find the most recent movie (by year), then get its highest star rating",
+        "tables_needed": [
+          "movie",
+          "rating"
+        ],
+        "join_path": "movie -> rating (via m_id)",
+        "filters": [
+          "Find movie(s) with max(release_year)"
+        ],
+        "aggregation": {
+          "approach": "Two-step: first find most recent year, then filter and get max stars",
+          "measure": "max(star_rating), release_year"
+        },
+        "malloy_approach": "Pipeline: filter to max year movie, then aggregate max rating"
+      }
+    },
+    "8111": {
+      "question": "top authors working on ImageNet ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find authors who have written papers using the ImageNet dataset, ranked by paper count",
+        "tables_needed": [
+          "dataset",
+          "paper_dataset",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "dataset (filter ImageNet) -> paper_dataset -> paper -> writes -> author",
+        "filters": [
+          "dataset.dataset_name = 'ImageNet'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count of papers using ImageNet",
+          "order": "descending by count"
+        },
+        "malloy_approach": "Start from paper source with paper_dataset join, filter where dataset_name = 'ImageNet', group by writes.author, count papers"
+      }
+    },
+    "7987": {
+      "question": "who is the most cited author at CVPR ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the author whose CVPR papers have received the most citations",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "writes",
+          "author",
+          "cite"
+        ],
+        "join_path": "venue (CVPR) -> paper -> writes -> author, and paper -> cite (as cited_paper)",
+        "filters": [
+          "venue.venue_name = 'CVPR'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count of citations (count citing papers via cite table where this paper is cited_paper_id)",
+          "order": "descending by citation count",
+          "limit": 1
+        },
+        "malloy_approach": "Start from paper, filter venue = CVPR, join to cite where paper is the cited paper, group by author via writes, count citations"
+      }
+    },
+    "7591": {
+      "question": "Who are the authors with the most published papers in syntactic parsing",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find authors with most papers on syntactic parsing topic",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending"
+        },
+        "malloy_approach": "Filter papers by keyphrase, group by author, count papers"
+      }
+    },
+    "7887": {
+      "question": "recent deep learning papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find papers about 'deep learning' ordered by most recent year",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning' or contains 'deep learning'"
+        ],
+        "aggregation": {
+          "select": "paper_id, title, year_published",
+          "order": "descending by year_published"
+        },
+        "malloy_approach": "Start from paper, join paper_keyphrase and keyphrase, filter by keyphrase_name, order by year desc"
+      }
+    },
+    "7632": {
+      "question": "Latest paper by oren etzioni",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the most recent paper written by author 'oren etzioni'",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author (filter) -> writes -> paper",
+        "filters": [
+          "author.author_name = 'oren etzioni' (case may vary)"
+        ],
+        "aggregation": {
+          "select": "paper details",
+          "order": "descending by year_published",
+          "limit": 1
+        },
+        "malloy_approach": "Start from author, filter by name, join to writes and paper, order by year desc, limit 1"
+      }
+    },
+    "2475": {
+      "question": "What are the names of all reviewers that have rated 3 or more movies?",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find reviewers who have given ratings to at least 3 different movies",
+        "tables_needed": [
+          "reviewer",
+          "rating"
+        ],
+        "join_path": "reviewer -> rating",
+        "filters": [
+          "None for initial query"
+        ],
+        "aggregation": {
+          "group_by": "reviewer.r_id or reviewer_name",
+          "measure": "count distinct movies rated",
+          "having": "count >= 3",
+          "select": "reviewer_name"
+        },
+        "malloy_approach": "Group by reviewer, count distinct movies in ratings, filter where count >= 3. In Malloy: reviewer -> {group_by: reviewer_name; aggregate: movie_count is rating.count()} -> {where: movie_count >= 3}"
+      }
+    },
+    "2472": {
+      "question": "Return reviewer name, movie title, stars, and ratingDate sorted by reviewer, movie, stars",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Get all rating details with reviewer and movie info, sorted",
+        "tables_needed": [
+          "reviewer",
+          "rating",
+          "movie"
+        ],
+        "join_path": "rating -> reviewer, rating -> movie",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "select": "reviewer_name, movie_title, star_rating, rating_date",
+          "order": "reviewer_name, movie_title, star_rating"
+        },
+        "malloy_approach": "Join all three tables, select fields, order by multiple columns"
+      }
+    },
+    "7970": {
+      "question": "most popular topics at NIPS 2015",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find keyphrases/topics that appear most frequently in NIPS 2015 papers",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "venue (NIPS) -> paper (2015) -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "venue.venue_name = 'NIPS'",
+          "paper.year_published = 2015"
+        ],
+        "aggregation": {
+          "group_by": "keyphrase.keyphrase_id or keyphrase_name",
+          "measure": "count of papers with this keyphrase",
+          "order": "descending by count"
+        },
+        "malloy_approach": "Filter papers by venue and year, group by keyphrase, count papers per keyphrase"
+      }
+    },
+    "7968": {
+      "question": "topics at ACL 2014",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "List keyphrases/topics from papers published at ACL 2014",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "venue -> paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "venue.venue_name = 'ACL'",
+          "paper.year_published = 2014"
+        ],
+        "aggregation": {
+          "group_by": "keyphrase.keyphrase_id",
+          "measure": "count papers per keyphrase",
+          "order": "descending by count (to show most common first)"
+        },
+        "malloy_approach": "Filter papers by venue=ACL and year=2014, join to keyphrases, group by keyphrase, count"
+      }
+    },
+    "5318": {
+      "question": "Find the name of companies that do not make DVD drive.",
+      "db_id": "manufactory_1",
+      "reasoning": {
+        "goal": "Find manufacturers that have no products of type 'DVD drive'",
+        "tables_needed": [
+          "manufacturers",
+          "products"
+        ],
+        "join_path": "manufacturers -> products",
+        "filters": [
+          "Need to find companies NOT in the set of companies that make DVD drives"
+        ],
+        "aggregation": {
+          "pattern": "EXCEPT pattern - all companies EXCEPT those making DVD drives",
+          "approach": "Could also use left join with null check or count of DVD products = 0"
+        },
+        "malloy_approach": "This is an EXCEPT pattern. First get all manufacturer names, then exclude those that have products where product type = 'DVD drive'. May need pipeline: manufacturers -> {group_by: name; aggregate: dvd_count is products.count() {where: product_type = 'DVD drive'}} -> {where: dvd_count = 0}"
+      }
+    },
+    "7971": {
+      "question": "hot topics at NIPS 2015",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find trending/popular keyphrases at NIPS 2015 (same as 'most popular topics')",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "venue -> paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "venue.venue_name = 'NIPS'",
+          "paper.year_published = 2015"
+        ],
+        "aggregation": {
+          "group_by": "keyphrase.keyphrase_id or keyphrase_name",
+          "measure": "count of papers",
+          "order": "descending by count"
+        },
+        "malloy_approach": "Same as Q7970 - filter by venue and year, group by keyphrase, count papers"
+      }
+    },
+    "7590": {
+      "question": "who wrote the most papers on syntactic parsing ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the single author with most papers about syntactic parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, and paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name contains 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter papers by keyphrase, group by author, count, order desc, limit 1"
+      }
+    },
+    "7902": {
+      "question": "number of papers by year from jamie callan",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Show paper count per year for author 'jamie callan'",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'jamie callan'"
+        ],
+        "aggregation": {
+          "group_by": "paper.year_published",
+          "measure": "count of papers",
+          "order": "by year"
+        },
+        "malloy_approach": "Filter author by name, group by year, count papers per year"
+      }
+    },
+    "7896": {
+      "question": "latest deep learning papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find most recent papers about deep learning",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "select": "paper details",
+          "order": "descending by year_published"
+        },
+        "malloy_approach": "Filter by keyphrase, order by year descending"
+      }
+    },
+    "7743": {
+      "question": "keyphrases used by Luke S Zettlemoyer for each year",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Show which keyphrases/topics Luke S Zettlemoyer used in papers, grouped by year",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "author -> writes -> paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "author.author_name = 'Luke S Zettlemoyer'"
+        ],
+        "aggregation": {
+          "group_by": "year_published, keyphrase_id (or keyphrase_name)",
+          "select": "year, keyphrase"
+        },
+        "malloy_approach": "Filter by author name, join through to keyphrases, group by year and keyphrase"
+      }
+    },
+    "7306": {
+      "question": "what is the biggest capital city in the us",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find the capital city with the largest population",
+        "tables_needed": [
+          "state",
+          "city"
+        ],
+        "join_path": "state -> city where city_name = state.capital",
+        "filters": [
+          "city must be a capital (city_name matches state.capital)"
+        ],
+        "aggregation": {
+          "measure": "max population among capital cities",
+          "order": "descending by population",
+          "limit": 1
+        },
+        "malloy_approach": "Need to identify capitals - join city to state where city.city_name = state.capital, then find the one with max population"
+      }
+    },
+    "8036": {
+      "question": "What journals are Takashi Matsumoto 's articles published in ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "List journals where author Takashi Matsumoto has published papers",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper",
+          "journal"
+        ],
+        "join_path": "author -> writes -> paper -> journal",
+        "filters": [
+          "author.author_name = 'Takashi Matsumoto'"
+        ],
+        "aggregation": {
+          "select": "distinct journal_id or journal_name"
+        },
+        "malloy_approach": "Filter by author, join to papers and journals, select distinct journals"
+      }
+    },
+    "2483": {
+      "question": "What are the names of all the reviewers and movie names?",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Return all reviewer names and all movie titles (UNION pattern)",
+        "tables_needed": [
+          "reviewer",
+          "movie"
+        ],
+        "join_path": "None - this is a UNION of two separate queries",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "pattern": "UNION - combine names from reviewer table and titles from movie table"
+        },
+        "malloy_approach": "Malloy doesn't have direct UNION syntax. May need two separate queries or creative approach. Could try selecting from both tables if there's a way to combine."
+      }
+    },
+    "6238": {
+      "question": "Find captain rank with captains in both Cutter and Armed schooner classes",
+      "db_id": "ship_1",
+      "reasoning": {
+        "goal": "Find ranks where captains command ships in BOTH classes (INTERSECT)",
+        "tables_needed": [
+          "captain",
+          "ship"
+        ],
+        "join_path": "captain -> ship",
+        "filters": [
+          "ship.class = 'Cutter' AND ship.class = 'Armed schooner'"
+        ],
+        "aggregation": {
+          "pattern": "INTERSECT - ranks in both categories",
+          "approach": "Group by rank, count ships of each class, filter where both > 0"
+        },
+        "malloy_approach": "Group by rank, aggregate counts for each class filter, require both > 0"
+      }
+    },
+    "2019": {
+      "question": "Show headquarters with companies in both banking and Oil and gas industries",
+      "db_id": "gas_company",
+      "reasoning": {
+        "goal": "Find HQ locations with companies in BOTH industries (INTERSECT)",
+        "tables_needed": [
+          "company"
+        ],
+        "join_path": "Group by headquarters",
+        "filters": [
+          "industry in ('banking', 'Oil and gas')"
+        ],
+        "aggregation": {
+          "group_by": "headquarters",
+          "approach": "Count companies per industry, require both > 0"
+        },
+        "malloy_approach": "Group by HQ, count with industry filters, filter both > 0"
+      }
+    },
+    "7913": {
+      "question": "who published the most in semantic parsing after 2005",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers on semantic parsing after 2005",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase_name = 'semantic parsing'",
+          "year_published > 2005"
+        ],
+        "aggregation": {
+          "group_by": "author",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase and year, group by author, count"
+      }
+    },
+    "7187": {
+      "question": "what is the highest point in states bordering colorado",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find maximum elevation among states that border Colorado",
+        "tables_needed": [
+          "border_info",
+          "highlow"
+        ],
+        "join_path": "border_info (filter colorado) -> highlow",
+        "filters": [
+          "border_info.state_name = 'colorado'"
+        ],
+        "aggregation": {
+          "measure": "max(highest_elevation) from bordering states"
+        },
+        "malloy_approach": "Get bordering states of colorado, join to highlow, find max elevation"
+      }
+    },
+    "7898": {
+      "question": "What years did Pedro Domingos publish papers in ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "List distinct years when author Pedro Domingos published papers",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'Pedro Domingos'"
+        ],
+        "aggregation": {
+          "select": "distinct year_published"
+        },
+        "malloy_approach": "Filter by author name, select distinct years from papers"
+      }
+    },
+    "7986": {
+      "question": "how is the most cited author in CVPR ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Same as Q7987 - find most cited author at CVPR",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "writes",
+          "author",
+          "cite"
+        ],
+        "join_path": "venue -> paper -> writes -> author, paper -> cite",
+        "filters": [
+          "venue.venue_name = 'CVPR'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count citations",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by CVPR venue, count citations per author, find max"
+      }
+    },
+    "7926": {
+      "question": "What is the paper about parsing with the most citations",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find highest cited paper about parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase_name contains 'parsing'"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, order by citations desc, limit 1"
+      }
+    },
+    "7813": {
+      "question": "Papers on Multiuser Receiver in Decision Feedback this year",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Count papers on topic in current year",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase matches topic",
+          "year_published = current year"
+        ],
+        "aggregation": {
+          "measure": "count papers"
+        },
+        "malloy_approach": "Filter by keyphrase and year, count"
+      }
+    },
+    "2521": {
+      "question": "What are the ids of all reviewers who did not give 4 stars?",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find reviewers who have never given a 4-star rating",
+        "tables_needed": [
+          "reviewer",
+          "rating"
+        ],
+        "join_path": "reviewer -> rating",
+        "filters": [
+          "Need reviewers NOT in the set of reviewers who gave 4 stars"
+        ],
+        "aggregation": {
+          "pattern": "EXCEPT - all reviewer IDs except those who gave 4 stars"
+        },
+        "malloy_approach": "All reviewers minus reviewers with a 4-star rating. Could use: reviewer -> {group_by: r_id; aggregate: four_star_count is rating.count() {where: star_rating = 4}} -> {where: four_star_count = 0}"
+      }
+    },
+    "7589": {
+      "question": "List prominent scholars in syntactic parsing ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "List notable/prolific authors in syntactic parsing (likely by paper count)",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending (most papers = most prominent)"
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count papers, order desc"
+      }
+    },
+    "8072": {
+      "question": "What year did Ye Cao publish the most papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the year when author Ye Cao published the highest number of papers",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'Ye Cao'"
+        ],
+        "aggregation": {
+          "group_by": "paper.year_published",
+          "measure": "count papers",
+          "order": "descending by count",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by author, group by year, count papers, order desc, limit 1"
+      }
+    },
+    "6800": {
+      "question": "First names of faculty playing both Canoeing and Kayaking",
+      "db_id": "activity_1",
+      "reasoning": {
+        "goal": "Find faculty in BOTH activities (INTERSECT)",
+        "tables_needed": [
+          "faculty",
+          "faculty_participates_in",
+          "activity"
+        ],
+        "join_path": "faculty -> faculty_participates_in -> activity",
+        "filters": [
+          "Must participate in both activities"
+        ],
+        "aggregation": {
+          "pattern": "INTERSECT",
+          "approach": "Group by faculty, count each activity, require both > 0"
+        },
+        "malloy_approach": "Group by faculty, aggregate with activity filters, require both > 0"
+      }
+    },
+    "7974": {
+      "question": "topics popular at NIPS 2015",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Same as Q7970 - popular keyphrases at NIPS 2015",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "venue -> paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "venue.venue_name = 'NIPS'",
+          "paper.year_published = 2015"
+        ],
+        "aggregation": {
+          "group_by": "keyphrase",
+          "measure": "count papers",
+          "order": "descending"
+        },
+        "malloy_approach": "Filter by venue and year, group by keyphrase, count"
+      }
+    },
+    "7433": {
+      "question": "which state capital has the smallest population",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find the state capital city with minimum population",
+        "tables_needed": [
+          "state",
+          "city"
+        ],
+        "join_path": "state -> city (where city_name = capital)",
+        "filters": [
+          "city must be a capital"
+        ],
+        "aggregation": {
+          "measure": "min population",
+          "order": "ascending by population",
+          "limit": 1
+        },
+        "malloy_approach": "Join cities to states where city is the capital, order by population asc, limit 1"
+      }
+    },
+    "6785": {
+      "question": "Activity with the most faculty members involved",
+      "db_id": "activity_1",
+      "reasoning": {
+        "goal": "Find activity with highest faculty participation count",
+        "tables_needed": [
+          "activity",
+          "faculty_participates_in"
+        ],
+        "join_path": "activity -> faculty_participates_in",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "activity.name",
+          "measure": "count faculty",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by activity, count participants, order desc, limit 1"
+      }
+    },
+    "2020": {
+      "question": "Headquarters with companies in banking and oil and gas",
+      "db_id": "gas_company",
+      "reasoning": {
+        "goal": "Same as Q2019 - HQ in both industries",
+        "tables_needed": [
+          "company"
+        ],
+        "join_path": "Group by headquarters",
+        "filters": [
+          "Need both industry types"
+        ],
+        "aggregation": {
+          "pattern": "INTERSECT"
+        },
+        "malloy_approach": "Group by HQ, count per industry, filter both > 0"
+      }
+    },
+    "6053": {
+      "question": "Students playing both Call of Destiny and Works of Widenius",
+      "db_id": "game_1",
+      "reasoning": {
+        "goal": "Find students playing BOTH games (INTERSECT)",
+        "tables_needed": [
+          "student",
+          "plays_games",
+          "video_games"
+        ],
+        "join_path": "student -> plays_games -> video_games",
+        "filters": [
+          "Must play both named games"
+        ],
+        "aggregation": {
+          "pattern": "INTERSECT"
+        },
+        "malloy_approach": "Group by student, count each game, require both > 0"
+      }
+    },
+    "7635": {
+      "question": "What are the latest papers by oren etzioni ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find most recent papers by author oren etzioni",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'oren etzioni'"
+        ],
+        "aggregation": {
+          "order": "descending by year_published"
+        },
+        "malloy_approach": "Filter by author, order papers by year desc"
+      }
+    },
+    "6258": {
+      "question": "Find the name of the ships that have more than one captain.",
+      "db_id": "ship_1",
+      "reasoning": {
+        "goal": "Find ships commanded by multiple different captains",
+        "tables_needed": [
+          "ship",
+          "captain"
+        ],
+        "join_path": "ship -> captain",
+        "filters": [
+          "None initially"
+        ],
+        "aggregation": {
+          "group_by": "ship.name",
+          "measure": "count distinct captains",
+          "having": "count > 1"
+        },
+        "malloy_approach": "Group by ship name, count captains, filter where count > 1"
+      }
+    },
+    "7947": {
+      "question": "number of ACL papers by author",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "For each author, count how many papers they published at ACL venue",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "venue -> paper -> writes -> author",
+        "filters": [
+          "venue.venue_name = 'ACL'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id or author_name",
+          "measure": "count papers"
+        },
+        "malloy_approach": "Filter papers by ACL venue, group by author, count papers"
+      }
+    },
+    "6037": {
+      "question": "Show ids of students who play video game and play sports.",
+      "db_id": "game_1",
+      "reasoning": {
+        "goal": "Find students who both play video games AND participate in sports (INTERSECT)",
+        "tables_needed": [
+          "student",
+          "plays_games",
+          "sports_info"
+        ],
+        "join_path": "student -> plays_games AND student -> sports_info",
+        "filters": [
+          "Must have records in both plays_games and sports_info"
+        ],
+        "aggregation": {
+          "pattern": "INTERSECT - students in video games AND in sports",
+          "approach": "Check student has at least one record in each table"
+        },
+        "malloy_approach": "From student, check plays_games.count() > 0 AND sports_info.count() > 0"
+      }
+    },
+    "7936": {
+      "question": "What is the highest cited paper by ohad shamir ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the paper by ohad shamir with the most citations",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'ohad shamir'"
+        ],
+        "aggregation": {
+          "measure": "max(num_cited_by)",
+          "order": "descending by num_cited_by",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by author, order papers by num_cited_by desc, limit 1"
+      }
+    },
+    "6026": {
+      "question": "What are the ids of all female students who play football?",
+      "db_id": "game_1",
+      "reasoning": {
+        "goal": "Find female students who participate in football",
+        "tables_needed": [
+          "student",
+          "sports_info"
+        ],
+        "join_path": "student -> sports_info",
+        "filters": [
+          "student.sex = 'F'",
+          "sports_info.sport_name = 'Football' (or similar field)"
+        ],
+        "aggregation": {
+          "select": "student.stu_id"
+        },
+        "malloy_approach": "Filter students by sex = 'F', join to sports_info, filter by football sport"
+      }
+    },
+    "6045": {
+      "question": "Show all game names played by at least 1000 hours.",
+      "db_id": "game_1",
+      "reasoning": {
+        "goal": "Find video games with total play time >= 1000 hours",
+        "tables_needed": [
+          "video_games",
+          "plays_games"
+        ],
+        "join_path": "video_games -> plays_games",
+        "filters": [
+          "aggregate hours >= 1000"
+        ],
+        "aggregation": {
+          "group_by": "game_name",
+          "measure": "sum(hours_played)",
+          "having": "sum >= 1000"
+        },
+        "malloy_approach": "Group by game, sum hours from plays_games, filter where sum >= 1000"
+      }
+    },
+    "8059": {
+      "question": "which venue publishes the most papers about deep learning",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find venue with most papers on deep learning topic",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "paper -> venue, paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "group_by": "venue.venue_id or venue_name",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter papers by keyphrase, group by venue, count, order desc"
+      }
+    },
+    "7631": {
+      "question": "What was oren etzioni 's latest paper ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find most recent paper by oren etzioni",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'oren etzioni'"
+        ],
+        "aggregation": {
+          "order": "descending by year_published",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by author, order by year desc, limit 1"
+      }
+    },
+    "7801": {
+      "question": "what author is most cited ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find the author with the most total citations across all papers",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper",
+          "cite"
+        ],
+        "join_path": "author -> writes -> paper -> cite (as cited paper)",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count citations or sum(num_cited_by)",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by author, aggregate citations, order desc, limit 1"
+      }
+    },
+    "8112": {
+      "question": "how many ACL 2012 papers have more than 7 citations",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Count ACL 2012 papers with citation count > 7",
+        "tables_needed": [
+          "venue",
+          "paper"
+        ],
+        "join_path": "venue -> paper",
+        "filters": [
+          "venue_name = 'ACL'",
+          "year = 2012",
+          "num_cited_by > 7"
+        ],
+        "aggregation": {
+          "measure": "count papers"
+        },
+        "malloy_approach": "Filter by venue, year, and citations, count"
+      }
+    },
+    "7559": {
+      "question": "capital of state with highest elevation",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find capital of state with max highest_elevation",
+        "tables_needed": [
+          "state",
+          "highlow"
+        ],
+        "join_path": "state -> highlow",
+        "filters": [
+          "Find max highest_elevation"
+        ],
+        "aggregation": {
+          "order": "desc by elevation",
+          "limit": 1,
+          "select": "capital"
+        },
+        "malloy_approach": "Join state to highlow, order by elevation desc, limit 1"
+      }
+    },
+    "2463": {
+      "question": "For oldest movie, what is its average rating and title",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find oldest movie (min year), get its avg rating and title",
+        "tables_needed": [
+          "movie",
+          "rating"
+        ],
+        "join_path": "movie -> rating",
+        "filters": [
+          "Find movie with min year"
+        ],
+        "aggregation": {
+          "measure": "avg(star_rating), title for oldest"
+        },
+        "malloy_approach": "Filter to min year movie, aggregate avg rating"
+      }
+    },
+    "2528": {
+      "question": "Reviewers who rated 3 star and 4 star",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find reviewers who gave BOTH 3 and 4 star ratings (INTERSECT)",
+        "tables_needed": [
+          "reviewer",
+          "rating"
+        ],
+        "join_path": "reviewer -> rating",
+        "filters": [
+          "Must have both 3 and 4 star ratings"
+        ],
+        "aggregation": {
+          "pattern": "INTERSECT"
+        },
+        "malloy_approach": "Group by reviewer, count 3-star and 4-star, require both > 0"
+      }
+    },
+    "6792": {
+      "question": "Student with the most activities",
+      "db_id": "activity_1",
+      "reasoning": {
+        "goal": "Find student participating in most activities",
+        "tables_needed": [
+          "student",
+          "participates_in"
+        ],
+        "join_path": "student -> participates_in",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "student",
+          "measure": "count activities",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by student, count participations, order desc, limit 1"
+      }
+    },
+    "7405": {
+      "question": "what state that borders oklahoma has the highest population",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find the state bordering Oklahoma with the largest population",
+        "tables_needed": [
+          "state",
+          "border_info"
+        ],
+        "join_path": "border_info (filter oklahoma) -> state",
+        "filters": [
+          "border_info.state_name = 'oklahoma' to get bordering states"
+        ],
+        "aggregation": {
+          "order": "descending by state.population",
+          "limit": 1
+        },
+        "malloy_approach": "Filter border_info where state_name = 'oklahoma', get border states, join to state, order by population desc, limit 1"
+      }
+    },
+    "8068": {
+      "question": "Who has written the most papers at chi ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers at CHI venue",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "venue -> paper -> writes -> author",
+        "filters": [
+          "venue.venue_name = 'CHI' (or 'chi')"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by CHI venue, group by author, count papers, order desc, limit 1"
+      }
+    },
+    "7459": {
+      "question": "population of capital of largest state that borders X",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find capital population of largest state by area",
+        "tables_needed": [
+          "state",
+          "city"
+        ],
+        "join_path": "state -> city (where city_name = capital)",
+        "filters": [
+          "Find state with max area"
+        ],
+        "aggregation": {
+          "approach": "Find largest state, get its capital, get city population"
+        },
+        "malloy_approach": "Order state by area desc, limit 1, join to city for capital population"
+      }
+    },
+    "8100": {
+      "question": "Citations per year for luke zettlemoyer",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Show citation count by year for author",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper",
+          "cite"
+        ],
+        "join_path": "author -> writes -> paper, paper -> cite (as cited)",
+        "filters": [
+          "author_name = 'luke zettlemoyer'"
+        ],
+        "aggregation": {
+          "group_by": "year",
+          "measure": "count citations"
+        },
+        "malloy_approach": "Filter by author, group by year, count citations"
+      }
+    },
+    "7593": {
+      "question": "top author in syntactic parsing",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find most prolific author on syntactic parsing topic",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count, order desc, limit 1"
+      }
+    },
+    "5666": {
+      "question": "Customer with most ordered product quantity - name and phone",
+      "db_id": "customers_and_products_contacts",
+      "reasoning": {
+        "goal": "Find customer with highest total order quantity",
+        "tables_needed": [
+          "customer",
+          "orders",
+          "order_items"
+        ],
+        "join_path": "customer -> orders -> order_items",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "customer",
+          "measure": "sum(quantity)",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by customer, sum quantity, order desc, limit 1"
+      }
+    },
+    "6760": {
+      "question": "Faculty who advises the most students",
+      "db_id": "activity_1",
+      "reasoning": {
+        "goal": "Find faculty with most advisees",
+        "tables_needed": [
+          "faculty",
+          "student"
+        ],
+        "join_path": "faculty -> student (via advisor = fac_id)",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "faculty",
+          "measure": "count students",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by faculty, count students they advise, order desc, limit 1"
+      }
+    },
+    "8026": {
+      "question": "Who writes a lot of papers in Machine Learning ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find prolific authors in Machine Learning topic",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'Machine Learning'"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending"
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count papers, order desc"
+      }
+    },
+    "7941": {
+      "question": "what is ohad shamir 's most cited paper ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find paper by ohad shamir with most citations",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper"
+        ],
+        "join_path": "author -> writes -> paper",
+        "filters": [
+          "author.author_name = 'ohad shamir'"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by author, order papers by num_cited_by desc, limit 1"
+      }
+    },
+    "2466": {
+      "question": "What is the maximum stars and year for the most recent movie?",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "For the most recent movie (max year), find its maximum star rating",
+        "tables_needed": [
+          "movie",
+          "rating"
+        ],
+        "join_path": "movie -> rating",
+        "filters": [
+          "Find movie with max(release_year)"
+        ],
+        "aggregation": {
+          "approach": "Filter to most recent year, then max stars",
+          "measure": "max(star_rating), year"
+        },
+        "malloy_approach": "Filter movies to max year, get max star rating"
+      }
+    },
+    "2514": {
+      "question": "Find the average rating star for each movie that are not reviewed by Brittany Harris.",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Calculate average rating per movie, excluding ratings by Brittany Harris",
+        "tables_needed": [
+          "movie",
+          "rating",
+          "reviewer"
+        ],
+        "join_path": "movie -> rating -> reviewer",
+        "filters": [
+          "reviewer.reviewer_name != 'Brittany Harris'"
+        ],
+        "aggregation": {
+          "group_by": "movie.m_id or movie_title",
+          "measure": "avg(star_rating) excluding Brittany's ratings"
+        },
+        "malloy_approach": "Filter out ratings by Brittany Harris, group by movie, avg stars"
+      }
+    },
+    "7948": {
+      "question": "who wrote the most papers for CVPR 2007",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers at CVPR 2007",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "venue -> paper -> writes -> author",
+        "filters": [
+          "venue.venue_name = 'CVPR'",
+          "paper.year_published = 2007"
+        ],
+        "aggregation": {
+          "group_by": "author.author_id",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by venue and year, group by author, count, order desc, limit 1"
+      }
+    },
+    "8099": {
+      "question": "What is the most popular paper this year in CVPR ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find most cited paper at CVPR in current/recent year",
+        "tables_needed": [
+          "venue",
+          "paper"
+        ],
+        "join_path": "venue -> paper",
+        "filters": [
+          "venue.venue_name = 'CVPR'",
+          "paper.year_published = current year (or most recent)"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by CVPR and year, order by citations desc, limit 1"
+      }
+    },
+    "8131": {
+      "question": "What is the most cited paper at sigcomm ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find paper at SIGCOMM venue with highest citation count",
+        "tables_needed": [
+          "venue",
+          "paper"
+        ],
+        "join_path": "venue -> paper",
+        "filters": [
+          "venue.venue_name = 'sigcomm' (or 'SIGCOMM')"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by venue, order by num_cited_by desc, limit 1"
+      }
+    },
+    "7930": {
+      "question": "parsing papers with most citations",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find highly cited papers about parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase contains 'parsing'"
+        ],
+        "aggregation": {
+          "order": "desc by num_cited_by"
+        },
+        "malloy_approach": "Filter by keyphrase, order by citations desc"
+      }
+    },
+    "7895": {
+      "question": "Current research on deep learning",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find recent papers on deep learning topic",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "order": "descending by year_published (most recent first)"
+        },
+        "malloy_approach": "Filter by keyphrase, order by year desc"
+      }
+    },
+    "7307": {
+      "question": "what is the largest capital city in the usa",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find capital city with largest population",
+        "tables_needed": [
+          "state",
+          "city"
+        ],
+        "join_path": "state -> city where city_name = capital",
+        "filters": [
+          "city must be a state capital"
+        ],
+        "aggregation": {
+          "order": "descending by population",
+          "limit": 1
+        },
+        "malloy_approach": "Identify capitals, order by population desc, limit 1"
+      }
+    },
+    "7655": {
+      "question": "most cited EMNLP 2010 papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find papers at EMNLP 2010 ordered by citation count",
+        "tables_needed": [
+          "venue",
+          "paper"
+        ],
+        "join_path": "venue -> paper",
+        "filters": [
+          "venue.venue_name = 'EMNLP'",
+          "paper.year_published = 2010"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by"
+        },
+        "malloy_approach": "Filter by venue and year, order by citations desc"
+      }
+    },
+    "7897": {
+      "question": "newest deep learning papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find most recent papers on deep learning",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "order": "descending by year_published"
+        },
+        "malloy_approach": "Filter by keyphrase, order by year desc"
+      }
+    },
+    "7892": {
+      "question": "Recent papers written in deep learning",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "List recent deep learning papers",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "order": "desc by year_published"
+        },
+        "malloy_approach": "Filter by keyphrase, order by year desc"
+      }
+    },
+    "5665": {
+      "question": "Show the names of customers who use Credit Card payment method and have more than 2 orders.",
+      "db_id": "customers_and_products_contacts",
+      "reasoning": {
+        "goal": "Find customers using Credit Card with > 2 orders",
+        "tables_needed": [
+          "customer",
+          "orders"
+        ],
+        "join_path": "customer -> orders",
+        "filters": [
+          "payment_method = 'Credit Card'",
+          "order count > 2"
+        ],
+        "aggregation": {
+          "group_by": "customer",
+          "measure": "count orders",
+          "having": "count > 2",
+          "additional_filter": "payment_method = 'Credit Card'"
+        },
+        "malloy_approach": "Filter by payment method, group by customer, count orders, filter count > 2"
+      }
+    },
+    "7594": {
+      "question": "who published the most in syntactic parsing ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers on syntactic parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count, order desc"
+      }
+    },
+    "7587": {
+      "question": "who has the most publications in syntactic parsing ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers on syntactic parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count, order desc"
+      }
+    },
+    "7563": {
+      "question": "what is the longest river in the state with the highest point",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find the state with highest elevation point, then its longest river",
+        "tables_needed": [
+          "state",
+          "highlow",
+          "river"
+        ],
+        "join_path": "highlow (find max) -> state -> river",
+        "filters": [
+          "Find state with max highest_elevation",
+          "Then find rivers in that state"
+        ],
+        "aggregation": {
+          "approach": "Multi-step: find state with highest point, then longest river there",
+          "measure": "max(river_length) in that state"
+        },
+        "malloy_approach": "Find state with max highest_elevation from highlow, then filter rivers to that state, order by length desc, limit 1"
+      }
+    },
+    "3111": {
+      "question": "Least frequent detention type code and description",
+      "db_id": "behavior_monitoring",
+      "reasoning": {
+        "goal": "Find detention type with minimum occurrences",
+        "tables_needed": [
+          "detention_type",
+          "detention (or incidents)"
+        ],
+        "join_path": "detention_type -> incidents",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "detention_type",
+          "measure": "count occurrences",
+          "order": "ascending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by type, count, order asc, limit 1"
+      }
+    },
+    "7554": {
+      "question": "what is capital of the state with the lowest point",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find capital of state with minimum lowest_elevation",
+        "tables_needed": [
+          "state",
+          "highlow"
+        ],
+        "join_path": "state -> highlow",
+        "filters": [
+          "Find state with min(lowest_elevation)"
+        ],
+        "aggregation": {
+          "order": "ascending by lowest_elevation",
+          "limit": 1,
+          "select": "capital"
+        },
+        "malloy_approach": "Join state to highlow, order by lowest_elevation asc, limit 1, select capital"
+      }
+    },
+    "7404": {
+      "question": "which of the states bordering oklahoma has the largest population",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find state bordering Oklahoma with max population",
+        "tables_needed": [
+          "state",
+          "border_info"
+        ],
+        "join_path": "border_info -> state",
+        "filters": [
+          "border_info.state_name = 'oklahoma'"
+        ],
+        "aggregation": {
+          "order": "descending by state.population",
+          "limit": 1
+        },
+        "malloy_approach": "Filter borders where state_name = 'oklahoma', get border states, join to state, order by population desc, limit 1"
+      }
+    },
+    "8046": {
+      "question": "List the journals related to Temporal Data",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find journals that have published papers about 'Temporal Data'",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "journal"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> journal",
+        "filters": [
+          "keyphrase.keyphrase_name = 'Temporal Data'"
+        ],
+        "aggregation": {
+          "select": "distinct journal_id or journal_name"
+        },
+        "malloy_approach": "Filter papers by keyphrase, join to journal, select distinct journals"
+      }
+    },
+    "7967": {
+      "question": "Fetch me the most cited publications for Artificial Intelligence",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find papers about 'Artificial Intelligence' with most citations",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'Artificial Intelligence'"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by"
+        },
+        "malloy_approach": "Filter by keyphrase, order by citations desc"
+      }
+    },
+    "7592": {
+      "question": "top syntactic parsing author",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers on syntactic parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count, order desc, limit 1"
+      }
+    },
+    "8005": {
+      "question": "what papers have fewer than 5 citations by ACL papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find papers that have been cited fewer than 5 times by ACL papers",
+        "tables_needed": [
+          "venue",
+          "paper",
+          "cite"
+        ],
+        "join_path": "paper (being cited) <- cite <- paper (citing, at ACL)",
+        "filters": [
+          "The citing papers must be from ACL venue",
+          "Count citations < 5"
+        ],
+        "aggregation": {
+          "group_by": "cited paper",
+          "measure": "count citing papers from ACL",
+          "having": "count < 5"
+        },
+        "malloy_approach": "Complex - need to count citations where citing paper is from ACL, filter for count < 5"
+      }
+    },
+    "7923": {
+      "question": "parsing top papers",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find top papers about parsing (by citations)",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name contains 'parsing'"
+        ],
+        "aggregation": {
+          "order": "descending by num_cited_by"
+        },
+        "malloy_approach": "Filter by keyphrase, order by citations desc"
+      }
+    },
+    "7744": {
+      "question": "recent research interests of sanjeev arora",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find recent topics/keyphrases from papers by sanjeev arora",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper",
+          "paper_keyphrase",
+          "keyphrase"
+        ],
+        "join_path": "author -> writes -> paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "author.author_name = 'sanjeev arora'"
+        ],
+        "aggregation": {
+          "order": "descending by paper.year_published",
+          "select": "keyphrase_name, year"
+        },
+        "malloy_approach": "Filter by author, join to keyphrases, order by year desc to show recent interests"
+      }
+    },
+    "2496": {
+      "question": "Find the movies with the highest average rating. Return the movie titles and average rating.",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find movies with highest average star rating, return title and avg",
+        "tables_needed": [
+          "movie",
+          "rating"
+        ],
+        "join_path": "movie -> rating",
+        "filters": [
+          "None initially"
+        ],
+        "aggregation": {
+          "group_by": "movie.m_id, movie_title",
+          "measure": "avg(star_rating)",
+          "order": "descending by avg",
+          "approach": "May need to find max avg first, then filter"
+        },
+        "malloy_approach": "Group by movie, avg stars, order desc. To get only highest, may need to limit 1 or find max avg"
+      }
+    },
+    "7558": {
+      "question": "what is the capital of the state with the highest point",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find the capital of the state that has the highest elevation point",
+        "tables_needed": [
+          "state",
+          "highlow"
+        ],
+        "join_path": "state -> highlow",
+        "filters": [
+          "Find state with max(highest_elevation)"
+        ],
+        "aggregation": {
+          "approach": "Order by highest_elevation desc, limit 1, select capital"
+        },
+        "malloy_approach": "Join state to highlow, order by highest_elevation desc, limit 1, select capital"
+      }
+    },
+    "7851": {
+      "question": "what was the first deep learning paper ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find earliest paper on deep learning topic",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "order": "ascending by year_published",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, order by year asc, limit 1"
+      }
+    },
+    "2473": {
+      "question": "Reviewer name, film title, rating, date ordered by reviewer, movie, rating",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Get rating details with joins, sorted",
+        "tables_needed": [
+          "reviewer",
+          "rating",
+          "movie"
+        ],
+        "join_path": "rating -> reviewer, rating -> movie",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "select": "reviewer_name, movie_title, star_rating, rating_date",
+          "order": "reviewer_name, movie_title, star_rating"
+        },
+        "malloy_approach": "Join tables, select fields, order by columns"
+      }
+    },
+    "6043": {
+      "question": "Show the game name that has most number of hours played.",
+      "db_id": "game_1",
+      "reasoning": {
+        "goal": "Find game with maximum total hours played",
+        "tables_needed": [
+          "video_games",
+          "plays_games"
+        ],
+        "join_path": "video_games -> plays_games",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "game_name",
+          "measure": "sum(hours_played)",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by game, sum hours, order desc, limit 1"
+      }
+    },
+    "8122": {
+      "question": "Journal of Donald E Knuth's last paper",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find journal of most recent paper by Donald E Knuth",
+        "tables_needed": [
+          "author",
+          "writes",
+          "paper",
+          "journal"
+        ],
+        "join_path": "author -> writes -> paper -> journal",
+        "filters": [
+          "author_name = 'Donald E Knuth'"
+        ],
+        "aggregation": {
+          "order": "desc by year",
+          "limit": 1,
+          "select": "journal_name"
+        },
+        "malloy_approach": "Filter by author, order by year desc, limit 1, select journal"
+      }
+    },
+    "6793": {
+      "question": "What is the name of the activity with the most students?",
+      "db_id": "activity_1",
+      "reasoning": {
+        "goal": "Find activity with highest number of participating students",
+        "tables_needed": [
+          "activity",
+          "participates_in"
+        ],
+        "join_path": "activity -> participates_in",
+        "filters": [
+          "None"
+        ],
+        "aggregation": {
+          "group_by": "activity.name",
+          "measure": "count participates_in",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Group by activity, count student participants, order desc, limit 1"
+      }
+    },
+    "6789": {
+      "question": "Students participating in activity and under 20",
+      "db_id": "activity_1",
+      "reasoning": {
+        "goal": "Find students in any activity who are under 20 years old",
+        "tables_needed": [
+          "student",
+          "participates_in"
+        ],
+        "join_path": "student -> participates_in",
+        "filters": [
+          "student.age < 20",
+          "has participation records"
+        ],
+        "aggregation": {
+          "select": "student.stu_id"
+        },
+        "malloy_approach": "Join student to participates_in, filter age < 20, select ids"
+      }
+    },
+    "2484": {
+      "question": "Find the titles of all movies not reviewed by Chris Jackson.",
+      "db_id": "movie_1",
+      "reasoning": {
+        "goal": "Find movies not reviewed by Chris Jackson (EXCEPT pattern)",
+        "tables_needed": [
+          "movie",
+          "rating",
+          "reviewer"
+        ],
+        "join_path": "movie -> rating -> reviewer",
+        "filters": [
+          "NOT in movies rated by Chris Jackson"
+        ],
+        "aggregation": {
+          "pattern": "EXCEPT - all movies minus those reviewed by Chris Jackson"
+        },
+        "malloy_approach": "All movies minus those with rating from Chris Jackson. Could use left join with null or count filter"
+      }
+    },
+    "7586": {
+      "question": "who is the most published author in syntactic parsing ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers on syntactic parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count, order desc, limit 1"
+      }
+    },
+    "7585": {
+      "question": "who has written the most syntactic parsing papers ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find author with most papers on syntactic parsing",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "writes",
+          "author"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> writes -> author",
+        "filters": [
+          "keyphrase.keyphrase_name = 'syntactic parsing'"
+        ],
+        "aggregation": {
+          "group_by": "author",
+          "measure": "count papers",
+          "order": "descending",
+          "limit": 1
+        },
+        "malloy_approach": "Filter by keyphrase, group by author, count, order desc, limit 1"
+      }
+    },
+    "7562": {
+      "question": "how high is the highest point in the largest state",
+      "db_id": "geo",
+      "reasoning": {
+        "goal": "Find highest_elevation of the state with largest area",
+        "tables_needed": [
+          "state",
+          "highlow"
+        ],
+        "join_path": "state -> highlow",
+        "filters": [
+          "Find state with max(area)"
+        ],
+        "aggregation": {
+          "approach": "Order by area desc, limit 1, get highest_elevation"
+        },
+        "malloy_approach": "Join state to highlow, order by area desc, limit 1, select highest_elevation"
+      }
+    },
+    "8098": {
+      "question": "2010 journal with article about Trophic Cascade",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "Find journals publishing papers about topic in 2010",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper",
+          "journal"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase, paper -> journal",
+        "filters": [
+          "keyphrase_name = 'Trophic Cascade'",
+          "year = 2010"
+        ],
+        "aggregation": {
+          "select": "distinct journal_name"
+        },
+        "malloy_approach": "Filter by keyphrase and year, join journal, select distinct"
+      }
+    },
+    "6028": {
+      "question": "What are the ids of all male students who do not play football?",
+      "db_id": "game_1",
+      "reasoning": {
+        "goal": "Find male students who don't play football (EXCEPT pattern)",
+        "tables_needed": [
+          "student",
+          "sports_info"
+        ],
+        "join_path": "student -> sports_info",
+        "filters": [
+          "student.sex = 'M'",
+          "NOT in students playing football"
+        ],
+        "aggregation": {
+          "pattern": "Male students EXCEPT those playing football"
+        },
+        "malloy_approach": "Filter male students, exclude those with football in sports_info"
+      }
+    },
+    "7891": {
+      "question": "Show me some recent papers on deep learning ?",
+      "db_id": "scholar",
+      "reasoning": {
+        "goal": "List recent papers on deep learning topic",
+        "tables_needed": [
+          "keyphrase",
+          "paper_keyphrase",
+          "paper"
+        ],
+        "join_path": "paper -> paper_keyphrase -> keyphrase",
+        "filters": [
+          "keyphrase.keyphrase_name = 'deep learning'"
+        ],
+        "aggregation": {
+          "order": "descending by year_published"
+        },
+        "malloy_approach": "Filter by keyphrase, order by year desc"
+      }
+    }
+  }
+}

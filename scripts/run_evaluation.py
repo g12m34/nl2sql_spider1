@@ -24,9 +24,11 @@ import re
 SPIDER_DIR = Path('/workspace/spider_db/spider')
 MALLOY_DIR = Path('/workspace/project/malloy/full')
 
-# Prompt mode: 'standard', 'cot' (chain-of-thought), or 'enhanced'
+# Prompt mode: 'standard', 'cot' (chain-of-thought), 'enhanced', or 'reasoning'
 PROMPT_MODE = 'standard'
 
+# Reasoning traces for 'reasoning' mode
+REASONING_TRACES = {}
 
 EVALUATION_DIR = Path('/workspace/project/evaluation')
 RESULTS_DIR = EVALUATION_DIR / 'results'
@@ -34,6 +36,75 @@ GOLD_SQL_BUGS_FILE = EVALUATION_DIR / 'gold_sql_bugs.json'
 
 # Cache for gold SQL corrections
 _gold_sql_corrections: Dict[int, str] = {}
+
+
+def load_reasoning_traces(traces_file: Path = None) -> Dict[str, Dict]:
+    """Load reasoning traces from JSON file."""
+    global REASONING_TRACES
+    if REASONING_TRACES:
+        return REASONING_TRACES
+
+    if traces_file is None:
+        traces_file = EVALUATION_DIR / 'reasoning_traces_hard_extra.json'
+
+    if traces_file.exists():
+        with open(traces_file) as f:
+            data = json.load(f)
+        REASONING_TRACES = data.get('traces', {})
+    return REASONING_TRACES
+
+
+def get_reasoning_trace(question_id: int) -> Optional[Dict]:
+    """Get reasoning trace for a question."""
+    traces = load_reasoning_traces()
+    return traces.get(str(question_id))
+
+
+def format_reasoning_trace(trace: Dict) -> str:
+    """Format a reasoning trace for inclusion in prompt."""
+    if not trace:
+        return ""
+
+    reasoning = trace.get('reasoning', {})
+
+    parts = []
+    parts.append(f"Goal: {reasoning.get('goal', 'N/A')}")
+
+    tables = reasoning.get('tables_needed', [])
+    if tables:
+        parts.append(f"Tables needed: {', '.join(tables)}")
+
+    join_path = reasoning.get('join_path', '')
+    if join_path:
+        parts.append(f"Join path: {join_path}")
+
+    filters = reasoning.get('filters', [])
+    if filters:
+        parts.append(f"Filters: {', '.join(str(f) for f in filters)}")
+
+    agg = reasoning.get('aggregation', {})
+    if isinstance(agg, dict):
+        agg_parts = []
+        if agg.get('group_by'):
+            agg_parts.append(f"group by {agg['group_by']}")
+        if agg.get('measure'):
+            agg_parts.append(f"measure: {agg['measure']}")
+        if agg.get('order'):
+            agg_parts.append(f"order: {agg['order']}")
+        if agg.get('limit'):
+            agg_parts.append(f"limit: {agg['limit']}")
+        if agg.get('having'):
+            agg_parts.append(f"having: {agg['having']}")
+        if agg.get('pattern'):
+            agg_parts.append(f"pattern: {agg['pattern']}")
+        if agg_parts:
+            parts.append(f"Aggregation: {', '.join(agg_parts)}")
+
+    approach = reasoning.get('malloy_approach', '')
+    if approach:
+        parts.append(f"Malloy approach: {approach}")
+
+    return '\n'.join(parts)
 
 
 def load_gold_sql_corrections() -> Dict[int, str]:
@@ -84,7 +155,7 @@ def load_malloy_layer(db_id: str) -> Optional[str]:
     return None
 
 
-def build_malloy_prompt(malloy_layer: str, question: str, mode: str = None) -> str:
+def build_malloy_prompt(malloy_layer: str, question: str, mode: str = None, question_id: int = None) -> str:
     """
     Build prompt for generating Malloy queries.
 
@@ -97,6 +168,7 @@ def build_malloy_prompt(malloy_layer: str, question: str, mode: str = None) -> s
     - 'standard': Original prompt
     - 'enhanced': Better schema linking guidance
     - 'cot': Chain-of-thought reasoning before query
+    - 'reasoning': Includes pre-computed reasoning trace
     """
     mode = mode or PROMPT_MODE
 
@@ -227,6 +299,64 @@ Then output ONLY the Malloy query. No explanation. Just the query starting with 
 Query:"""
     elif mode == 'enhanced':
         return f"""# Malloy Query Generation
+
+{base_syntax}
+
+## Available Sources: {sources_list}
+
+## Semantic Layer
+
+```malloy
+{malloy_layer}
+```
+
+## Question
+
+{question}
+
+## Instructions
+
+Output ONLY the Malloy query. No explanation. No markdown. Just the query starting with `run:`
+
+Query:"""
+    elif mode == 'reasoning':
+        # Get reasoning trace for this question
+        reasoning_text = ""
+        if question_id:
+            trace = get_reasoning_trace(question_id)
+            if trace:
+                reasoning_text = format_reasoning_trace(trace)
+
+        if reasoning_text:
+            return f"""# Malloy Query Generation
+
+{base_syntax}
+
+## Available Sources: {sources_list}
+
+## Semantic Layer
+
+```malloy
+{malloy_layer}
+```
+
+## Question
+
+{question}
+
+## Solution Strategy
+
+{reasoning_text}
+
+## Instructions
+
+Using the solution strategy above, generate the Malloy query. Use source names and field names exactly as defined in the semantic layer.
+Output ONLY the Malloy query. No explanation. No markdown. Just the query starting with `run:`
+
+Query:"""
+        else:
+            # Fall back to enhanced mode if no trace available
+            return f"""# Malloy Query Generation
 
 {base_syntax}
 
@@ -391,7 +521,8 @@ async def evaluate_question(
         }
 
     # Build prompt and call LLM
-    prompt = build_malloy_prompt(malloy_layer, q_text)
+    q_id = question.get('id', question.get('question_id'))
+    prompt = build_malloy_prompt(malloy_layer, q_text, question_id=q_id)
     llm_response = provider.generate_sql(prompt, "")  # question already in prompt
 
     if llm_response.error:
@@ -633,9 +764,9 @@ def main():
     parser.add_argument('--malloy-dir', '-m', type=Path,
                         default=MALLOY_DIR,
                         help='Path to Malloy semantic layers directory')
-    parser.add_argument('--prompt-mode', choices=['standard', 'enhanced', 'cot'],
+    parser.add_argument('--prompt-mode', choices=['standard', 'enhanced', 'cot', 'reasoning'],
                         default='standard',
-                        help='Prompt mode: standard, enhanced (better schema linking), or cot (chain-of-thought)')
+                        help='Prompt mode: standard, enhanced, cot (chain-of-thought), or reasoning (with pre-computed traces)')
     parser.add_argument('--resume', '-r', action='store_true',
                         help='Resume from previous run')
     parser.add_argument('--limit', '-n', type=int,
