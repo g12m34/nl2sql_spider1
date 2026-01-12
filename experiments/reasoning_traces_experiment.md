@@ -25,16 +25,30 @@ Providing detailed reasoning traces (tables needed, join paths, filters, aggrega
 
 ### Prompt Comparison: Baseline vs Reasoning Traces
 
-Both prompts include the same:
-1. Malloy Syntax Reference (200+ lines of syntax rules and patterns)
-2. Full Semantic Layer (400+ lines of Malloy source definitions)
+**IMPORTANT: Both prompts include the identical 90-line Malloy Syntax Reference with all improvements.**
 
-**The key difference is in the question/instruction section.**
+The Syntax Reference includes:
+- Query Patterns with code examples
+- INTERSECT Pattern for "records in BOTH tables"
+- CRITICAL Syntax Rules:
+  - DO: .count(), COMMAS, SEMICOLONS, single quotes, having:, pipeline patterns
+  - FILTERED AGGREGATES: `count() { where: ... }` syntax
+  - SCALAR VS AGGREGATE: dimensions vs measures
+  - COUNTING JOINED RECORDS: `count(joined.field)` vs `.count()`
+  - ENTITY LOOKUP PATTERN: returning names not just values
+  - DO NOT: SQL keywords, aggregates in where:, filter(), inline joins, etc.
+
+**The ONLY difference is whether a "Solution Strategy" section was added.**
 
 #### BASELINE PROMPT (V3 - No Reasoning Trace)
 Used in V3 evaluation that achieved 60% accuracy with Gemini Flash:
 
 ```
+# Malloy Query Generation
+
+## Malloy Syntax Reference
+[... 90 lines of syntax rules, DO/DON'T guidelines, patterns ...]
+
 ## Instructions
 
 Generate a Malloy query. Use source names and field names exactly as defined in the semantic layer.
@@ -42,7 +56,9 @@ Return ONLY the query - no explanation, no markdown code blocks.
 
 ## Semantic Layer
 
-[... 400+ lines of Malloy source definitions ...]
+```malloy
+[... 350+ lines of Malloy source definitions ...]
+```
 
 ## Question
 
@@ -51,30 +67,37 @@ who is the most cited author at CVPR ?
 ## Query
 ```
 
-**Total prompt tokens: ~4,500**
+**Total prompt: ~450 lines, ~4,500 tokens**
 
 #### REASONING TRACE PROMPT (This Experiment)
 Used in this experiment that achieved 46% accuracy with Gemini Flash:
 
 ```
+# Malloy Query Generation
+
+## Malloy Syntax Reference
+[... IDENTICAL 90 lines of syntax rules, DO/DON'T guidelines, patterns ...]
+
 ## Available Sources: venue, author, journal, keyphrase, dataset, paper, cite, writes, paper_dataset, paper_keyphrase
 
 ## Semantic Layer
 
-[... 400+ lines of Malloy source definitions ...]
+```malloy
+[... 350+ lines of Malloy source definitions ...]
+```
 
 ## Question
 
 who is the most cited author at CVPR ?
 
-## Solution Strategy
+## Solution Strategy                    <-- THIS IS THE ONLY ADDITION
 
 Goal: Find the author whose CVPR papers have received the most citations
 Tables needed: venue, paper, writes, author, cite
 Join path: venue (CVPR) -> paper -> writes -> author, and paper -> cite (as cited_paper)
 Filters: venue.venue_name = 'CVPR'
-Aggregation: group by author.author_id, measure: count of citations (count citing papers via cite table where this paper is cited_paper_id), order: descending by citation count, limit: 1
-Malloy approach: Start from paper, filter venue = CVPR, join to cite where paper is the cited paper, group by author via writes, count citations
+Aggregation: group by author.author_id, measure: count of citations, order: descending, limit: 1
+Malloy approach: Start from paper, filter venue = CVPR, join to cite, group by author, count citations
 
 ## Instructions
 
@@ -84,24 +107,27 @@ Output ONLY the Malloy query. No explanation. No markdown. Just the query starti
 ## Query
 ```
 
-**Total prompt tokens: ~4,700 (+200 for reasoning trace)**
+**Total prompt: ~460 lines, ~4,700 tokens (+10 lines for reasoning trace)**
 
 #### Key Differences
 
 | Aspect | Baseline | Reasoning Trace |
 |--------|----------|-----------------|
-| Instruction placement | Before semantic layer | After semantic layer |
-| Question placement | At end | Before solution strategy |
-| Solution guidance | None | Detailed 6-line strategy |
+| Malloy Syntax Reference | 90 lines (all DO/DON'T rules) | **IDENTICAL** 90 lines |
+| Semantic Layer | 350+ lines | **IDENTICAL** 350+ lines |
+| Solution guidance | None | 6-line strategy added |
 | Available sources | Not listed | Explicitly listed |
-| Token count | ~4,500 | ~4,700 |
+| Token count | ~4,500 | ~4,700 (+4%) |
 
-#### Why Reasoning Traces May Have Hurt
+**The ONLY difference is the 6-line "Solution Strategy" section that was inserted between the question and instructions.**
 
-1. **Placed between question and code generation**: The model has to "skip over" the reasoning trace to get to generating code
-2. **Generic table names vs Malloy sources**: Reasoning trace says "cite table" but Malloy has `cite`, `cite_base`, `cite_citing_paper`, `cite_cited_paper`
-3. **Conflicting join paths**: Trace describes one approach, but semantic layer may enable simpler alternatives
-4. **Instruction dilution**: "Using the solution strategy above" may have distracted from "Use source names exactly as defined"
+#### Why Reasoning Traces Hurt Performance
+
+1. **Distraction from semantic layer**: The Solution Strategy describes tables/joins in natural language, but the semantic layer already defines these precisely in Malloy code
+2. **Generic names vs exact Malloy names**: Trace says "cite table" but Malloy has `cite`, `cite_base`, `cite_citing_paper`, `cite_cited_paper` - models may use wrong source
+3. **Competing instructions**: "Using the solution strategy above" competes with "Use source names exactly as defined in the semantic layer"
+4. **Breaks prompt flow**: Strategy is placed between question and code generation, forcing model to process extra context
+5. **Human-written traces may conflict**: Hand-written reasoning may describe a different approach than what the semantic layer's join structure enables
 
 ## Results
 
