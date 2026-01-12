@@ -27,11 +27,15 @@ from run_evaluation import (
     MALLOY_DIR,
     load_reasoning_traces
 )
+from shared_utils import extract_malloy_code, BatchJobManager, results_match
 
 # Directories
 EVALUATION_DIR = Path('/workspace/project/evaluation')
 BATCH_DIR = EVALUATION_DIR / 'batch_jobs'
 BATCH_DIR.mkdir(parents=True, exist_ok=True)
+
+# Batch job manager for consistent metadata handling
+batch_manager = BatchJobManager(BATCH_DIR, 'openai')
 
 
 def get_openai_client():
@@ -276,68 +280,6 @@ def extract_results(client, batch_job, id_to_question: Dict) -> List[Dict]:
     return results
 
 
-def extract_malloy_code(response: str) -> str:
-    """Extract Malloy code from model response."""
-    text = response.strip()
-
-    # Remove markdown code blocks
-    if text.startswith("```malloy"):
-        text = text[9:]
-    elif text.startswith("```sql"):
-        text = text[6:]
-    elif text.startswith("```"):
-        text = text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-
-    return text.strip()
-
-
-def save_batch_job_info(job_id: str, id_to_question: Dict, model: str, display_name: str):
-    """Save batch job info for later retrieval."""
-    info = {
-        'job_id': job_id,
-        'model': model,
-        'display_name': display_name,
-        'submitted_at': datetime.now().isoformat(),
-        'questions': id_to_question
-    }
-
-    info_file = BATCH_DIR / f"openai_{job_id}.json"
-    with open(info_file, 'w') as f:
-        json.dump(info, f, indent=2)
-
-    print(f"Job info saved to: {info_file}")
-    return info_file
-
-
-def load_batch_job_info(job_id: str) -> Optional[Dict]:
-    """Load saved batch job info."""
-    info_file = BATCH_DIR / f"openai_{job_id}.json"
-    if info_file.exists():
-        with open(info_file) as f:
-            return json.load(f)
-    return None
-
-
-def save_results(results: List[Dict], job_id: str, model: str):
-    """Save batch results for evaluation."""
-    output = {
-        'job_id': job_id,
-        'model': model,
-        'completed_at': datetime.now().isoformat(),
-        'num_results': len(results),
-        'results': results
-    }
-
-    results_file = BATCH_DIR / f"results_openai_{job_id}.json"
-    with open(results_file, 'w') as f:
-        json.dump(output, f, indent=2)
-
-    print(f"Results saved to: {results_file}")
-    return results_file
-
-
 def cmd_submit(args):
     """Submit a new batch job."""
     # Load questions
@@ -367,7 +309,7 @@ def cmd_submit(args):
     job_id = submit_batch_job(client, requests, display_name=display_name)
 
     # Save job info
-    save_batch_job_info(job_id, id_to_question, args.model, display_name)
+    batch_manager.save_job_info(job_id, id_to_question, args.model, display_name)
 
     print(f"\nBatch job submitted: {job_id}")
     print(f"Use 'python openai_batch.py status {job_id}' to check status")
@@ -404,11 +346,11 @@ def cmd_wait(args):
 
     if result['status'] == 'completed':
         # Load saved question mapping
-        job_info = load_batch_job_info(args.job_id)
+        job_info = batch_manager.load_job_info(args.job_id)
         if job_info:
             id_to_question = job_info['questions']
             results = extract_results(client, result['job'], id_to_question)
-            save_results(results, args.job_id, job_info['model'])
+            batch_manager.save_results(results, args.job_id, job_info['model'])
             print(f"Extracted {len(results)} results")
         else:
             print("Warning: Could not find saved job info for result extraction")
@@ -424,14 +366,14 @@ def cmd_results(args):
         return
 
     # Load saved question mapping
-    job_info = load_batch_job_info(args.job_id)
+    job_info = batch_manager.load_job_info(args.job_id)
     if not job_info:
         print("Error: Could not find saved job info")
         return
 
     id_to_question = job_info['questions']
     results = extract_results(client, batch_job, id_to_question)
-    results_file = save_results(results, args.job_id, job_info['model'])
+    results_file = batch_manager.save_results(results, args.job_id, job_info['model'])
 
     print(f"Extracted {len(results)} results to {results_file}")
 

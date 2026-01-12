@@ -27,11 +27,15 @@ from run_evaluation import (
     build_malloy_prompt,
     MALLOY_DIR
 )
+from shared_utils import extract_malloy_code, BatchJobManager, results_match
 
 # Directories
 EVALUATION_DIR = Path('/workspace/project/evaluation')
 BATCH_DIR = EVALUATION_DIR / 'batch_jobs'
 BATCH_DIR.mkdir(parents=True, exist_ok=True)
+
+# Batch job manager for consistent metadata handling
+batch_manager = BatchJobManager(BATCH_DIR, 'anthropic')
 
 # Anthropic API base URL
 API_BASE = "https://api.anthropic.com/v1"
@@ -281,67 +285,6 @@ def extract_results(raw_results: List[Dict], id_to_question: Dict) -> List[Dict]
     return results
 
 
-def extract_malloy_code(response: str) -> str:
-    """Extract Malloy code from model response."""
-    text = response.strip()
-
-    # Remove markdown code blocks
-    if text.startswith("```malloy"):
-        text = text[9:]
-    elif text.startswith("```sql"):
-        text = text[6:]
-    elif text.startswith("```"):
-        text = text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-
-    return text.strip()
-
-
-def save_batch_job_info(batch_id: str, id_to_question: Dict, model: str):
-    """Save batch job info for later retrieval."""
-    info = {
-        'batch_id': batch_id,
-        'model': model,
-        'submitted_at': datetime.now().isoformat(),
-        'questions': id_to_question
-    }
-
-    info_file = BATCH_DIR / f"anthropic_{batch_id}.json"
-    with open(info_file, 'w') as f:
-        json.dump(info, f, indent=2)
-
-    print(f"Job info saved to: {info_file}")
-    return info_file
-
-
-def load_batch_job_info(batch_id: str) -> Optional[Dict]:
-    """Load saved batch job info."""
-    info_file = BATCH_DIR / f"anthropic_{batch_id}.json"
-    if info_file.exists():
-        with open(info_file) as f:
-            return json.load(f)
-    return None
-
-
-def save_results(results: List[Dict], batch_id: str, model: str):
-    """Save batch results for evaluation."""
-    output = {
-        'batch_id': batch_id,
-        'model': model,
-        'completed_at': datetime.now().isoformat(),
-        'num_results': len(results),
-        'results': results
-    }
-
-    results_file = BATCH_DIR / f"results_anthropic_{batch_id}.json"
-    with open(results_file, 'w') as f:
-        json.dump(output, f, indent=2)
-
-    print(f"Results saved to: {results_file}")
-    return results_file
-
-
 # Alias requests module to avoid naming conflict
 requests_lib = requests
 
@@ -376,7 +319,7 @@ def cmd_submit(args):
     batch_id = batch['id']
 
     # Save job info
-    save_batch_job_info(batch_id, id_to_question, model)
+    batch_manager.save_job_info(batch_id, id_to_question, model)
 
     print(f"\nBatch job submitted: {batch_id}")
     print(f"Use 'python anthropic_batch.py status {batch_id}' to check status")
@@ -419,12 +362,12 @@ def cmd_wait(args):
 
     if batch.get('results_url'):
         # Load saved question mapping
-        job_info = load_batch_job_info(args.batch_id)
+        job_info = batch_manager.load_job_info(args.batch_id)
         if job_info:
             print("\nDownloading results...")
             raw_results = download_results(batch['results_url'])
             results = extract_results(raw_results, job_info['questions'])
-            save_results(results, args.batch_id, job_info['model'])
+            batch_manager.save_results(results, args.batch_id, job_info['model'])
             print(f"Extracted {len(results)} results")
         else:
             print("Warning: Could not find saved job info for result extraction")
@@ -443,7 +386,7 @@ def cmd_results(args):
         return
 
     # Load saved question mapping
-    job_info = load_batch_job_info(args.batch_id)
+    job_info = batch_manager.load_job_info(args.batch_id)
     if not job_info:
         print("Error: Could not find saved job info")
         return
@@ -451,7 +394,7 @@ def cmd_results(args):
     print("Downloading results...")
     raw_results = download_results(batch['results_url'])
     results = extract_results(raw_results, job_info['questions'])
-    results_file = save_results(results, args.batch_id, job_info['model'])
+    results_file = batch_manager.save_results(results, args.batch_id, job_info['model'])
 
     print(f"Extracted {len(results)} results to {results_file}")
 

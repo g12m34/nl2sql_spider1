@@ -26,11 +26,15 @@ from run_evaluation import (
     build_malloy_prompt,
     MALLOY_DIR
 )
+from shared_utils import extract_malloy_code, BatchJobManager, results_match
 
 # Directories
 EVALUATION_DIR = Path('/workspace/project/evaluation')
 BATCH_DIR = EVALUATION_DIR / 'batch_jobs'
 BATCH_DIR.mkdir(parents=True, exist_ok=True)
+
+# Batch job manager for consistent metadata handling
+batch_manager = BatchJobManager(BATCH_DIR, 'gemini')
 
 
 def get_genai_client():
@@ -243,67 +247,6 @@ def extract_results(batch_job, key_to_question: Dict) -> List[Dict]:
     return results
 
 
-def extract_malloy_code(response: str) -> str:
-    """Extract Malloy code from model response."""
-    text = response.strip()
-
-    # Remove markdown code blocks
-    if text.startswith("```malloy"):
-        text = text[9:]
-    elif text.startswith("```sql"):
-        text = text[6:]
-    elif text.startswith("```"):
-        text = text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-
-    return text.strip()
-
-
-def save_batch_job_info(job_name: str, key_to_question: Dict, model: str):
-    """Save batch job info for later retrieval."""
-    info = {
-        'job_name': job_name,
-        'model': model,
-        'submitted_at': datetime.now().isoformat(),
-        'questions': key_to_question
-    }
-
-    info_file = BATCH_DIR / f"{job_name.replace('/', '_')}.json"
-    with open(info_file, 'w') as f:
-        json.dump(info, f, indent=2)
-
-    print(f"Job info saved to: {info_file}")
-    return info_file
-
-
-def load_batch_job_info(job_name: str) -> Optional[Dict]:
-    """Load saved batch job info."""
-    info_file = BATCH_DIR / f"{job_name.replace('/', '_')}.json"
-    if info_file.exists():
-        with open(info_file) as f:
-            return json.load(f)
-    return None
-
-
-def save_results(results: List[Dict], job_name: str, model: str):
-    """Save batch results for evaluation."""
-    output = {
-        'job_name': job_name,
-        'model': model,
-        'completed_at': datetime.now().isoformat(),
-        'num_results': len(results),
-        'results': results
-    }
-
-    results_file = BATCH_DIR / f"results_{job_name.replace('/', '_')}.json"
-    with open(results_file, 'w') as f:
-        json.dump(output, f, indent=2)
-
-    print(f"Results saved to: {results_file}")
-    return results_file
-
-
 def cmd_submit(args):
     """Submit a new batch job."""
     # Load questions
@@ -338,7 +281,7 @@ def cmd_submit(args):
     )
 
     # Save job info
-    save_batch_job_info(job_name, key_to_question, args.model)
+    batch_manager.save_job_info(job_name, key_to_question, args.model)
 
     print(f"\nBatch job submitted: {job_name}")
     print(f"Use 'python gemini_batch.py status {job_name}' to check status")
@@ -371,11 +314,11 @@ def cmd_wait(args):
 
     if 'SUCCEEDED' in result['state']:
         # Load saved question mapping
-        job_info = load_batch_job_info(args.job_name)
+        job_info = batch_manager.load_job_info(args.job_name)
         if job_info:
             key_to_question = job_info['questions']
             results = extract_results(result['job'], key_to_question)
-            save_results(results, args.job_name, job_info['model'])
+            batch_manager.save_results(results, args.job_name, job_info['model'])
             print(f"Extracted {len(results)} results")
         else:
             print("Warning: Could not find saved job info for result extraction")
@@ -392,14 +335,14 @@ def cmd_results(args):
         return
 
     # Load saved question mapping
-    job_info = load_batch_job_info(args.job_name)
+    job_info = batch_manager.load_job_info(args.job_name)
     if not job_info:
         print("Error: Could not find saved job info")
         return
 
     key_to_question = job_info['questions']
     results = extract_results(batch_job, key_to_question)
-    results_file = save_results(results, args.job_name, job_info['model'])
+    results_file = batch_manager.save_results(results, args.job_name, job_info['model'])
 
     print(f"Extracted {len(results)} results to {results_file}")
 
@@ -434,10 +377,10 @@ def cmd_evaluate(args):
         compile_malloy_query,
         execute_sql_duckdb,
         execute_gold_sql,
-        results_match,
         get_gold_sql,
         SPIDER_DIR
     )
+    # Note: results_match is imported from shared_utils at module level
 
     # Use expert semantic layers for compilation
     expert_dir = Path('/workspace/project/malloy/expert')

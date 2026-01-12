@@ -19,6 +19,7 @@ from malloy import Runtime
 from malloy.data.duckdb import DuckDbConnection
 
 from llm_providers import get_provider, list_providers, LLMProvider, LLMResponse
+from shared_utils import results_match, normalize_value  # Consolidated from evaluation.py
 import re
 
 SPIDER_DIR = Path('/workspace/spider_db/spider')
@@ -451,45 +452,8 @@ def execute_gold_sql(db_path: str, gold_sql: str) -> Tuple[Optional[List[Tuple]]
         return None, str(e)
 
 
-def normalize_value(val):
-    """Normalize a value for comparison."""
-    if val is None:
-        return None
-    if isinstance(val, float) and val.is_integer():
-        return int(val)
-    if isinstance(val, str):
-        try:
-            return int(val)
-        except ValueError:
-            try:
-                f = float(val)
-                if f.is_integer():
-                    return int(f)
-                return f
-            except ValueError:
-                pass
-    return val
-
-
-def results_match(result1: List[Tuple], result2: List[Tuple], order_matters: bool = False) -> bool:
-    """Compare two result sets for equivalence."""
-    if len(result1) != len(result2):
-        return False
-
-    if len(result1) == 0:
-        return True
-
-    if len(result1[0]) != len(result2[0]):
-        return False
-
-    # Normalize values
-    r1 = [tuple(normalize_value(v) for v in row) for row in result1]
-    r2 = [tuple(normalize_value(v) for v in row) for row in result2]
-
-    if order_matters:
-        return r1 == r2
-    else:
-        return sorted(map(str, r1)) == sorted(map(str, r2))
+# Note: normalize_value and results_match are now imported from shared_utils
+# The shared_utils.results_match is more robust and handles column permutations
 
 
 async def evaluate_question(
